@@ -65,8 +65,8 @@ function handleScrollForCounters() {
 window.addEventListener('scroll', handleScrollForCounters);
 
 // Initialize typing animation
-const typingAnimation = new TypingAnimation("#typing-text", ["Kaggle Master", "Senior Data Scientist"]);
-
+const typingAnimation = new TypingAnimation("#typing-text", ["Visionary Enterprise Architect", "Generative AI Architect", "Solution Architect", "Data Scientist", "DevOps/MLOps/LLMOps", "Driving Strategic Innovation", "Cloud Governance", "Integration & Digital Transformation" ]);
+s
 window.addEventListener("scroll", function () {
   const header = document.querySelector(".navbar");
   if (window.scrollY > 250) {
