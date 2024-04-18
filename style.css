@@ -1,0 +1,285 @@
+/* ============== Variable Names  ============== */
+:root {
+  --theme-bg-color: #176baf;
+}
+
+/* ============== Baic Configurations ============== */
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid #F8F9FA;
+  border-radius: 10px;
+  background-color: var(--theme-bg-color);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+::selection {
+  color: #F8F9FA;
+  background: var(--theme-bg-color);
+}
+
+body {
+  background-color: #f3f3f3 !important;
+  overflow-x: hidden;
+}
+
+/* ============== Sections Common CSS ============== */
+.section {
+  max-width: 1080px; 
+  padding-top: 70px;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  height: 3px;
+  background-color: var(--theme-bg-color);
+  width: 100px;
+  bottom: -7px;
+}
+
+.name-heading {
+  font-size: 35px !important; 
+}
+
+.name-heading+h4 {
+  font-size: 25px;
+}
+
+@media (min-width: 576px) { 
+  .section {
+    padding-top: 100px;
+  }
+  .name-heading {
+    font-size: 70px !important; 
+  }
+  
+  .name-heading+h4 {
+    font-size: 40px;
+  }
+  .hero-section {
+    width: fit-content !important;
+  }
+}
+
+/* ============== Navbar CSS ============== */
+
+.navbar {
+  background-color: #010515;
+}
+
+.img-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #d2d2d2;
+}
+
+
+.scrolled {
+  background: var(--theme-bg-color);
+  transition: background-color 0.3s ease-in-out;
+}
+
+.navbar-toggler {
+  filter: invert(1);
+}
+
+/* ============== Hero Section ============== */
+
+.hero-section {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.mask {
+  position: relative;
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.2) 60%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.cta-button {
+  background-color: var(--theme-bg-color) !important;
+  color: white !important;
+  font-size: 16px !important;
+}
+
+/* ============== About Section ============== */
+.progress {
+  background-color: var(--theme-bg-color) !important;
+  margin: 0.3rem auto 1.2rem;
+  border-radius: 0;
+  height: 0.3rem !important;
+  opacity: 0.5;
+  width: 95%;
+}
+
+
+/* ============== Reusable Card Customization ==============*/
+.ui-card {
+  height: 340px;
+  max-width: 325px;
+  width: 100%;
+}
+
+.ui-card a {
+  transition: all 0.3s ease-in-out;
+}
+.ui-card a:hover{
+  color: var(--theme-bg-color) !important;
+  transform: translateX(8px);
+}
+
+.ui-card img {
+  max-width: 60px;
+}
+
+.ui-card img.rounded-full {
+  border-radius: 50%;
+}
+
+
+
+.card-ui .card {
+  min-width: 300px !important;
+  overflow: hidden;
+}
+
+.card-ui .card-body {
+  border-top: 1px solid #b8b8b8;
+  background-color: #0e0b621a;
+  z-index: 1;
+}
+.card-ui .card img {
+  max-height: 200px;
+  object-fit: contain;
+  transition: transform 0.3s ease-in-out;
+}
+
+.card-ui .card img.sa-img {
+  object-fit: cover;
+}
+
+.certificate-card {
+  max-width: 325px;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.certificate-card img {
+  width: 100%;
+  transition: transform 0.3s ease-in-out;
+}
+
+
+.certificate-card .card-text-area {
+  position: relative; 
+  z-index: 1;
+}
+
+.certificate-card:hover img {
+  transform: scale(1.2);
+}
+
+.card-ui .card img:hover {
+  transform: scale(1.1);
+}
+
+@media (min-width: 576px) {
+  .card-ui .card {
+    min-width: 340px !important;
+  }
+
+  .cta-button {
+    font-size: 18px !important;
+  }
+}
+
+/* ============== Stats Section ============== */
+
+#followers-text, #subscribers-text {
+  font-family: monospace;
+}
+
+/* ============== Contact Section ============== */
+.social-icon {
+  border: 2px solid var(--theme-bg-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease-in-out;
+}
+ 
+.social-icon-type-2 {
+  transition: all 0.3s ease-in-out;
+}
+
+.social-icon-type-2:hover {
+  transform: translateY(-4px);
+}
+
+.social-icon-type-2 i {
+  color: var(--theme-bg-color);
+  font-size: 20px;
+}
+
+.social-icon-type-2 h6 {
+  color: var(--theme-bg-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.social-icon-type-2 h6 i {
+  font-size: 14px;
+}
+
+.social-icon i {
+  color: var(--theme-bg-color);
+}
+
+.social-icon:hover {
+  background-color: var(--theme-bg-color);
+  border-color: white;
+}
+
+.social-icon:hover i {
+  color: white;
+}
+
+.kaggle-icon {
+  color: var(--theme-bg-color);
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+.kaggle-icon:hover {
+  color: white;
+}
+
+#contact .light-mask {
+  background-color: #176bafce;
+  position: absolute;
+  top: 0;
+  left: 0px;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  opacity: .8;
+}
