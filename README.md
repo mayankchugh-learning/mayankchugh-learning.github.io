@@ -1,1 +1,4 @@
-# mayankchugh-learning.github.io
+## Data Scienctist
+
+### Education
+Physics, PHD
