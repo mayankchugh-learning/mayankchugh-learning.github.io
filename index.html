@@ -1,984 +1,1281 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link
-			rel="shortcut icon"
-			href="assets/mayank-chugh-cropped.png"
-			type="image/x-icon"
-		/>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mayank Chugh — Generative AI Engineer | RAG Specialist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & TOKENS ────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:    #0B1C2D;
+  --navy2:   #0F2540;
+  --teal:    #00B4C6;
+  --teal2:   #007A87;
+  --gold:    #F5A623;
+  --white:   #F0F4F8;
+  --grey:    #8BA0B4;
+  --muted:   #3D5A73;
+  --card:    #0D2035;
+  --card2:   #0A1B2A;
+  --green:   #3DD68C;
+  --red:     #FF6B6B;
+  --font-display: 'Syne', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --font-body:    'DM Sans', sans-serif;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  background: var(--navy);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
 
-		<!-- Styles  -->
-		<link rel="stylesheet" href="style.css" />
+/* ── NOISE TEXTURE OVERLAY ─────────────────────────────────── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.4;
+}
 
-		<!-- Bootstrap CDN -->
-		<link
-			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-			rel="stylesheet"
-			integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-			crossorigin="anonymous"
-		/>
+/* ── GRID BACKGROUND ───────────────────────────────────────── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,180,198,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,180,198,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events:none;z-index:0;
+}
 
-		<!-- Bootstrap Icon CDN -->
-		<link
-			rel="stylesheet"
-			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-		/>
+/* ── NAV ───────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;
+  z-index:100;
+  padding: 1rem 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background: rgba(11,28,45,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,180,198,0.12);
+}
+.nav-logo{
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  color: var(--white);
+}
+.nav-logo span{ color: var(--teal); }
+.nav-links{
+  display:flex;gap:2rem;
+  list-style:none;
+}
+.nav-links a{
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--grey);
+  text-decoration:none;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover{ color: var(--teal); }
+.nav-cta{
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--teal);
+  color: var(--teal);
+  border-radius: 4px;
+  text-decoration:none;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.nav-cta:hover{
+  background: var(--teal);
+  color: var(--navy);
+}
 
-		<title>Mayank Chugh</title>
-	</head>
+/* ── HERO ──────────────────────────────────────────────────── */
+#hero{
+  min-height: 100vh;
+  display:flex;align-items:center;
+  padding: 7rem 2rem 4rem;
+  position:relative;
+  overflow:hidden;
+}
+.hero-glow{
+  position:absolute;
+  width:600px;height:600px;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(0,180,198,0.12) 0%, transparent 70%);
+  top:-100px;right:-100px;
+  pointer-events:none;
+}
+.hero-glow2{
+  position:absolute;
+  width:400px;height:400px;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%);
+  bottom:0;left:-100px;
+  pointer-events:none;
+}
+.hero-inner{
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  position:relative;z-index:1;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--teal);
+  border: 1px solid rgba(0,180,198,0.3);
+  padding: 0.35rem 0.9rem;
+  border-radius: 2rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.08em;
+  animation: fadeUp 0.6s ease both;
+}
+.hero-badge::before{
+  content:'';
+  width:6px;height:6px;
+  border-radius:50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.5;transform:scale(0.8)}
+}
+.hero-name{
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.hero-name .line2{ color: var(--teal); }
+.hero-title{
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  color: var(--grey);
+  letter-spacing: 0.08em;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+.hero-title span{
+  color: var(--gold);
+  font-weight:500;
+}
+.hero-desc{
+  font-size: 1.1rem;
+  color: var(--grey);
+  max-width: 580px;
+  line-height: 1.8;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+.hero-desc strong{ color: var(--white); font-weight:500; }
+.hero-actions{
+  display:flex;gap:1rem;flex-wrap:wrap;
+  animation: fadeUp 0.6s 0.4s ease both;
+}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background: var(--teal);
+  color: var(--navy);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight:500;
+  padding: 0.85rem 1.8rem;
+  border-radius: 4px;
+  text-decoration:none;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.btn-primary:hover{
+  background: #00cfe3;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,180,198,0.3);
+}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  border: 1px solid var(--muted);
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 0.85rem 1.8rem;
+  border-radius: 4px;
+  text-decoration:none;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.btn-secondary:hover{
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.hero-stats{
+  display:flex;gap:3rem;flex-wrap:wrap;
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  animation: fadeUp 0.6s 0.5s ease both;
+}
+.stat-item{}
+.stat-num{
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight:800;
+  color: var(--teal);
+  line-height:1;
+}
+.stat-label{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--grey);
+  letter-spacing: 0.08em;
+  text-transform:uppercase;
+  margin-top:0.2rem;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
 
-	<body>
-		<!-- ------------------ Navbar Starts ------------------ -->
-		<nav
-			class="navbar navbar-expand-lg shadow position-fixed w-100"
-			style="z-index: 99"
-		>
-			<div class="container-fluid">
-				<a class="navbar-brand d-flex align-items-center text-white" href="#">
-					<img
-						src="./assets/mayank-chugh-cropped.png"
-						alt="logo"
-						class="img-logo mr-2"
-					/>&nbsp; Mayank Chugh</a
-				>
-				<button
-					class="navbar-toggler"
-					type="button"
-					data-bs-toggle="collapse"
-					data-bs-target="#navbarNavDropdown"
-					aria-controls="navbarNavDropdown"
-					aria-expanded="false"
-					aria-label="Toggle navigation"
-				>
-					<span class="navbar-toggler-icon"></span>
-				</button>
-				<div
-					class="collapse navbar-collapse flex-grow-0"
-					id="navbarNavDropdown"
-				>
-					<ul class="navbar-nav">
-						<li class="nav-item">
-							<a class="nav-link text-white" href="#about-section">About</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link text-white" href="#education-section"
-								>Education</a
-							>
-						</li>
-						<li class="nav-item dropdown">
-							<a
-								class="nav-link dropdown-toggle text-white"
-								href="#"
-								role="button"
-								data-bs-toggle="dropdown"
-								aria-expanded="false"
-							>
-								Experience
-							</a>
-							<ul class="dropdown-menu">
-								<li>
-									<a class="dropdown-item" href="#work-experience"
-										>Work Experience</a
-									>
-								</li>
-								<li>
-									<a class="dropdown-item" href="#mentorship">Mentorship</a>
-								</li>
-							</ul>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link text-white" href="#projects-section"
-								>Projects</a
-							>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link text-white" href="#services-section"
-								>Services</a
-							>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link text-white" href="#certifications-section"
-								>Certifications</a
-							>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link text-white" href="#contact">Contact</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</nav>
-		<!-- ------------------------------------------------------ -->
+/* ── SECTION COMMONS ───────────────────────────────────────── */
+section{
+  padding: 5rem 2rem;
+  position:relative;z-index:1;
+}
+.section-inner{
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.section-label{
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--teal);
+  letter-spacing: 0.15em;
+  text-transform:uppercase;
+  margin-bottom: 0.5rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.section-label::before{
+  content:'//';
+  opacity:0.5;
+}
+.section-title{
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight:800;
+  letter-spacing:-0.02em;
+  line-height:1.1;
+  margin-bottom: 1rem;
+}
+.section-title span{ color: var(--teal); }
 
-		<!-- ------------------ Hero Section Starts ------------------ -->
-		<section
-			class="text-center h-100 mask"
-			id="particles-js"
-			style="min-height: 100vh; background-color: #010822"
-		>
-			<div class="hero-section">
-				<div class="text-white">
-					<h1 class="mb fw-bolder name-heading">Mayank Chugh</h1>
-					<h4 class="mb-3"><span id="typing-text"></span></h4>
-					<a class="mt-3 btn btn-lg cta-button shadow-lg" target="_blank" href="https://drive.google.com/file/d/1gIE0qBDZlwkOgPy4l13USapH5T5Km7xY/view?usp=sharing" role="button"
-						>Download Resume</a
-					>
-				</div>
-			</div>
-		</section>
-		<!-- 	------------------ Hero Section Ends ------------------ 	-->
+/* ── ABOUT ─────────────────────────────────────────────────── */
+#about{ background: var(--card2); }
+.about-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items:start;
+  margin-top: 3rem;
+}
+.about-text p{
+  color: var(--grey);
+  line-height:1.9;
+  margin-bottom:1rem;
+  font-size:1rem;
+}
+.about-text p strong{ color: var(--white); }
+.about-highlights{
+  display:flex;flex-direction:column;gap:1rem;
+}
+.highlight-card{
+  background: var(--card);
+  border: 1px solid rgba(0,180,198,0.1);
+  border-left: 3px solid var(--teal);
+  padding: 1.2rem 1.4rem;
+  border-radius: 0 6px 6px 0;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.highlight-card:hover{
+  border-left-color: var(--gold);
+  transform: translateX(4px);
+}
+.highlight-title{
+  font-family: var(--font-display);
+  font-weight:700;
+  font-size:0.95rem;
+  margin-bottom:0.3rem;
+}
+.highlight-sub{
+  font-family: var(--font-mono);
+  font-size:0.75rem;
+  color: var(--grey);
+}
 
-		<!-- ------------------ About Section Starts ------------------ -->
-		<section id="about-section" class="container-fluid section">
-			<div
-				class="row align-items-center shadow-lg m-2 m-md-0 p-2 p-md-4 rounded-4"
-				style="background-color: #fff"
-			>
-				<div class="col-md-6">
-					<h1
-						class="fs-1 text fw-bolder mb-3 mb-sm-5 position-relative section-title"
-					>
-						ABOUT ME
-					</h1>
-					<div class="pt-md-0">
-						<p class="lead">
-							I am Mayank Chugh, a visionary Enterprise Architect with a passion for driving strategic innovation, cloud governance, integration, and digital transformation. With over two decades of pioneering experience in strategic IT leadership, cloud migration, solution architecture, and technical project management, I am dedicated to leveraging my expertise to steer transformative initiatives and foster innovation.
-						</p>
-						<p class="lead">
-							Throughout my career, I have demonstrated a strong commitment to aligning technology frameworks with business objectives, optimizing operational efficiency, and contributing to organizational growth and success. I possess a broad spectrum of technical skills encompassing enterprise architecture, cloud services, software development, and database design. I am well-versed in Agile methodologies and have extensive experience in on-premise data center to cloud migration/integration.
-						</p>
-						<p class="lead">
-							As an effective leader and collaborator, I excel in motivating cross-functional teams and fostering collaboration to achieve architectural objectives. With strong communication skills, I provide clear guidance to stakeholders and team members, ensuring seamless project execution and the achievement of architectural goals.
-						</p>
-						<p class="lead">
-							My strengths lie in strategic architectural vision, technical expertise, continuous improvement, cloud migration and solution design proficiency, as well as effective leadership and collaboration. I take pride in designing and implementing scalable architecture frameworks and delivering projects within scope, timeline, and budget. I am also dedicated to staying updated with the latest advancements in the field, particularly in the areas of Generative AI, RAG, and MLOps.
-						</p>
-						<p class="lead">
-							In summary, I am a self-motivated and competent professional who is passionate about driving innovation and leveraging technology to transform organizations. I am now seeking new opportunities to apply my skills and contribute to the success of a forward-thinking organization.
-						</p>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="row justify-content-center">
-						<div class="d-md-block mb-2" style="max-width: 200px">
-							<img
-								src="./assets/mayank-chugh.jpg"
-								class="img-fluid rounded b-shadow-a"
-								alt=""
-							/>
-						</div>
-					</div>
-					<div>
-						<p class="fw-bold fs-6 mx-2">Skills</p>
-						<ul>
-							<li>
-								<span class="fw-semibold">Programming Skills:</span> Python,
-								SQL, C++
-							</li>
-							<li>
-								<span class="fw-semibold">Technical Skills:</span>Machine
-								Learning(Supervised & Unsupervised), Deep learning (ANN, CNN,
-								RNN, LSTM, GRU), REST API (Flask, Fast API, Streamlit), NLP(
-								Transformer, BERT, GPT, ELMO,Albert, Distilbert, T5
-							</li>
-							<li>
-								<span class="fw-semibold">Large Language Models:</span> LLaMA &
-								LLaMA2, PaLM & PaLM 2, RAG, Langchain
-							</li>
-							<li>
-								<span class="fw-semibold">MlOps:</span> GIT, DVC, MLFLOW,
-								Docker, GitHub Actions
-							</li>
-							<li>
-								<span class="fw-semibold">Libraries and Frameworks:</span>
-								NumPy, Pandas, TensorFlow, Keras, NLTK, Pytorch, Datetime,
-								Sklearn, Seabor,| Matplotlib
-							</li>
-						</ul>
-						<div class="progress"></div>
-						<p class="fw-bold fs-6 mx-2">Tools</p>
-						<ul>
-							<li>
-								<span class="fw-semibold">Database Tools:</span> MySQL, MongoDB
-							</li>
-							<li>
-								<span class="fw-semibold">Visualization Tools:</span> Power BI,
-								Python Libraries
-							</li>
-						</ul>
-						<div class="progress"></div>
-						<p class="fw-bold fs-6 mx-2">Software</p>
-						<ul>
-							<li>PyCharm, Jupyter, VS Code, Microsoft Office</li>
-							<li>Jira, Trello, Slack, Microsoft Teams, Zoom</li>
-						</ul>
-						<div class="progress"></div>
-						<p class="fw-bold fs-6 mx-2">Domains</p>
-						<ul>
-							<li>
-								Data Science, Product Marketing, Product Management, Content
-								Creation, Management
-							</li>
-						</ul>
-						<div class="progress"></div>
-					</div>
-				</div>
-			</div>
-		</section>
-		<!-- ------------------ About Section Ends ------------------ -->
+/* ── SKILLS ────────────────────────────────────────────────── */
+#skills{}
+.skills-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+.skill-card{
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 1.6rem;
+  transition: border-color 0.2s, transform 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+.skill-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:2px;
+  background: var(--teal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.skill-card:hover::before{ transform: scaleX(1); }
+.skill-card:hover{
+  border-color: rgba(0,180,198,0.2);
+  transform: translateY(-3px);
+}
+.skill-icon{
+  font-size: 1.5rem;
+  margin-bottom:0.8rem;
+}
+.skill-title{
+  font-family: var(--font-display);
+  font-weight:700;
+  font-size:0.95rem;
+  margin-bottom:0.8rem;
+}
+.skill-tags{
+  display:flex;flex-wrap:wrap;gap:0.4rem;
+}
+.tag{
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0.25rem 0.6rem;
+  background: rgba(0,180,198,0.08);
+  border: 1px solid rgba(0,180,198,0.15);
+  border-radius: 3px;
+  color: var(--teal);
+  letter-spacing:0.03em;
+}
+.tag.gold{
+  background: rgba(245,166,35,0.08);
+  border-color: rgba(245,166,35,0.2);
+  color: var(--gold);
+}
 
-		<!-- ------------------ Education Sections Starts ------------------ -->
-		<section id="education-section" class="container-fluid section">
-			<h1
-				class="fs-1 text fw-bolder mb-3 mb-sm-5 text-end position-relative section-title"
-			>
-				EDUCATION
-			</h1>
-			<div class="card mb-3 container-fluid">
-				<div class="row g-4">
-					<div class="col-md-4 border-end border-2 p-0">
-						<img
-							src="./assets/education/ptu.jpg"
-							class="img-fluid rounded-start w-100 h-100"
-							alt="Punjab Technical University"
-							style="object-fit: contain"
-						/>
-					</div>
-					<div class="col-md-8 pt-2 px-3">
-						<div class="card-body">
-							<h5 class="card-title">
-								Masters of Computer Applications
-							</h5>
-							<p class="card-text">
-								I earned my Masters of Computer Applications in Computer Science (MCA)
-								from U.P.T.U in 2003, laying the foundation
-								for my journey into the dynamic realm of technology and
-								innovation.
-							</p>
-							<p class="card-text">
-								<small class="text-body-secondary">2000-2003</small>
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-		<!-- ------------------ Education Sections Ends ------------------ -->
+/* ── EXPERIENCE ────────────────────────────────────────────── */
+#experience{ background: var(--card2); }
+.timeline{
+  margin-top: 3rem;
+  display:flex;flex-direction:column;gap:0;
+  position:relative;
+}
+.timeline::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;
+  width:1px;
+  background: linear-gradient(to bottom, var(--teal), transparent);
+  opacity:0.3;
+}
+.exp-item{
+  padding: 0 0 2.5rem 2.5rem;
+  position:relative;
+}
+.exp-item::before{
+  content:'';
+  position:absolute;left:-5px;top:4px;
+  width:11px;height:11px;
+  border-radius:50%;
+  background: var(--teal);
+  border: 2px solid var(--navy);
+  box-shadow: 0 0 0 3px rgba(0,180,198,0.2);
+}
+.exp-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:1rem;flex-wrap:wrap;
+  margin-bottom:0.6rem;
+}
+.exp-role{
+  font-family: var(--font-display);
+  font-weight:700;
+  font-size:1.05rem;
+}
+.exp-company{
+  font-family: var(--font-mono);
+  font-size:0.78rem;
+  color: var(--teal);
+  margin-top:0.2rem;
+}
+.exp-period{
+  font-family: var(--font-mono);
+  font-size:0.72rem;
+  color: var(--grey);
+  white-space: nowrap;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius:3px;
+  flex-shrink:0;
+}
+.exp-tags{
+  display:flex;flex-wrap:wrap;gap:0.35rem;
+  margin-bottom:0.8rem;
+}
+.exp-bullets{
+  list-style:none;
+  display:flex;flex-direction:column;gap:0.4rem;
+}
+.exp-bullets li{
+  font-size:0.9rem;
+  color: var(--grey);
+  padding-left:1.2rem;
+  position:relative;
+  line-height:1.7;
+}
+.exp-bullets li::before{
+  content:'▸';
+  position:absolute;left:0;
+  color: var(--teal);
+  font-size:0.7rem;
+  top:0.2rem;
+}
+.exp-bullets li strong{ color: var(--white); }
 
-		<!-- ------------------ Work Experience Section Starts ------------------ -->
-		<section id="work-experience" class="container-fluid section">
-			<h1
-				class="fs-1 text fw-bolder mb-3 mb-sm-5 position-relative section-title"
-			>
-				EXPERIENCE
-			</h1>
-			<div
-				class="d-flex my-md-3 my-4 gap-4 flex-wrap justify-content-center p-md-2"
-			>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img src="./assets/experiences/e2.png" class="rounded-full" />
-						<h4 class="fs-5">Success Analytics</h4>
-					</div>
+/* ── PROJECTS ──────────────────────────────────────────────── */
+#projects{}
+.projects-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:1.5rem;
+  margin-top:3rem;
+}
+.project-card{
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius:8px;
+  padding:1.8rem;
+  transition: all 0.2s;
+  display:flex;flex-direction:column;
+  position:relative;
+  overflow:hidden;
+}
+.project-card::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;
+  height:1px;
+  background: linear-gradient(90deg, var(--teal), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.project-card:hover::after{ transform:scaleX(1); }
+.project-card:hover{
+  border-color: rgba(0,180,198,0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.project-number{
+  font-family: var(--font-mono);
+  font-size:0.68rem;
+  color: rgba(0,180,198,0.4);
+  letter-spacing:0.1em;
+  margin-bottom:1rem;
+}
+.project-title{
+  font-family: var(--font-display);
+  font-weight:700;
+  font-size:1.05rem;
+  margin-bottom:0.6rem;
+}
+.project-desc{
+  font-size:0.88rem;
+  color: var(--grey);
+  line-height:1.7;
+  flex:1;
+  margin-bottom:1.2rem;
+}
+.project-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:0.5rem;
+}
+.project-link{
+  font-family: var(--font-mono);
+  font-size:0.72rem;
+  color: var(--teal);
+  text-decoration:none;
+  letter-spacing:0.05em;
+  transition: gap 0.2s;
+  display:flex;align-items:center;gap:0.3rem;
+}
+.project-link:hover{ gap:0.6rem; }
 
-					<h3 class="text-center">Senior Data Scientist & Mentor</h3>
+/* ── CERTIFICATIONS ────────────────────────────────────────── */
+#certifications{ background: var(--card2); }
+.certs-grid{
+  display:grid;
+  grid-template-columns: repeat(4,1fr);
+  gap:1rem;
+  margin-top:3rem;
+}
+.cert-card{
+  background: var(--card);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:6px;
+  padding:1.2rem;
+  text-align:center;
+  transition: all 0.2s;
+}
+.cert-card:hover{
+  border-color:rgba(0,180,198,0.25);
+  transform:translateY(-2px);
+}
+.cert-icon{ font-size:1.4rem;margin-bottom:0.5rem; }
+.cert-name{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:0.78rem;
+  line-height:1.3;
+  margin-bottom:0.3rem;
+}
+.cert-issuer{
+  font-family:var(--font-mono);
+  font-size:0.65rem;
+  color:var(--grey);
+}
+.cert-year{
+  font-family:var(--font-mono);
+  font-size:0.65rem;
+  color:var(--teal);
+  margin-top:0.3rem;
+}
 
-					<p class="text-secondary mb-0">Oct 2022 - Present</p>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-					style="max-width: 325px"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img src="./assets/experiences/e1.jpg" />
-						<h4 class="fs-5">iNeuron</h4>
-					</div>
+/* ── PLATFORMS ─────────────────────────────────────────────── */
+#connect{}
+.platforms-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.2rem;
+  margin-top:3rem;
+}
+.platform-card{
+  display:flex;align-items:center;gap:1rem;
+  background:var(--card);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:8px;
+  padding:1.2rem 1.4rem;
+  text-decoration:none;
+  color:inherit;
+  transition:all 0.2s;
+}
+.platform-card:hover{
+  border-color:rgba(0,180,198,0.25);
+  transform:translateX(4px);
+}
+.platform-icon{
+  width:40px;height:40px;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;
+  flex-shrink:0;
+}
+.platform-name{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:0.9rem;
+  margin-bottom:0.15rem;
+}
+.platform-sub{
+  font-family:var(--font-mono);
+  font-size:0.68rem;
+  color:var(--grey);
+}
 
-					<h3 class="text-center">Associate Data Scientist & Team Lead</h3>
+/* ── CONTACT BANNER ────────────────────────────────────────── */
+#contact{
+  background: linear-gradient(135deg, var(--navy2) 0%, #0a2a3d 100%);
+  border-top: 1px solid rgba(0,180,198,0.15);
+}
+.contact-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:2rem;flex-wrap:wrap;
+}
+.contact-text .contact-title{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:clamp(1.5rem,3vw,2.2rem);
+  letter-spacing:-0.02em;
+  margin-bottom:0.5rem;
+}
+.contact-text .contact-title span{ color:var(--teal); }
+.contact-text p{
+  color:var(--grey);
+  font-size:0.95rem;
+}
+.contact-actions{
+  display:flex;gap:1rem;flex-wrap:wrap;
+}
+.contact-item{
+  display:flex;align-items:center;gap:0.6rem;
+  font-family:var(--font-mono);
+  font-size:0.78rem;
+  color:var(--grey);
+}
+.contact-item a{
+  color:var(--teal);
+  text-decoration:none;
+}
+.contact-item a:hover{ text-decoration:underline; }
 
-					<p class="text-secondary mb-0">Jan 2020 - Sep 2022</p>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img src="./assets/experiences/e3.jpg" />
-						<h4 class="fs-5">Aleph AI</h4>
-					</div>
+/* ── FOOTER ────────────────────────────────────────────────── */
+footer{
+  padding:1.5rem 2rem;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+}
+.footer-copy{
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  color:var(--muted);
+}
+.footer-links{
+  display:flex;gap:1.5rem;list-style:none;
+}
+.footer-links a{
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  color:var(--muted);
+  text-decoration:none;
+}
+.footer-links a:hover{ color:var(--teal); }
 
-					<h3 class="text-center">Data Science Intern</h3>
+/* ── AVAILABILITY CHIP ─────────────────────────────────────── */
+.avail-chip{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  color:var(--green);
+  border:1px solid rgba(61,214,140,0.25);
+  padding:0.3rem 0.8rem;
+  border-radius:2rem;
+  margin-left:1rem;
+}
+.avail-chip::before{
+  content:'';
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--green);
+}
 
-					<p class="text-secondary">Nov 2019 - Jan 2020</p>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img src="./assets/experiences/e5.png" />
-						<h4 class="fs-5">Ei Systems</h4>
-					</div>
+/* ── SCROLL ANIMATIONS ─────────────────────────────────────── */
+.reveal{
+  opacity:0;transform:translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible{
+  opacity:1;transform:translateY(0);
+}
 
-					<h3 class="text-center">Machine Learning Intern</h3>
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:768px){
+  .about-grid,.skills-grid,.projects-grid,.certs-grid,.platforms-grid{
+    grid-template-columns:1fr;
+  }
+  .skills-grid{ grid-template-columns:1fr 1fr; }
+  .certs-grid{ grid-template-columns:1fr 1fr; }
+  .nav-links{display:none}
+  .hero-stats{gap:1.5rem}
+}
+</style>
+</head>
+<body>
 
-					<p class="text-secondary">June 2019 - Aug 2019</p>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img src="./assets/experiences/e4.jpg" />
-						<h4 class="fs-5">Solitaire Infosys</h4>
-					</div>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">MC<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#connect">Connect</a></li>
+  </ul>
+  <a href="mailto:mayankchugh.jobathk@gmail.com" class="nav-cta">Hire Me</a>
+</nav>
 
-					<h3 class="text-center">Web Development Intern</h3>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      Available for Remote & HK Contract
+      <span class="avail-chip">Open to Work</span>
+    </div>
+    <h1 class="hero-name">
+      Mayank<br>
+      <span class="line2">Chugh.</span>
+    </h1>
+    <div class="hero-title">
+      GENERATIVE AI ENGINEER &nbsp;·&nbsp; RAG SPECIALIST &nbsp;·&nbsp;
+      <span>CLOUD AI ARCHITECT</span>
+    </div>
+    <p class="hero-desc">
+      Building <strong>production RAG systems</strong> and <strong>LLM pipelines</strong>
+      for enterprise clients — Cathay Pacific, HSBC, British Airways, Marks & Spencer.
+      20+ years of enterprise IT delivery. Based in <strong>Hong Kong</strong>.
+    </p>
+    <div class="hero-actions">
+      <a href="https://linkedin.com/in/mchugh77" target="_blank" class="btn-primary">
+        View LinkedIn ↗
+      </a>
+      <a href="https://github.com/mayankchugh-learning" target="_blank" class="btn-secondary">
+        GitHub Portfolio →
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">20+</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">106</div>
+        <div class="stat-label">GitHub Repos</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">827</div>
+        <div class="stat-label">Contributions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">28</div>
+        <div class="stat-label">Certifications</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4K+</div>
+        <div class="stat-label">LinkedIn Followers</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-					<p class="text-secondary">May 2018 - July 2018</p>
-				</div>
-			</div>
-		</section>
-		<!-- ------------------ Work Experience Section End ------------------ -->
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner reveal">
+    <div class="section-label">About Me</div>
+    <h2 class="section-title">Enterprise AI.<br><span>Production Delivered.</span></h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm a <strong>Generative AI Engineer and RAG Specialist</strong> with over 20 years of enterprise IT delivery across Hong Kong, the UK and Singapore. My focus is building production-grade LLM systems that actually work at scale — not prototypes.</p>
+        <p>Recent work at <strong>Cathay Pacific Cargo</strong> involved architecting an end-to-end RAG pipeline on Azure OpenAI + LangChain that processed 50,000+ operational documents, cutting retrieval time by 65%. At <strong>HSBC</strong> through Capgemini, I delivered cloud AI and data migration solutions for banking operations.</p>
+        <p>I work across <strong>LangChain, LangGraph, LlamaIndex, CrewAI</strong> and both OpenAI and Anthropic APIs — and I bring enterprise delivery rigour (TOGAF, PRINCE2, Agile) to every AI engagement.</p>
+        <p>Available immediately for <strong>remote engagements</strong> or <strong>Hong Kong hybrid contracts</strong>. No visa sponsorship required.</p>
+      </div>
+      <div class="about-highlights">
+        <div class="highlight-card">
+          <div class="highlight-title">🏦 Cathay Pacific Cargo — RAG System</div>
+          <div class="highlight-sub">50,000+ docs · 65% retrieval time reduction · Azure OpenAI + Pinecone</div>
+        </div>
+        <div class="highlight-card">
+          <div class="highlight-title">🏦 HSBC — Cloud AI & Data Migration</div>
+          <div class="highlight-sub">Capgemini · Azure cloud governance · D365 → Azure DB · Power BI</div>
+        </div>
+        <div class="highlight-card">
+          <div class="highlight-title">✈️ British Airways — Solution Architecture</div>
+          <div class="highlight-sub">London & New Delhi · Enterprise architecture · 2012–2014</div>
+        </div>
+        <div class="highlight-card">
+          <div class="highlight-title">🛍️ Marks & Spencer — Technical Lead</div>
+          <div class="highlight-sub">London · Application development & delivery · 2004–2005</div>
+        </div>
+        <div class="highlight-card">
+          <div class="highlight-title">🤖 TCS — AI Video Analytics</div>
+          <div class="highlight-sub">Airport tarmac · YOLOv7 · Cargo dimension capture · Autonomous tractor POC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-		<!-- ------------------ Projects Section Starts ------------------ -->
-		<section
-			id="projects-section"
-			class="container-fluid section d-flex flex-column align-items-center"
-		>
-			<h1
-				class="fs-1 text fw-bolder mb-3 mb-sm-5 w-100 position-relative section-title text-end"
-			>
-				PROJECTS
-			</h1>
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-inner reveal">
+    <div class="section-label">Technical Skills</div>
+    <h2 class="section-title">Full-Stack <span>AI Engineering</span></h2>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-icon">🧠</div>
+        <div class="skill-title">Prompt Engineering & LLMs</div>
+        <div class="skill-tags">
+          <span class="tag">Prompt Design</span>
+          <span class="tag">Few-shot</span>
+          <span class="tag">Chain-of-thought</span>
+          <span class="tag">Pydantic Output Parsers</span>
+          <span class="tag">LLM Evaluation</span>
+          <span class="tag">RAGAS</span>
+          <span class="tag">LangSmith</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">🔗</div>
+        <div class="skill-title">AI Frameworks</div>
+        <div class="skill-tags">
+          <span class="tag gold">LangChain</span>
+          <span class="tag gold">LangGraph</span>
+          <span class="tag gold">LlamaIndex</span>
+          <span class="tag gold">CrewAI</span>
+          <span class="tag">OpenAI API</span>
+          <span class="tag">Anthropic API</span>
+          <span class="tag">HuggingFace</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">📦</div>
+        <div class="skill-title">RAG & Vector Databases</div>
+        <div class="skill-tags">
+          <span class="tag">Pinecone</span>
+          <span class="tag">FAISS</span>
+          <span class="tag">ChromaDB</span>
+          <span class="tag">Weaviate</span>
+          <span class="tag">Hybrid Search</span>
+          <span class="tag">Semantic Chunking</span>
+          <span class="tag">Embeddings</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">☁️</div>
+        <div class="skill-title">Cloud & DevOps</div>
+        <div class="skill-tags">
+          <span class="tag">Azure OpenAI</span>
+          <span class="tag">AWS SageMaker</span>
+          <span class="tag">Microsoft Fabric</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Terraform</span>
+          <span class="tag">GitHub Actions</span>
+          <span class="tag">MLflow</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">💻</div>
+        <div class="skill-title">Programming & ML</div>
+        <div class="skill-tags">
+          <span class="tag">Python</span>
+          <span class="tag">Java</span>
+          <span class="tag">SQL</span>
+          <span class="tag">TensorFlow</span>
+          <span class="tag">PyTorch</span>
+          <span class="tag">Scikit-learn</span>
+          <span class="tag">PySpark</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">🏗️</div>
+        <div class="skill-title">Architecture & Delivery</div>
+        <div class="skill-tags">
+          <span class="tag">TOGAF 9.2</span>
+          <span class="tag">Solution Architecture</span>
+          <span class="tag">PRINCE2</span>
+          <span class="tag">Agile/Scrum</span>
+          <span class="tag">Enterprise AI CoE</span>
+          <span class="tag">Pre-sales / RFP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-			<div
-				class="d-flex my-md-3 my-4 gap-4 flex-wrap justify-content-center p-md-2"
-			>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex justify-content-between align-items-center gap-2">
-						<img src="./assets/projects/p1.webp" />
-						<h4 class="fs-5">Megatron: Generative AI</h4>
-					</div>
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-inner reveal">
+    <div class="section-label">Work Experience</div>
+    <h2 class="section-title">20 Years.<br><span>Enterprise Scale.</span></h2>
+    <div class="timeline">
 
-					<p class="text-secondary">
-						Megatron transcribes YouTube speech for accurate written content.
-						Applications include video and document summarization, and Q&A.
-					</p>
-					<a
-						href="https://github.com/Shivan118/Megatron-Generative-AI-Project"
-						target="_blank"
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex justify-content-between align-items-center gap-2">
-						<img src="./assets/projects/p2.webp" />
-						<h4 class="fs-5">RAG-Based Chat Application</h4>
-					</div>
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role">Senior Technical Architect / AI Engineer</div>
+            <div class="exp-company">Coforge · Cathay Pacific Cargo Terminal, Hong Kong</div>
+          </div>
+          <div class="exp-period">Feb 2025 – Jan 2026</div>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">LangChain</span><span class="tag">RAG</span>
+          <span class="tag">Azure OpenAI</span><span class="tag">Pinecone</span>
+          <span class="tag">Prompt Engineering</span><span class="tag">RAGAS</span>
+        </div>
+        <ul class="exp-bullets">
+          <li>Architected enterprise RAG system processing <strong>50,000+ operational documents</strong> — Azure OpenAI + Pinecone + LangChain, reducing retrieval time by <strong>65%</strong></li>
+          <li>Engineered structured prompt templates with Pydantic output parsers — reduced LLM hallucination rate by <strong>70%</strong>, output consistency from 60% → <strong>95%</strong></li>
+          <li>Implemented LLM evaluation pipeline (RAGAS) across 500+ test cases — improved RAG accuracy <strong>40%</strong></li>
+          <li>Led AI enablement programme for <strong>80+ operations staff</strong> — 75% adoption in 6 weeks</li>
+        </ul>
+      </div>
 
-					<p class="text-secondary">
-						Integrated RAG framework categorizes PDFs by priority, improving
-						document management with Database-FASSI, LangChain, OPENAI, and
-						Streamlit.
-					</p>
-					<a
-						href="https://github.com/Shivan118/RAG-Based-Chat-Application-for-PDF-Document-Management/tree/main"
-						target="_blank"
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex justify-content-between align-items-center">
-						<img src="./assets/projects/p3.webp" />
-						<h4 class="fs-5">Chatbot Automation</h4>
-					</div>
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role">Associate — AI Solutions</div>
+            <div class="exp-company">Tata Consultancy Services · Asia Airfreight Terminal, Hong Kong</div>
+          </div>
+          <div class="exp-period">Aug 2024 – Jan 2025</div>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">Computer Vision</span><span class="tag">YOLOv7</span>
+          <span class="tag">Video Analytics</span><span class="tag">Python</span>
+        </div>
+        <ul class="exp-bullets">
+          <li>Designed AI video analytics solution for CCTV-based cargo monitoring — real-time object detection at HK airport tarmac operations</li>
+          <li>Built ML-based <strong>3D cargo dimension capture</strong> system — eliminated manual measurement, saving ~200 staff-hours/month</li>
+          <li>Designed autonomous electric tractor POC — sensor fusion, path planning and safety alerting</li>
+        </ul>
+      </div>
 
-					<p class="text-secondary">
-						Automated CRM in supply chain: Queries by customers trigger ticket
-						creation if unresolved by chatbot, streamlining issue resolution.
-					</p>
-					<a
-						href="#"
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex justify-content-between align-items-center gap-2">
-						<img src="./assets/projects/p4.webp" />
-						<h4 class="fs-5">Automated MCQ Generation Tool</h4>
-					</div>
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role">Cloud Architect & API Developer</div>
+            <div class="exp-company">Capgemini · HSBC / CHANEL, Hong Kong</div>
+          </div>
+          <div class="exp-period">Oct 2021 – Dec 2023</div>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">Azure</span><span class="tag">HSBC Banking</span>
+          <span class="tag">Data Migration</span><span class="tag">Power BI</span>
+        </div>
+        <ul class="exp-bullets">
+          <li>Delivered cloud AI and data solutions for <strong>HSBC banking operations</strong> — Azure governance, DevOps strategy, SLA/RPO/RTO definition</li>
+          <li>Orchestrated Qlik Replicate data migration (on-premises D365 → Azure DB) enabling <strong>Power BI real-time financial analytics</strong></li>
+          <li>CHANEL HK enterprise architecture review as Azure Cloud SME — high-availability, fault-tolerant cloud design</li>
+        </ul>
+      </div>
 
-					<p class="text-secondary">
-						Project automates MCQ generation from text data, improving
-						educational content creation and assessment practices.
-					</p>
-					<a
-						href="https://github.com/Shivan118/Automated-Multiple-Choice-Question-Generation-Tool"
-						target="_blank"
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex justify-content-between align-items-center gap-2">
-						<img src="./assets/projects/p5.webp" />
-						<h4 class="fs-5">Automated Document Summarization</h4>
-					</div>
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role">Senior Technical Architect / Project Manager</div>
+            <div class="exp-company">Coforge · Cathay Pacific · British Airways · M&S · Lehman Brothers</div>
+          </div>
+          <div class="exp-period">May 2004 – Oct 2021</div>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">Solution Architecture</span><span class="tag">AWS</span>
+          <span class="tag">Java</span><span class="tag">Pre-Sales</span><span class="tag">17 Years</span>
+        </div>
+        <ul class="exp-bullets">
+          <li>Led enterprise delivery for <strong>Cathay Pacific (7 yrs), British Airways (London), Marks & Spencer, Asia Airfreight Terminal, Lehman Brothers (Singapore)</strong></li>
+          <li>Developed 55+ technical RFQ/RFP responses — managed multimillion-dollar revenue accounts</li>
+          <li>Implemented OCR with Azure AI, migrated to AWS S3, integrated AWS IoT for warehouse applications</li>
+        </ul>
+      </div>
 
-					<p class="text-secondary">
-						Developed a document summarization parser using TensorFlow and
-						T5-small HuggingFace pre-trained model.
-					</p>
-					<a
-						href="https://github.com/Shivan118/Automated-Document-Summarization-using-NLP"
-						target="_blank"
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex gap-2 justify-content-between align-items-center">
-						<img src="./assets/projects/p6.webp" />
-						<h4 class="fs-6">Auto Ticket Classification & Integrated QA</h4>
-					</div>
+    </div>
+  </div>
+</section>
 
-					<p class="text-secondary">
-						Automated Ticket Classification system using advanced NLP & ML
-						algorithms to streamline organizational support operations
-						effectively.
-					</p>
-					<a
-						href="https://github.com/Shivan118/Ticket-Classification-System-with-Integrated-Question-Answering"
-						target="_blank"
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-inner reveal">
+    <div class="section-label">Portfolio</div>
+    <h2 class="section-title">Selected <span>Projects</span></h2>
+    <div class="projects-grid">
 
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex gap-2 justify-content-between align-items-center">
-						<img src="./assets/projects/p7.webp" />
-						<h4 class="fs-6">Sculpture Shipping Cost Optimization</h4>
-					</div>
+      <div class="project-card">
+        <div class="project-number">01 / RAG</div>
+        <div class="project-title">Enterprise RAG Pipeline — Cathay Pacific</div>
+        <div class="project-desc">End-to-end production RAG system on Azure OpenAI + Pinecone + LangChain. Semantic chunking, hybrid search, RAGAS evaluation pipeline. 50,000+ docs · 65% retrieval improvement · 70% hallucination reduction.</div>
+        <div class="project-footer">
+          <div class="skill-tags"><span class="tag">LangChain</span><span class="tag">Pinecone</span><span class="tag">Azure OpenAI</span><span class="tag">RAGAS</span></div>
+          <a href="https://github.com/mayankchugh-learning" target="_blank" class="project-link">GitHub →</a>
+        </div>
+      </div>
 
-					<p class="text-secondary">
-						Predictive models forecast global sculpture shipping costs,
-						enhancing cost estimation accuracy and boosting customer
-						satisfaction.
-					</p>
-					<a
-						href="https://github.com/Shivan118/Optimizing-Sculpture-Shipping-Costs-through-Data-Driven-Predictive-Modeling"
-						target="_blank"
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
+      <div class="project-card">
+        <div class="project-number">02 / AGENTIC AI</div>
+        <div class="project-title">Multi-Agent Research Pipeline — CrewAI</div>
+        <div class="project-desc">3-agent pipeline: Researcher → Critic → Writer using CrewAI. Specialised roles with inter-agent communication and task handoff. 35% higher answer quality on multi-document queries vs single-agent RAG.</div>
+        <div class="project-footer">
+          <div class="skill-tags"><span class="tag gold">CrewAI</span><span class="tag">LangGraph</span><span class="tag">OpenAI</span></div>
+          <a href="https://github.com/mayankchugh-learning" target="_blank" class="project-link">GitHub →</a>
+        </div>
+      </div>
 
-				<div
-				class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-			>
-				<div class="d-flex gap-2 justify-content-between align-items-center">
-					<img src="./assets/projects/p8.webp" />
-					<h4 class="fs-6">Intelligent Employee Recommendation System</h4>
-				</div>
+      <div class="project-card">
+        <div class="project-number">03 / COMPUTER VISION</div>
+        <div class="project-title">Airport Cargo AI Analytics — TCS / AAT</div>
+        <div class="project-desc">CCTV-based cargo monitoring with real-time object detection (YOLOv7). ML-based 3D dimension capture eliminating manual measurement. Autonomous electric tractor POC for airside operations.</div>
+        <div class="project-footer">
+          <div class="skill-tags"><span class="tag">YOLOv7</span><span class="tag">Computer Vision</span><span class="tag">Python</span></div>
+          <a href="https://github.com/mayankchugh-learning" target="_blank" class="project-link">GitHub →</a>
+        </div>
+      </div>
 
-				<p class="text-secondary">
-					Recommend suitable employees for upcoming engagements based on their competencies, expertise, and availability
-				</p>
-				<a
-					href="#"
-					class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-				>
-					<span class="">Read More</span>
-					<i class="bi bi-chevron-right"></i>
-				</a>
-			</div>
-			</div>
-		</section>
-		<!-- ------------------ Projects Section Ends ------------------ -->
+      <div class="project-card">
+        <div class="project-number">04 / MLOPS</div>
+        <div class="project-title">End-to-End MLOps Pipelines</div>
+        <div class="project-desc">Production ML pipelines with automated data ingestion, validation, model training, evaluation and deployment. MLflow experiment tracking, GitHub Actions CI/CD, Docker containerisation on AWS/Azure.</div>
+        <div class="project-footer">
+          <div class="skill-tags"><span class="tag">MLflow</span><span class="tag">Docker</span><span class="tag">GitHub Actions</span><span class="tag">AWS</span></div>
+          <a href="https://github.com/mayankchugh-learning" target="_blank" class="project-link">GitHub →</a>
+        </div>
+      </div>
 
-		<!-- ------------------ Profile Section Starts ------------------ -->
-		<section
-			id="profiles-section"
-			class="container-fluid section d-flex flex-column align-items-center"
-		>
-			<h1
-				class="fs-1 text fw-bolder mb-3 mb-sm-5 w-100 position-relative section-title"
-			>
-				PROJECT PROFILES
-			</h1>
-			<div class="container-fluid row justify-content-center gap-5">
-				<a
-					class="card col-md-5 p-0 text-decoration-none card-shadow"
-					href="https://github.com/shivan118/"
-					target="_blank"
-				>
-					<div
-						class="card-body d-flex justify-content-between align-items-center py-2 pt-3 px-4"
-					>
-						<h5 class="card-title">Github Profile</h5>
-						<i class="bi bi-box-arrow-up-right"></i>
-					</div>
-					<img
-						src="./assets/projects/github-profile.png"
-						class="card-img-bottom h-100"
-						alt="Github Profile"
-					/>
-				</a>
-				<a
-					class="card col-md-5 p-0 text-decoration-none card-shadow"
-					href="https://kaggle.com/shivan118/"
-					target="_blank"
-				>
-					<div
-						class="card-body d-flex justify-content-between align-items-center py-2 pt-3 px-4"
-					>
-						<h5 class="card-title">Kaggle Profile</h5>
-						<i class="bi bi-box-arrow-up-right"></i>
-					</div>
-					<img
-						src="./assets/projects/kaggle-profile.png"
-						class="card-img-bottom h-100"
-						style="object-fit: cover; object-position: left"
-						alt="Kaggle Profile"
-					/>
-				</a>
-			</div>
-		</section>
-		<!-- ------------------ Profile Section Ends ------------------ -->
+      <div class="project-card">
+        <div class="project-number">05 / HUGGINGFACE</div>
+        <div class="project-title">23 Live AI Demo Spaces</div>
+        <div class="project-desc">Live interactive AI demos on HuggingFace Spaces — RAG applications, LLM chatbots, computer vision demos, and NLP tools. Showcasing practical GenAI implementations available for instant preview.</div>
+        <div class="project-footer">
+          <div class="skill-tags"><span class="tag">HuggingFace</span><span class="tag">Gradio</span><span class="tag">Streamlit</span></div>
+          <a href="https://huggingface.co/mayankchugh-learning" target="_blank" class="project-link">View Spaces →</a>
+        </div>
+      </div>
 
-		<!-- ------------------ Stats Sections Starts ------------------ -->
-		<section
-			id="stat-counter-section"
-			class="d-flex flex-column align-items-center py-5 my-5"
-			style="background-color: var(--theme-bg-color)"
-		>
-			<div class="container-fluid">
-				<div class="row gap-5 gap-md-0">
-					<div
-						class="col-md-6 col-12 d-flex flex-column align-items-center gap-2"
-					>
-						<div class="text-center">
-							<h2 class="text-white display-4 fw-bolder" id="followers-text">
-								0
-							</h2>
-						</div>
-						<a
-							class="social-icon-type-2 d-flex gap-2 align-items-center text-decoration-none shadow-lg p-2 rounded-3 bg-white"
-							href="https://www.instagram.com/engineer_bhaiya_yt"
-							target="_blank"
-						>
-							<i class="bi bi-instagram"></i>
-							<h6 class="mb-0">
-								Followers <i class="bi bi-box-arrow-up-right"></i>
-							</h6>
-						</a>
-					</div>
-					<div
-						class="col-md-6 col-12 d-flex flex-column align-items-center gap-2"
-					>
-						<div class="text-center">
-							<h2 class="text-white display-4 fw-bolder" id="subscribers-text">
-								0
-							</h2>
-						</div>
-						<a
-							class="social-icon-type-2 d-flex gap-2 align-items-center text-decoration-none shadow-lg p-2 rounded-3 bg-white"
-							href="https://www.youtube.com/@engineeringwalabhaiya"
-							target="_blank"
-						>
-							<i class="bi bi-youtube"></i>
-							<h6 class="mb-0">
-								Subscirbers <i class="bi bi-box-arrow-up-right"></i>
-							</h6>
-						</a>
-					</div>
-				</div>
-			</div>
-		</section>
-		<!-- ------------------ Stats Sections Ends ------------------ -->
+      <div class="project-card">
+        <div class="project-number">06 / FINANCE AI</div>
+        <div class="project-title">AI Prompt Engineer — Technosphere (2026)</div>
+        <div class="project-desc">Designing and optimising LLM prompt pipelines for investment documentation generation — investment committee memos, research reports, deal evaluation documents. Finance AI enablement for PE/investment teams.</div>
+        <div class="project-footer">
+          <div class="skill-tags"><span class="tag gold">Finance AI</span><span class="tag gold">LangChain</span><span class="tag">LlamaIndex</span></div>
+          <a href="https://linkedin.com/in/mchugh77" target="_blank" class="project-link">LinkedIn →</a>
+        </div>
+      </div>
 
-		<!-- ------------------ Services Section Starts ------------------ -->
-		<section
-			id="services-section"
-			class="container-fluid section d-flex flex-column align-items-center"
-		>
-			<h1
-				class="fs-1 text fw-bolder mb-3 mb-sm-5 w-100 position-relative section-title text-end"
-			>
-				SERVICES
-			</h1>
+    </div>
+  </div>
+</section>
 
-			<div
-				class="d-flex my-md-3 my-4 gap-4 flex-wrap justify-content-center p-md-2"
-			>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center gap-2">
-						<img
-							src="./assets/services/s3.webp"
-							style="filter: hue-rotate(180deg)"
-						/>
-						<h4 class="fs-5">Machine Learning</h4>
-					</div>
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="section-inner reveal">
+    <div class="section-label">Credentials</div>
+    <h2 class="section-title">28 <span>Certifications</span></h2>
+    <div class="certs-grid">
+      <div class="cert-card">
+        <div class="cert-icon">🔷</div>
+        <div class="cert-name">AZ-400 DevOps Engineer Expert</div>
+        <div class="cert-issuer">Microsoft</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">☁️</div>
+        <div class="cert-name">AWS Solutions Architect Associate</div>
+        <div class="cert-issuer">Amazon Web Services</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">⚡</div>
+        <div class="cert-name">Microsoft Fabric + Azure OpenAI</div>
+        <div class="cert-issuer">Microsoft / Udemy</div>
+        <div class="cert-year">2026 ✨</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🔶</div>
+        <div class="cert-name">AWS Developer Associate</div>
+        <div class="cert-issuer">Amazon Web Services</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🔷</div>
+        <div class="cert-name">AZ-104 Administrator</div>
+        <div class="cert-issuer">Microsoft Azure</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🏗️</div>
+        <div class="cert-name">HashiCorp Terraform Associate</div>
+        <div class="cert-issuer">HashiCorp</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🏛️</div>
+        <div class="cert-name">TOGAF 9.2</div>
+        <div class="cert-issuer">The Open Group</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🤖</div>
+        <div class="cert-name">CrewAI Multi-Agent Developer</div>
+        <div class="cert-issuer">CrewAI</div>
+        <div class="cert-year">2025</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🔷</div>
+        <div class="cert-name">AZ-900 Azure Fundamentals</div>
+        <div class="cert-issuer">Microsoft</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🏃</div>
+        <div class="cert-name">CSM — Certified Scrum Master</div>
+        <div class="cert-issuer">Scrum Alliance</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">📋</div>
+        <div class="cert-name">PRINCE2</div>
+        <div class="cert-issuer">AXELOS</div>
+        <div class="cert-year">Active</div>
+      </div>
+      <div class="cert-card" style="border-color:rgba(61,214,140,0.2)">
+        <div class="cert-icon">📚</div>
+        <div class="cert-name">DP-700 + Databricks (In Progress)</div>
+        <div class="cert-issuer">Microsoft / Databricks</div>
+        <div class="cert-year" style="color:var(--green)">2026 🔄</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-					<p class="text-secondary">
-						We offer bespoke solutions leveraging machine learning, NLP, GEN AI,
-						deep learning, and computer vision to drive transformative outcomes
-						for businesses
-					</p>
-					<a
-						href=""
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center gap-2">
-						<img src="./assets/services/s2.webp" alt="" />
-						<h4 class="fs-5">NLP & Generative AI</h4>
-					</div>
+<!-- CONNECT -->
+<section id="connect">
+  <div class="section-inner reveal">
+    <div class="section-label">Online Presence</div>
+    <h2 class="section-title">Find Me <span>Online</span></h2>
+    <div class="platforms-grid">
+      <a href="https://linkedin.com/in/mchugh77" target="_blank" class="platform-card">
+        <div class="platform-icon" style="background:rgba(0,119,181,0.15)">💼</div>
+        <div>
+          <div class="platform-name">LinkedIn</div>
+          <div class="platform-sub">4,088 followers · 28 certs · 30 projects</div>
+        </div>
+      </a>
+      <a href="https://github.com/mayankchugh-learning" target="_blank" class="platform-card">
+        <div class="platform-icon" style="background:rgba(255,255,255,0.05)">🐙</div>
+        <div>
+          <div class="platform-name">GitHub</div>
+          <div class="platform-sub">106 repos · 827 contributions</div>
+        </div>
+      </a>
+      <a href="https://huggingface.co/mayankchugh-learning" target="_blank" class="platform-card">
+        <div class="platform-icon" style="background:rgba(255,196,0,0.1)">🤗</div>
+        <div>
+          <div class="platform-name">HuggingFace</div>
+          <div class="platform-sub">23 live AI Spaces · 2 Collections</div>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/@itaienthusiast" target="_blank" class="platform-card">
+        <div class="platform-icon" style="background:rgba(255,0,0,0.1)">▶️</div>
+        <div>
+          <div class="platform-name">YouTube</div>
+          <div class="platform-sub">GenAI · RAG · LangChain tutorials</div>
+        </div>
+      </a>
+      <a href="https://medium.com/@mayankchugh.jobathk" target="_blank" class="platform-card">
+        <div class="platform-icon" style="background:rgba(255,255,255,0.05)">✍️</div>
+        <div>
+          <div class="platform-name">Medium</div>
+          <div class="platform-sub">51 followers · AI & RAG articles</div>
+        </div>
+      </a>
+      <a href="mailto:mayankchugh.jobathk@gmail.com" class="platform-card">
+        <div class="platform-icon" style="background:rgba(0,180,198,0.1)">✉️</div>
+        <div>
+          <div class="platform-name">Email</div>
+          <div class="platform-sub">mayankchugh.jobathk@gmail.com</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
 
-					<p class="text-secondary">
-						We offer bespoke solutions leveraging machine learning, NLP, GEN AI,
-						deep learning, and computer vision to drive transformative outcomes
-						for businesses
-					</p>
-					<a
-						href=""
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex gap-2 align-items-center">
-						<img
-							src="./assets/services/s1.webp"
-							alt=""
-							style="filter: hue-rotate(180deg)"
-						/>
-						<h4 class="fs-5">Deep Learning</h4>
-					</div>
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-text">
+      <div class="contact-title">Available <span>Immediately.</span></div>
+      <p>Remote worldwide · Hong Kong hybrid · No visa required</p>
+    </div>
+    <div class="contact-actions">
+      <div>
+        <div class="contact-item">📞 <a href="tel:+85264851129">+852 6485 1129</a></div>
+        <div class="contact-item" style="margin-top:0.5rem">✉️ <a href="mailto:mayankchugh.jobathk@gmail.com">mayankchugh.jobathk@gmail.com</a></div>
+        <div class="contact-item" style="margin-top:0.5rem">🔗 <a href="https://linkedin.com/in/mchugh77" target="_blank">linkedin.com/in/mchugh77</a></div>
+      </div>
+      <a href="https://linkedin.com/in/mchugh77" target="_blank" class="btn-primary" style="align-self:center">
+        Connect on LinkedIn ↗
+      </a>
+    </div>
+  </div>
+</section>
 
-					<p class="text-secondary">
-						We offer bespoke solutions leveraging machine learning, NLP, GEN AI,
-						deep learning, and computer vision to drive transformative outcomes
-						for businesses
-					</p>
-					<a
-						href=""
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center gap-2">
-						<img
-							src="./assets/services/s4.webp"
-							alt=""
-							style="filter: hue-rotate(300deg)"
-						/>
-						<h4 class="fs-5">Computer Vision</h4>
-					</div>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-copy">© 2026 Mayank Chugh · Hong Kong · Built with purpose.</div>
+  <ul class="footer-links">
+    <li><a href="https://linkedin.com/in/mchugh77" target="_blank">LinkedIn</a></li>
+    <li><a href="https://github.com/mayankchugh-learning" target="_blank">GitHub</a></li>
+    <li><a href="https://huggingface.co/mayankchugh-learning" target="_blank">HuggingFace</a></li>
+    <li><a href="mailto:mayankchugh.jobathk@gmail.com">Email</a></li>
+  </ul>
+</footer>
 
-					<p class="text-secondary">
-						We offer bespoke solutions leveraging machine learning, NLP, GEN AI,
-						deep learning, and computer vision to drive transformative outcomes
-						for businesses
-					</p>
-					<a
-						href=""
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center gap-2">
-						<img
-							src="./assets/services/s5.webp"
-							style="filter: hue-rotate(100deg)"
-						/>
-						<h4 class="fs-5">1:1 Mentorship</h4>
-					</div>
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
 
-					<p class="text-secondary">
-						We offer one-to-one mentorship where I help people build industry-standard end-to-end pipeline projects for ML, DL, NLP, and Generative AI.
-					</p>
-					<a
-						href=""
-						class="text-decoration-none text-black fw-medium d-flex align-items-center gap-2"
-					>
-						<span class="">Read More</span>
-						<i class="bi bi-chevron-right"></i>
-					</a>
-				</div>
-			</div>
-		</section>
-		<!-- ------------------ Services Section Ends ------------------ -->
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-		<!-- ------------------ Mentorship Section Starts ------------------ -->
-		<section id="mentorship" class="container-fluid section">
-			<h1
-				class="fs-1 text fw-bolder mb-3 mb-sm-5 position-relative section-title"
-			>
-				MENTORSHIP
-			</h1>
-			<div
-				class="d-flex my-md-3 my-4 gap-4 flex-wrap justify-content-center p-md-2"
-			>
-				<a
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card text-decoration-none text-black"
-					href="https://topmate.io/shivan_kumar1"
-					target="_blank"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img src="./assets/experiences/topmate.jpg" />
-						<h4 class="fs-5">Topmate</h4>
-					</div>
+// Staggered card animations
+document.querySelectorAll('.skills-grid .skill-card, .projects-grid .project-card, .certs-grid .cert-card').forEach((card, i) => {
+  card.style.animationDelay = `${i * 0.07}s`;
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(16px)';
+  card.style.transition = `opacity 0.4s ${i*0.07}s ease, transform 0.4s ${i*0.07}s ease, border-color 0.2s, box-shadow 0.2s`;
 
-					<h3 class="text-center">Data Science Mentor</h3>
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+  sectionObserver.observe(card);
+});
 
-					<p class="text-secondary">Jan 2023 - Present</p>
-				</a>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-					style="max-width: 325px"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img src="./assets/experiences/e1.jpg" />
-						<h4 class="fs-5">iNeuron</h4>
-					</div>
-
-					<h3 class="text-center">Mentor</h3>
-
-					<p class="text-secondary">Jan 2020 - Sep 2022</p>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img src="./assets/experiences/e2.png" class="rounded-full" />
-						<h4 class="fs-5">Success Analytics</h4>
-					</div>
-
-					<h3 class="text-center">Data Science Mentor</h3>
-
-					<p class="text-secondary">March 2023 - March 2024</p>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center justify-content-between">
-						<img src="./assets/experiences/amity.jpg" />
-						<h4 class="fs-6">Amity School of Engineering and Technology</h4>
-					</div>
-
-					<h3 class="text-center">Data Science Workshop Mentor</h3>
-
-					<p class="text-secondary">April 2023</p>
-				</div>
-				<div
-					class="bg-white d-flex flex-column justify-content-between gap-4 rounded-4 shadow-lg p-4 ui-card"
-				>
-					<div class="d-flex align-items-center justify-content-between mx-4">
-						<img
-							src="./assets/experiences/sus.png"
-							style="filter: invert(100%)"
-						/>
-						<h4 class="fs-5">SUSCET</h4>
-					</div>
-
-					<h3 class="text-center">Data Science Hackathon Mentor</h3>
-
-					<p class="text-secondary">Sep 2023</p>
-				</div>
-			</div>
-		</section>
-		<!-- ------------------ Mentorship Section Ends ------------------ -->
-
-		<!-- ------------------ Certifications Section Starts ------------------ -->
-		<section
-			id="certifications-section"
-			class="container-fluid section d-flex flex-column align-items-center"
-		>
-			<h3
-				class="fs-1 text fw-bolder mb-3 mb-sm-5 w-100 position-relative section-title text-end"
-			>
-				CERTIFICATIONS
-			</h3>
-			<div
-				class="d-flex my-md-3 my-4 gap-4 flex-wrap justify-content-center"
-			>
-				<div class="bg-white rounded-4 shadow-lg certificate-card p-4 pb-2">
-					<div class="d-flex justify-content-center align-items-center">
-						<img src="./assets/certificates/deeplearning.png" alt="c1" />
-					</div>
-					<div class="py-2 card-text-area">
-						<h4 class="fs-6">Natural Language Processing Specialization</h4>
-						<p class="text-secondary mb-0">Issued Oct 2023</p>
-					</div>
-				</div>
-				<div class="bg-white rounded-4 shadow-lg certificate-card p-4 pb-2">
-					<div class="d-flex justify-content-center align-items-center">
-						<img src="./assets/certificates/deeplearning.png" alt="c1" />
-					</div>
-					<div class="py-2 card-text-area">
-						<h4 class="fs-6">Generative AI and LLMs</h4>
-						<p class="text-secondary mb-0">Issued Dec 2023</p>
-					</div>
-				</div>
-				<div class="bg-white rounded-4 shadow-lg certificate-card p-4 pb-2">
-					<div class="d-flex justify-content-center align-items-center">
-						<img src="./assets/certificates/deeplearning.png" alt="c1" />
-					</div>
-					<div class="py-2 card-text-area">
-						<h4 class="fs-6">Finetuning Large Language Models</h4>
-						<p class="text-secondary mb-0">Issued Feb 2024</p>
-					</div>
-				</div>
-			</div>
-		</section>
-		<!-- ------------------ Certifications Section Ends ------------------ -->
-
-		<!-- ------------------ Contact Section Starts ------------------ -->
-		<section
-			id="contact"
-			class="mt-3 mt-lg-5 container-fluid py-5 px-4 position-relative"
-			style="
-				background-image: url('https://fpf.org/wp-content/uploads/2024/01/shutterstock_732053356-scaled.jpg');
-				background-repeat: no-repeat;
-				background-size: cover;
-			"
-		>
-			<div class="light-mask"></div>
-			<div
-				class="p-4 p-sm-5 d-flex flex-column justify-content-center align-items-md-center bg-white rounded-4 shadow-lg position-relative gap-4"
-				style="z-index: 2"
-			>
-				<h3 class="display-4 fw-bold">Get in Touch!</h3>
-				<div class="d-flex flex-wrap align-items-center gap-2">
-					<div class="d-flex gap-2 align-items-center">
-						<i
-							class="bi bi-envelope-fill"
-							style="color: var(--theme-bg-color)"
-						></i>
-						<a
-							href="mailto:shivan18july1997@gmail.com"
-							class="text-black text-decoration-none"
-							>shivan18july1997@gmail.com</a
-						>
-					</div>
-					<span class="d-none d-md-inline">|</span>
-					<div class="d-flex gap-2 align-items-center">
-						<i
-							class="bi bi-telephone-fill"
-							style="color: var(--theme-bg-color)"
-						></i>
-						<a href="#" class="text-black text-decoration-none"
-							>+91 6280-963-446
-						</a>
-					</div>
-				</div>
-				<div class="d-flex gap-md-3 gap-2 align-items-center">
-					<a
-						class="social-icon shadow-lg"
-						href="https://github.com/shivan118"
-						target="_blank"
-					>
-						<i class="bi bi-github"></i>
-					</a>
-					<a
-						class="social-icon shadow-lg text-decoration-none fw-bolder fs-5 kaggle-icon"
-						href="https://kaggle.com/shivan118"
-						target="_blank"
-					>
-						K
-					</a>
-					<a
-						class="social-icon shadow-lg"
-						href="https://www.youtube.com/@engineeringwalabhaiya"
-						target="_blank"
-					>
-						<i class="bi bi-youtube"></i>
-					</a>
-					<a
-						class="social-icon shadow-lg"
-						href="https://www.linkedin.com/in/engineering-wala-bhaiya/"
-						target="_blank"
-					>
-						<i class="bi bi-linkedin"></i>
-					</a>
-					<a
-						class="social-icon shadow-lg"
-						href="https://www.instagram.com/engineer_bhaiya_yt/"
-						target="_blank"
-					>
-						<i class="bi bi-instagram"></i>
-					</a>
-				</div>
-			</div>
-		</section>
-		<!-- ------------------ Contact Section Ends ------------------ -->
-
-		<!-- ------------------ Scripts ------------------ -->
-		<script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
-		<script
-			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-			integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-			crossorigin="anonymous"
-		></script>
-		<script src="script.js"></script>
-		<script src="./particles/particles.js"></script>
-		<script src="./particles/app.js"></script>
-	</body>
+// Nav active state
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if(window.scrollY >= s.offsetTop - 80) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === `#${current}` ? 'var(--teal)' : '';
+  });
+});
+</script>
+</body>
 </html>
