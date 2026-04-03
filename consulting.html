@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mayank Chugh — AI Consulting & Career Coaching</title>
+<meta name="description" content="Enterprise AI consulting and career coaching by Mayank Chugh — 20 years at Cathay Pacific, HSBC, British Airways. RAG systems, AI implementation, and AI career transition coaching.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0e0e0e;
+  --ink2: #2a2a2a;
+  --muted: #6b6b6b;
+  --rule: #e0dbd4;
+  --cream: #faf8f5;
+  --white: #ffffff;
+  --gold: #c9a84c;
+  --gold2: #e8c96a;
+  --teal: #1a6b6b;
+  --teal2: #2a8f8f;
+  --coral: #c94c3a;
+  --light-teal: #e8f4f4;
+  --light-gold: #fdf6e3;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Epilogue', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(250,248,245,0.96);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 5%;
+}
+.nav-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--ink); text-decoration: none;
+  letter-spacing: 0.01em;
+}
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  color: var(--muted); text-decoration: none;
+  font-size: 0.82rem; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--teal); }
+.nav-cta {
+  background: var(--teal); color: var(--white);
+  padding: 0.5rem 1.25rem; border-radius: 4px;
+  font-weight: 600; font-size: 0.82rem;
+  text-decoration: none; letter-spacing: 0.04em;
+  text-transform: uppercase; transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--teal2); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 100px 5% 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 5rem;
+}
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.eyebrow-line { width: 32px; height: 1px; background: var(--gold); }
+.eyebrow-text {
+  font-size: 0.75rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold);
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem, 4vw, 3.6rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--teal);
+}
+.hero-desc {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-bottom: 2rem;
+  line-height: 1.8;
+  max-width: 480px;
+}
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--teal); color: var(--white);
+  padding: 0.85rem 2rem; border-radius: 4px;
+  font-weight: 600; font-size: 0.9rem;
+  text-decoration: none; letter-spacing: 0.04em;
+  transition: all 0.2s; display: inline-block;
+}
+.btn-primary:hover { background: var(--teal2); transform: translateY(-1px); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  padding: 0.85rem 2rem; border-radius: 4px;
+  font-weight: 500; font-size: 0.9rem;
+  text-decoration: none; letter-spacing: 0.04em;
+  transition: all 0.2s; display: inline-block;
+}
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+
+/* HERO RIGHT — Stats card */
+.hero-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 2.5rem;
+  position: relative;
+}
+.hero-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: linear-gradient(to bottom, var(--gold), var(--teal));
+}
+.card-label {
+  font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 1.5rem;
+}
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1.5rem; margin-bottom: 2rem;
+}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem; font-weight: 700;
+  color: var(--teal); line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 400; }
+.card-divider { height: 1px; background: var(--rule); margin-bottom: 1.5rem; }
+.client-logos { display: flex; flex-direction: column; gap: 0.5rem; }
+.client-logo-row {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+}
+.client-pill {
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.72rem;
+  color: var(--ink2);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.avail-badge {
+  margin-top: 1.5rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.78rem; color: var(--teal); font-weight: 500;
+}
+.avail-dot {
+  width: 7px; height: 7px;
+  background: var(--teal); border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+/* ── SECTION BASE ── */
+section { padding: 80px 5%; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-eyebrow {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700; line-height: 1.2;
+  color: var(--ink); margin-bottom: 0.75rem;
+}
+.section-sub {
+  color: var(--muted); font-size: 0.95rem;
+  max-width: 560px; margin-bottom: 3rem;
+}
+
+/* ── FOR WHOM ── */
+.for-whom { background: var(--white); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.whom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+.whom-card {
+  padding: 2.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+.whom-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+.whom-tag {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.whom-tag.companies { background: var(--light-teal); color: var(--teal); }
+.whom-tag.individuals { background: var(--light-gold); color: #8a6c00; }
+.whom-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem; font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.whom-card p { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.7; }
+.whom-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.whom-list li {
+  font-size: 0.88rem; color: var(--ink2);
+  padding-left: 1.25rem; position: relative;
+}
+.whom-list li::before {
+  content: '→'; position: absolute; left: 0;
+  color: var(--teal);
+}
+
+/* ── SERVICES ── */
+.services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.service-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.service-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+.service-header {
+  padding: 1.75rem 2rem 1.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+.service-type {
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.service-type.consulting { color: var(--teal); }
+.service-type.coaching { color: #8a6c00; }
+.service-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem; font-weight: 700;
+  color: var(--ink); margin-bottom: 0.5rem;
+}
+.service-duration {
+  font-size: 0.78rem; color: var(--muted);
+}
+.service-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 700;
+  color: var(--teal); margin-top: 0.5rem;
+}
+.service-price span { font-size: 0.85rem; font-weight: 400; color: var(--muted); font-family: 'Epilogue', sans-serif; }
+.service-body { padding: 1.5rem 2rem 2rem; }
+.service-includes {
+  font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 0.75rem;
+}
+.service-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+.service-list li {
+  font-size: 0.88rem; color: var(--ink2);
+  padding-left: 1.25rem; position: relative; line-height: 1.5;
+}
+.service-list li::before { content: '✓'; position: absolute; left: 0; color: var(--teal); font-weight: 600; }
+.service-cta {
+  display: block; text-align: center;
+  background: var(--cream); border: 1px solid var(--rule);
+  color: var(--ink); padding: 0.75rem;
+  border-radius: 2px; text-decoration: none;
+  font-weight: 500; font-size: 0.85rem;
+  transition: all 0.2s; letter-spacing: 0.03em;
+}
+.service-cta:hover { background: var(--teal); color: var(--white); border-color: var(--teal); }
+.service-cta.primary { background: var(--teal); color: var(--white); border-color: var(--teal); }
+.service-cta.primary:hover { background: var(--teal2); }
+
+/* Enterprise full-width card */
+.enterprise-card {
+  background: var(--ink);
+  color: var(--white);
+  border-radius: 2px;
+  padding: 3rem;
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3rem;
+  align-items: center;
+}
+.enterprise-tag {
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 0.75rem;
+}
+.enterprise-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--white); margin-bottom: 0.75rem;
+}
+.enterprise-card p { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.enterprise-tiers { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.tier {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 2px;
+  padding: 1rem 1.25rem;
+  min-width: 160px;
+}
+.tier-name { font-size: 0.72rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
+.tier-price { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--gold); margin-bottom: 0.2rem; }
+.tier-desc { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+.enterprise-cta-wrap { display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-end; }
+.btn-gold {
+  background: var(--gold); color: var(--ink);
+  padding: 0.9rem 2rem; border-radius: 4px;
+  font-weight: 700; font-size: 0.85rem;
+  text-decoration: none; letter-spacing: 0.04em;
+  text-transform: uppercase; transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-gold:hover { background: var(--gold2); }
+.enterprise-note { font-size: 0.75rem; color: rgba(255,255,255,0.4); text-align: right; }
+
+/* ── PORTFOLIO PROOF ── */
+.proof-bg { background: var(--cream); border-top: 1px solid var(--rule); }
+.proof-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; }
+.proof-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 1.5rem;
+}
+.proof-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; font-weight: 700;
+  color: var(--teal); margin-bottom: 0.25rem;
+}
+.proof-label { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+.proof-link { display: block; margin-top: 0.75rem; font-size: 0.75rem; color: var(--teal); text-decoration: none; font-weight: 500; }
+.proof-link:hover { text-decoration: underline; }
+
+/* ── ABOUT ── */
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.about-text p { font-size: 0.95rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.8; }
+.about-text strong { color: var(--ink); }
+.credential-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+.credential {
+  display: flex; gap: 1rem; align-items: flex-start;
+  padding: 1rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+.cred-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.cred-title { font-size: 0.88rem; font-weight: 600; color: var(--ink); margin-bottom: 0.15rem; }
+.cred-sub { font-size: 0.78rem; color: var(--muted); }
+
+/* ── HONEST NOTE ── */
+.honest-section {
+  background: var(--white);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.honest-inner {
+  max-width: 700px; margin: 0 auto; text-align: center;
+}
+.honest-inner .eyebrow-line { margin: 0 auto 1rem; display: block; width: 40px; height: 1px; background: var(--gold); }
+.honest-inner h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem; font-weight: 700;
+  margin-bottom: 1rem;
+}
+.honest-inner p { color: var(--muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 0.75rem; }
+.honest-inner strong { color: var(--ink); }
+
+/* ── CTA ── */
+.cta-section {
+  background: var(--teal);
+  text-align: center;
+  padding: 80px 5%;
+}
+.cta-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem; font-weight: 700;
+  color: var(--white); margin-bottom: 1rem;
+}
+.cta-section p { color: rgba(255,255,255,0.7); margin-bottom: 2rem; font-size: 1rem; }
+.cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.btn-white {
+  background: var(--white); color: var(--teal);
+  padding: 0.9rem 2rem; border-radius: 4px;
+  font-weight: 700; font-size: 0.9rem;
+  text-decoration: none; letter-spacing: 0.04em;
+  transition: all 0.2s;
+}
+.btn-white:hover { background: var(--cream); }
+.btn-white-outline {
+  background: transparent; color: var(--white);
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 0.9rem 2rem; border-radius: 4px;
+  font-weight: 500; font-size: 0.9rem;
+  text-decoration: none; transition: all 0.2s;
+}
+.btn-white-outline:hover { border-color: var(--white); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink);
+  padding: 2rem 5%;
+  text-align: center;
+}
+footer p { color: rgba(255,255,255,0.35); font-size: 0.8rem; }
+footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px) {
+  .hero { grid-template-columns: 1fr; gap: 2rem; }
+  .whom-grid, .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .services-grid { grid-template-columns: 1fr; }
+  .proof-grid { grid-template-columns: 1fr 1fr; }
+  .enterprise-card { grid-template-columns: 1fr; }
+  .enterprise-cta-wrap { align-items: flex-start; }
+  .enterprise-note { text-align: left; }
+  .nav-links { display: none; }
+}
+@media(max-width:600px) {
+  .proof-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-content { animation: fadeUp 0.6s ease both; }
+.hero-card { animation: fadeUp 0.6s ease 0.15s both; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Mayank Chugh</a>
+    <ul class="nav-links">
+      <li><a href="#coaching">Coaching</a></li>
+      <li><a href="#consulting">Consulting</a></li>
+      <li><a href="#portfolio">Portfolio</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <a href="mailto:mayankchugh.jobathk@gmail.com" class="nav-cta">Book a Call</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="max-width:1100px;margin:0 auto;padding:100px 5% 60px;">
+  <div class="hero" style="padding:0;margin:0;max-width:none;">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <div class="eyebrow-line"></div>
+        <span class="eyebrow-text">AI Consulting &amp; Career Coaching</span>
+      </div>
+      <h1>Enterprise AI.<br><em>Real results.</em><br>Honest advice.</h1>
+      <p class="hero-desc">20+ years delivering technology at Cathay Pacific, HSBC, British Airways, CHANEL and M&amp;S. Now helping companies implement AI — and helping professionals transition into AI careers.</p>
+      <div class="hero-actions">
+        <a href="mailto:mayankchugh.jobathk@gmail.com" class="btn-primary">Book a Free Discovery Call</a>
+        <a href="#portfolio" class="btn-outline">See My Work</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="card-label">Verified Credentials</div>
+      <div class="stats-grid">
+        <div>
+          <div class="stat-num">20+</div>
+          <div class="stat-label">Years enterprise delivery</div>
+        </div>
+        <div>
+          <div class="stat-num">26</div>
+          <div class="stat-label">Live AI apps deployed</div>
+        </div>
+        <div>
+          <div class="stat-num">4</div>
+          <div class="stat-label">Live RAG systems</div>
+        </div>
+        <div>
+          <div class="stat-num">75+</div>
+          <div class="stat-label">AI tutorials on YouTube</div>
+        </div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-label">Enterprise Clients</div>
+      <div class="client-logos">
+        <div class="client-logo-row">
+          <span class="client-pill">Cathay Pacific</span>
+          <span class="client-pill">HSBC</span>
+          <span class="client-pill">British Airways</span>
+        </div>
+        <div class="client-logo-row">
+          <span class="client-pill">CHANEL</span>
+          <span class="client-pill">Marks &amp; Spencer</span>
+          <span class="client-pill">Capgemini</span>
+        </div>
+      </div>
+      <div class="avail-badge">
+        <div class="avail-dot"></div>
+        Available for new engagements · Hong Kong
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOR WHOM -->
+<section class="for-whom">
+  <div class="section-inner">
+    <div class="section-eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">Who I Work With</span>
+    </div>
+    <h2 class="section-title">Two audiences.<br>One clear mission.</h2>
+    <p class="section-sub">Whether you're a company wanting to implement AI — or a professional wanting to transition into AI — I bring the same thing: honest, practical guidance backed by real delivery experience.</p>
+    <div class="whom-grid">
+      <div class="whom-card">
+        <span class="whom-tag companies">For Companies</span>
+        <h3>AI Implementation &amp; RAG Consulting</h3>
+        <p>You have documents, data, and a team — but no clear path to AI. I build working RAG systems that let your staff ask questions in plain English and get accurate, cited answers from your own knowledge base.</p>
+        <ul class="whom-list">
+          <li>Financial services, insurance, logistics, retail</li>
+          <li>Companies with 500+ internal documents to search</li>
+          <li>Teams exploring AI before committing to a full platform</li>
+          <li>Regulated environments where auditability matters</li>
+        </ul>
+      </div>
+      <div class="whom-card">
+        <span class="whom-tag individuals">For Professionals</span>
+        <h3>AI Career Transition Coaching</h3>
+        <p>You're an experienced tech professional wanting to move into AI — but you don't know where to start, what to build, or how to position yourself honestly without fabricating experience you don't have.</p>
+        <ul class="whom-list">
+          <li>Software engineers, architects, project managers</li>
+          <li>Professionals with 5–20 years experience</li>
+          <li>Anyone wanting to transition into AI roles</li>
+          <li>International professionals in HK, Singapore, UK, India</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COACHING SERVICES -->
+<section id="coaching">
+  <div class="section-inner">
+    <div class="section-eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">Career Coaching</span>
+    </div>
+    <h2 class="section-title">AI career coaching<br>for tech professionals.</h2>
+    <p class="section-sub">I've navigated this transition myself — 20 years of enterprise delivery, now actively building and deploying AI systems. I know the gaps, the honest path, and what actually works.</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-header">
+          <div class="service-type coaching">Career Coaching</div>
+          <div class="service-name">Quick Clarity Call</div>
+          <div class="service-duration">30 minutes · Online · Zoom or Google Meet</div>
+          <div class="service-price">USD 60 <span>per session</span></div>
+        </div>
+        <div class="service-body">
+          <div class="service-includes">What's included</div>
+          <ul class="service-list">
+            <li>Honest assessment of your current profile vs market</li>
+            <li>Top 3 gaps to close for your target role</li>
+            <li>Quick CV and LinkedIn feedback</li>
+            <li>Recommended next steps — specific and actionable</li>
+          </ul>
+          <a href="mailto:mayankchugh.jobathk@gmail.com?subject=Quick Clarity Call Booking" class="service-cta">Book via Email →</a>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-header">
+          <div class="service-type coaching">Career Coaching</div>
+          <div class="service-name">AI Career Strategy</div>
+          <div class="service-duration">60 minutes · Online · Full session</div>
+          <div class="service-price">USD 120 <span>per session</span></div>
+        </div>
+        <div class="service-body">
+          <div class="service-includes">What's included</div>
+          <ul class="service-list">
+            <li>Full background and goal assessment</li>
+            <li>CV and LinkedIn profile deep review</li>
+            <li>Custom 90-day AI learning + portfolio roadmap</li>
+            <li>Target role shortlist with honest fit scoring</li>
+            <li>Job search strategy and recruiter outreach plan</li>
+          </ul>
+          <a href="mailto:mayankchugh.jobathk@gmail.com?subject=AI Career Strategy Session" class="service-cta">Book via Email →</a>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-header">
+          <div class="service-type coaching">Career Coaching</div>
+          <div class="service-name">Job Search Accelerator</div>
+          <div class="service-duration">2 sessions · 60 min each · Strategy + follow-up</div>
+          <div class="service-price">USD 200 <span>for both sessions</span></div>
+        </div>
+        <div class="service-body">
+          <div class="service-includes">What's included</div>
+          <ul class="service-list">
+            <li>Session 1: Full strategy, CV rebuild, LinkedIn overhaul</li>
+            <li>Session 2: Progress review, pipeline assessment, refinement</li>
+            <li>Portfolio review — GitHub, Hugging Face, deployed apps</li>
+            <li>Interview preparation for AI engineering roles</li>
+            <li>Email / WhatsApp support between sessions</li>
+          </ul>
+          <a href="mailto:mayankchugh.jobathk@gmail.com?subject=Job Search Accelerator" class="service-cta primary">Most Popular — Book Now →</a>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-header">
+          <div class="service-type coaching">Career Coaching</div>
+          <div class="service-name">CV + LinkedIn Review</div>
+          <div class="service-duration">Async · Written feedback within 48 hrs</div>
+          <div class="service-price">USD 80 <span>flat fee</span></div>
+        </div>
+        <div class="service-body">
+          <div class="service-includes">What's included</div>
+          <ul class="service-list">
+            <li>Detailed written feedback on your CV</li>
+            <li>LinkedIn profile review with specific suggestions</li>
+            <li>Honest assessment: what to keep, what to remove</li>
+            <li>Rewritten summary and headline recommendations</li>
+            <li>No call required — fully async</li>
+          </ul>
+          <a href="mailto:mayankchugh.jobathk@gmail.com?subject=CV + LinkedIn Review" class="service-cta">Send CV for Review →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONSULTING SERVICES -->
+<section id="consulting" style="background:var(--white);border-top:1px solid var(--rule);">
+  <div class="section-inner">
+    <div class="section-eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">Enterprise AI Consulting</span>
+    </div>
+    <h2 class="section-title">RAG systems that work.<br>Delivered in 2 weeks.</h2>
+    <p class="section-sub">Your organisation has years of internal knowledge locked in documents. I build RAG systems that let your team find it instantly — with source citations, in plain English.</p>
+
+    <div class="enterprise-card">
+      <div>
+        <div class="enterprise-tag">RAG POC Consulting</div>
+        <h3>Build your internal AI on your own documents</h3>
+        <p>Document ingestion, vector search, LLM generation, RAGAS evaluation, and full handover documentation. Your team owns it completely on delivery.</p>
+        <div class="enterprise-tiers">
+          <div class="tier">
+            <div class="tier-name">Starter POC</div>
+            <div class="tier-price">HKD 15K</div>
+            <div class="tier-desc">Up to 1,000 docs · 1 week</div>
+          </div>
+          <div class="tier">
+            <div class="tier-name">Enterprise POC</div>
+            <div class="tier-price">HKD 35K</div>
+            <div class="tier-desc">Up to 20,000 docs · 2 weeks</div>
+          </div>
+          <div class="tier">
+            <div class="tier-name">Production Build</div>
+            <div class="tier-price">HKD 60K</div>
+            <div class="tier-desc">Up to 100K docs · 4 weeks</div>
+          </div>
+        </div>
+      </div>
+      <div class="enterprise-cta-wrap">
+        <a href="mailto:mayankchugh.jobathk@gmail.com?subject=RAG POC Consulting Enquiry" class="btn-gold">Start with a free 30-min call</a>
+        <p class="enterprise-note">NDA available · All work is client-owned on delivery</p>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem;padding:1.5rem 2rem;background:var(--cream);border:1px solid var(--rule);border-radius:2px;">
+      <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.75rem;">What gets delivered</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+        <div style="font-size:0.85rem;color:var(--ink2);">✓ Document ingestion pipeline<br><span style="color:var(--muted);font-size:0.78rem;">PDF, Word, Excel — chunked and indexed</span></div>
+        <div style="font-size:0.85rem;color:var(--ink2);">✓ Conversational Q&amp;A interface<br><span style="color:var(--muted);font-size:0.78rem;">Plain English queries, cited answers</span></div>
+        <div style="font-size:0.85rem;color:var(--ink2);">✓ RAGAS evaluation report<br><span style="color:var(--muted);font-size:0.78rem;">Retrieval accuracy, faithfulness metrics</span></div>
+        <div style="font-size:0.85rem;color:var(--ink2);">✓ Prompt injection defence<br><span style="color:var(--muted);font-size:0.78rem;">Pydantic output schema + guardrails</span></div>
+        <div style="font-size:0.85rem;color:var(--ink2);">✓ Handover documentation<br><span style="color:var(--muted);font-size:0.78rem;">Architecture, deployment guide, prompt library</span></div>
+        <div style="font-size:0.85rem;color:var(--ink2);">✓ 30-day support window<br><span style="color:var(--muted);font-size:0.78rem;">Questions and minor adjustments included</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO PROOF -->
+<section id="portfolio" class="proof-bg">
+  <div class="section-inner">
+    <div class="section-eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">Verified Portfolio</span>
+    </div>
+    <h2 class="section-title">Everything I reference<br>is publicly verifiable.</h2>
+    <p class="section-sub">No fabricated metrics. Every number below is live and checkable right now.</p>
+    <div class="proof-grid">
+      <div class="proof-card">
+        <div class="proof-num">26</div>
+        <div class="proof-label">Live AI applications deployed on Hugging Face</div>
+        <a href="https://huggingface.co/mayankchugh-learning" target="_blank" class="proof-link">View all spaces →</a>
+      </div>
+      <div class="proof-card">
+        <div class="proof-num">4</div>
+        <div class="proof-label">Live RAG systems — financial document AI on 10-K annual reports</div>
+        <a href="https://huggingface.co/spaces/mayankchugh-learning/RAG-Finsights-Grey-for-Effective-Information-Retrieval" target="_blank" class="proof-link">Try live demo →</a>
+      </div>
+      <div class="proof-card">
+        <div class="proof-num">105</div>
+        <div class="proof-label">Public GitHub repositories — RAG, GenAI, ML, full-stack apps</div>
+        <a href="https://github.com/mayankchugh-learning" target="_blank" class="proof-link">View GitHub →</a>
+      </div>
+      <div class="proof-card">
+        <div class="proof-num">75+</div>
+        <div class="proof-label">AI tutorial videos on YouTube — RAG, LangChain, LLM deployment</div>
+        <a href="https://youtube.com/@itaienthusiast" target="_blank" class="proof-link">Watch tutorials →</a>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem;padding:2rem;background:var(--white);border:1px solid var(--rule);border-radius:2px;">
+      <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;">Full-Stack AI App — Live</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">Your Best Friend AI</div>
+          <p style="font-size:0.85rem;color:var(--muted);line-height:1.7;margin-bottom:0.75rem;">Full-stack AI SaaS — React + TypeScript + Express + PostgreSQL + OpenAI + Docker + AWS ECS. Bilingual (English, Cantonese, Mandarin). Subscription tiers, SSE streaming, PII protection.</p>
+          <a href="https://confident-irena-deepatechnologiesaiapplications-24cdd927.koyeb.app/" target="_blank" style="font-size:0.82rem;color:var(--teal);text-decoration:none;font-weight:500;">View live app →</a>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+          <span style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:0.2rem 0.6rem;font-size:0.72rem;color:var(--ink2);">React + TypeScript</span>
+          <span style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:0.2rem 0.6rem;font-size:0.72rem;color:var(--ink2);">Express 5</span>
+          <span style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:0.2rem 0.6rem;font-size:0.72rem;color:var(--ink2);">PostgreSQL</span>
+          <span style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:0.2rem 0.6rem;font-size:0.72rem;color:var(--ink2);">OpenAI API</span>
+          <span style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:0.2rem 0.6rem;font-size:0.72rem;color:var(--ink2);">Docker</span>
+          <span style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:0.2rem 0.6rem;font-size:0.72rem;color:var(--ink2);">AWS ECS</span>
+          <span style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:0.2rem 0.6rem;font-size:0.72rem;color:var(--ink2);">SSE Streaming</span>
+          <span style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;padding:0.2rem 0.6rem;font-size:0.72rem;color:var(--ink2);">Bilingual EN/HK</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="background:var(--white);border-top:1px solid var(--rule);">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section-eyebrow">
+          <div class="eyebrow-line"></div>
+          <span class="eyebrow-text">About Mayank</span>
+        </div>
+        <h2 class="section-title">Built for delivery.<br>Honest about limits.</h2>
+        <p>I am a senior enterprise architect with <strong>20+ years of technology delivery</strong> at Cathay Pacific Cargo, HSBC, British Airways, CHANEL, and Marks &amp; Spencer — across aviation, banking, luxury retail, and logistics.</p>
+        <p>Over the past two years I've made a <strong>deliberate transition into AI engineering</strong> — building and publicly deploying AI applications, completing 12 certifications, and teaching AI through 75+ YouTube tutorials.</p>
+        <p>My AI work is <strong>self-directed and project-based</strong> rather than enterprise production deployment. I am transparent about this. What I bring to coaching is the same honest approach — no fabrication, no empty promises, just a clear-eyed assessment of where you are and what it actually takes.</p>
+        <p>I am based in <strong>Hong Kong</strong> as a permanent resident, fluent in English and Hindi.</p>
+      </div>
+      <div class="credential-list">
+        <div class="credential"><div class="cred-icon">🏢</div><div><div class="cred-title">Cathay Pacific Cargo — 13 years</div><div class="cred-sub">Senior Technical Architect · AWS cloud migration · HKIA airport systems</div></div></div>
+        <div class="credential"><div class="cred-icon">🏦</div><div><div class="cred-title">HSBC via Capgemini</div><div class="cred-sub">Cloud AI &amp; data platform · Azure DB migration · Power BI integration</div></div></div>
+        <div class="credential"><div class="cred-icon">✈️</div><div><div class="cred-title">British Airways · Marks &amp; Spencer</div><div class="cred-sub">Enterprise architecture · London &amp; Hong Kong delivery</div></div></div>
+        <div class="credential"><div class="cred-icon">💎</div><div><div class="cred-title">CHANEL Hong Kong</div><div class="cred-sub">Enterprise architect · IT integration strategy · Azure Cloud SME</div></div></div>
+        <div class="credential"><div class="cred-icon">🤖</div><div><div class="cred-title">12 AI &amp; Cloud Certifications</div><div class="cred-sub">Claude Code (Anthropic) · Azure OpenAI · AZ-400 · AZ-104 · AWS SA · TOGAF 9.2</div></div></div>
+        <div class="credential"><div class="cred-icon">📺</div><div><div class="cred-title">youtube.com/@itaienthusiast</div><div class="cred-sub">75+ AI tutorials · RAG · LangChain · LLM deployment · GenAI applications</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HONEST NOTE -->
+<section class="honest-section">
+  <div class="section-inner">
+    <div class="honest-inner">
+      <span class="eyebrow-line"></span>
+      <h2>A note on honesty.</h2>
+      <p>I built my coaching practice on the same principle I teach: <strong>honest positioning beats fabrication every time.</strong> The AI job market is tough right now. Candidates exaggerate. CVs lie. And then they fail interviews.</p>
+      <p>I went through this myself. I know what it costs. My coaching helps you build a <strong>genuinely strong, verifiable profile</strong> — not a fabricated one that collapses under questioning.</p>
+      <p>If you're looking for someone to help you fake experience you don't have, I'm not the right coach. If you want someone to help you present what you actually have — confidently, accurately, and competitively — let's talk.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Ready to start?</h2>
+  <p>First call is free. 30 minutes. I'll tell you honestly whether I can help — and what the path forward looks like.</p>
+  <div class="cta-buttons">
+    <a href="mailto:mayankchugh.jobathk@gmail.com?subject=Free Discovery Call" class="btn-white">Book Free Discovery Call →</a>
+    <a href="https://linkedin.com/in/mchugh77" target="_blank" class="btn-white-outline">Connect on LinkedIn</a>
+  </div>
+  <p style="margin-top:1.5rem;font-size:0.82rem;color:rgba(255,255,255,0.45);">+852 6485 1129 · mayankchugh.jobathk@gmail.com · Hong Kong</p>
+</section>
+
+<footer>
+  <p>© 2026 Mayank Chugh · Hong Kong · <a href="index.html">Portfolio</a> · <a href="mailto:mayankchugh.jobathk@gmail.com">Email</a> · <a href="https://linkedin.com/in/mchugh77">LinkedIn</a></p>
+</footer>
+
+</body>
+</html>
