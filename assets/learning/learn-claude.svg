@@ -1,51 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Learn Claude complete guide">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Learn Claude course">
   <defs>
-    <linearGradient id="pageBg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="lc-bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#faf8f5"/>
-      <stop offset="100%" stop-color="#f4efe8"/>
+      <stop offset="100%" stop-color="#f0e8de"/>
     </linearGradient>
   </defs>
-
-  <rect width="400" height="225" fill="url(#pageBg)"/>
-
-  <!-- top nav strip -->
-  <rect x="0" y="0" width="400" height="36" fill="#faf8f5"/>
-  <line x1="0" y1="36" x2="400" y2="36" stroke="#e8e0d6" stroke-width="1"/>
-  <text x="20" y="23" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#1a1612">LearnClaude</text>
-  <rect x="318" y="12" width="62" height="14" rx="7" fill="#b8652e"/>
-  <text x="349" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" font-weight="600" fill="#fff">Book a call</text>
-
-  <!-- hero -->
-  <text x="200" y="58" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="#9a8572" letter-spacing="1.5">COMPLETE LEARNING PATH · 2026</text>
-  <text x="200" y="82" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="700" fill="#1a1612">
-    <tspan>Master </tspan><tspan font-style="italic" fill="#b8652e">Claude</tspan>
-  </text>
-  <rect x="72" y="94" width="256" height="5" rx="2.5" fill="#ddd4ca" opacity="0.7"/>
-  <rect x="100" y="103" width="200" height="4" rx="2" fill="#ddd4ca" opacity="0.5"/>
-
-  <!-- CTAs -->
-  <rect x="108" y="118" width="88" height="22" rx="11" fill="#b8652e"/>
-  <text x="152" y="133" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="600" fill="#fff">Start the course</text>
-  <rect x="204" y="118" width="88" height="22" rx="11" fill="none" stroke="#b8652e" stroke-width="1.2"/>
-  <text x="248" y="133" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" font-weight="600" fill="#b8652e">Slash commands</text>
-
-  <!-- module cards -->
-  <text x="20" y="162" font-family="Arial, sans-serif" font-size="8" font-weight="600" fill="#6b5d50">Course modules</text>
-  <rect x="20" y="168" width="112" height="48" rx="6" fill="#fff" stroke="#e8ddd2"/>
-  <text x="30" y="184" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#b8652e">01</text>
-  <text x="48" y="184" font-family="Arial, sans-serif" font-size="8" font-weight="600" fill="#1a1612">Introduction</text>
-  <rect x="30" y="190" width="90" height="3" rx="1.5" fill="#e8ddd2"/>
-  <rect x="30" y="197" width="72" height="3" rx="1.5" fill="#e8ddd2"/>
-
-  <rect x="144" y="168" width="112" height="48" rx="6" fill="#fff" stroke="#e8ddd2"/>
-  <text x="154" y="184" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#b8652e">02</text>
-  <text x="172" y="184" font-family="Arial, sans-serif" font-size="8" font-weight="600" fill="#1a1612">What is Claude?</text>
-  <rect x="154" y="190" width="90" height="3" rx="1.5" fill="#e8ddd2"/>
-  <rect x="154" y="197" width="80" height="3" rx="1.5" fill="#e8ddd2"/>
-
-  <rect x="268" y="168" width="112" height="48" rx="6" fill="#fff" stroke="#e8ddd2"/>
-  <text x="278" y="184" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#b8652e">03</text>
-  <text x="296" y="184" font-family="Arial, sans-serif" font-size="8" font-weight="600" fill="#1a1612">Claude Surfaces</text>
-  <rect x="278" y="190" width="90" height="3" rx="1.5" fill="#e8ddd2"/>
-  <rect x="278" y="197" width="76" height="3" rx="1.5" fill="#e8ddd2"/>
+  <rect width="400" height="225" fill="url(#lc-bg)"/>
+  <rect x="0" y="0" width="400" height="32" fill="#faf8f5"/>
+  <line x1="0" y1="32" x2="400" y2="32" stroke="#e5dcd2" stroke-width="1"/>
+  <text x="22" y="21" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#1a1612">LearnClaude</text>
+  <rect x="310" y="10" width="68" height="14" rx="7" fill="#b8652e"/>
+  <text x="344" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="#ffffff">Book call</text>
+  <text x="200" y="56" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="#8a7560">COMPLETE LEARNING PATH 2026</text>
+  <text x="200" y="78" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#1a1612">Master Claude</text>
+  <text x="200" y="96" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-style="italic" fill="#b8652e">fundamentals to agents</text>
+  <rect x="118" y="108" width="72" height="20" rx="10" fill="#b8652e"/>
+  <text x="154" y="122" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#ffffff">Start course</text>
+  <rect x="198" y="108" width="84" height="20" rx="10" fill="none" stroke="#b8652e" stroke-width="1.2"/>
+  <text x="240" y="122" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="#b8652e">Slash cmds</text>
+  <rect x="24" y="142" width="108" height="44" rx="6" fill="#ffffff" stroke="#e8ddd2"/>
+  <text x="36" y="158" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#b8652e">01</text>
+  <text x="52" y="158" font-family="Arial, sans-serif" font-size="9" fill="#1a1612">Introduction</text>
+  <rect x="36" y="164" width="80" height="3" rx="1" fill="#e8ddd2"/>
+  <rect x="36" y="171" width="64" height="3" rx="1" fill="#e8ddd2"/>
+  <rect x="146" y="142" width="108" height="44" rx="6" fill="#ffffff" stroke="#e8ddd2"/>
+  <text x="158" y="158" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#b8652e">07</text>
+  <text x="174" y="158" font-family="Arial, sans-serif" font-size="9" fill="#1a1612">CLAUDE.md</text>
+  <rect x="158" y="164" width="80" height="3" rx="1" fill="#e8ddd2"/>
+  <rect x="158" y="171" width="64" height="3" rx="1" fill="#e8ddd2"/>
+  <rect x="268" y="142" width="108" height="44" rx="6" fill="#ffffff" stroke="#e8ddd2"/>
+  <text x="280" y="158" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#b8652e">15</text>
+  <text x="296" y="158" font-family="Arial, sans-serif" font-size="9" fill="#1a1612">Capstone</text>
+  <rect x="280" y="164" width="80" height="3" rx="1" fill="#e8ddd2"/>
+  <rect x="280" y="171" width="64" height="3" rx="1" fill="#e8ddd2"/>
 </svg>
