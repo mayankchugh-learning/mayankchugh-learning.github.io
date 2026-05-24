@@ -1,3 +1,37 @@
+/* ─── Back to profile ───────────────────────────────────── */
+.site-back-home {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 100000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--switcher-bg, rgba(18,18,26,0.92));
+  border: 1px solid var(--switcher-border, rgba(120,100,255,0.22));
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--switcher-text, #f3f1fa);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.site-back-home:hover {
+  border-color: var(--switcher-accent, #7c6dfa);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: var(--switcher-text, #f3f1fa);
+}
+.site-back-home:focus-visible {
+  outline: 2px solid var(--switcher-accent, #7c6dfa);
+  outline-offset: 2px;
+}
+
 /* ─── Theme switcher UI ─────────────────────────────────── */
 .theme-switcher {
   position: fixed;
@@ -41,6 +75,14 @@
 }
 
 @media (max-width: 640px) {
+  .site-back-home {
+    top: 14px;
+    left: 14px;
+    right: auto;
+    max-width: calc(100% - 28px);
+    font-size: 12px;
+    padding: 7px 12px;
+  }
   .theme-switcher {
     top: auto;
     bottom: 14px;

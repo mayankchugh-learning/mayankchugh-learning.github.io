@@ -68,6 +68,27 @@
     syncSwitcherSelect(theme);
   }
 
+  function isProfilePage() {
+    if (document.documentElement.getAttribute('data-page') === 'profile') return true;
+    var path = (location.pathname || '').replace(/\\/g, '/').toLowerCase();
+    if (path === '/' || path.endsWith('/')) return true;
+    return /(^|\/)index\.html?$/.test(path);
+  }
+
+  function mountBackButton() {
+    if (isProfilePage()) return;
+    if (document.getElementById('site-back-home')) return;
+
+    var link = document.createElement('a');
+    link.id = 'site-back-home';
+    link.className = 'site-back-home';
+    link.href = 'index.html';
+    link.setAttribute('aria-label', 'Back to Mayank Chugh profile');
+    link.textContent = '\u2190 Profile';
+
+    (document.body || document.documentElement).appendChild(link);
+  }
+
   function mountSwitcher() {
     if (document.getElementById('site-theme-switcher')) return;
 
@@ -102,6 +123,11 @@
     (document.body || document.documentElement).appendChild(wrap);
   }
 
+  function mountPageChrome() {
+    mountBackButton();
+    mountSwitcher();
+  }
+
   function init() {
     ensurePageAttribute();
     ensureStylesheet();
@@ -109,11 +135,11 @@
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function () {
-        mountSwitcher();
+        mountPageChrome();
         applyBundlerShell();
       });
     } else {
-      mountSwitcher();
+      mountPageChrome();
       applyBundlerShell();
     }
 
@@ -123,7 +149,7 @@
         ensurePageAttribute();
         ensureStylesheet();
         applyTheme(getStoredTheme());
-        mountSwitcher();
+        mountPageChrome();
         applyBundlerShell();
         checks += 1;
         if (checks > 120) clearInterval(timer);
@@ -134,7 +160,7 @@
   global.SiteTheme = {
     apply: applyTheme,
     get: getStoredTheme,
-    mount: mountSwitcher
+    mount: mountPageChrome
   };
 
   init();
