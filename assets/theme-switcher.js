@@ -100,39 +100,39 @@
   }
 
   function mountSiteChrome() {
+    if (isProfilePage()) return;
     if (document.getElementById('site-chrome')) return;
 
-    var dock = document.createElement('nav');
+    var dock = document.createElement('div');
     dock.id = 'site-chrome';
     dock.className = 'site-chrome';
+    if (document.documentElement.getAttribute('data-page') === 'bundler') {
+      dock.classList.add('site-chrome--bundler');
+    }
+    dock.setAttribute('role', 'navigation');
     dock.setAttribute('aria-label', 'Page tools');
 
-    var onProfile = isProfilePage();
-    if (!onProfile) {
-      var home = makeChromeButton('a', 'site-chrome-home');
-      home.href = 'index.html';
-      home.setAttribute('aria-label', 'Back to profile');
-      home.setAttribute('title', 'Back to profile');
+    var home = makeChromeButton('a', 'site-chrome-home');
+    home.href = 'index.html';
+    home.setAttribute('aria-label', 'Back to profile');
+    home.setAttribute('title', 'Back to profile');
 
-      var homeIcon = document.createElement('span');
-      homeIcon.className = 'site-chrome-icon';
-      homeIcon.innerHTML = ICONS.home;
+    var homeIcon = document.createElement('span');
+    homeIcon.className = 'site-chrome-icon';
+    homeIcon.innerHTML = ICONS.home;
 
-      var homeLabel = document.createElement('span');
-      homeLabel.className = 'site-chrome-label';
-      homeLabel.textContent = 'Home';
+    var homeLabel = document.createElement('span');
+    homeLabel.className = 'site-chrome-label';
+    homeLabel.textContent = 'Home';
 
-      home.appendChild(homeIcon);
-      home.appendChild(homeLabel);
-      dock.appendChild(home);
+    home.appendChild(homeIcon);
+    home.appendChild(homeLabel);
+    dock.appendChild(home);
 
-      var divider = document.createElement('span');
-      divider.className = 'site-chrome-divider';
-      divider.setAttribute('aria-hidden', 'true');
-      dock.appendChild(divider);
-    } else {
-      dock.classList.add('site-chrome--home-only');
-    }
+    var divider = document.createElement('span');
+    divider.className = 'site-chrome-divider';
+    divider.setAttribute('aria-hidden', 'true');
+    dock.appendChild(divider);
 
     var themeBtn = makeChromeButton('button', 'site-chrome-theme', 'site-theme-toggle');
     themeBtn.type = 'button';
@@ -167,12 +167,14 @@
 
   function mountPageChrome() {
     removeLegacyChrome();
+    if (isProfilePage()) return;
     mountSiteChrome();
   }
 
   function init() {
     ensurePageAttribute();
     ensureStylesheet();
+
     applyTheme(getStoredTheme());
 
     if (document.readyState === 'loading') {

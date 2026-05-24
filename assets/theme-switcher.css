@@ -1,8 +1,13 @@
 /* ─── Bottom dock: Home + theme (no top overlap) ─────────── */
 .site-chrome {
   position: fixed;
+  top: auto !important;
+  right: auto !important;
   left: 16px;
   bottom: 16px;
+  width: auto !important;
+  max-width: none;
+  height: auto !important;
   z-index: 100000;
   display: inline-flex;
   align-items: center;
@@ -67,8 +72,24 @@
   height: 15px;
   display: block;
 }
-.site-chrome--home-only .site-chrome-theme {
-  margin-left: 0;
+
+/* Interactive / bundler apps: sidebar on left → dock on right */
+[data-page="bundler"] .site-chrome {
+  left: auto !important;
+  right: 20px;
+  bottom: 20px;
+}
+[data-page="bundler"] .site-chrome .site-chrome-label {
+  display: none;
+}
+[data-page="bundler"] .site-chrome-btn {
+  min-height: 32px;
+  padding: 0 11px;
+}
+[data-page="bundler"] #__bundler_loading {
+  left: 16px;
+  right: auto;
+  bottom: 20px;
 }
 
 [data-theme="dark"] .site-chrome,
@@ -93,6 +114,12 @@
     left: 12px;
     bottom: 12px;
     max-width: calc(100vw - 24px);
+  }
+  [data-page="bundler"] .site-chrome {
+    left: auto !important;
+    right: 12px;
+    bottom: 12px;
+    max-width: none;
   }
   .site-chrome-btn {
     min-height: 32px;
