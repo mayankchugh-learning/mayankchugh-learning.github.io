@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Positional Encoding — In-Depth Explainer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg:       #0f1117;
+    --bg2:      #1a1d27;
+    --bg3:      #22263a;
+    --border:   #2e3250;
+    --border2:  #3d4266;
+    --text:     #e8eaf6;
+    --text2:    #9da3c8;
+    --text3:    #5c6390;
+    --amr:      #f0a050;
+    --amr-bg:   #2a1f0a;
+    --blu:      #5b9cf6;
+    --tel:      #4ecda4;
+    --tel-bg:   #0a2018;
+    --red:      #f06060;
+    --grn:      #5ec96e;
+    --radius:   10px;
+    --radius-sm:6px;
+    font-size:  16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .4rem;
+  }
+
+  header p {
+    font-size: .9rem;
+    color: var(--text2);
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 500;
+    background: var(--amr-bg);
+    color: var(--amr);
+    border: 0.5px solid var(--amr);
+    margin-bottom: .75rem;
+  }
+
+  /* Step nav */
+  .step-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .dots {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border2);
+    cursor: pointer;
+    transition: background .2s, transform .2s;
+    border: none;
+  }
+
+  .dot.active {
+    background: var(--amr);
+    transform: scale(1.35);
+  }
+
+  .step-label {
+    font-size: .8rem;
+    color: var(--text3);
+    text-align: center;
+  }
+
+  /* Panels */
+  .panel {
+    animation: fadeUp .25s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cards */
+  .card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-title {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  /* Token chips */
+  .tokens {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .tok {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    font-size: .85rem;
+    font-weight: 500;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    color: var(--text);
+  }
+
+  .tok.hi {
+    border-color: var(--amr);
+    color: var(--amr);
+  }
+
+  /* Call-out block */
+  .callout {
+    padding: .8rem 1rem;
+    border-left: 2.5px solid var(--amr);
+    background: var(--amr-bg);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: .875rem;
+    color: var(--text2);
+    margin-top: .75rem;
+  }
+
+  .callout.green {
+    border-color: var(--tel);
+    background: var(--tel-bg);
+  }
+
+  /* Formula display */
+  .formula {
+    text-align: center;
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 1.2rem 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    line-height: 2.2;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  /* Color highlights */
+  .amr { color: var(--amr); font-weight: 600; }
+  .blu { color: var(--blu); font-weight: 600; }
+  .tel { color: var(--tel); font-weight: 600; }
+  .red { color: var(--red); }
+  .grn { color: var(--grn); }
+
+  /* Variables grid */
+  .var-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .var-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .7rem .9rem;
+  }
+
+  .var-name {
+    font-size: .8rem;
+    font-weight: 600;
+    margin-bottom: .25rem;
+  }
+
+  .var-desc {
+    font-size: .78rem;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  /* Table */
+  .ptable {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .8rem;
+    font-family: 'Courier New', monospace;
+  }
+
+  .ptable th {
+    background: var(--bg3);
+    color: var(--text2);
+    font-family: -apple-system, sans-serif;
+    font-size: .78rem;
+    font-weight: 500;
+    padding: 8px 10px;
+    text-align: center;
+    border: 0.5px solid var(--border);
+  }
+
+  .ptable td {
+    padding: 7px 10px;
+    text-align: center;
+    border: 0.5px solid var(--border);
+    color: var(--text);
+  }
+
+  .ptable tbody tr:hover td {
+    background: var(--bg3);
+  }
+
+  /* Checklist */
+  .checks { display: flex; flex-direction: column; gap: 8px; }
+
+  .check-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: .875rem;
+    color: var(--text2);
+  }
+
+  .check-row strong { color: var(--text); }
+
+  /* Sliders */
+  .slider-row {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: .75rem;
+  }
+
+  .slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .slider-group label {
+    font-size: .78rem;
+    color: var(--text2);
+  }
+
+  input[type="range"] {
+    appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border2);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--amr);
+    cursor: pointer;
+  }
+
+  .pe-result {
+    font-family: 'Courier New', monospace;
+    font-size: .82rem;
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: .75rem 1rem;
+    color: var(--text2);
+    line-height: 1.9;
+  }
+
+  /* Nav buttons */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+  }
+
+  .nav-btn {
+    padding: 8px 20px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--bg2);
+    color: var(--text);
+    font-size: .875rem;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+
+  .nav-btn:hover { background: var(--bg3); border-color: var(--amr); }
+  .nav-btn:disabled { opacity: .3; cursor: default; pointer-events: none; }
+
+  /* Flow chips */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: .8rem;
+  }
+
+  .flow-chip {
+    padding: 8px 12px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    text-align: center;
+  }
+
+  .flow-chip .fc-sub { font-size: .68rem; color: var(--text3); }
+  .flow-chip .fc-lbl { font-weight: 500; color: var(--text); }
+  .flow-chip.hi-amr { border-color: var(--amr); }
+  .flow-chip.hi-amr .fc-lbl { color: var(--amr); }
+  .flow-chip.hi-tel { border-color: var(--tel); }
+  .flow-chip.hi-tel .fc-lbl { color: var(--tel); }
+
+  .flow-arrow { color: var(--text3); font-size: 1rem; }
+  .flow-plus  { color: var(--text); font-weight: 600; font-size: 1.1rem; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: .75rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .75rem;
+    color: var(--text2);
+  }
+
+  .legend-sq { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+  /* Info box */
+  .info-row {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .65rem .9rem;
+    font-size: .8rem;
+    color: var(--text3);
+    text-align: center;
+    margin-top: .75rem;
+  }
+
+  /* Vec boxes */
+  .vec {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .vbox {
+    padding: 5px 9px;
+    border-radius: 4px;
+    border: 0.5px solid var(--border);
+    background: var(--bg);
+    font-family: 'Courier New', monospace;
+    font-size: .78rem;
+    color: var(--text2);
+  }
+
+  .vbox.hi { border-color: var(--amr); color: var(--amr); }
+  .vbox.bad { border-color: var(--red); color: var(--red); }
+
+  .sentence-block { margin-bottom: .9rem; }
+  .sentence-label { font-size: .72rem; color: var(--text3); margin-bottom: 5px; }
+
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+    font-size: .75rem;
+    color: var(--text3);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="tag">Transformer Series · Lab Notes</div>
+    <h1>Positional Encoding — In-Depth Intuition</h1>
+    <p>Based on "Attention is All You Need" · Interactive 5-step walkthrough</p>
+  </header>
+
+  <!-- Step nav -->
+  <div class="step-nav">
+    <div class="dots" id="dots"></div>
+    <div class="step-label" id="step-label">Step 1 of 5 — The problem</div>
+  </div>
+
+  <!-- Panel container -->
+  <div id="panels"></div>
+
+  <!-- Nav buttons -->
+  <div class="nav-row">
+    <button class="nav-btn" id="btn-prev" onclick="nav(-1)">← Back</button>
+    <button class="nav-btn" id="btn-next" onclick="nav(1)">Next →</button>
+  </div>
+
+  <footer>
+    Mayank Chugh · Transformers Series · Positional Encoding · Sinusoidal PE
+  </footer>
+
+</div>
+
+<script>
+let cur = 0;
+let chartInst = null;
+
+const stepTitles = [
+  "The problem — why order is lost",
+  "Naive fix and why it fails",
+  "The sinusoidal formula",
+  "Worked example — The Cat Sat",
+  "Wave visualization and final flow"
+];
+
+function peFn(pos, dim, d) {
+  const i = Math.floor(dim / 2);
+  const freq = Math.pow(10000, (2 * i) / d);
+  const angle = pos / freq;
+  return dim % 2 === 0 ? Math.sin(angle) : Math.cos(angle);
+}
+
+/* ============================================================
+   PANEL BUILDERS
+   ============================================================ */
+
+function panel0() {
+  return `
+  <div class="panel">
+    <div class="card">
+      <div class="card-title">The Core Problem</div>
+      <p style="font-size:.875rem;color:var(--text2);margin-bottom:.9rem">
+        Transformers process all word tokens <strong style="color:var(--text)">simultaneously</strong>
+        inside the self-attention layer — their biggest strength. But this creates a critical blind spot:
+        the model has no idea which word came first.
+      </p>
+
+      <div class="sentence-block">
+        <div class="sentence-label">Sentence A</div>
+        <div class="tokens">
+          <div class="tok hi">Lion</div>
+          <div class="tok">kills</div>
+          <div class="tok">Tiger</div>
+          <span style="color:var(--text3);margin:0 4px">→</span>
+          <code style="font-size:.78rem;color:var(--text3)">same vectors → same context</code>
+        </div>
+      </div>
+
+      <div class="sentence-block">
+        <div class="sentence-label">Sentence B</div>
+        <div class="tokens">
+          <div class="tok hi">Tiger</div>
+          <div class="tok">kills</div>
+          <div class="tok">Lion</div>
+          <span style="color:var(--text3);margin:0 4px">→</span>
+          <code style="font-size:.78rem;color:var(--text3)">same vectors → same context</code>
+        </div>
+      </div>
+
+      <div class="callout">
+        Both sentences use the same three words. Without position info, self-attention produces
+        <span class="amr">identical output vectors</span> for both — even though the predator and prey
+        are completely swapped. Word order is invisible to the model.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Why RNNs Don't Have This Problem</div>
+      <p style="font-size:.875rem;color:var(--text2)">
+        RNNs / LSTMs process one word per timestep (t=1, t=2, t=3 …). Order is baked into the
+        sequential feed — no special encoding needed. Transformers sacrifice this sequential structure
+        to gain parallelism, so they must explicitly inject position information before self-attention runs.
+      </p>
+    </div>
+  </div>`;
+}
+
+function panel1() {
+  return `
+  <div class="panel">
+    <div class="card">
+      <div class="card-title">The Obvious Fix</div>
+      <p style="font-size:.875rem;color:var(--text2);margin-bottom:.9rem">
+        Append the position index as an extra dimension to each word embedding vector.
+      </p>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:1rem">
+        <div>
+          <div style="font-size:.72rem;color:var(--text3);margin-bottom:5px">Tiger (pos 1)</div>
+          <div class="vec">
+            <div class="vbox">0.2</div><div class="vbox">0.5</div>
+            <div class="vbox">0.9</div><div class="vbox hi">1</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:var(--text3);margin-bottom:5px">kills (pos 2)</div>
+          <div class="vec">
+            <div class="vbox">0.1</div><div class="vbox">0.7</div>
+            <div class="vbox">0.3</div><div class="vbox hi">2</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:var(--text3);margin-bottom:5px">word at pos 100,000</div>
+          <div class="vec">
+            <div class="vbox">0.x</div><div class="vbox">0.x</div>
+            <div class="vbox">0.x</div><div class="vbox bad">100000</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="checks">
+        <div class="check-row">
+          <span class="red">✗</span>
+          <span><strong>Unbounded values.</strong> A novel has 100,000+ words. Position 100,000
+          sits next to tiny embedding values like 0.2. This blows up gradient updates during
+          backpropagation — weights explode or vanish.</span>
+        </div>
+        <div class="check-row">
+          <span class="red">✗</span>
+          <span><strong>Breaks vector dimension.</strong> Adding one extra number changes
+          size from d to d+1. This breaks W_Q, W_K, W_V matrices that were built for size d.</span>
+        </div>
+        <div class="check-row">
+          <span class="red">✗</span>
+          <span><strong>No relative information.</strong> Large absolute numbers don't help
+          the model understand that "Tiger" is just one position before "kills".</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What We Actually Need</div>
+      <div class="checks">
+        <div class="check-row"><span class="grn">✓</span>
+          <span><strong>Same dimension</strong> as word embedding — add element-wise, no size change</span>
+        </div>
+        <div class="check-row"><span class="grn">✓</span>
+          <span><strong>Bounded values</strong> — always in [−1, +1], never causes gradient issues</span>
+        </div>
+        <div class="check-row"><span class="grn">✓</span>
+          <span><strong>Unique fingerprint</strong> per position — no two positions map to the same PE vector</span>
+        </div>
+        <div class="check-row"><span class="grn">✓</span>
+          <span><strong>No training required</strong> — computed deterministically, not learned via backprop</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function panel2() {
+  return `
+  <div class="panel">
+    <div class="card">
+      <div class="card-title">Sinusoidal Positional Encoding Formula</div>
+      <p style="font-size:.875rem;color:var(--text2);margin-bottom:.9rem">
+        From the "Attention is All You Need" paper. Even-indexed dimensions use sin, odd-indexed use cos:
+      </p>
+
+      <div class="formula">
+        PE(<span class="amr">pos</span>, <span class="blu">2i</span>) = sin( <span class="amr">pos</span> / 10000<sup style="font-size:.65rem"><span class="blu">2i</span> / <span class="tel">d</span></sup> )<br>
+        PE(<span class="amr">pos</span>, <span class="blu">2i</span>+1) = cos( <span class="amr">pos</span> / 10000<sup style="font-size:.65rem"><span class="blu">2i</span> / <span class="tel">d</span></sup> )
+      </div>
+
+      <div class="var-grid">
+        <div class="var-card">
+          <div class="var-name amr">pos</div>
+          <div class="var-desc">Position of the word in the sentence (0, 1, 2, …). First word = 0.</div>
+        </div>
+        <div class="var-card">
+          <div class="var-name blu">i</div>
+          <div class="var-desc">Dimension pair index (0, 1, …, d/2 − 1). Each pair gets its own frequency.</div>
+        </div>
+        <div class="var-card">
+          <div class="var-name tel">d_model</div>
+          <div class="var-desc">Total embedding dimension (e.g., 4 or 512). PE has the exact same size.</div>
+        </div>
+      </div>
+
+      <div class="checks">
+        <div class="check-row"><span class="grn">✓</span>
+          <span>sin/cos always output values in <span class="tel">[−1, +1]</span> — gradient-safe at any position</span>
+        </div>
+        <div class="check-row"><span class="grn">✓</span>
+          <span>Different frequencies across dims → <span class="tel">unique pattern per position</span></span>
+        </div>
+        <div class="check-row"><span class="grn">✓</span>
+          <span>Same dimension as word embedding → element-wise addition, no size change</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Interactive Calculator — Try Any Value</div>
+      <div class="slider-row">
+        <div class="slider-group">
+          <label>pos (word position): <span id="pv" class="amr">1</span></label>
+          <input type="range" min="0" max="10" value="1" id="slP" oninput="doPE()" style="width:150px">
+        </div>
+        <div class="slider-group">
+          <label>i (dim pair): <span id="iv" class="blu">0</span></label>
+          <input type="range" min="0" max="3" value="0" id="slI" oninput="doPE()" style="width:110px">
+        </div>
+        <div class="slider-group">
+          <label>d_model: <span id="dv" class="tel">4</span></label>
+          <input type="range" min="4" max="8" step="4" value="4" id="slD" oninput="doPE()" style="width:90px">
+        </div>
+      </div>
+      <div class="pe-result" id="peres">Loading…</div>
+    </div>
+  </div>`;
+}
+
+function panel3() {
+  const emb  = [[0.1,0.2,0.3,0.4],[0.5,0.6,0.7,0.8],[0.9,1.0,1.1,1.2]];
+  const wds  = ['The','Cat','Sat'];
+  let rows   = '';
+  emb.forEach((e, pos) => {
+    const pv = [0,1,2,3].map(d => peFn(pos,d,4).toFixed(4));
+    const fv = e.map((v,k) => (v + parseFloat(pv[k])).toFixed(4));
+    rows += `<tr>
+      <td style="font-family:sans-serif;font-weight:500;color:var(--text)">${wds[pos]}<br>
+        <span style="font-size:.68rem;color:var(--text3);font-weight:400">pos=${pos}</span></td>
+      <td style="color:var(--text2)">[${e.join(', ')}]</td>
+      <td style="color:var(--amr)">[${pv.join(', ')}]</td>
+      <td style="color:var(--tel)">[${fv.join(', ')}]</td>
+    </tr>`;
+  });
+
+  const bdRows = [
+    ['dim 0','sin','0','0','sin(0/1) = sin(0)','0.0000'],
+    ['dim 1','cos','0','0','cos(0/1) = cos(0)','1.0000'],
+    ['dim 2','sin','1','2','sin(0/100) = sin(0)','0.0000'],
+    ['dim 3','cos','1','2','cos(0/100) = cos(0)','1.0000'],
+  ];
+  let brows = '';
+  bdRows.forEach(([d,fn,i,twoi,calc,res]) => {
+    brows += `<tr>
+      <td style="font-family:sans-serif;color:var(--text)">${d} (${fn}, i=${i})</td>
+      <td>${fn}(pos=0 / 10000<sup>${twoi}/4</sup>) = ${calc}</td>
+      <td style="color:var(--amr)">${res}</td>
+    </tr>`;
+  });
+
+  return `
+  <div class="panel">
+    <div class="card">
+      <div class="card-title">Full Example: "The Cat Sat" with d_model = 4</div>
+      <div style="overflow-x:auto;margin-bottom:.75rem">
+        <table class="ptable">
+          <thead><tr>
+            <th>Word</th>
+            <th>Word embedding</th>
+            <th style="color:var(--amr)">+ PE vector</th>
+            <th style="color:var(--tel)">= To self-attention</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="info-row">
+        Final vector = word embedding + PE vector &nbsp;|&nbsp;
+        This sum is what enters the self-attention layer — it carries both <span class="amr">meaning</span> and <span class="tel">position</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dimension-by-Dimension Breakdown for "The" (pos = 0)</div>
+      <div style="overflow-x:auto">
+        <table class="ptable">
+          <thead><tr><th>Dimension</th><th>Calculation</th><th style="color:var(--amr)">Value</th></tr></thead>
+          <tbody>${brows}</tbody>
+        </table>
+      </div>
+      <div class="callout green" style="margin-top:.75rem">
+        When pos = 0, the argument to sin/cos is always 0 regardless of frequency.
+        sin(0) = 0, cos(0) = 1 — so PE always starts as [0, 1, 0, 1, 0, 1 …].
+        As pos increases, each dimension oscillates at its own frequency.
+      </div>
+    </div>
+  </div>`;
+}
+
+function panel4() {
+  return `
+  <div class="panel">
+    <div class="card">
+      <div class="card-title">Why Different Frequencies?</div>
+      <p style="font-size:.875rem;color:var(--text2);margin-bottom:.9rem">
+        Low i → high frequency (oscillates fast per position).
+        High i → low frequency (nearly flat over short sequences).
+        Together they guarantee a <span class="tel">unique multi-dimensional fingerprint</span>
+        for every position, even across sequences of 100,000+ tokens.
+      </p>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-sq" style="background:#D85A30"></div>dim 0 — sin, high freq</div>
+        <div class="legend-item"><div class="legend-sq" style="background:#5b9cf6"></div>dim 1 — cos, high freq</div>
+        <div class="legend-item"><div class="legend-sq" style="background:#4ecda4"></div>dim 256 — sin, mid freq</div>
+        <div class="legend-item"><div class="legend-sq" style="background:#9b84e8"></div>dim 510 — sin, low freq</div>
+      </div>
+      <div style="position:relative;width:100%;height:240px">
+        <canvas id="wc" role="img" aria-label="Four sinusoidal waves at different frequencies across positions 0-19">
+          Wave chart showing different frequency sin/cos curves for positional encoding dimensions.
+        </canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Final Flow — Where PE Fits</div>
+      <div class="flow">
+        <div class="flow-chip">
+          <div class="fc-sub">Input</div>
+          <div class="fc-lbl">Token</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-chip">
+          <div class="fc-sub">Word2Vec / BPE</div>
+          <div class="fc-lbl">Embedding</div>
+        </div>
+        <span class="flow-plus"> + </span>
+        <div class="flow-chip hi-amr">
+          <div class="fc-sub" style="color:var(--amr)">Sinusoidal</div>
+          <div class="fc-lbl">PE vector</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-chip hi-tel">
+          <div class="fc-sub" style="color:var(--tel)">Parallel</div>
+          <div class="fc-lbl">Self-Attention</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-chip">
+          <div class="fc-sub">Contextual</div>
+          <div class="fc-lbl">Z vectors</div>
+        </div>
+      </div>
+      <div class="info-row" style="margin-top:.9rem">
+        PE is added <em>before</em> self-attention &nbsp;|&nbsp;
+        No extra parameters — fixed mathematical function, computed once &nbsp;|&nbsp;
+        Research paper uses d_model = 512, so each word gets 512 PE values
+      </div>
+    </div>
+  </div>`;
+}
+
+const builders = [panel0, panel1, panel2, panel3, panel4];
+
+/* ============================================================
+   INTERACTIVE FUNCTIONS
+   ============================================================ */
+
+function doPE() {
+  const pos = +document.getElementById('slP').value;
+  const i   = +document.getElementById('slI').value;
+  const d   = +document.getElementById('slD').value;
+  document.getElementById('pv').textContent = pos;
+  document.getElementById('iv').textContent = i;
+  document.getElementById('dv').textContent = d;
+  const freq  = Math.pow(10000, (2 * i) / d);
+  const angle = pos / freq;
+  document.getElementById('peres').innerHTML =
+    `freq = 10000<sup>${2*i}/${d}</sup> = <span class="amr">${freq.toFixed(2)}</span><br>` +
+    `angle = ${pos} / ${freq.toFixed(2)} = <span class="amr">${angle.toFixed(6)}</span> rad<br>` +
+    `PE(${pos}, ${2*i}) &nbsp;&nbsp;= sin(angle) = <span class="tel" style="font-size:1rem">${Math.sin(angle).toFixed(4)}</span><br>` +
+    `PE(${pos}, ${2*i+1}) = cos(angle) = <span class="tel" style="font-size:1rem">${Math.cos(angle).toFixed(4)}</span>`;
+}
+
+function initChart() {
+  const canvas = document.getElementById('wc');
+  if (!canvas) return;
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  const pos = Array.from({length: 20}, (_, i) => i);
+  chartInst = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: pos,
+      datasets: [
+        { label:'dim 0 sin', data: pos.map(p => peFn(p,0,512)),   borderColor:'#D85A30', borderWidth:2, tension:.4, pointRadius:2 },
+        { label:'dim 1 cos', data: pos.map(p => peFn(p,1,512)),   borderColor:'#5b9cf6', borderWidth:2, tension:.4, pointRadius:2, borderDash:[4,3] },
+        { label:'dim 256',   data: pos.map(p => peFn(p,256,512)), borderColor:'#4ecda4', borderWidth:2, tension:.4, pointRadius:2 },
+        { label:'dim 510',   data: pos.map(p => peFn(p,510,512)), borderColor:'#9b84e8', borderWidth:2, tension:.4, pointRadius:2, borderDash:[6,2] },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(4)}` } }
+      },
+      scales: {
+        x: {
+          title:{ display:true, text:'Position (word index)', color:'#5c6390', font:{size:11} },
+          ticks:{ color:'#5c6390', font:{size:11} },
+          grid:{ color:'rgba(46,50,80,0.8)' }
+        },
+        y: {
+          min:-1.15, max:1.15,
+          title:{ display:true, text:'PE value', color:'#5c6390', font:{size:11} },
+          ticks:{ color:'#5c6390', font:{size:11}, stepSize:.5 },
+          grid:{ color:'rgba(46,50,80,0.8)' }
+        }
+      }
+    }
+  });
+}
+
+/* ============================================================
+   NAVIGATION & RENDER
+   ============================================================ */
+
+function render() {
+  document.querySelectorAll('.dot').forEach((d, i) =>
+    d.className = 'dot' + (i === cur ? ' active' : '')
+  );
+  document.getElementById('step-label').textContent =
+    `Step ${cur + 1} of ${stepTitles.length} — ${stepTitles[cur]}`;
+  document.getElementById('panels').innerHTML = builders[cur]();
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === builders.length - 1;
+  if (cur === 2) setTimeout(doPE, 50);
+  if (cur === 4) setTimeout(initChart, 80);
+}
+
+function nav(d) {
+  cur = Math.max(0, Math.min(builders.length - 1, cur + d));
+  render();
+}
+
+function gotoStep(n) { cur = n; render(); }
+
+// Build dots
+const dotsEl = document.getElementById('dots');
+builders.forEach((_, i) => {
+  const d = document.createElement('button');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.setAttribute('aria-label', `Go to step ${i + 1}`);
+  d.onclick = () => gotoStep(i);
+  dotsEl.appendChild(d);
+});
+
+render();
+</script>
+</body>
+</html>

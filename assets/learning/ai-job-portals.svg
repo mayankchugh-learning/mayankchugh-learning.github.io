@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI Engineer Job Portals">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f1e36"/>
+      <stop offset="100%" stop-color="#1d6fa4"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="225" fill="url(#bg)"/>
+  <rect x="48" y="52" width="304" height="121" rx="14" fill="rgba(255,255,255,0.08)" stroke="rgba(232,160,32,0.45)"/>
+  <rect x="72" y="78" width="88" height="12" rx="6" fill="#e8a020"/>
+  <rect x="72" y="102" width="180" height="8" rx="4" fill="rgba(255,255,255,0.35)"/>
+  <rect x="72" y="120" width="140" height="8" rx="4" fill="rgba(255,255,255,0.22)"/>
+  <circle cx="300" cy="112" r="28" fill="rgba(232,160,32,0.2)" stroke="#e8a020" stroke-width="2"/>
+  <text x="300" y="119" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#e8a020">AI</text>
+</svg>

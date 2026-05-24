@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 18 — Fine-Tuning LLMs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #e8e6e0;
+    --muted: #888580;
+    --accent: #f0a500;
+    --accent2: #7dd4c6;
+    --accent3: #f07a6b;
+    --accent4: #9b8fff;
+    --green: #6bcf7f;
+    --tag-bg: rgba(240,165,0,0.12);
+    --tag-text: #f0a500;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+  }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+  }
+  .header-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.2rem;
+    font-weight: 800;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+  }
+  .header h1 span { color: var(--accent); }
+  .header-sub {
+    font-size: 1.05rem;
+    color: var(--muted);
+    font-style: italic;
+    font-weight: 300;
+  }
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-right: 6px;
+    margin-top: 0.8rem;
+  }
+
+  /* ── Section headings ── */
+  .section {
+    margin-bottom: 3.5rem;
+  }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.01em;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--accent2);
+    margin: 1.8rem 0 0.7rem;
+  }
+  h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 1.2rem 0 0.4rem;
+  }
+
+  p { margin-bottom: 0.9rem; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── Callouts / quote blocks ── */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(240,165,0,0.06);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+    font-size: 0.97rem;
+    color: #c8c4be;
+  }
+  .callout.teal { border-color: var(--accent2); background: rgba(125,212,198,0.06); }
+  .callout.red { border-color: var(--accent3); background: rgba(240,122,107,0.06); }
+  .callout.purple { border-color: var(--accent4); background: rgba(155,143,255,0.06); }
+
+  /* ── Pipeline / visual flow ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 1.5rem 0;
+  }
+  .pipeline-item {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .pipeline-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 36px;
+  }
+  .pipeline-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .pipeline-num.gold { background: rgba(240,165,0,0.2); color: var(--accent); border: 1px solid rgba(240,165,0,0.4); }
+  .pipeline-num.teal { background: rgba(125,212,198,0.2); color: var(--accent2); border: 1px solid rgba(125,212,198,0.4); }
+  .pipeline-num.coral { background: rgba(240,122,107,0.2); color: var(--accent3); border: 1px solid rgba(240,122,107,0.4); }
+  .pipeline-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border2);
+    margin: 4px auto 0;
+    min-height: 24px;
+  }
+  .pipeline-content {
+    flex: 1;
+    padding-bottom: 1.75rem;
+  }
+  .pipeline-item:last-child .pipeline-content { padding-bottom: 0; }
+  .pipeline-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.4rem;
+    padding-top: 7px;
+  }
+  .pipeline-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .pipeline-desc {
+    font-size: 0.94rem;
+    color: #aaa8a2;
+    line-height: 1.65;
+  }
+
+  /* ── Code/model names ── */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85em;
+    background: var(--surface2);
+    color: var(--accent2);
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Cards grid ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+  }
+  .card-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.35rem;
+  }
+  .card-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .card.highlight { border-color: rgba(240,165,0,0.3); background: rgba(240,165,0,0.04); }
+  .card.highlight .card-title { color: var(--accent); }
+
+  /* ── Comparison table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.93rem;
+    margin: 1.25rem 0;
+  }
+  th {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border2);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  td {
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    color: #c0beb8;
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 0.83rem; }
+
+  /* ── Pill badges ── */
+  .pill {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin: 2px 3px;
+    font-weight: 500;
+  }
+  .pill-gold { background: rgba(240,165,0,0.15); color: #f0a500; border: 1px solid rgba(240,165,0,0.25); }
+  .pill-teal { background: rgba(125,212,198,0.15); color: #7dd4c6; border: 1px solid rgba(125,212,198,0.25); }
+  .pill-coral { background: rgba(240,122,107,0.15); color: #f07a6b; border: 1px solid rgba(240,122,107,0.25); }
+  .pill-purple { background: rgba(155,143,255,0.15); color: #b8afff; border: 1px solid rgba(155,143,255,0.25); }
+  .pill-green { background: rgba(107,207,127,0.15); color: #6bcf7f; border: 1px solid rgba(107,207,127,0.25); }
+
+  /* ── Inline key-value ── */
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 0.4rem 1.2rem; margin: 1rem 0; align-items: baseline; }
+  .kv-key { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .kv-val { font-size: 0.93rem; color: var(--text); }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+  /* ── Big quote ── */
+  blockquote {
+    font-style: italic;
+    font-size: 1.15rem;
+    color: #aaa8a2;
+    margin: 2rem 0;
+    padding: 0 2rem;
+    border-left: 3px solid var(--accent4);
+  }
+  blockquote cite {
+    display: block;
+    margin-top: 0.5rem;
+    font-style: normal;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 3rem;
+    font-size: 0.92rem;
+  }
+  .toc-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .toc ol { padding-left: 1.4rem; }
+  .toc li { margin: 0.3rem 0; }
+  .toc a { color: #c0beb8; text-decoration: none; transition: color 0.15s; }
+  .toc a:hover { color: var(--accent); }
+
+  /* ── Method block ── */
+  .method-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.4rem;
+    margin: 1rem 0;
+  }
+  .method-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .method-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .badge-old { background: rgba(136,133,128,0.2); color: #888580; border: 1px solid rgba(136,133,128,0.3); }
+  .badge-new { background: rgba(125,212,198,0.15); color: var(--accent2); border: 1px solid rgba(125,212,198,0.3); }
+  .method-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .method-body { font-size: 0.92rem; color: #aaa8a2; line-height: 1.65; }
+
+  /* technique hierarchy */
+  .hier {
+    margin: 1.2rem 0;
+    padding-left: 1.2rem;
+    border-left: 2px solid var(--border2);
+  }
+  .hier-item {
+    margin: 0.5rem 0;
+    font-size: 0.93rem;
+  }
+  .hier-item .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 1.5rem 1rem 4rem; }
+    .header h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.4rem; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<div class="header">
+  <div class="header-meta">Full Stack GenAI Bootcamp 1.0 &nbsp;·&nbsp; Class 18 &nbsp;·&nbsp; 23 May 2026</div>
+  <h1>Fine-<span>Tuning</span><br>Large Language Models</h1>
+  <p class="header-sub">Instructor: Sunny Savita &nbsp;·&nbsp; Compiled from lecture transcript &amp; handwritten notes</p>
+  <div>
+    <span class="tag">SFT</span>
+    <span class="tag">PEFT</span>
+    <span class="tag">LoRA</span>
+    <span class="tag">QLoRA</span>
+    <span class="tag">RLHF</span>
+    <span class="tag">DPO</span>
+    <span class="tag">Preference Alignment</span>
+  </div>
+</div>
+
+<!-- ══════════════════ TOC ══════════════════ -->
+<nav class="toc" aria-label="Table of contents">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#definition">What is fine-tuning?</a></li>
+    <li><a href="#llm-pipeline">The LLM training pipeline</a></li>
+    <li><a href="#model-stages">The three stages of an LLM</a></li>
+    <li><a href="#when-to-finetune">Choosing the right base model</a></li>
+    <li><a href="#sft">Supervised fine-tuning (SFT)</a></li>
+    <li><a href="#parameter-level">Parameter-level understanding</a></li>
+    <li><a href="#full-vs-partial">Full vs partial fine-tuning</a></li>
+    <li><a href="#old-school">Old-school partial fine-tuning</a></li>
+    <li><a href="#peft">PEFT — Parameter-Efficient Fine-Tuning</a></li>
+    <li><a href="#lora">LoRA, QLoRA, and DoRA</a></li>
+    <li><a href="#preference">Preference alignment</a></li>
+    <li><a href="#algorithms">Alignment algorithms</a></li>
+    <li><a href="#tools">Tools: Hugging Face &amp; Unsloth</a></li>
+    <li><a href="#summary">Summary &amp; revision</a></li>
+  </ol>
+</nav>
+
+
+<!-- ══════════════════ SECTION 1 ══════════════════ -->
+<section class="section" id="definition">
+  <div class="section-label">01 · Definition</div>
+  <h2>What is fine-tuning?</h2>
+
+  <p>Fine-tuning is the process of taking an <em>already-trained</em> model and training it further on domain-specific or task-specific data so that it performs better for a particular use case.</p>
+
+  <blockquote>
+    "Fine-tuning is a process of taking an already-trained model and training it further on your domain-specific data for better performance."
+    <cite>— Sunny Savita, Class 18 lecture</cite>
+  </blockquote>
+
+  <p>The key insight is that training a large language model from scratch is extremely difficult (massive compute, massive data, massive time). Instead, we leverage the general knowledge already embedded in a publicly-available open-source model, and <em>specialise</em> it for our needs.</p>
+
+  <div class="callout">
+    Practical analogy: rather than teaching someone everything from kindergarten, you hire a knowledgeable professional and give them a short domain-specific onboarding course.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 2 ══════════════════ -->
+<section class="section" id="llm-pipeline">
+  <div class="section-label">02 · Overview</div>
+  <h2>The LLM training pipeline</h2>
+
+  <p>Every production LLM goes through (at most) three sequential training stages. Understanding these is the foundation for understanding fine-tuning.</p>
+
+  <div class="pipeline">
+    <div class="pipeline-item">
+      <div class="pipeline-left">
+        <div class="pipeline-num gold">1</div>
+        <div class="pipeline-line"></div>
+      </div>
+      <div class="pipeline-content">
+        <div class="pipeline-title">Pre-training (raw model)</div>
+        <div class="pipeline-sub">e.g. meta-llama/Meta-Llama-3-8B</div>
+        <div class="pipeline-desc">
+          Trained on internet-scale raw text data (unsupervised / self-supervised learning). The model learns to predict the next token. It acquires broad world knowledge but has no idea how to follow instructions. This is the base or "raw" model — it just knows language.
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-item">
+      <div class="pipeline-left">
+        <div class="pipeline-num teal">2</div>
+        <div class="pipeline-line"></div>
+      </div>
+      <div class="pipeline-content">
+        <div class="pipeline-title">Supervised Fine-Tuning / Instruction Tuning (SFT)</div>
+        <div class="pipeline-sub">e.g. meta-llama/Meta-Llama-3-8B-Instruct</div>
+        <div class="pipeline-desc">
+          Trained on paired input → output data so the model learns to follow instructions. Meta collected instruction datasets, presented them as (input, output) pairs, and fine-tuned the raw model. This produces the "Instruct" variant. The model now knows how to have a conversation, answer questions, and follow user prompts.
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-item">
+      <div class="pipeline-left">
+        <div class="pipeline-num coral">3</div>
+      </div>
+      <div class="pipeline-content">
+        <div class="pipeline-title">Preference Alignment (optional but increasingly common)</div>
+        <div class="pipeline-sub">e.g. OpenRLHF/Llama-3-8b-rlhf-100k</div>
+        <div class="pipeline-desc">
+          The model is further trained to respond according to human preferences. Human annotators label which of two model responses they prefer. That preference data is used to retrain the model. Not mandatory — but large companies (OpenAI, Anthropic, Google) all do this now. Introduced prominently by ChatGPT / OpenAI.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 3 ══════════════════ -->
+<section class="section" id="model-stages">
+  <div class="section-label">03 · Model stages</div>
+  <h2>The three stages of an LLM (with Llama example)</h2>
+
+  <p>Using Meta's Llama 3 8B as a concrete example — the same model family appears at each stage, and you can download any of them from Hugging Face:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Stage</th>
+        <th>HuggingFace model ID</th>
+        <th>What it knows</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Pre-trained (raw)</td>
+        <td><code>meta-llama/Meta-Llama-3-8B</code></td>
+        <td>Next token prediction, broad world knowledge, no instruction-following</td>
+      </tr>
+      <tr>
+        <td>Instruction-tuned (SFT)</td>
+        <td><code>meta-llama/Meta-Llama-3-8B-Instruct</code></td>
+        <td>How to follow instructions, conversation, Q&amp;A format</td>
+      </tr>
+      <tr>
+        <td>Preference-aligned (RLHF)</td>
+        <td><code>OpenRLHF/Llama-3-8b-rlhf-100k</code></td>
+        <td>How to respond in a way humans prefer; aligned to human values</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout teal">
+    You can pick the model from <em>any</em> of these stages and apply your own custom fine-tuning on top of it. The right choice depends on your use case (see Section 4).
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 4 ══════════════════ -->
+<section class="section" id="when-to-finetune">
+  <div class="section-label">04 · Strategy</div>
+  <h2>Choosing the right base model for custom fine-tuning</h2>
+
+  <p>The choice of starting stage depends entirely on what output you want from your fine-tuned model. The instructor demonstrated this using a <strong>pharma company use case</strong>:</p>
+
+  <div class="callout">
+    Use case: A pharma company has internal documents on molecule studies and wants an AI model to work with that domain-specific data.
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">📄</div>
+      <div class="card-title">Pure text / data generation</div>
+      <div class="card-desc">Goal: generate new pharma text (not Q&amp;A). Start from the <strong>raw pre-trained model</strong> (<code>Meta-Llama-3-8B</code>) and fine-tune on your raw domain documents.</div>
+    </div>
+    <div class="card highlight">
+      <div class="card-icon">💬</div>
+      <div class="card-title">Chatbot / Q&amp;A / conversational AI</div>
+      <div class="card-desc">Goal: question-answering system over pharma data. Start from the <strong>instruction-tuned model</strong> (<code>Meta-Llama-3-8B-Instruct</code>) and fine-tune on your domain-specific (input, output) pairs.</div>
+    </div>
+  </div>
+
+  <p>The key point: the instruction-tuned model <em>already knows how to follow instructions</em> in general. Your custom SFT then teaches it pharma-specific instructions. This is almost always the better starting point for chatbot use cases.</p>
+
+  <div class="callout red">
+    Training an LLM from scratch is extremely difficult and expensive. Always start from an open-source base model and fine-tune it. Companies like Meta, Mistral, Alibaba, and Google make high-quality base models freely available.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 5 ══════════════════ -->
+<section class="section" id="sft">
+  <div class="section-label">05 · SFT</div>
+  <h2>Supervised fine-tuning (SFT)</h2>
+
+  <h3>What is SFT?</h3>
+  <p>SFT = Supervised Fine-Tuning. Also called <em>Instruction Fine-Tuning (IFT)</em>. In supervised learning we have labelled data: for every sample, we have an <strong>input</strong> and a corresponding <strong>output</strong>.</p>
+
+  <p>In the context of LLMs, the SFT dataset looks like this:</p>
+
+  <div class="method-block">
+    <div class="kv">
+      <span class="kv-key">Input column</span>
+      <span class="kv-val">A question, instruction, or prompt (the user turn)</span>
+      <span class="kv-key">Output column</span>
+      <span class="kv-val">The desired model response (the assistant turn)</span>
+    </div>
+    <p style="font-size:0.88rem; color:var(--muted); margin-top:0.5rem;">Search "instruction fine-tuning dataset" on Hugging Face to see hundreds of examples.</p>
+  </div>
+
+  <h3>What does SFT teach the model?</h3>
+  <p>It teaches the model <em>how to follow instructions</em>: given a user prompt, how should the model generate a relevant, well-formed response. Before SFT, the pre-trained model only knows next-token prediction — it does not know the concept of "user" or "assistant."</p>
+
+  <h3>Libraries used</h3>
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 0.75rem 0;">
+    <span class="pill pill-gold">Hugging Face Transformers</span>
+    <span class="pill pill-teal">Unsloth</span>
+  </div>
+  <p style="font-size:0.92rem; color:var(--muted);">Both will be demonstrated in upcoming practical sessions. Unsloth is particularly useful for efficient fine-tuning with limited compute.</p>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 6 ══════════════════ -->
+<section class="section" id="parameter-level">
+  <div class="section-label">06 · Internals</div>
+  <h2>Parameter-level understanding</h2>
+
+  <p>To understand fine-tuning deeply, you need to understand what is actually being updated inside the model.</p>
+
+  <h3>What is a parameter?</h3>
+  <p>A <strong>parameter</strong> = weights and biases of the neural network. In a transformer-based LLM, parameters exist in two main places:</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Self-attention layer</div>
+      <div class="card-desc">Contains the Query (Q), Key (K), and Value (V) weight matrices. These are learned during training.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Feed-forward neural network (FFNN)</div>
+      <div class="card-desc">Contains its own weights and biases. Also trained during the learning process.</div>
+    </div>
+  </div>
+
+  <p>When we "fine-tune" a model, we are <em>retraining</em> some or all of these weights on new data. The question is: which ones?</p>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 7 ══════════════════ -->
+<section class="section" id="full-vs-partial">
+  <div class="section-label">07 · Approaches</div>
+  <h2>Full fine-tuning vs partial fine-tuning</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>What gets updated</th>
+        <th>Cost</th>
+        <th>Practical?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Full fine-tuning</td>
+        <td>All parameters (weights &amp; biases)</td>
+        <td>Huge GPU power + massive infrastructure</td>
+        <td style="color: var(--accent3);">No — we will NOT do this</td>
+      </tr>
+      <tr>
+        <td>Partial fine-tuning</td>
+        <td>A subset of parameters</td>
+        <td>Manageable; can run on a single GPU</td>
+        <td style="color: var(--green);">Yes — this is our focus</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout red">
+    Full fine-tuning requires enormous GPU infrastructure (think: hundreds of A100s). It is what companies like Meta do when building the base model. For custom/domain fine-tuning, we always use partial fine-tuning.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 8 ══════════════════ -->
+<section class="section" id="old-school">
+  <div class="section-label">08 · Old-school method</div>
+  <h2>Old-school partial fine-tuning (layer freezing)</h2>
+
+  <p>Before PEFT, the standard technique for partial fine-tuning was <strong>layer freezing</strong>. This was used extensively with CNNs (VGG, ResNet) and early LLMs (BERT, BART, T5).</p>
+
+  <div class="method-block">
+    <div class="method-header">
+      <span class="method-badge badge-old">Method 1</span>
+      <span class="method-name">Freeze all layers → train only last output layer</span>
+    </div>
+    <div class="method-body">
+      All existing weights are frozen (not updated). Only the final output layer's weights are retrained. Effective for simple task adaptation but very limited.
+    </div>
+  </div>
+
+  <div class="method-block">
+    <div class="method-header">
+      <span class="method-badge badge-old">Method 2</span>
+      <span class="method-name">Freeze early layers → retrain remaining last layers</span>
+    </div>
+    <div class="method-body">
+      The first N layers (which learn generic, low-level representations) are frozen. The later layers (which encode more task-specific knowledge) are retrained. More powerful than Method 1.
+    </div>
+  </div>
+
+  <h3>Why this fails for modern LLMs</h3>
+  <p>Modern LLMs (Llama, Mistral, GPT-4 class) have <em>enormous architectures</em> — billions of parameters, dozens or hundreds of layers. Even "partial" retraining of the last few layers requires massive infrastructure. The old-school method does not scale.</p>
+
+  <div class="callout">
+    The old-school method works fine for CNN architectures and smaller LLMs like BERT. For billion-parameter models, we need a completely different approach: PEFT.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 9 ══════════════════ -->
+<section class="section" id="peft">
+  <div class="section-label">09 · Modern approach</div>
+  <h2>PEFT — Parameter-Efficient Fine-Tuning</h2>
+
+  <p><strong>PEFT</strong> = Parameter Efficient Fine-Tuning. It is the umbrella term for a family of modern techniques that allow fine-tuning large models using <em>only a small number of additional or selected parameters</em>.</p>
+
+  <div class="kv" style="margin: 1.2rem 0;">
+    <span class="kv-key">Full form</span>
+    <span class="kv-val">Parameter Efficient Fine-Tuning</span>
+    <span class="kv-key">Key idea</span>
+    <span class="kv-val">Train a tiny subset of parameters (or add a tiny set of new ones), not the whole model</span>
+    <span class="kv-key">Infrastructure needed</span>
+    <span class="kv-val">Single GPU + small VRAM (VRAM = RAM inside the GPU)</span>
+    <span class="kv-key">Use in course</span>
+    <span class="kv-val">This is where we spend most of our time in the SFT chapter</span>
+  </div>
+
+  <blockquote>
+    "PEFT is just a parent term. LoRA is a PEFT technique — like how 'man' and 'woman' are both human."
+    <cite>— Sunny Savita</cite>
+  </blockquote>
+
+  <h3>PEFT techniques covered in this course</h3>
+
+  <div class="hier">
+    <div class="hier-item">
+      <span class="label pill pill-gold">LoRA</span>
+      Low-Rank Adaptation — the industry standard. Attaches a small "adapter" to the model. <strong>Main focus of this course.</strong>
+    </div>
+    <div class="hier-item">
+      <span class="label pill pill-teal">QLoRA</span>
+      Quantised LoRA — LoRA applied to a quantised (compressed) model. Reduces memory further.
+    </div>
+    <div class="hier-item">
+      <span class="label pill pill-purple">DoRA</span>
+      Weight Decomposition Low-Rank Adaptation — a variant of LoRA that applies weight decomposition. More optimised, latest technique. <em>Given as an assignment.</em>
+    </div>
+    <div class="hier-item">
+      <span class="label pill pill-coral">BitFit</span>
+      Only trains the bias terms. Extremely lightweight but limited. <em>Not used in this course.</em>
+    </div>
+    <div class="hier-item">
+      <span class="label pill pill-coral">IA³</span>
+      Based on attention mechanism modification. <em>Not used in this course.</em>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 10 ══════════════════ -->
+<section class="section" id="lora">
+  <div class="section-label">10 · LoRA family</div>
+  <h2>LoRA, QLoRA, and DoRA explained</h2>
+
+  <h3>LoRA — Low-Rank Adaptation</h3>
+  <p>Instead of retraining the original weight matrices W, LoRA <em>adds a small adapter</em> alongside them. The adapter consists of two small low-rank matrices (A and B) whose product approximates the weight update: ΔW = A × B.</p>
+
+  <div class="method-block">
+    <div class="method-header">
+      <span class="method-badge badge-new">Core idea</span>
+      <span class="method-name">Adapter injection</span>
+    </div>
+    <div class="method-body">
+      The original weights W are frozen. Only the adapter matrices A and B are trained. After training, the adapter is merged back: W_new = W + AB. This is far more memory-efficient than training W directly.
+    </div>
+  </div>
+
+  <div class="callout teal">
+    LoRA is the most widely used PEFT technique in the industry. If you know only one fine-tuning technique, know LoRA.
+  </div>
+
+  <h3>QLoRA — Quantised LoRA</h3>
+  <p><strong>Quantisation</strong> = reducing numerical precision to save memory. Instead of storing weights as 32-bit or 16-bit floats, we convert them to smaller representations:</p>
+
+  <div style="display: flex; align-items: center; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;">
+    <span class="pill pill-gold">float32</span>
+    <span style="color: var(--muted);">→</span>
+    <span class="pill pill-teal">float16 / bfloat16</span>
+    <span style="color: var(--muted);">→</span>
+    <span class="pill pill-teal">int8 / int4</span>
+  </div>
+
+  <p>QLoRA = load the model in quantised form (saving VRAM), then apply LoRA adapters on top. You get almost the same quality as LoRA but with dramatically lower memory requirements.</p>
+
+  <h3>DoRA — Weight Decomposition LoRA</h3>
+  <p>DoRA decomposes the pretrained weight matrix into a <em>magnitude</em> component and a <em>direction</em> component, then applies LoRA-style updates to the direction. It is more expressive than standard LoRA and is the latest state-of-the-art PEFT technique.</p>
+
+  <table>
+    <thead>
+      <tr><th>Technique</th><th>Memory</th><th>Expressiveness</th><th>In course?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>LoRA</td><td>Low</td><td>High</td><td style="color:var(--green)">Main focus</td></tr>
+      <tr><td>QLoRA</td><td>Very low</td><td>High</td><td style="color:var(--green)">Covered</td></tr>
+      <tr><td>DoRA</td><td>Low</td><td>Very high</td><td style="color:var(--accent)">Assignment</td></tr>
+      <tr><td>BitFit</td><td>Minimal</td><td>Low</td><td style="color:var(--muted)">Not covered</td></tr>
+      <tr><td>IA³</td><td>Minimal</td><td>Low</td><td style="color:var(--muted)">Not covered</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 11 ══════════════════ -->
+<section class="section" id="preference">
+  <div class="section-label">11 · Stage 3</div>
+  <h2>Preference alignment</h2>
+
+  <p>After SFT, a model knows how to follow instructions — but it may not respond the way humans <em>prefer</em>. Preference alignment is Stage 3 of the pipeline: training the model to match human preference.</p>
+
+  <h3>How is preference data collected?</h3>
+  <p>As demonstrated by the instructor using a ChatGPT screenshot (visible in handwritten notes page 4): users are shown <strong>two responses</strong> to the same prompt and asked "Which response do you prefer?" This generates <em>preference-annotated data</em> — each sample records which response was chosen and which was rejected.</p>
+
+  <div class="callout purple">
+    The data format for preference tuning includes: a prompt, a "chosen" response (preferred by humans), and a "rejected" response (not preferred). This is sometimes called a triplet: (prompt, chosen, rejected).
+  </div>
+
+  <h3>Is it mandatory?</h3>
+  <p>Preference alignment is not mandatory every time, but it is now standard practice at large AI companies. It makes models safer, more helpful, and more aligned with human values. OpenAI introduced it with ChatGPT; it has since been adopted by Anthropic, Google, Meta, and others.</p>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 12 ══════════════════ -->
+<section class="section" id="algorithms">
+  <div class="section-label">12 · Algorithms</div>
+  <h2>Preference alignment algorithms</h2>
+
+  <div class="pipeline">
+    <div class="pipeline-item">
+      <div class="pipeline-left">
+        <div class="pipeline-num gold">1</div>
+        <div class="pipeline-line"></div>
+      </div>
+      <div class="pipeline-content">
+        <div class="pipeline-title">RLHF — Reinforcement Learning from Human Feedback</div>
+        <div class="pipeline-sub">Used by: OpenAI (ChatGPT). Algorithm behind it: PPO</div>
+        <div class="pipeline-desc">
+          RLHF is a framework, not a single algorithm. It uses reinforcement learning — specifically the Deep RL branch — and the underlying optimisation algorithm is <strong>PPO (Proximal Policy Optimisation)</strong>. The model is treated as a "policy" that is updated to maximise a reward signal derived from human preference judgements.
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-item">
+      <div class="pipeline-left">
+        <div class="pipeline-num teal">2</div>
+        <div class="pipeline-line"></div>
+      </div>
+      <div class="pipeline-content">
+        <div class="pipeline-title">GRPO — Group Relative Policy Optimisation</div>
+        <div class="pipeline-sub">Used by: DeepSeek (Chinese company)</div>
+        <div class="pipeline-desc">
+          An updated variant of RLHF / PPO. Used to train DeepSeek models. Understanding RLHF first will make GRPO straightforward. <em>Assigned as independent study after RLHF is covered.</em>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-item">
+      <div class="pipeline-left">
+        <div class="pipeline-num coral">3</div>
+        <div class="pipeline-line"></div>
+      </div>
+      <div class="pipeline-content">
+        <div class="pipeline-title">DPO — Direct Preference Optimisation</div>
+        <div class="pipeline-sub">Used by: many modern LLMs. No RL required.</div>
+        <div class="pipeline-desc">
+          DPO removes the need for a separate reward model and reinforcement learning. It directly optimises the model on (chosen, rejected) pairs using a cross-entropy-style objective. Simpler and often more stable than RLHF. <strong>Will be covered in depth in this course.</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-item">
+      <div class="pipeline-left">
+        <div class="pipeline-num coral">4</div>
+      </div>
+      <div class="pipeline-content">
+        <div class="pipeline-title">ORPO — Odds Ratio Preference Optimisation</div>
+        <div class="pipeline-sub">Updated version of DPO</div>
+        <div class="pipeline-desc">
+          The latest update to DPO. More efficient and effective. Understanding DPO will make ORPO easy. <em>Assigned after DPO is covered.</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>What will be taught in this course</h3>
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 0.75rem 0;">
+    <span class="pill pill-gold">RLHF (with PPO) — taught in depth</span>
+    <span class="pill pill-teal">DPO — taught in depth</span>
+    <span class="pill pill-coral">GRPO — assignment (self-study)</span>
+    <span class="pill pill-coral">ORPO — assignment (self-study)</span>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 13 ══════════════════ -->
+<section class="section" id="tools">
+  <div class="section-label">13 · Tooling</div>
+  <h2>Tools: Hugging Face &amp; Unsloth</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Hugging Face Transformers / PEFT / TRL</div>
+      <div class="card-desc">
+        The primary ecosystem for fine-tuning. The <code>transformers</code> library provides model loading; <code>peft</code> provides LoRA/QLoRA; <code>trl</code> (Transformer Reinforcement Learning) provides SFT trainers, DPO trainers, and RLHF utilities. All practical sessions will use these.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Unsloth</div>
+      <div class="card-desc">
+        A newer, highly optimised fine-tuning library that makes LoRA and QLoRA 2–5× faster with lower VRAM usage. Works on top of Hugging Face. Excellent for free-tier Google Colab. Will be demonstrated in upcoming sessions.
+      </div>
+    </div>
+  </div>
+
+  <h3>Hardware note</h3>
+  <p>All fine-tuning assignments will be done via <strong>Google Colab</strong> — you do not need a local GPU. If you have at least 16 GB of RAM locally, you can experiment with Ollama-based models, but training/fine-tuning should be done on Colab.</p>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════ SECTION 14 ══════════════════ -->
+<section class="section" id="summary">
+  <div class="section-label">14 · Revision</div>
+  <h2>Complete summary &amp; mental model</h2>
+
+  <h3>The hierarchy to remember</h3>
+
+  <div style="background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: 1.5rem 1.75rem; margin: 1.25rem 0;">
+    <p style="font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem;">FINE-TUNING HIERARCHY</p>
+
+    <div style="margin-bottom: 1rem;">
+      <span class="pill pill-gold" style="font-size:12px;">Custom Fine-Tuning</span>
+      <span style="color:var(--muted); font-size:0.9rem; margin-left:8px;">= train your model on your own data</span>
+    </div>
+
+    <div style="padding-left: 1.5rem; border-left: 2px solid var(--border2);">
+      <div style="margin-bottom: 0.75rem;">
+        <span class="pill pill-teal">SFT (Instruction Tuning)</span>
+        <span style="color:var(--muted); font-size:0.85rem; margin-left:8px;">input → output pairs</span>
+        <div style="padding-left: 1.5rem; border-left: 1px solid var(--border); margin-top: 0.5rem;">
+          <div style="margin-bottom: 0.4rem;">
+            <span class="pill pill-purple">Full Fine-Tuning</span>
+            <span style="color:var(--accent3); font-size:0.82rem; margin-left:6px;">← Not practical (huge infra)</span>
+          </div>
+          <div>
+            <span class="pill pill-teal">Partial Fine-Tuning (PEFT)</span>
+            <span style="color:var(--green); font-size:0.82rem; margin-left:6px;">← Our focus</span>
+            <div style="padding-left: 1.2rem; border-left: 1px solid var(--border); margin-top: 0.4rem; font-size:0.88rem; color:var(--muted);">
+              <div>Old-school: layer freezing (CNN, BERT, T5 era)</div>
+              <div style="margin-top:0.3rem;">Modern PEFT: <span class="pill pill-gold" style="font-size:10px;">LoRA</span> <span class="pill pill-teal" style="font-size:10px;">QLoRA</span> <span class="pill pill-purple" style="font-size:10px;">DoRA</span> BitFit IA³</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <span class="pill pill-coral">Preference Alignment</span>
+        <span style="color:var(--muted); font-size:0.85rem; margin-left:8px;">chosen / rejected pairs</span>
+        <div style="padding-left: 1.5rem; border-left: 1px solid var(--border); margin-top: 0.5rem; font-size:0.88rem; color:var(--muted);">
+          <div><span class="pill pill-gold" style="font-size:10px;">RLHF + PPO</span> (OpenAI) &nbsp;·&nbsp; <span class="pill pill-teal" style="font-size:10px;">GRPO</span> (DeepSeek) &nbsp;·&nbsp; <span class="pill pill-coral" style="font-size:10px;">DPO</span> &nbsp;·&nbsp; <span class="pill pill-coral" style="font-size:10px;">ORPO</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Five sentences to remember</h3>
+  <ol style="padding-left: 1.5rem; font-size: 0.96rem; line-height: 2;">
+    <li>Fine-tuning = taking a pretrained model and retraining it further on your own domain data.</li>
+    <li>Every LLM exists at three stages: raw (pre-trained), instruction-tuned (SFT), preference-aligned (RLHF/DPO).</li>
+    <li>You can start from any stage and apply custom fine-tuning on top — choose based on your use case.</li>
+    <li>Full fine-tuning is too expensive; we always use partial fine-tuning (PEFT), with LoRA as the main technique.</li>
+    <li>Preference alignment (RLHF, DPO) teaches the model to respond the way humans prefer, using (chosen, rejected) response pairs.</li>
+  </ol>
+
+  <div class="callout purple" style="margin-top: 2rem;">
+    Next session: deep dive into practical SFT with Hugging Face &amp; Unsloth. Google Colab will be set up. The pharma use case will be used as the hands-on example throughout.
+  </div>
+</section>
+
+<footer style="margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); line-height: 1.8;">
+  <div>Class 18 · Full Stack GenAI Bootcamp 1.0 · 23 May 2026</div>
+  <div>Instructor: Sunny Savita · Notes compiled from: lecture transcript (GMT20260523) + handwritten PDF notes</div>
+  <div>Topics: Fine-Tuning · SFT · PEFT · LoRA · QLoRA · DoRA · RLHF · DPO · Preference Alignment</div>
+</footer>
+
+</body>
+</html>

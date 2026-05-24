@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Self-Attention Explainer">
+  <rect width="400" height="225" fill="#10141f"/>
+  <g transform="translate(88,42)">
+    <rect width="36" height="36" fill="#2d1f4e"/><rect x="44" width="36" height="36" fill="#3d2860"/><rect x="88" width="36" height="36" fill="#5b3488"/><rect x="132" width="36" height="36" fill="#7c4db0"/>
+    <rect y="44" width="36" height="36" fill="#1f3358"/><rect x="44" y="44" width="36" height="36" fill="#2a4575"/><rect x="88" y="44" width="36" height="36" fill="#3d5f9a"/><rect x="132" y="44" width="36" height="36" fill="#5b82c4"/>
+    <rect y="88" width="36" height="36" fill="#14352e"/><rect x="44" y="88" width="36" height="36" fill="#1f4d42"/><rect x="88" y="88" width="36" height="36" fill="#2d6b5a"/><rect x="132" y="88" width="36" height="36" fill="#3f9278"/>
+    <rect y="132" width="36" height="36" fill="#3a2518"/><rect x="44" y="132" width="36" height="36" fill="#5a3822"/><rect x="88" y="132" width="36" height="36" fill="#7a4c2c"/><rect x="132" y="132" width="36" height="36" fill="#a66438"/>
+  </g>
+  <text x="200" y="198" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#c8d0e0">Self-Attention</text>
+</svg>

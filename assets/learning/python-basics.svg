@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Python Basics">
+  <rect width="400" height="225" fill="#1a2332"/>
+  <rect x="48" y="44" width="304" height="137" rx="12" fill="#243447" stroke="rgba(55,118,171,0.5)"/>
+  <text x="76" y="88" font-family="Consolas,monospace" font-size="15" fill="#ffd43b">def learn():</text>
+  <text x="96" y="114" font-family="Consolas,monospace" font-size="14" fill="#4ec9b0">    return "Python"</text>
+  <circle cx="312" cy="72" r="22" fill="#3776ab"/>
+  <circle cx="328" cy="88" r="22" fill="#ffd43b"/>
+</svg>

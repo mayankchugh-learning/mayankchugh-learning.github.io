@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Positional Encoding">
+  <rect width="400" height="225" fill="#0f1117"/>
+  <path d="M40 140 Q100 60 160 140 T280 140 T360 80" fill="none" stroke="#f0a050" stroke-width="3"/>
+  <path d="M40 165 Q100 95 160 165 T280 165 T360 120" fill="none" stroke="#5b9cf6" stroke-width="2" opacity="0.75"/>
+  <g fill="rgba(78,205,164,0.15)" stroke="#4ecda4" stroke-width="1">
+    <rect x="56" y="48" width="24" height="24"/><rect x="88" y="48" width="24" height="24"/><rect x="120" y="48" width="24" height="24"/>
+    <rect x="56" y="80" width="24" height="24"/><rect x="88" y="80" width="24" height="24"/><rect x="120" y="80" width="24" height="24"/>
+  </g>
+</svg>

@@ -137,21 +137,6 @@ section{padding:80px 5%;}
 .project-link{font-size:0.82rem;color:var(--blue);text-decoration:none;font-weight:500;}
 .project-link:hover{text-decoration:underline;}
 
-/* LEARNING PAGES */
-.learning-bg{background:var(--white);}
-.learning-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;}
-.learning-card{background:var(--off);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
-.learning-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.1);}
-.learning-card-link{display:block;text-decoration:none;color:inherit;height:100%;}
-.learning-card-thumb{aspect-ratio:16/9;background:var(--navy);overflow:hidden;border-bottom:1px solid var(--border);}
-.learning-card-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.35s ease;}
-.learning-card:hover .learning-card-thumb img{transform:scale(1.04);}
-.learning-card-body{padding:1.1rem 1.25rem 1.25rem;}
-.learning-card-tag{display:inline-block;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);background:rgba(29,111,164,0.1);padding:0.2rem 0.55rem;border-radius:4px;margin-bottom:0.55rem;}
-.learning-card-body h3{font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:700;color:var(--navy);margin-bottom:0.45rem;line-height:1.35;}
-.learning-card-body p{font-size:0.82rem;color:var(--muted);line-height:1.55;margin-bottom:0.75rem;}
-.learning-card-cta{font-size:0.82rem;color:var(--blue);font-weight:600;}
-
 /* CERTS */
 .certs-bg{background:var(--off);}
 .certs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
@@ -186,11 +171,11 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
 @media(max-width:900px){
   .hero-inner,.about-grid,.connect-grid{grid-template-columns:1fr;}
   .hero-photo-wrap{display:none;}
-  .portfolio-strip .section-inner,.skills-grid,.projects-grid,.certs-grid,.learning-grid{grid-template-columns:1fr 1fr;}
+  .portfolio-strip .section-inner,.skills-grid,.projects-grid,.certs-grid{grid-template-columns:1fr 1fr;}
   .nav-links{display:none;}
 }
 @media(max-width:600px){
-  .portfolio-strip .section-inner,.skills-grid,.projects-grid,.certs-grid,.learning-grid{grid-template-columns:1fr;}
+  .portfolio-strip .section-inner,.skills-grid,.projects-grid,.certs-grid{grid-template-columns:1fr;}
   .hero-stats{grid-template-columns:1fr 1fr 1fr;}
 }
 </style>
@@ -207,7 +192,6 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
       <li><a href="#experience">Experience</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#certifications">Certs</a></li>
-      <li><a href="#learning-pages">Learning</a></li>
       <li><a href="#connect">Connect</a></li>
       <li><a href="consulting.html">Consulting</a></li>
     </ul>
@@ -536,121 +520,6 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
       <div class="cert-card"><div class="cert-icon">📋</div><div class="cert-name">DevOps Foundation</div><div class="cert-issuer">DevOps Institute</div><div class="cert-status">Active</div></div>
       <div class="cert-card"><div class="cert-icon">🤖</div><div class="cert-name">CrewAI Multi-Agent Systems</div><div class="cert-issuer">CrewAI</div><div class="cert-status">Completed</div></div>
       <div class="cert-card"><div class="cert-icon">📦</div><div class="cert-name">Vector Databases: Embeddings to Apps</div><div class="cert-issuer">DeepLearning.AI</div><div class="cert-status">Completed</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- LEARNING PAGES -->
-<section id="learning-pages" class="learning-bg">
-  <div class="section-inner">
-    <div class="section-tag">Learning Resources</div>
-    <h2 class="section-title">Hands-on AI Learning Pages</h2>
-    <p class="section-subtitle">Interactive explainers and practical guides covering LLM foundations, fine-tuning, and AI engineering workflows.</p>
-    <div class="learning-grid">
-      <article class="learning-card">
-        <a href="AI-Enginee-Job-Portals.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="assets/learning/ai-job-portals.svg" alt="AI Engineer Job Portals preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Career</span>
-            <h3>AI Engineer Job Portals</h3>
-            <p>Curated AI and ML hiring portals with practical focus for active job search.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="claude_code_tutorial.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="assets/learning/claude-code.svg" alt="Claude Code Tutorial preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Tooling</span>
-            <h3>Claude Code Tutorial</h3>
-            <p>Beginner-friendly walkthrough for using Claude Code effectively in real projects.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="fineTuning.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="assets/learning/fine-tuning.svg" alt="Fine-Tuning LLMs preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">LLM</span>
-            <h3>Fine-Tuning LLMs</h3>
-            <p>Practical notes and examples for adapting base models to specific tasks.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="LLM-Explorer-Standalone.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="assets/learning/llm-explorer.svg" alt="LLM Explorer preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Explorer</span>
-            <h3>LLM Explorer (Standalone)</h3>
-            <p>Standalone page to explore LLM concepts and behavior in an approachable format.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="positional-encoding-standalone.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="assets/learning/positional-encoding.svg" alt="Positional Encoding standalone preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Embeddings</span>
-            <h3>Positional Encoding (Standalone)</h3>
-            <p>Visual, standalone explainer for how positional information is added in transformers.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="positional_encoding.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="assets/learning/positional-encoding.svg" alt="Positional Encoding in-depth preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Transformers</span>
-            <h3>Positional Encoding (In-Depth)</h3>
-            <p>Detailed intuition and deeper explanation of positional encoding mechanisms.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="PythonBasicsOffline.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="assets/learning/python-basics.svg" alt="Python Basics preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Python</span>
-            <h3>Python Basics (Offline)</h3>
-            <p>Fast refresher on core Python fundamentals for AI and automation workflows.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="SelfAttentionExplainerOffline.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="assets/learning/self-attention.svg" alt="Self-Attention Explainer preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Transformers</span>
-            <h3>Self-Attention Explainer (Offline)</h3>
-            <p>Simple offline explainer of self-attention concepts with practical intuition.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
     </div>
   </div>
 </section>

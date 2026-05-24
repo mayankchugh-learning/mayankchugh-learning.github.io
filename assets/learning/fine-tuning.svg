@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Fine-Tuning LLMs">
+  <rect width="400" height="225" fill="#0d0d0f"/>
+  <path d="M48 170 C120 120, 180 200, 250 130 S 340 90, 352 70" fill="none" stroke="#f0a500" stroke-width="3"/>
+  <path d="M48 185 C130 150, 200 185, 280 150 S 350 120, 352 100" fill="none" stroke="#7dd4c6" stroke-width="2" opacity="0.7"/>
+  <rect x="64" y="48" width="120" height="56" rx="8" fill="#16161a" stroke="rgba(240,165,0,0.4)"/>
+  <text x="124" y="82" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#f0a500">FT</text>
+  <rect x="216" y="48" width="120" height="56" rx="8" fill="#16161a" stroke="rgba(125,212,198,0.4)"/>
+  <text x="276" y="82" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#7dd4c6">LoRA</text>
+</svg>
