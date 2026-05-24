@@ -1,26 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Claude Code — Complete Beginner's Guide</title>
+<script>
+(function () {
+  var saved = localStorage.getItem('claude-tutorial-theme');
+  var theme = saved || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
+  /* ─── THEME TOKENS ─────────────────────────────────────── */
+  [data-theme="dark"] {
     --bg: #0a0a0f;
     --bg2: #12121a;
     --bg3: #1a1a26;
-    --border: rgba(120,100,255,0.18);
+    --border: rgba(120,100,255,0.22);
+    --accent: #7c6dfa;
+    --accent2: #a78bfa;
+    --accent3: #38bdf8;
+    --text: #f3f1fa;
+    --text2: #c8c2dc;
+    --text3: #9b93b0;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --coral: #fb7185;
+    --hero-bg: linear-gradient(135deg, #0d0b1e 0%, #0a1628 50%, #0d0b1e 100%);
+    --hero-glow: rgba(124,109,250,0.14);
+    --hero-title: linear-gradient(135deg, #fff 0%, #c4b5fd 55%, #7dd3fc 100%);
+    --code-bg: #0d0c14;
+    --code-border: rgba(124,109,250,0.28);
+    --syn-k: #c4b5fd;
+    --syn-s: #6ee7b7;
+    --syn-c: #94a3b8;
+    --syn-cmd: #67e8f9;
+    --syn-p: #f3f1fa;
+    --syn-n: #fcd34d;
+    --svg-text: #f3f1fa;
+    --svg-muted: #c8c2dc;
+    --svg-dim: #94a3b8;
+    --switcher-bg: rgba(18,18,26,0.92);
+    --switcher-text: #f3f1fa;
+  }
+
+  [data-theme="light"] {
+    --bg: #f6f7fb;
+    --bg2: #ffffff;
+    --bg3: #eef1f8;
+    --border: rgba(91,78,180,0.2);
+    --accent: #5b4fc7;
+    --accent2: #6d28d9;
+    --accent3: #0369a1;
+    --text: #12131a;
+    --text2: #3f4458;
+    --text3: #5c637a;
+    --green: #047857;
+    --amber: #b45309;
+    --red: #b91c1c;
+    --coral: #be123c;
+    --hero-bg: linear-gradient(135deg, #ede9fe 0%, #e0f2fe 50%, #f5f3ff 100%);
+    --hero-glow: rgba(91,78,180,0.12);
+    --hero-title: linear-gradient(135deg, #1e1b4b 0%, #5b21b6 55%, #0369a1 100%);
+    --code-bg: #1e1e2e;
+    --code-border: rgba(91,78,180,0.25);
+    --syn-k: #c4b5fd;
+    --syn-s: #6ee7b7;
+    --syn-c: #a8b0bd;
+    --syn-cmd: #7dd3fc;
+    --syn-p: #f3f4f6;
+    --syn-n: #fcd34d;
+    --svg-text: #12131a;
+    --svg-muted: #475569;
+    --svg-dim: #64748b;
+    --switcher-bg: rgba(255,255,255,0.95);
+    --switcher-text: #12131a;
+  }
+
+  [data-theme="midnight"] {
+    --bg: #050508;
+    --bg2: #0c0c12;
+    --bg3: #14141c;
+    --border: rgba(120,100,255,0.15);
     --accent: #7c6dfa;
     --accent2: #a78bfa;
     --accent3: #38bdf8;
     --text: #e8e6f0;
     --text2: #a09bb8;
-    --text3: #6b6580;
+    --text3: #7a7490;
     --green: #34d399;
     --amber: #fbbf24;
     --red: #f87171;
     --coral: #fb7185;
+    --hero-bg: linear-gradient(135deg, #05040f 0%, #061018 50%, #05040f 100%);
+    --hero-glow: rgba(124,109,250,0.1);
+    --hero-title: linear-gradient(135deg, #fff 0%, var(--accent2) 60%, var(--accent3) 100%);
+    --code-bg: #08070f;
+    --code-border: rgba(124,109,250,0.2);
+    --syn-k: #a78bfa;
+    --syn-s: #34d399;
+    --syn-c: #8b93a3;
+    --syn-cmd: #38bdf8;
+    --syn-p: #e8e6f0;
+    --syn-n: #fbbf24;
+    --svg-text: #e8e6f0;
+    --svg-muted: #a09bb8;
+    --svg-dim: #8b93a3;
+    --switcher-bg: rgba(12,12,18,0.94);
+    --switcher-text: #e8e6f0;
+  }
+
+  [data-theme="contrast"] {
+    --bg: #000000;
+    --bg2: #0a0a0a;
+    --bg3: #141414;
+    --border: #ffffff;
+    --accent: #ffff00;
+    --accent2: #ffff66;
+    --accent3: #00ffff;
+    --text: #ffffff;
+    --text2: #f0f0f0;
+    --text3: #d4d4d4;
+    --green: #00ff88;
+    --amber: #ffcc00;
+    --red: #ff6666;
+    --coral: #ff99aa;
+    --hero-bg: #000000;
+    --hero-glow: rgba(255,255,0,0.08);
+    --hero-title: linear-gradient(135deg, #fff 0%, #ffff00 100%);
+    --code-bg: #000000;
+    --code-border: #ffffff;
+    --syn-k: #ffff66;
+    --syn-s: #00ff88;
+    --syn-c: #cccccc;
+    --syn-cmd: #00ffff;
+    --syn-p: #ffffff;
+    --syn-n: #ffcc00;
+    --svg-text: #ffffff;
+    --svg-muted: #e0e0e0;
+    --svg-dim: #cccccc;
+    --switcher-bg: #000000;
+    --switcher-text: #ffffff;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -29,11 +152,53 @@
     font-family: 'Space Grotesk', sans-serif;
     line-height: 1.7;
     min-height: 100vh;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  /* ─── THEME SWITCHER ───────────────────────────────────── */
+  .theme-switcher {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--switcher-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  }
+  .theme-switcher label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--switcher-text);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .theme-switcher select {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--switcher-text);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 28px 6px 10px;
+    cursor: pointer;
+    outline: none;
+  }
+  .theme-switcher select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(124,109,250,0.25);
   }
 
   /* ─── HERO ─────────────────────────────────────────────── */
   .hero {
-    background: linear-gradient(135deg, #0d0b1e 0%, #0a1628 50%, #0d0b1e 100%);
+    background: var(--hero-bg);
     padding: 80px 40px 60px;
     text-align: center;
     position: relative;
@@ -44,7 +209,7 @@
     content: '';
     position: absolute;
     width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(124,109,250,0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--hero-glow) 0%, transparent 70%);
     top: -100px; left: 50%; transform: translateX(-50%);
     pointer-events: none;
   }
@@ -65,7 +230,7 @@
     font-size: clamp(36px, 6vw, 72px);
     font-weight: 700;
     line-height: 1.1;
-    background: linear-gradient(135deg, #fff 0%, var(--accent2) 60%, var(--accent3) 100%);
+    background: var(--hero-title);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -152,8 +317,9 @@
     font-weight: 700;
     font-size: 18px;
     flex-shrink: 0;
+    color: #ffffff;
   }
-  .section-title { font-size: 32px; font-weight: 700; }
+  .section-title { font-size: 32px; font-weight: 700; color: var(--text); }
   .section-sub { font-size: 15px; color: var(--text2); margin-top: 4px; }
   h3 { font-size: 20px; font-weight: 600; margin: 32px 0 16px; color: var(--accent2); }
   p { color: var(--text2); margin-bottom: 16px; font-size: 15px; }
@@ -180,8 +346,8 @@
 
   /* ─── CODE BLOCK ─────────────────────────────────────────── */
   .code-block {
-    background: #0d0c14;
-    border: 1px solid rgba(124,109,250,0.2);
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
     border-radius: 12px;
     overflow: hidden;
     margin: 20px 0;
@@ -205,12 +371,12 @@
     line-height: 1.8;
     overflow-x: auto;
   }
-  .k { color: #a78bfa; }
-  .s { color: #34d399; }
-  .c { color: #4b5563; font-style: italic; }
-  .cmd { color: #38bdf8; }
-  .p { color: #e8e6f0; }
-  .n { color: #fbbf24; }
+  .k { color: var(--syn-k); }
+  .s { color: var(--syn-s); }
+  .c { color: var(--syn-c); font-style: italic; }
+  .cmd { color: var(--syn-cmd); }
+  .p { color: var(--syn-p); }
+  .n { color: var(--syn-n); }
 
   /* ─── CARDS ─────────────────────────────────────────────── */
   .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 24px 0; }
@@ -223,7 +389,7 @@
   }
   .card:hover { border-color: var(--accent); }
   .card-icon { font-size: 28px; margin-bottom: 12px; }
-  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
   .card-desc { font-size: 13px; color: var(--text2); }
 
   /* ─── STEP LIST ─────────────────────────────────────────── */
@@ -249,7 +415,7 @@
     font-family: 'JetBrains Mono', monospace;
   }
   .step-content { flex: 1; }
-  .step-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .step-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
   .step-desc { font-size: 14px; color: var(--text2); margin: 0; }
 
   /* ─── CALLOUT ─────────────────────────────────────────── */
@@ -304,7 +470,17 @@
   /* ─── ARCHITECTURE DIAGRAM HELPERS ─────────────────────── */
   .arch-label { font-family: 'Space Grotesk', sans-serif; }
 
+  /* SVG text contrast across themes */
+  .illustration svg text[fill="#4b5563"],
+  .illustration svg text[fill="#6b6580"] { fill: var(--svg-dim) !important; }
+  .illustration svg text[fill="#a09bb8"] { fill: var(--svg-muted) !important; }
+  .illustration svg text[fill="#e8e6f0"],
+  .illustration svg text[fill="#f3f1fa"] { fill: var(--svg-text) !important; }
+
+  footer a { color: var(--accent2); }
+
   @media (max-width: 640px) {
+    .theme-switcher { top: auto; bottom: 14px; right: 14px; left: 14px; justify-content: space-between; }
     .compare { grid-template-columns: 1fr; }
     .hero h1 { font-size: 36px; }
     .hero-stats { gap: 24px; }
@@ -312,6 +488,16 @@
 </style>
 </head>
 <body>
+
+<div class="theme-switcher">
+  <label for="theme-select">Theme</label>
+  <select id="theme-select" aria-label="Choose color theme">
+    <option value="dark">Dark (readable)</option>
+    <option value="light">Light</option>
+    <option value="midnight">Midnight</option>
+    <option value="contrast">High contrast</option>
+  </select>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -1524,8 +1710,30 @@
 
 <footer>
   <p>Claude Code Tutorial · Based on the 7-hour Data Domain Edition masterclass by <strong>AnishLamba</strong></p>
-  <p style="margin-top:8px;color:#4b5563">Generated guide — check <a href="https://docs.claude.ai" style="color:var(--accent2)">docs.claude.ai</a> for latest official documentation</p>
+  <p style="margin-top:8px;color:var(--text3)">Generated guide — check <a href="https://docs.claude.ai">docs.claude.ai</a> for latest official documentation</p>
 </footer>
+
+<script>
+(function () {
+  var select = document.getElementById('theme-select');
+  var root = document.documentElement;
+  var storageKey = 'claude-tutorial-theme';
+
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    localStorage.setItem(storageKey, theme);
+    if (select && select.value !== theme) select.value = theme;
+  }
+
+  if (select) {
+    var current = root.getAttribute('data-theme') || 'dark';
+    select.value = current;
+    select.addEventListener('change', function () {
+      applyTheme(select.value);
+    });
+  }
+})();
+</script>
 
 </body>
 </html>
