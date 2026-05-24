@@ -401,7 +401,7 @@
 <div class="header">
   <div class="header-meta">Full Stack GenAI Bootcamp 1.0 &nbsp;·&nbsp; Class 18 &nbsp;·&nbsp; 23 May 2026</div>
   <h1>Fine-<span>Tuning</span><br>Large Language Models</h1>
-  <p class="header-sub">Instructor: Sunny Savita &nbsp;·&nbsp; Compiled from lecture transcript &amp; handwritten notes</p>
+  <p class="header-sub">Mayank Chugh &nbsp;·&nbsp; Compiled from lecture transcript &amp; handwritten notes</p>
   <div>
     <span class="tag">SFT</span>
     <span class="tag">PEFT</span>
@@ -444,7 +444,7 @@
 
   <blockquote>
     "Fine-tuning is a process of taking an already-trained model and training it further on your domain-specific data for better performance."
-    <cite>— Sunny Savita, Class 18 lecture</cite>
+    <cite>— Class 18 lecture notes</cite>
   </blockquote>
 
   <p>The key insight is that training a large language model from scratch is extremely difficult (massive compute, massive data, massive time). Instead, we leverage the general knowledge already embedded in a publicly-available open-source model, and <em>specialise</em> it for our needs.</p>
@@ -555,7 +555,7 @@
   <div class="section-label">04 · Strategy</div>
   <h2>Choosing the right base model for custom fine-tuning</h2>
 
-  <p>The choice of starting stage depends entirely on what output you want from your fine-tuned model. The instructor demonstrated this using a <strong>pharma company use case</strong>:</p>
+  <p>The choice of starting stage depends entirely on what output you want from your fine-tuned model. The lecture demonstrated this using a <strong>pharma company use case</strong>:</p>
 
   <div class="callout">
     Use case: A pharma company has internal documents on molecule studies and wants an AI model to work with that domain-specific data.
@@ -736,7 +736,7 @@
 
   <blockquote>
     "PEFT is just a parent term. LoRA is a PEFT technique — like how 'man' and 'woman' are both human."
-    <cite>— Sunny Savita</cite>
+    <cite>— Class 18 lecture notes</cite>
   </blockquote>
 
   <h3>PEFT techniques covered in this course</h3>
@@ -829,7 +829,7 @@
   <p>After SFT, a model knows how to follow instructions — but it may not respond the way humans <em>prefer</em>. Preference alignment is Stage 3 of the pipeline: training the model to match human preference.</p>
 
   <h3>How is preference data collected?</h3>
-  <p>As demonstrated by the instructor using a ChatGPT screenshot (visible in handwritten notes page 4): users are shown <strong>two responses</strong> to the same prompt and asked "Which response do you prefer?" This generates <em>preference-annotated data</em> — each sample records which response was chosen and which was rejected.</p>
+  <p>As shown in the lecture using a ChatGPT screenshot (visible in handwritten notes page 4): users are shown <strong>two responses</strong> to the same prompt and asked "Which response do you prefer?" This generates <em>preference-annotated data</em> — each sample records which response was chosen and which was rejected.</p>
 
   <div class="callout purple">
     The data format for preference tuning includes: a prompt, a "chosen" response (preferred by humans), and a "rejected" response (not preferred). This is sometimes called a triplet: (prompt, chosen, rejected).
@@ -1001,7 +1001,7 @@
 
 <footer style="margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); line-height: 1.8;">
   <div>Class 18 · Full Stack GenAI Bootcamp 1.0 · 23 May 2026</div>
-  <div>Instructor: Sunny Savita · Notes compiled from: lecture transcript (GMT20260523) + handwritten PDF notes</div>
+  <div>Mayank Chugh · Notes compiled from: lecture transcript (GMT20260523) + handwritten PDF notes</div>
   <div>Topics: Fine-Tuning · SFT · PEFT · LoRA · QLoRA · DoRA · RLHF · DPO · Preference Alignment</div>
 </footer>
 
