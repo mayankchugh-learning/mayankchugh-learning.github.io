@@ -108,7 +108,7 @@
   }
 
   /* SECTIONS */
-  section { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; }
+  section { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; scroll-margin-top: 70px; }
   .section-label {
     font-family: var(--mono); font-size: 11px; color: var(--blue);
     letter-spacing: 0.1em; text-transform: uppercase;
@@ -264,6 +264,17 @@
     border-radius: 20px; border: 1px solid var(--border2); color: var(--muted);
     background: var(--bg3);
   }
+  .section-jump {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    margin-top: 1.5rem; padding: 1.15rem 1.35rem;
+    background: var(--teal-dim); border: 1px solid var(--teal-border);
+    border-radius: 12px; text-decoration: none; color: var(--text);
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .section-jump:hover { border-color: var(--teal); transform: translateY(-2px); color: var(--text); }
+  .section-jump-text strong { display: block; font-size: 15px; color: var(--teal); margin-bottom: 0.25rem; }
+  .section-jump-text span { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .section-jump-arrow { font-family: var(--mono); font-size: 13px; color: var(--teal); white-space: nowrap; }
 
   /* MODULES GRID */
   .module-card {
@@ -316,7 +327,7 @@
     <li><a href="#qlik">Qlik & CDC</a></li>
     <li><a href="#alternatives">Alternatives</a></li>
     <li><a href="#interview">Interview Prep</a></li>
-    <li><a href="#interview-bi">BI Playbook</a></li>
+    <li><a href="#interview-bi">Section 07</a></li>
   </ul>
 </nav>
 
@@ -779,6 +790,14 @@
   <div class="highlight" style="margin-top: 1.5rem;">
     <strong>Tip for interviews:</strong> Frame D365 as a <em>platform</em>, not a product. Interviewers appreciate candidates who understand the modularity and the Microsoft ecosystem surrounding it. Mention Dataverse, Synapse Link, and Power Platform — these signal you understand the data engineering angle, not just the business application surface.
   </div>
+
+  <a href="#interview-bi" class="section-jump">
+    <div class="section-jump-text">
+      <strong>Continue to Section 07 — BI &amp; Supply Chain Interview Playbook</strong>
+      <span>ERP experience, SSAS takeover with no backup, SQL Server 2016 migration, documentation, 90-day plan, risks, and cube troubleshooting — scroll down or click here.</span>
+    </div>
+    <span class="section-jump-arrow">Section 07 →</span>
+  </a>
 </section>
 
 <hr class="divider">
