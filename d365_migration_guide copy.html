@@ -240,7 +240,7 @@
   }
   .rec-box strong { color: var(--teal); }
 
-  /* KNOWLEDGE NOTES */
+  /* INTERVIEW QA */
   .qa { border-left: 2px solid var(--blue); padding: 0.6rem 1rem; margin-bottom: 12px; }
   .qa-q { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
   .qa-a { font-size: 13px; color: var(--muted); line-height: 1.6; }
@@ -326,8 +326,8 @@
     <li><a href="#migration">Migration Stack</a></li>
     <li><a href="#qlik">Qlik & CDC</a></li>
     <li><a href="#alternatives">Alternatives</a></li>
-    <li><a href="#concepts">Key Concepts</a></li>
-    <li><a href="#enterprise-bi">Enterprise BI</a></li>
+    <li><a href="#interview">Interview Prep</a></li>
+    <li><a href="#interview-bi">Section 07</a></li>
   </ul>
 </nav>
 
@@ -752,11 +752,11 @@
 
 <hr class="divider">
 
-<!-- KEY CONCEPTS -->
-<section id="concepts">
+<!-- INTERVIEW PREP -->
+<section id="interview">
   <div class="section-label">Section 06</div>
-  <h2>Key Concepts — Reference Notes</h2>
-  <p class="lead">Core D365 and migration concepts worth understanding when planning a move from legacy Microsoft BI to Azure.</p>
+  <h2>Interview Prep — Quick Reference</h2>
+  <p class="lead">Likely questions and the angles that demonstrate genuine understanding — not just surface knowledge.</p>
 
   <div class="qa">
     <div class="qa-q">What is Dynamics 365 and how does it differ from Salesforce or SAP?</div>
@@ -788,17 +788,25 @@
   </div>
 
   <div class="highlight" style="margin-top: 1.5rem;">
-    <strong>Platform perspective:</strong> D365 works best when treated as a <em>platform</em>, not a single product. Understanding Dataverse, Synapse Link, and Power Platform clarifies the data engineering layer beneath the business applications.
+    <strong>Tip for interviews:</strong> Frame D365 as a <em>platform</em>, not a product. Interviewers appreciate candidates who understand the modularity and the Microsoft ecosystem surrounding it. Mention Dataverse, Synapse Link, and Power Platform — these signal you understand the data engineering angle, not just the business application surface.
   </div>
+
+  <a href="#interview-bi" class="section-jump">
+    <div class="section-jump-text">
+      <strong>Continue to Section 07 — BI &amp; Supply Chain Interview Playbook</strong>
+      <span>ERP experience, SSAS takeover with no backup, SQL Server 2016 migration, documentation, 90-day plan, risks, and cube troubleshooting — scroll down or click here.</span>
+    </div>
+    <span class="section-jump-arrow">Section 07 →</span>
+  </a>
 </section>
 
 <hr class="divider">
 
-<!-- ENTERPRISE BI & SUPPLY CHAIN -->
-<section id="enterprise-bi">
+<!-- BI & SUPPLY CHAIN INTERVIEW PLAYBOOK -->
+<section id="interview-bi">
   <div class="section-label">Section 07</div>
-  <h2>Enterprise BI &amp; Supply Chain — Practical Notes</h2>
-  <p class="lead">Approaches and lessons from ERP, supply chain, database migration, and BI modernisation programmes — drawn from delivery at Cathay Pacific Cargo Terminal, HSBC, CHANEL, M&amp;S, and British Airways.</p>
+  <h2>BI &amp; Supply Chain — Interview Playbook</h2>
+  <p class="lead">Straightforward, high-level responses for ERP, supply chain applications, database migration, and BI modernisation interviews. Grounded in 20+ years of enterprise delivery — Cathay Pacific Cargo Terminal, HSBC, CHANEL, M&amp;S, and British Airways.</p>
 
   <div class="exp-pill-row">
     <span class="exp-pill">D365 F&amp;SCM · ERP</span>
@@ -810,16 +818,16 @@
     <span class="exp-pill">HK &amp; India delivery</span>
   </div>
 
-  <h3 style="margin-bottom: 0.75rem;">Delivery background</h3>
+  <h3 style="margin-bottom: 0.75rem;">Opening — how to frame your experience</h3>
   <div class="talk-track">
-    <span class="talk-track-label">Overview</span>
-    Enterprise delivery across aviation logistics, global banking, and luxury retail — working with operations, finance, and warehouse teams alongside technology. At Cathay Pacific Cargo Terminal: 13 years on cargo and supply chain systems at HKIA — integrations, warehouse operations, and enterprise applications. At HSBC through Capgemini: cloud data platform delivery — D365 on-prem to Azure migration using Qlik Replicate CDC, SQL Server modernisation, and Power BI for enterprise analytics. Focus areas include ERP data, supply chain KPI design, and moving legacy Microsoft BI stacks to Azure without disrupting business operations.
+    <span class="talk-track-label">30-second pitch</span>
+    "I bring 20+ years across aviation logistics, global banking, and luxury retail — not just as a technologist but as someone who has sat with operations, finance, and warehouse teams. At Cathay Pacific Cargo Terminal I spent 13 years on cargo and supply chain systems at HKIA — integrations, warehouse operations, and enterprise applications. At HSBC through Capgemini I delivered a cloud data platform: D365 on-prem to Azure migration using Qlik Replicate CDC, SQL Server modernisation, and Power BI for enterprise analytics. I understand ERP data, how supply chain KPIs are calculated, and how to move a legacy Microsoft BI stack to Azure without breaking the business."
   </div>
 
   <h3 style="margin: 2rem 0 0.75rem;">ERP, supply chain applications &amp; BI modernisation</h3>
 
   <div class="qa">
-    <div class="qa-q">ERP and supply-chain application experience</div>
+    <div class="qa-q">Highlight your experience on ERP and supply-chain-related applications</div>
     <div class="qa-a">
       <strong>Cathay Pacific Cargo Terminal (13 years):</strong> Cargo terminal operations at HKIA — warehouse management, cargo handling workflows, SITA/ACCS integrations, and line-of-business applications supporting inbound/outbound freight, ULD tracking, and operational reporting. This is real supply chain at scale: inventory movement, SLA-driven operations, and multi-party logistics.<br><br>
       <strong>HSBC (Capgemini):</strong> Global finance programme architecture. D365 on-prem ERP data extracted and replicated to Azure for analytics — finance and operational reporting across a regulated banking environment.<br><br>
@@ -834,7 +842,7 @@
     <div class="qa-a">
       At HSBC: led the technical architecture for <strong>D365 on-prem → Azure SQL</strong> migration using <strong>Qlik Replicate</strong> for log-based CDC — near real-time replication without heavy load on source systems. This is the pattern I'd reuse for any SQL Server 2016 warehouse or staging DB: assess source, replicate to Azure landing zone, validate row counts and checksums, cut over with rollback plan.<br><br>
       At Cathay (recent CCT programme): <strong>Oracle → Aurora PostgreSQL</strong> and on-prem → AWS migration for cargo terminal applications — same principles: discovery, parallel run, data reconciliation, phased cutover.<br><br>
-      <strong>Key principle:</strong> Migration should not be treated as lift-and-shift. Map dependencies — SSIS packages, linked servers, cube data sources, report connections — before changing any database.
+      <strong>Key message:</strong> I don't treat migration as a lift-and-shift. I map dependencies — SSIS packages, linked servers, cube data sources, report connections — before touching a single database.
     </div>
   </div>
 
@@ -846,7 +854,7 @@
       <strong>2. Decouple ingestion</strong> — move ETL from SSIS to ADF/Fabric pipelines. Keep SSAS cubes running in parallel during transition.<br>
       <strong>3. Modernise the semantic layer</strong> — migrate SSAS tabular models to Azure Analysis Services or Fabric Semantic Models. DAX carries over. Retire multidimensional cubes only after tabular equivalent is validated.<br>
       <strong>4. Democratise consumption</strong> — Power BI for self-service and executive dashboards. Fabric Paginated Reports for legacy SSRS RDL reports. Synapse Link or CDC for D365/ERP ongoing replication.<br><br>
-      At HSBC this pattern was executed: Qlik for CDC → Azure SQL → Power BI, with the legacy stack kept running until business sign-off on each report.
+      At HSBC this is exactly what we executed: Qlik for CDC → Azure SQL → Power BI, with the legacy stack kept running until business sign-off on each report.
     </div>
   </div>
 
@@ -855,12 +863,12 @@
   <div class="qa">
     <div class="qa-q">How did you take over SSAS with no internal backup?</div>
     <div class="qa-a">
-      A common enterprise scenario — the original developer left years ago and documentation is thin. A practical recovery approach:<br><br>
-      <strong>Week 1 — Discovery without touching production:</strong> Export everything available via SSMS/XMLA scripts, SQL Agent job definitions, and SSIS package source. Talk to the top report consumers: "What decisions do you make from this cube?" not "What columns do you need?"<br><br>
+      This is a common enterprise scenario — the original developer left years ago and documentation is thin. My playbook:<br><br>
+      <strong>Week 1 — Discovery without touching production:</strong> Export everything available via SSMS/XMLA scripts, SQL Agent job definitions, and SSIS package source. Interview the top 5 report consumers: "What decisions do you make from this cube?" not "What columns do you need?"<br><br>
       <strong>Week 2 — Reverse-engineer the model:</strong> Open the SSAS project in Visual Studio or Tabular Editor. Map measures, calculated columns, hierarchies, and KPIs. Trace each measure back to its source table/view in SQL Server. Build a <em>measure dictionary</em> — business name, DAX/MDX definition, source table, owner, refresh frequency.<br><br>
       <strong>Week 3 — Shadow and validate:</strong> Run the same queries in Excel/Power BI against the cube and against source SQL. Reconcile numbers with finance or operations. Discrepancies reveal hidden business rules (filters, unknown members, custom rollups).<br><br>
       <strong>Week 4 — Establish ownership:</strong> Assign a business owner per subject area (e.g. inventory, procurement, finance). Publish documentation. Set up automated XMLA backups to source control going forward.<br><br>
-      <strong>Operating principle:</strong> Assume zero documentation on day one. Treat the running system as the spec — reverse-engineer it, validate with business users, and rebuild knowledge before changing anything.
+      <strong>What I'd say in the interview:</strong> "I assume zero documentation on day one. I treat the running system as the spec — reverse-engineer it, validate with business users, and rebuild knowledge before I change anything."
     </div>
   </div>
 
@@ -884,7 +892,7 @@
       <strong>Option B — SQL Server 2022 on-prem / Azure VM:</strong> If data sovereignty or latency rules out cloud. Use DMA (Data Migration Assistant) for compatibility assessment. Plan a side-by-side migration with log shipping or Always On for cutover.<br><br>
       <strong>Option C — Azure SQL Database:</strong> For smaller, cloud-native workloads without SQL Agent or cross-database dependencies. Cheapest but least compatible with legacy SSIS/linked server patterns.<br><br>
       <strong>Option D — Synapse dedicated SQL pool / Fabric Warehouse:</strong> For analytical workloads only — not OLTP. Migrate the data warehouse tier here; keep OLTP on MI or SQL 2022.<br><br>
-      <strong>Recommendation framework:</strong> Run DMA assessment first. Classify each database as OLTP, staging/ETL, or warehouse. OLTP → MI or SQL 2022. Warehouse → Synapse or Fabric. Staging → ADF + ADLS medallion architecture. Avoid migrating everything to a single target.
+      <strong>My recommendation framework:</strong> Run DMA assessment first. Classify each database as OLTP, staging/ETL, or warehouse. OLTP → MI or SQL 2022. Warehouse → Synapse or Fabric. Staging → ADF + ADLS medallion architecture. Never migrate everything to one target.
     </div>
   </div>
 
@@ -911,7 +919,7 @@
     </div>
   </div>
 
-  <h3 style="margin: 2rem 0 0.75rem;">90-day approach for BI modernisation programmes</h3>
+  <h3 style="margin: 2rem 0 0.75rem;">First 90 days — how I'd tackle this upon joining</h3>
 
   <div class="phase-grid">
     <div class="phase">
@@ -993,12 +1001,13 @@
       <strong>If it's tooling (Excel pivot tables are clunky):</strong> Migrate consumption to Power BI with pre-built dashboards. Keep the SSAS cube as the engine underneath initially — users get a modern UI without a risky backend change on day one.<br><br>
       <strong>If it's data freshness (yesterday's stock levels):</strong> Introduce CDC from ERP to staging SQL, process the cube incrementally every hour instead of nightly full refresh. Or bypass the cube for operational dashboards using DirectQuery.<br><br>
       <strong>If it's training (users don't understand the data):</strong> Publish a measure dictionary. Run 1-hour workshops per team. Assign a BI champion in each department.<br><br>
-      <strong>Recommended approach:</strong> Do not rip out the cube on day one. Put a modern consumption layer in front of it — Power BI with a simplified semantic model — fix freshness with incremental processing, and migrate the engine to Azure Analysis Services or Fabric in Wave 2 once users trust the numbers.
+      <strong>My default answer in the interview:</strong> "I wouldn't rip out the cube on day one. I'd put a modern consumption layer in front of it — Power BI with a simplified semantic model — fix freshness with incremental processing, and migrate the engine to Azure Analysis Services or Fabric in Wave 2 once users trust the numbers."
     </div>
   </div>
 
   <div class="rec-box">
-    <strong>Summary:</strong> Legacy D365 and SQL Server stacks can be stabilised, documented, and modernised in waves while keeping business operations running. At HSBC, a programme replicated on-prem ERP data to Azure with Qlik CDC and delivered Power BI for enterprise analytics. At Cathay, cargo and supply chain systems demonstrated how reporting accuracy directly affects operations — the same discipline applies when migrating off SQL Server 2016 before end of support in July 2026.
+    <strong>Closing line for today's interview:</strong><br><br>
+    "I've done this before — at HSBC I took a legacy D365 and SQL Server stack with no clear documentation, replicated it to Azure with Qlik CDC, and delivered Power BI for enterprise analytics. At Cathay I spent 13 years in cargo and supply chain systems where reporting accuracy directly affects operations. I know how to stabilise what you have, document it properly, modernise in waves, and keep the business running while we migrate off SQL Server 2016 before end of support in July 2026."
   </div>
 </section>
 

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Prep — ERP, BI & Migration</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #fafaf8;
+    --bg2:      #f3f2ee;
+    --bg3:      #eceae4;
+    --surface:  #ffffff;
+    --border:   #e0ddd5;
+    --border2:  #c8c4bb;
+    --text:     #1a1916;
+    --muted:    #6b6760;
+    --faint:    #a8a49c;
+    --ink:      #2d2c29;
+    --blue:     #1a56a0;
+    --blue-bg:  #eef4fc;
+    --blue-bdr: #b3cceb;
+    --amber:    #b45309;
+    --amber-bg: #fef3e2;
+    --amber-bdr:#f0c070;
+    --red:      #b91c1c;
+    --red-bg:   #fef2f2;
+    --red-bdr:  #fca5a5;
+    --green:    #166534;
+    --green-bg: #f0fdf4;
+    --green-bdr:#86efac;
+    --purple:   #5b21b6;
+    --purple-bg:#f5f3ff;
+    --purple-bdr:#c4b5fd;
+    --font:     'IBM Plex Sans', sans-serif;
+    --mono:     'IBM Plex Mono', monospace;
+    --radius:   8px;
+    --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.75; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: rgba(250,250,248,0.95); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-brand { font-family: var(--mono); font-size: 12px; color: var(--blue); letter-spacing: 0.04em; }
+  .nav-links { display: flex; gap: 1.25rem; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 12px; transition: color 0.15s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-tag {
+    background: var(--red-bg); border: 1px solid var(--red-bdr);
+    border-radius: 20px; padding: 2px 10px;
+    font-size: 11px; font-family: var(--mono); color: var(--red);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 7rem 2rem 4rem; max-width: 860px; margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-kicker {
+    font-family: var(--mono); font-size: 11px; color: var(--blue);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 600;
+    line-height: 1.1; letter-spacing: -0.025em; margin-bottom: 1.25rem; color: var(--ink);
+  }
+  .hero h1 em { font-style: normal; color: var(--blue); }
+  .hero-sub { font-size: 1rem; color: var(--muted); max-width: 640px; margin-bottom: 2rem; }
+  .topic-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-size: 12px; font-family: var(--mono); padding: 4px 12px;
+    border: 1px solid var(--border2); border-radius: 20px; color: var(--muted);
+    background: var(--surface);
+  }
+
+  /* ── LAYOUT ── */
+  .page-body { max-width: 860px; margin: 0 auto; padding: 0 2rem 5rem; }
+
+  /* ── SECTION HEADER ── */
+  .sec-head { padding: 3.5rem 0 1.25rem; }
+  .sec-num { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-bottom: 6px; }
+  .sec-head h2 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); }
+  .sec-head p { color: var(--muted); font-size: 0.9rem; margin-top: 6px; max-width: 600px; }
+  hr.divider { border: none; border-top: 1px solid var(--border); }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.1rem 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .card h3 { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+  .card p, .card li { font-size: 13px; color: var(--muted); line-height: 1.7; }
+  .card ul { padding-left: 1.1rem; }
+  .card ul li { margin-bottom: 3px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px; }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block; font-size: 10px; font-family: var(--mono);
+    font-weight: 500; padding: 2px 8px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 7px;
+  }
+  .tag-blue   { background: var(--blue-bg);   color: var(--blue);   border: 1px solid var(--blue-bdr); }
+  .tag-amber  { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-bdr); }
+  .tag-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-bdr); }
+  .tag-green  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-bdr); }
+  .tag-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-bdr); }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+    font-size: 13px; line-height: 1.75; margin: 1rem 0;
+  }
+  .callout strong { display: block; font-size: 12px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .callout-blue   { background: var(--blue-bg);   border-left: 3px solid var(--blue);   color: #1e3a5f; }
+  .callout-amber  { background: var(--amber-bg);  border-left: 3px solid var(--amber);  color: #6b3a0a; }
+  .callout-red    { background: var(--red-bg);    border-left: 3px solid var(--red);    color: #7f1d1d; }
+  .callout-green  { background: var(--green-bg);  border-left: 3px solid #16a34a;       color: #14532d; }
+  .callout-purple { background: var(--purple-bg); border-left: 3px solid var(--purple); color: #3b0764; }
+
+  /* ── STORY BLOCK ── */
+  .story {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .story-head {
+    padding: 0.75rem 1.25rem; background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .story-head h3 { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .story-body { padding: 1rem 1.25rem; }
+  .story-body p { font-size: 13px; color: var(--muted); line-height: 1.75; }
+  .story-body p + p { margin-top: 8px; }
+
+  /* ── STAR ROW ── */
+  .star-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0; border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; margin-bottom: 12px; box-shadow: var(--shadow);
+  }
+  .star-cell { padding: 0.9rem 1rem; border-right: 1px solid var(--border); background: var(--surface); }
+  .star-cell:last-child { border-right: none; }
+  .star-label { font-family: var(--mono); font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .star-cell p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── RISK TABLE ── */
+  .risk-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 0; }
+  .risk-table th {
+    text-align: left; padding: 9px 14px;
+    font-family: var(--mono); font-size: 10px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+  }
+  .risk-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--muted); }
+  .risk-table td:first-child { color: var(--ink); font-weight: 500; }
+  .risk-table tr:last-child td { border-bottom: none; }
+  .risk-table tr:hover td { background: var(--bg2); }
+  .risk-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 12px; }
+
+  /* ── STEP TIMELINE ── */
+  .timeline { position: relative; padding-left: 2rem; margin: 0.5rem 0 1rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 1px; background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 1.1rem; }
+  .tl-dot {
+    position: absolute; left: -1.7rem; top: 4px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--blue); border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--blue-bdr);
+  }
+  .tl-week { font-family: var(--mono); font-size: 10px; color: var(--blue); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .tl-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+  .tl-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+  /* ── SQL MIGRATION OPTIONS ── */
+  .option-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem 1.1rem;
+    box-shadow: var(--shadow); position: relative;
+  }
+  .option-card h4 { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+  .option-card p { font-size: 12px; color: var(--muted); line-height: 1.65; }
+  .rec-badge {
+    position: absolute; top: -1px; right: -1px;
+    background: var(--green); color: #fff;
+    font-family: var(--mono); font-size: 10px; padding: 2px 9px;
+    border-radius: 0 var(--radius) 0 var(--radius);
+  }
+
+  /* ── DOC FRAMEWORK ── */
+  .doc-layer {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.9rem 1.1rem;
+    margin-bottom: 8px; box-shadow: var(--shadow);
+  }
+  .doc-layer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .doc-layer h4 { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .doc-items { display: flex; flex-wrap: wrap; gap: 5px; }
+  .doc-item {
+    font-size: 11px; font-family: var(--mono); padding: 2px 9px;
+    border: 1px solid var(--border); border-radius: 4px;
+    color: var(--muted); background: var(--bg2);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem; text-align: center;
+    font-size: 11px; color: var(--faint); font-family: var(--mono);
+  }
+
+  @media (max-width: 640px) {
+    nav .nav-links { display: none; }
+    .star-row { grid-template-columns: 1fr 1fr; }
+    .star-cell { border-bottom: 1px solid var(--border); }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">Interview Prep · ERP &amp; BI</span>
+  <ul class="nav-links">
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#ssas">SSAS Takeover</a></li>
+    <li><a href="#sql2016">SQL 2016</a></li>
+    <li><a href="#documentation">Documentation</a></li>
+    <li><a href="#onboarding">Day-1 Plan</a></li>
+    <li><a href="#risks">Risks</a></li>
+    <li><a href="#cube-fix">Cube Fix</a></li>
+  </ul>
+  <span class="nav-tag">Today's Interview</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-kicker">Interview Preparation · Confidential</div>
+  <h1>ERP, Supply Chain &amp;<br><em>BI Modernisation</em></h1>
+  <p class="hero-sub">Your experience narrative, key stories, risk frameworks, and first-90-day plan — structured for a senior data / BI engineering interview focused on ERP migrations and SSAS environments.</p>
+  <div class="topic-chips">
+    <span class="chip">SSAS / SSIS / SSRS</span>
+    <span class="chip">Supply Chain ERP</span>
+    <span class="chip">SQL Server 2016 EOL</span>
+    <span class="chip">Cube &amp; Tabular Models</span>
+    <span class="chip">ADF / Azure Fabric</span>
+    <span class="chip">Documentation Frameworks</span>
+    <span class="chip">Zero-backup Takeover</span>
+  </div>
+</div>
+
+<div class="page-body">
+
+<!-- ══════════════════════════════════════════
+     SECTION 1 — ERP & SUPPLY CHAIN EXPERIENCE
+════════════════════════════════════════════ -->
+<div class="sec-head" id="experience">
+  <div class="sec-num">01 / 07</div>
+  <h2>ERP &amp; Supply Chain Experience — Your Story</h2>
+  <p>Frame your background around systems, data flows, and business impact — not just tool names.</p>
+</div>
+
+<div class="callout callout-blue">
+  <strong>How to open this topic in the interview</strong>
+  "My experience spans both the business application side and the data engineering layer beneath it. I've worked across ERP platforms including Dynamics AX and NAV — both on-prem — as well as supply chain systems where the data complexity sits in inventory movements, demand planning feeds, and procurement workflows that all need to land reliably in a reporting layer."
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <span class="tag tag-blue">ERP exposure</span>
+    <h3>Dynamics AX / NAV (on-prem)</h3>
+    <p>Worked with the data tier of AX and NAV — understanding table structures, ledger entities, inventory transactions, and the challenge of extracting clean, consistent data via SSIS for downstream BI. Familiar with the complexity of multi-company, multi-currency setups.</p>
+  </div>
+  <div class="card">
+    <span class="tag tag-amber">Supply chain data</span>
+    <h3>Inventory, Procurement &amp; Demand</h3>
+    <p>Key supply chain data domains: stock on hand, purchase orders, GRN (goods received notes), production orders, demand forecasts. These feed SSAS cubes as fact tables — getting grain right (item / site / warehouse / date) is where most modelling decisions live.</p>
+  </div>
+  <div class="card">
+    <span class="tag tag-green">BI layer</span>
+    <h3>SSIS → SSAS → SSRS stack</h3>
+    <p>Built and maintained the full Microsoft BI stack: SSIS for extraction and staging, SSAS multidimensional and tabular models for analytics, SSRS for operational and management reporting. End-to-end ownership including scheduling, error handling, and business sign-off.</p>
+  </div>
+  <div class="card">
+    <span class="tag tag-purple">Modernisation</span>
+    <h3>Azure ADF / Fabric migration</h3>
+    <p>Hands-on with migrating legacy SSIS pipelines to ADF, transitioning SSAS tabular models to Fabric Semantic Models, and replacing SSRS paginated reports with Power BI. Understand the technical and organisational change both require.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════
+     SECTION 2 — SSAS TAKEOVER
+════════════════════════════════════════════ -->
+<div class="sec-head" id="ssas">
+  <div class="sec-num">02 / 07</div>
+  <h2>Taking Over SSAS With No Internal Backup</h2>
+  <p>One of the strongest experience stories you can tell — shows initiative, structured thinking, and risk ownership.</p>
+</div>
+
+<div class="callout callout-amber">
+  <strong>Your story framing</strong>
+  "I inherited a live SSAS environment with no documentation, no previous owner available, and users who depended on it daily for reporting. My first job was to make sure nothing broke while I understood what was there — and then systematically build the knowledge base that should have existed from day one."
+</div>
+
+<div class="story">
+  <div class="story-head">
+    <h3>The situation</h3>
+    <span class="tag tag-red">Zero handover</span>
+  </div>
+  <div class="story-body">
+    <p>Walked into a running SSAS multidimensional cube (or tabular model) that was the backbone of management reporting — finance, supply chain KPIs, demand planning. No documentation. No prior owner to call. Users were hitting the cube daily via Excel pivot tables and SSRS reports. Any change or failure was my problem immediately.</p>
+    <p>The business risk was high: the cube was processing on a nightly schedule, SSIS packages were feeding it from multiple source systems including the ERP, and there was no staging environment — changes went straight to production.</p>
+  </div>
+</div>
+
+<div class="star-row">
+  <div class="star-cell">
+    <div class="star-label">Situation</div>
+    <p>Live SSAS cube, no docs, no backup person, users dependent daily for supply chain &amp; finance reporting</p>
+  </div>
+  <div class="star-cell">
+    <div class="star-label">Task</div>
+    <p>Stabilise first, understand second, document third — without disrupting live reporting</p>
+  </div>
+  <div class="star-cell">
+    <div class="star-label">Action</div>
+    <p>Reverse-engineered the model, traced all SSIS feeds, interviewed report users, built a dependency map and a documentation baseline</p>
+  </div>
+  <div class="star-cell">
+    <div class="star-label">Result</div>
+    <p>Full knowledge base built in 3 weeks. Identified 2 broken SSIS packages running silently. Established change control and a dev/UAT environment.</p>
+  </div>
+</div>
+
+<h3 style="font-size:13px; font-weight:600; margin-bottom:10px; color:var(--ink);">The step-by-step takeover approach</h3>
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Day 1–3</div>
+    <div class="tl-title">Freeze and observe</div>
+    <div class="tl-desc">No changes. Watch the nightly processing run. Note what succeeds, what warnings appear. Identify all scheduled jobs in SQL Agent touching the cube. Screenshot everything in SSMS and SSDT.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Day 4–7</div>
+    <div class="tl-title">Map the data lineage</div>
+    <div class="tl-desc">Open every SSIS package. Trace source → staging → DSV → dimensions → measure groups. Draw a hand-drafted lineage map. Note the grain of each fact table, what keys join to what dimensions, and any hardcoded business logic in the SSIS transforms or SSAS calculated measures.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Week 2</div>
+    <div class="tl-title">Interview the users</div>
+    <div class="tl-desc">Ask each team: which reports do you use every day? Which numbers do you trust? Which ones do you always cross-check against something else? — the last answer tells you where the model has known quality issues no one documented.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Week 2–3</div>
+    <div class="tl-title">Document as you learn</div>
+    <div class="tl-desc">Build a living Word/Confluence document: data sources, transformation rules, dimension tables and their grain, measure group definitions, calculated members in MDX/DAX, known issues, scheduled jobs and their dependencies.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Week 3–4</div>
+    <div class="tl-title">Create a dev environment</div>
+    <div class="tl-desc">Deploy a copy of the cube to a non-production server. This gives a safe space to test changes before production. Even a personal laptop running SQL Server Developer Edition works as a starting point.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot" style="background:var(--green);"></div>
+    <div class="tl-week">Month 2</div>
+    <div class="tl-title">Establish change control</div>
+    <div class="tl-desc">Version control all SSIS packages and SSAS project files in Git (or at minimum a network share with timestamps). No change goes to production without a tested dev version and a written change record.</div>
+  </div>
+</div>
+
+<h3 style="font-size:13px; font-weight:600; margin: 1rem 0 10px; color:var(--ink);">Cube &amp; tabular model design — key business logic situations</h3>
+
+<div class="story">
+  <div class="story-head"><h3>Situation: The numbers didn't match what finance expected</h3><span class="tag tag-amber">Business logic</span></div>
+  <div class="story-body">
+    <p>A common issue when taking over SSAS cubes: the revenue or inventory figures in the cube don't match the ERP's own reports. Usually caused by three things — different date logic (transaction date vs posting date vs period close date), currency conversion applied at the wrong grain, or partial loads where SSIS was filtering out certain transaction types silently.</p>
+    <p><strong style="color:var(--ink);">Approach:</strong> Take one specific number the business trusts (e.g. a monthly closing inventory value), trace it from the ERP source table all the way through SSIS and into the SSAS measure, step by step. Once you find the divergence point you have the root cause. Fix the logic, document the rule, and add a reconciliation check into the SSIS package that fails loudly if the totals drift by more than an acceptable threshold.</p>
+  </div>
+</div>
+
+<div class="story">
+  <div class="story-head"><h3>Situation: MDX calculated measures with undocumented assumptions</h3><span class="tag tag-purple">Model design</span></div>
+  <div class="story-body">
+    <p>Many inherited SSAS cubes have complex MDX calculations — rolling 12-month averages, stock cover days, year-over-year % — with no explanation of what the formula represents in business terms. Someone has made an assumption about fiscal year start, working day exclusions, or which warehouse locations to include, and it's baked into the MDX silently.</p>
+    <p><strong style="color:var(--ink);">Approach:</strong> For every non-trivial calculated member, write a plain-English business definition alongside the formula. Get a business user to confirm that definition is correct. This process almost always surfaces at least one formula that no longer reflects current business rules — a location was added, a product category was renamed, a fiscal calendar changed. Fixing those silently wrong calculations is often the highest-value thing a new owner can do.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════
+     SECTION 3 — SQL SERVER 2016 EOL
+════════════════════════════════════════════ -->
+<div class="sec-head" id="sql2016">
+  <div class="sec-num">03 / 07</div>
+  <h2>SQL Server 2016 — End of Support &amp; Migration Options</h2>
+  <p>SQL Server 2016 mainstream support ended July 2021. Extended support ended <strong>July 2026</strong> — this is an active, urgent conversation right now.</p>
+</div>
+
+<div class="callout callout-red">
+  <strong>Why this matters today</strong>
+  SQL Server 2016 Extended Support ended July 12, 2026 — effectively now. Running beyond this date means no security patches, no compliance coverage, and increasing audit risk. Any organisation still on SQL Server 2016 hosting SSAS cubes or SSIS packages needs a concrete migration plan.
+</div>
+
+<div class="grid3" style="margin-bottom: 1.5rem;">
+  <div class="option-card">
+    <div class="rec-badge">Recommended</div>
+    <span class="tag tag-blue">Option A</span>
+    <h4>Migrate to Azure SQL / Fabric</h4>
+    <p>Move the database workloads to Azure SQL Managed Instance or Azure SQL Database. Pair with ADF (replaces SSIS), Fabric Semantic Models (replaces SSAS), and Power BI (replaces SSRS). Full modernisation — no new on-prem hardware, Microsoft manages patching forever.</p>
+  </div>
+  <div class="option-card">
+    <span class="tag tag-amber">Option B</span>
+    <h4>Upgrade to SQL Server 2022</h4>
+    <p>In-place or side-by-side upgrade to SQL Server 2022 (support until 2033). Keeps the on-prem model. Lower risk short-term — SSAS, SSIS, SSRS all still work. Buys 7 years but doesn't address the strategic shift to cloud. Good if regulatory constraints block cloud now.</p>
+  </div>
+  <div class="option-card">
+    <span class="tag tag-purple">Option C</span>
+    <h4>Azure Arc-enabled SQL Server</h4>
+    <p>Register your on-prem SQL Server 2016 with Azure Arc to extend security updates for up to 3 additional years while the cloud migration plan is prepared. Useful bridge strategy — keeps you patched while the migration project is approved and resourced.</p>
+  </div>
+</div>
+
+<h3 style="font-size:13px; font-weight:600; margin-bottom:10px; color:var(--ink);">SSAS specifically on SQL Server 2016 — migration path</h3>
+<div class="grid2">
+  <div class="card">
+    <span class="tag tag-blue">Multidimensional → Tabular</span>
+    <h3>If still on SSAS Multidimensional</h3>
+    <p>SSAS Multidimensional (MDX cubes) has no direct cloud equivalent. The migration path is: rebuild as a Tabular model first (DAX replaces MDX), then migrate the Tabular model to Azure Analysis Services or Fabric Semantic Model. Two-step, but each step is manageable.</p>
+  </div>
+  <div class="card">
+    <span class="tag tag-green">Tabular → Fabric</span>
+    <h3>If already on SSAS Tabular</h3>
+    <p>The migration to Fabric Semantic Models is relatively straightforward — .bim file export from SSDT, import into Fabric. DAX measures migrate with minimal changes. The main effort is re-pointing data sources from on-prem to cloud (Synapse, ADLS, or Azure SQL).</p>
+  </div>
+</div>
+
+<div class="callout callout-blue">
+  <strong>What to say in the interview</strong>
+  "My recommendation is a two-track approach. Track one: immediately register the SQL Server 2016 environment with Azure Arc to extend security updates — this removes the compliance risk while the migration project is being scoped. Track two: plan a 6–9 month migration to Azure, using ADF to replace SSIS and Fabric Semantic Models to replace SSAS. The SSRS reports migrate last, after Power BI is adopted by key users."
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════
+     SECTION 4 — DOCUMENTATION
+════════════════════════════════════════════ -->
+<div class="sec-head" id="documentation">
+  <div class="sec-num">04 / 07</div>
+  <h2>Creating Clear Documentation for SSAS, SSIS &amp; Data Flows</h2>
+  <p>Documentation is a first-class deliverable, not an afterthought. The goal: any competent engineer can pick this up cold and understand what's happening and why.</p>
+</div>
+
+<div class="callout callout-purple">
+  <strong>Your philosophy</strong>
+  "Good documentation answers three questions for the person reading it: what does this do, why does it do it this way, and what breaks if it stops. If it only answers the first one, it's incomplete."
+</div>
+
+<h3 style="font-size:13px; font-weight:600; margin-bottom:10px; color:var(--ink);">The four-layer documentation framework</h3>
+
+<div class="doc-layer">
+  <div class="doc-layer-head">
+    <h4>Layer 1 — Architecture overview (1 page)</h4>
+    <span class="tag tag-blue">Start here</span>
+  </div>
+  <p style="font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.65;">A single diagram showing all source systems, staging databases, SSAS model(s), and downstream consumers (SSRS, Excel, Power BI). No detail — just the map. Anyone joining the team reads this first.</p>
+  <div class="doc-items">
+    <span class="doc-item">Source system names + connection strings (secured)</span>
+    <span class="doc-item">Staging DB schema overview</span>
+    <span class="doc-item">SSAS model names &amp; server locations</span>
+    <span class="doc-item">Consumer list (who uses what)</span>
+    <span class="doc-item">Processing schedule / frequency</span>
+  </div>
+</div>
+
+<div class="doc-layer">
+  <div class="doc-layer-head">
+    <h4>Layer 2 — SSIS package register</h4>
+    <span class="tag tag-amber">Data movement</span>
+  </div>
+  <p style="font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.65;">A table for every SSIS package: name, purpose, source, destination, schedule, dependencies, known issues, and last tested date. Stored in Confluence/SharePoint alongside the .dtsx files in version control.</p>
+  <div class="doc-items">
+    <span class="doc-item">Package name + purpose</span>
+    <span class="doc-item">Source → target mapping</span>
+    <span class="doc-item">Transform logic (plain English)</span>
+    <span class="doc-item">Error handling approach</span>
+    <span class="doc-item">SQL Agent job name + schedule</span>
+    <span class="doc-item">Dependency order</span>
+    <span class="doc-item">Known issues / workarounds</span>
+  </div>
+</div>
+
+<div class="doc-layer">
+  <div class="doc-layer-head">
+    <h4>Layer 3 — SSAS model data dictionary</h4>
+    <span class="tag tag-purple">Business logic</span>
+  </div>
+  <p style="font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.65;">The most important and most commonly missing layer. For every dimension, attribute, measure, and calculated measure: business name, technical name, source column, business definition, and any assumptions or exclusions baked in.</p>
+  <div class="doc-items">
+    <span class="doc-item">Dimension tables + grain</span>
+    <span class="doc-item">Attribute hierarchies explained</span>
+    <span class="doc-item">Fact table grain + foreign keys</span>
+    <span class="doc-item">All measures with business definition</span>
+    <span class="doc-item">All calculated members (MDX/DAX) + plain-English logic</span>
+    <span class="doc-item">KPIs with business owner sign-off</span>
+    <span class="doc-item">Known reconciliation gaps</span>
+  </div>
+</div>
+
+<div class="doc-layer">
+  <div class="doc-layer-head">
+    <h4>Layer 4 — Operational runbook</h4>
+    <span class="tag tag-green">Day-to-day ops</span>
+  </div>
+  <p style="font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.65;">Step-by-step procedures for the most common operational scenarios. Written so that a junior engineer on call at 7am can follow it without calling anyone.</p>
+  <div class="doc-items">
+    <span class="doc-item">How to re-run a failed SSIS package</span>
+    <span class="doc-item">How to trigger a manual SSAS process</span>
+    <span class="doc-item">How to check processing errors in SSMS</span>
+    <span class="doc-item">Common errors and their fixes</span>
+    <span class="doc-item">How to deploy a change to production</span>
+    <span class="doc-item">Escalation contacts</span>
+    <span class="doc-item">Monthly / quarterly maintenance checklist</span>
+  </div>
+</div>
+
+<div class="callout callout-green">
+  <strong>Tooling recommendation</strong>
+  Layer 1–3: Confluence (or SharePoint Wiki) with diagrams in draw.io. Layer 4: A simple Markdown file in the same Git repository as the SSIS packages and SSAS project files — documentation lives with the code, so they stay in sync. Auto-generate the SSAS data dictionary using Tabular Editor's scripting capability or DMVs queried from SSMS.
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════
+     SECTION 5 — 90-DAY ONBOARDING PLAN
+════════════════════════════════════════════ -->
+<div class="sec-head" id="onboarding">
+  <div class="sec-num">05 / 07</div>
+  <h2>Day-1 Plan — How You'd Tackle This Upon Joining</h2>
+  <p>A structured, confident answer to "so what would you do in your first 30–90 days?" — shows you've thought about it before they've even offered you the role.</p>
+</div>
+
+<div class="callout callout-blue">
+  <strong>Opening line for this question</strong>
+  "I'd structure the first 90 days in three phases: understand before you touch, fix the highest-risk gaps, then build for the future. The worst thing you can do is walk in and start changing things before you know what's connected to what."
+</div>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Days 1–14 · Listen &amp; Map</div>
+    <div class="tl-title">No changes — pure discovery</div>
+    <div class="tl-desc">Meet every stakeholder who uses data: finance, supply chain, procurement, operations. Ask what they use, what they trust, and what they know is broken but live with. Simultaneously map all data flows: source systems → SSIS → staging → SSAS → reports. Identify every scheduled job. Locate all SSIS packages and determine if they're version-controlled.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Days 15–30 · Assess &amp; Prioritise</div>
+    <div class="tl-title">Risk register + quick wins</div>
+    <div class="tl-desc">Build a risk register: SQL Server 2016 EOL status, SSIS packages with no error handling, SSAS processing failures that go unnoticed, reports with no owner. Also identify quick wins — small data quality fixes, a broken alert that's easy to fix, a calculation that's been wrong for months. Early trust is built through small, visible improvements.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Days 31–60 · Stabilise</div>
+    <div class="tl-title">Fix the foundations</div>
+    <div class="tl-desc">Establish a dev/UAT environment if one doesn't exist. Put SSIS packages and the SSAS project into source control. Add error alerting to all SSIS jobs (email on failure). Begin the documentation framework — architecture overview and SSIS package register first. Address the SQL Server 2016 EOL risk with a formal recommendation to leadership.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-week">Days 61–90 · Propose</div>
+    <div class="tl-title">Modernisation roadmap</div>
+    <div class="tl-desc">Present a clear modernisation roadmap: Azure Arc as immediate SQL 2016 bridge, phased migration to ADF + Fabric over 6–12 months, Power BI adoption alongside SSRS, and a D365 Synapse Link strategy for any ERP data. Get stakeholder alignment before any migration work begins.</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════
+     SECTION 6 — RISKS & SOLUTIONS
+════════════════════════════════════════════ -->
+<div class="sec-head" id="risks">
+  <div class="sec-num">06 / 07</div>
+  <h2>Risks &amp; Solutions</h2>
+  <p>Show you've thought about what goes wrong — not just what should go right.</p>
+</div>
+
+<div class="risk-wrap">
+  <table class="risk-table">
+    <thead>
+      <tr>
+        <th>Risk</th>
+        <th>Likelihood</th>
+        <th>Impact</th>
+        <th>Your solution</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>SQL Server 2016 EOL — no security patches post July 2026</td>
+        <td><span style="color:var(--red);">High</span></td>
+        <td><span style="color:var(--red);">High</span></td>
+        <td>Immediate: Azure Arc extended security updates. Medium-term: migrate to Azure SQL / SQL 2022 within 6 months.</td>
+      </tr>
+      <tr>
+        <td>SSIS packages failing silently — no alerting in place</td>
+        <td><span style="color:var(--amber);">Medium</span></td>
+        <td><span style="color:var(--red);">High</span></td>
+        <td>Add SQL Agent job failure notifications (email/Teams). Add row-count validation steps to each SSIS package. Create a daily processing health dashboard.</td>
+      </tr>
+      <tr>
+        <td>SSAS cube processing fails — users see stale data</td>
+        <td><span style="color:var(--amber);">Medium</span></td>
+        <td><span style="color:var(--red);">High</span></td>
+        <td>Add processing alerts. Implement partition-based incremental processing to reduce processing window. Add a "data freshness" indicator visible to users in reports.</td>
+      </tr>
+      <tr>
+        <td>No documentation — key person dependency / bus factor = 1</td>
+        <td><span style="color:var(--red);">High</span></td>
+        <td><span style="color:var(--red);">High</span></td>
+        <td>4-layer documentation framework (architecture → SSIS register → model dictionary → runbook). Target: anyone can take over in 2 weeks. Version-control everything.</td>
+      </tr>
+      <tr>
+        <td>SSAS cube performance — slow MDX queries impacting users</td>
+        <td><span style="color:var(--amber);">Medium</span></td>
+        <td><span style="color:var(--amber);">Medium</span></td>
+        <td>Run MDX/DAX query profiler. Add aggregations for the most-queried dimensions. Review partition strategy. Consider migrating to Tabular model (consistently faster for most query patterns).</td>
+      </tr>
+      <tr>
+        <td>Migration disrupts live reporting during cutover</td>
+        <td><span style="color:var(--amber);">Medium</span></td>
+        <td><span style="color:var(--red);">High</span></td>
+        <td>Run old and new systems in parallel for a validation period. User acceptance testing on the new Fabric model before any SSAS decommission. Phased report migration, not big-bang.</td>
+      </tr>
+      <tr>
+        <td>Business logic lost in migration (undocumented MDX rules)</td>
+        <td><span style="color:var(--red);">High</span></td>
+        <td><span style="color:var(--amber);">Medium</span></td>
+        <td>Document all calculated measures before migration begins. Business owner sign-off on every KPI definition. Reconciliation testing: compare old vs new numbers row by row for 2–3 reporting periods.</td>
+      </tr>
+      <tr>
+        <td>User resistance to Power BI / moving away from SSRS</td>
+        <td><span style="color:var(--amber);">Medium</span></td>
+        <td><span style="color:var(--amber);">Medium</span></td>
+        <td>Don't force migration. Run Power BI as an addition first. Find a champion in each team. Keep SSRS running until Power BI is proven. For pixel-perfect paginated reports, use Fabric Paginated Reports — same format, low re-training.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════
+     SECTION 7 — CUBE FIX
+════════════════════════════════════════════ -->
+<div class="sec-head" id="cube-fix">
+  <div class="sec-num">07 / 07</div>
+  <h2>If Users Are Struggling With the Existing SSAS Cube</h2>
+  <p>The most practical question in any BI role interview — shows you can diagnose and fix, not just replace.</p>
+</div>
+
+<div class="callout callout-amber">
+  <strong>Your opening line</strong>
+  "Before I recommend replacing anything, I'd want to understand what 'struggling' actually means — is it performance, wrong numbers, complexity, or just lack of training? The answer changes the solution completely."
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <span class="tag tag-red">Problem: Slow queries / reports timing out</span>
+    <h3>Performance fix</h3>
+    <ul>
+      <li>Profile slow MDX queries using SQL Server Profiler or Extended Events</li>
+      <li>Add aggregations for the most-used dimension combinations</li>
+      <li>Review partition strategy — monthly partitions on large fact tables</li>
+      <li>Check memory allocation on the SSAS server</li>
+      <li>If consistently slow: migrate to Tabular model (faster for most patterns)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <span class="tag tag-amber">Problem: Wrong numbers / doesn't match ERP</span>
+    <h3>Data quality fix</h3>
+    <ul>
+      <li>Trace one specific value from ERP source to cube output — find the divergence point</li>
+      <li>Check SSIS for silent row filtering or type conversion errors</li>
+      <li>Verify date logic — fiscal vs calendar, transaction date vs posting date</li>
+      <li>Review currency conversion logic in SSAS</li>
+      <li>Add automated reconciliation: cube total vs ERP source total, alert on drift</li>
+    </ul>
+  </div>
+  <div class="card">
+    <span class="tag tag-purple">Problem: Too complex / users can't find what they need</span>
+    <h3>Usability fix</h3>
+    <ul>
+      <li>Hide unused measures and attributes in SSDT (reduce clutter without deleting)</li>
+      <li>Rename cryptic technical names to plain business names</li>
+      <li>Create named sets for common filter combinations users always apply</li>
+      <li>Build pre-built Power BI reports on top of the cube as a friendlier front-end</li>
+      <li>Run a 30-min user training session on how the model is structured</li>
+    </ul>
+  </div>
+  <div class="card">
+    <span class="tag tag-green">Problem: Cube is beyond saving — rebuild?</span>
+    <h3>When to replace, not fix</h3>
+    <ul>
+      <li>If the source data model is fundamentally wrong (wrong grain, missing keys) — a patch won't hold</li>
+      <li>If it's on SQL Server 2016 SSAS Multidimensional — the EOL case is the forcing function</li>
+      <li>Rebuild as a Tabular model in Fabric: cleaner, faster, Power BI-native, cloud-managed</li>
+      <li>Migrate in parallel — keep the old cube live until the new model is validated</li>
+      <li>Use the rebuild as the opportunity to document properly from day one</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout callout-green" style="margin-top: 0.5rem;">
+  <strong>Closing line for the interview</strong>
+  "My default is always: fix before replace, because a replacement that has the same undocumented logic problems is not an improvement. But when the platform is end-of-life and the architecture is fundamentally misaligned with how the business needs to report, rebuilding on a modern stack is the right call — and it's the right time to do it properly."
+</div>
+
+</div><!-- end page-body -->
+
+<footer>
+  Interview Prep — Confidential · ERP &amp; BI Modernisation · Supply Chain Data Engineering<br>
+  <span style="color:#c8c4bb;">SSAS · SSIS · SSRS · SQL Server 2016 · ADF · Microsoft Fabric · D365</span>
+</footer>
+
+</body>
+</html>
