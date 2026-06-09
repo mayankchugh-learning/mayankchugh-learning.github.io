@@ -1,59 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="CCT Migration Guide">
   <defs>
-    <linearGradient id="heroBg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="cct-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#0f1117"/>
       <stop offset="50%" stop-color="#161b27"/>
       <stop offset="100%" stop-color="#0f1117"/>
     </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="18%" r="55%">
-      <stop offset="0%" stop-color="rgba(56,201,168,0.35)"/>
-      <stop offset="100%" stop-color="rgba(56,201,168,0)"/>
-    </radialGradient>
-    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#e8eaf0"/>
-      <stop offset="55%" stop-color="#38c9a8"/>
-      <stop offset="100%" stop-color="#ff8c42"/>
-    </linearGradient>
-    <linearGradient id="accentBar" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="cct-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#38c9a8"/>
       <stop offset="100%" stop-color="#ff8c42"/>
     </linearGradient>
   </defs>
 
-  <rect width="400" height="225" fill="url(#heroBg)"/>
-  <ellipse cx="200" cy="28" rx="170" ry="70" fill="url(#glow)"/>
+  <rect width="400" height="225" fill="url(#cct-bg)"/>
+  <ellipse cx="200" cy="32" rx="150" ry="55" fill="#38c9a8" opacity="0.12"/>
 
-  <rect x="88" y="22" width="224" height="22" rx="11" fill="rgba(56,201,168,0.12)" stroke="rgba(56,201,168,0.35)" stroke-width="1"/>
-  <rect x="102" y="31" width="96" height="4" rx="2" fill="#38c9a8" opacity="0.9"/>
-  <rect x="208" y="31" width="88" height="4" rx="2" fill="#4a5168" opacity="0.55"/>
+  <rect x="76" y="20" width="248" height="22" rx="11" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.35"/>
+  <rect x="90" y="29" width="104" height="4" rx="2" fill="#38c9a8"/>
+  <rect x="202" y="29" width="104" height="4" rx="2" fill="#4a5168"/>
 
-  <text x="200" y="78" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="url(#titleGrad)">Cathay Cargo Terminal</text>
-  <text x="200" y="108" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="url(#titleGrad)" opacity="0.92">Cloud Migration Guide</text>
+  <text x="200" y="74" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#e8eaf0">Cathay Cargo Terminal</text>
+  <text x="200" y="102" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#38c9a8">Cloud Migration Guide</text>
 
-  <rect x="72" y="122" width="256" height="5" rx="2.5" fill="rgba(139,147,168,0.35)"/>
-  <rect x="104" y="132" width="192" height="4" rx="2" fill="rgba(74,81,104,0.45)"/>
+  <rect x="72" y="114" width="256" height="5" rx="2.5" fill="#8b93a8" opacity="0.35"/>
+  <rect x="104" y="124" width="192" height="4" rx="2" fill="#4a5168" opacity="0.45"/>
 
-  <g font-family="Arial, Helvetica, sans-serif">
-    <rect x="36" y="154" width="80" height="36" rx="6" fill="#1e2535" stroke="rgba(246,173,85,0.3)" stroke-width="1"/>
-    <text x="76" y="176" text-anchor="middle" font-size="8" font-weight="600" fill="#f6ad55">WebLogic</text>
+  <rect x="28" y="146" width="84" height="38" rx="6" fill="#1e2535" stroke="#f6ad55" stroke-opacity="0.4"/>
+  <text x="70" y="170" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="600" fill="#f6ad55">WebLogic</text>
 
-    <text x="128" y="176" text-anchor="middle" font-size="14" fill="#38c9a8">’</text>
+  <path d="M120 165h12M128 165l-4-4M128 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 
-    <rect x="140" y="154" width="72" height="36" rx="6" fill="#1e2535" stroke="rgba(56,201,168,0.3)" stroke-width="1"/>
-    <text x="176" y="176" text-anchor="middle" font-size="8" font-weight="600" fill="#38c9a8">JBoss 8</text>
+  <rect x="136" y="146" width="76" height="38" rx="6" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.4"/>
+  <text x="174" y="170" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="600" fill="#38c9a8">JBoss 8</text>
 
-    <text x="224" y="176" text-anchor="middle" font-size="14" fill="#38c9a8">’</text>
+  <path d="M220 165h12M228 165l-4-4M228 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 
-    <rect x="236" y="154" width="128" height="36" rx="6" fill="#1e2535" stroke="rgba(255,140,66,0.3)" stroke-width="1"/>
-    <text x="300" y="176" text-anchor="middle" font-size="8" font-weight="600" fill="#ff8c42">AWS + PostgreSQL</text>
-  </g>
+  <rect x="236" y="146" width="136" height="38" rx="6" fill="#1e2535" stroke="#ff8c42" stroke-opacity="0.4"/>
+  <text x="304" y="170" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="600" fill="#ff8c42">AWS + PostgreSQL</text>
 
-  <g font-family="Arial, Helvetica, sans-serif">
-    <text x="88" y="210" text-anchor="middle" font-size="8" fill="#4a5168">SITA</text>
-    <text x="160" y="210" text-anchor="middle" font-size="8" fill="#4a5168">ACCS</text>
-    <text x="240" y="210" text-anchor="middle" font-size="8" fill="#4a5168">Entra ID</text>
-    <text x="312" y="210" text-anchor="middle" font-size="8" fill="#4a5168">HKIA One</text>
-  </g>
+  <text x="88" y="208" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#4a5168">SITA</text>
+  <text x="160" y="208" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#4a5168">ACCS</text>
+  <text x="240" y="208" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#4a5168">Entra ID</text>
+  <text x="312" y="208" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#4a5168">HKIA One</text>
 
-  <rect x="0" y="223" width="400" height="2" fill="url(#accentBar)" opacity="0.85"/>
+  <rect x="0" y="223" width="400" height="2" fill="url(#cct-bar)"/>
 </svg>

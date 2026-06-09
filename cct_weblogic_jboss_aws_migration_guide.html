@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-page="cct">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="assets/theme-switcher.js"></script>
 <title>CCT Migration — WebLogic · JBoss · Oracle · PostgreSQL · AWS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -40,14 +41,22 @@
     --orange-border: rgba(255,140,66,0.3);
     --font: 'Inter', sans-serif;
     --mono: 'JetBrains Mono', monospace;
+    --nav-bg: rgba(15,17,23,0.9);
   }
 
   html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.7; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.7;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
 
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    background: rgba(15,17,23,0.9); backdrop-filter: blur(12px);
+    background: var(--nav-bg); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     padding: 0 2rem; height: 56px;
     display: flex; align-items: center; justify-content: space-between;
@@ -267,8 +276,10 @@
   @media (prefers-reduced-motion: reduce) {
     .hero-scroll { animation: none; }
     html { scroll-behavior: auto; }
+    body { transition: none; }
   }
 </style>
+<link rel="stylesheet" href="assets/theme-switcher.css">
 </head>
 <body>
 
@@ -1004,7 +1015,7 @@
 <footer>
   <p>CCT Migration Guide · WebLogic → JBoss EAP 8 · Oracle → Aurora PostgreSQL · On-prem → AWS</p>
   <p style="margin-top: 6px; color: #2a3050;">Cathay Cargo Terminal · SITA · ACCS · GLS · HKIA One · Cathay Pacific · Azure Entra ID</p>
-  <p style="margin-top: 10px;"><a href="index.html" style="color: var(--teal); text-decoration: none;">← Back to Mayank Chugh Portfolio</a></p>
+  <p style="margin-top: 10px;"><a href="index.html" style="color: var(--teal); text-decoration: none;">← Back to Mayank Chugh Portfolio</a> · <a href="cct_migration_guide_v2.html" style="color: var(--muted); text-decoration: none;">v2 guide</a></p>
 </footer>
 
 </body>

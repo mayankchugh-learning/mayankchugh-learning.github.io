@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCT Migration Guide v2.0 — WebLogic · JBoss EAP 8 · Oracle · PostgreSQL · AWS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2535;
+    --bg4: #252d42;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --muted: #8b93a8;
+    --faint: #4a5168;
+    --blue: #4f9cf9;
+    --blue-dim: rgba(79,156,249,0.12);
+    --blue-border: rgba(79,156,249,0.3);
+    --purple: #9f7aea;
+    --purple-dim: rgba(159,122,234,0.12);
+    --purple-border: rgba(159,122,234,0.3);
+    --teal: #38c9a8;
+    --teal-dim: rgba(56,201,168,0.1);
+    --teal-border: rgba(56,201,168,0.3);
+    --amber: #f6ad55;
+    --amber-dim: rgba(246,173,85,0.1);
+    --amber-border: rgba(246,173,85,0.3);
+    --red: #fc8181;
+    --red-dim: rgba(252,129,129,0.1);
+    --green: #68d391;
+    --green-dim: rgba(104,211,145,0.1);
+    --green-border: rgba(104,211,145,0.3);
+    --orange: #ff8c42;
+    --orange-dim: rgba(255,140,66,0.1);
+    --orange-border: rgba(255,140,66,0.3);
+    --font: 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.7; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(15,17,23,0.92); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-brand { font-family: var(--mono); font-size: 13px; color: var(--teal); letter-spacing: 0.04em; text-decoration: none; display:flex;align-items:center;gap:8px; transition: color 0.2s; }
+  .nav-brand:hover { color: var(--text); }
+  .nav-ver { font-size:10px; background:var(--teal-dim); color:var(--teal); border:1px solid var(--teal-border); padding:2px 7px; border-radius:10px; }
+  .nav-links { display: flex; gap: 1rem; list-style: none; flex-wrap: wrap; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 11.5px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 6rem 2rem 4rem;
+    max-width: 960px; margin: 0 auto; position: relative;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 12px; color: var(--teal);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .hero-eyebrow::before { content:''; display:block; width:32px; height:1px; background:var(--teal); }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; line-height: 1.1;
+    letter-spacing: -0.03em; margin-bottom: 1.5rem;
+  }
+  .hero h1 span.t { color: var(--teal); }
+  .hero h1 span.b { color: var(--blue); }
+  .hero h1 span.o { color: var(--orange); }
+  .hero-sub { font-size: 1.05rem; color: var(--muted); max-width: 680px; margin-bottom: 2.5rem; line-height: 1.85; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
+  .htag { font-family:var(--mono); font-size:11px; padding:4px 12px; border:1px solid var(--border2); border-radius:20px; color:var(--muted); }
+  .hero-metrics { display:grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap:10px; max-width:640px; }
+  .hmetric { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  .hmetric-val { font-family:var(--mono); font-size:1.4rem; font-weight:600; color:var(--teal); }
+  .hmetric-label { font-size:11px; color:var(--muted); margin-top:2px; }
+  .hero-scroll {
+    position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+    font-size:11px; font-family:var(--mono); color:var(--faint); text-align:center;
+    animation:bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+  .hero::before {
+    content:''; position:absolute; inset:0; z-index:-1;
+    background-image: linear-gradient(var(--border) 1px,transparent 1px), linear-gradient(90deg,var(--border) 1px,transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+  }
+
+  /* ── LAYOUT ── */
+  section { padding: 5rem 2rem; max-width: 1020px; margin: 0 auto; }
+  .section-label {
+    font-family:var(--mono); font-size:11px; color:var(--teal);
+    letter-spacing:0.1em; text-transform:uppercase;
+    margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  h2 { font-size:1.8rem; font-weight:700; letter-spacing:-0.02em; margin-bottom:0.5rem; }
+  h3 { font-size:1.1rem; font-weight:600; margin-bottom:0.5rem; }
+  h4 { font-size:0.95rem; font-weight:600; }
+  p.lead { color:var(--muted); margin-bottom:2rem; font-size:1rem; line-height:1.8; }
+  .divider { border:none; border-top:1px solid var(--border); max-width:1020px; margin:0 auto; }
+
+  /* ── CARDS ── */
+  .card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.25rem 1.5rem; transition:border-color .2s; }
+  .card:hover { border-color:var(--border2); }
+  .card p { color:var(--muted); font-size:.875rem; line-height:1.7; margin-top:.4rem; }
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:12px; }
+  .grid3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+  .grid4 { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+
+  /* ── TAGS ── */
+  .tag {
+    display:inline-block; font-size:10px; font-family:var(--mono);
+    font-weight:500; padding:2px 8px; border-radius:20px;
+    text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;
+  }
+  .tag-blue   { background:var(--blue-dim);   color:var(--blue);   border:1px solid var(--blue-border); }
+  .tag-purple { background:var(--purple-dim); color:var(--purple); border:1px solid var(--purple-border); }
+  .tag-teal   { background:var(--teal-dim);   color:var(--teal);   border:1px solid var(--teal-border); }
+  .tag-amber  { background:var(--amber-dim);  color:var(--amber);  border:1px solid var(--amber-border); }
+  .tag-green  { background:var(--green-dim);  color:var(--green);  border:1px solid var(--green-border); }
+  .tag-red    { background:var(--red-dim);    color:var(--red);    border:1px solid rgba(252,129,129,.3); }
+  .tag-orange { background:var(--orange-dim); color:var(--orange); border:1px solid var(--orange-border); }
+
+  /* ── PILLS / LAYER ── */
+  .layer { border:1px solid var(--border); border-radius:10px; padding:.85rem 1.1rem; margin-bottom:6px; }
+  .layer-title { font-family:var(--mono); font-size:11px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em; }
+  .layer-pills { display:flex; flex-wrap:wrap; gap:6px; }
+  .pill { font-size:12px; font-weight:500; padding:4px 12px; border-radius:20px; border:1px solid var(--border2); color:var(--text); background:var(--bg3); }
+  .pill-blue   { background:var(--blue-dim);   color:var(--blue);   border-color:var(--blue-border); }
+  .pill-purple { background:var(--purple-dim); color:var(--purple); border-color:var(--purple-border); }
+  .pill-teal   { background:var(--teal-dim);   color:var(--teal);   border-color:var(--teal-border); }
+  .pill-amber  { background:var(--amber-dim);  color:var(--amber);  border-color:var(--amber-border); }
+  .pill-orange { background:var(--orange-dim); color:var(--orange); border-color:var(--orange-border); }
+  .layer-arrow { text-align:center; color:var(--faint); font-size:18px; margin:2px 0; }
+
+  /* ── MAP ROWS ── */
+  .map-row { display:grid; grid-template-columns:1fr 48px 1fr; align-items:center; gap:0; margin-bottom:10px; }
+  .map-old { background:var(--bg3); border:1px solid var(--border); border-radius:10px; padding:.85rem 1rem; }
+  .map-new { background:var(--bg2); border:1px solid var(--teal-border); border-radius:10px; padding:.85rem 1rem; }
+  .map-arrow { text-align:center; color:var(--teal); font-size:18px; }
+  .map-name { font-size:13px; font-weight:600; }
+  .map-desc { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.5; }
+
+  /* ── FLOW ── */
+  .flow { display:flex; align-items:center; gap:0; overflow-x:auto; padding-bottom:4px; margin-bottom:1rem; }
+  .fbox { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:10px 16px; font-size:12px; font-weight:500; white-space:nowrap; text-align:center; min-width:110px; }
+  .fbox-aws   { background:var(--orange-dim); border-color:var(--orange-border); color:var(--orange); }
+  .fbox-jboss { background:var(--teal-dim);   border-color:var(--teal-border);   color:var(--teal); }
+  .fbox-pg    { background:var(--blue-dim);   border-color:var(--blue-border);   color:var(--blue); }
+  .fbox-ext   { background:var(--purple-dim); border-color:var(--purple-border); color:var(--purple); }
+  .fbox-muted { color:var(--muted); border-color:var(--amber-border); }
+  .farrow { padding:0 8px; color:var(--faint); font-size:14px; flex-shrink:0; }
+
+  /* ── PHASE ── */
+  .phase-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+  .phase { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.1rem; border-top:2px solid var(--teal); }
+  .phase-num { font-family:var(--mono); font-size:11px; color:var(--teal); margin-bottom:6px; }
+  .phase h4 { font-size:13px; font-weight:600; margin-bottom:6px; }
+  .phase p { font-size:12px; color:var(--muted); line-height:1.6; }
+  .phase ul { font-size:12px; color:var(--muted); line-height:1.7; margin-top:6px; padding-left:1.1rem; }
+  .phase li { margin-bottom:3px; }
+
+  /* ── TABLES ── */
+  .compare-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:1rem; }
+  .compare-table th { text-align:left; padding:10px 14px; font-family:var(--mono); font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid var(--border); background:var(--bg3); }
+  .compare-table td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--muted); vertical-align:top; }
+  .compare-table td:first-child { color:var(--text); font-weight:600; }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .compare-table tr:hover td { background:var(--bg3); }
+  .dot-yes { color:var(--green); }
+  .dot-no  { color:var(--red); }
+  .dot-mid { color:var(--amber); }
+  .tbl-wrap { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:1.5rem; }
+
+  /* ── INFO BOXES ── */
+  .highlight { background:var(--teal-dim); border:1px solid var(--teal-border); border-radius:10px; padding:1.1rem 1.25rem; font-size:13px; color:var(--muted); line-height:1.7; margin:1rem 0; }
+  .highlight strong { color:var(--text); }
+  .warn-box { background:var(--red-dim); border:1px solid rgba(252,129,129,.3); border-radius:10px; padding:1rem 1.25rem; font-size:13px; color:var(--muted); line-height:1.7; margin:1rem 0; }
+  .warn-box strong { color:var(--red); }
+  .rec-box { background:var(--blue-dim); border:1px solid var(--blue-border); border-radius:10px; padding:1.1rem 1.25rem; font-size:13px; color:var(--muted); line-height:1.7; margin:1rem 0; }
+  .rec-box strong { color:var(--blue); }
+  .amber-box { background:var(--amber-dim); border:1px solid var(--amber-border); border-radius:10px; padding:1rem 1.25rem; font-size:13px; color:var(--muted); line-height:1.7; margin:1rem 0; }
+  .amber-box strong { color:var(--amber); }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background:#0a0d15; border:1px solid var(--border2); border-radius:10px;
+    overflow-x:auto; margin:1rem 0;
+  }
+  .code-header {
+    background:var(--bg3); border-bottom:1px solid var(--border);
+    padding:8px 14px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .code-lang { font-family:var(--mono); font-size:11px; color:var(--teal); text-transform:uppercase; letter-spacing:.08em; }
+  .code-file { font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .code-block pre { padding:1rem 1.25rem; margin:0; }
+  .code-block code { font-family:var(--mono); font-size:12.5px; line-height:1.75; color:#cdd6f4; }
+  .kw { color:#89b4fa; }   /* keywords / elements */
+  .at { color:#a6e3a1; }   /* attributes */
+  .st { color:#f9e2af; }   /* strings */
+  .cm { color:#6c7086; font-style:italic; }  /* comments */
+  .fn { color:#cba6f7; }   /* functions */
+  .nm { color:#fab387; }   /* numbers/values */
+
+  /* ── Q&A ── */
+  .qa { border-left:2px solid var(--teal); padding:.6rem 1rem; margin-bottom:12px; }
+  .qa-q { font-size:13px; font-weight:600; color:var(--text); margin-bottom:4px; }
+  .qa-a { font-size:13px; color:var(--muted); line-height:1.65; }
+
+  /* ── MODULE CARD ── */
+  .module-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; transition:border-color .2s; }
+  .module-card:hover { border-color:var(--border2); }
+  .module-icon { font-size:22px; margin-bottom:8px; }
+  .module-card h4 { font-size:13px; font-weight:600; margin-bottom:4px; }
+  .module-card p { font-size:12px; color:var(--muted); line-height:1.55; }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style:none; }
+  .checklist li { font-size:13px; color:var(--muted); padding:7px 0 7px 1.6rem; position:relative; border-bottom:1px solid var(--border); }
+  .checklist li:last-child { border-bottom:none; }
+  .checklist li::before { content:'☐'; position:absolute; left:0; color:var(--teal); font-family:var(--mono); }
+  .checklist.done li::before { content:'✓'; color:var(--green); }
+
+  /* ── METRIC BAR ── */
+  .metric-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .metric-label { font-size:12px; color:var(--muted); width:200px; flex-shrink:0; }
+  .metric-bar-bg { flex:1; background:var(--bg3); border-radius:4px; height:6px; }
+  .metric-bar { height:6px; border-radius:4px; background:var(--teal); }
+  .metric-val { font-family:var(--mono); font-size:12px; color:var(--text); width:50px; text-align:right; flex-shrink:0; }
+
+  /* ── RACI ── */
+  .raci-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .raci-table th { background:var(--bg3); border:1px solid var(--border); padding:8px 10px; font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--muted); text-align:center; }
+  .raci-table th:first-child { text-align:left; }
+  .raci-table td { border:1px solid var(--border); padding:8px 10px; color:var(--muted); }
+  .raci-table td:first-child { font-weight:500; color:var(--text); }
+  .raci-R { color:var(--teal); font-weight:700; text-align:center; }
+  .raci-A { color:var(--amber); font-weight:700; text-align:center; }
+  .raci-C { color:var(--blue); font-weight:700; text-align:center; }
+  .raci-I { color:var(--muted); font-weight:700; text-align:center; }
+
+  /* ── STAT CARDS ── */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-bottom:1.5rem; }
+  .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center; }
+  .stat-val { font-family:var(--mono); font-size:1.6rem; font-weight:700; }
+  .stat-label { font-size:11px; color:var(--muted); margin-top:4px; }
+
+  /* ── FOOTER ── */
+  footer { border-top:1px solid var(--border); padding:2rem; text-align:center; font-size:12px; color:var(--faint); font-family:var(--mono); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width:700px) {
+    nav .nav-links { display:none; }
+    .map-row { grid-template-columns:1fr; }
+    .map-arrow { transform:rotate(90deg); }
+    h2 { font-size:1.4rem; }
+    .hero-metrics { grid-template-columns:1fr 1fr; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    .hero-scroll { animation:none; }
+    html { scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ NAV ═══════════════════════════ -->
+<nav>
+  <a href="index.html" class="nav-brand">CCT // Migration Guide <span class="nav-ver">v2.0</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#learning-pages">Portfolio</a></li>
+    <li><a href="#exec">Executive</a></li>
+    <li><a href="#applications">Applications</a></li>
+    <li><a href="#integrations">Integrations</a></li>
+    <li><a href="#weblogic-jboss">JBoss Migration</a></li>
+    <li><a href="#oracle-pg">DB Migration</a></li>
+    <li><a href="#aws">AWS Architecture</a></li>
+    <li><a href="#security">Security</a></li>
+    <li><a href="#cicd">CI/CD</a></li>
+    <li><a href="#observability">Observability</a></li>
+    <li><a href="#phases">Phases</a></li>
+    <li><a href="#cutover">Cutover &amp; Risks</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<div id="hero" class="hero">
+  <div class="hero-eyebrow">Cathay Cargo Terminal · Enterprise Cloud Modernisation Programme</div>
+  <h1>
+    <span class="t">WebLogic 12.x → JBoss EAP 8</span><br>
+    <span class="b">Oracle →</span> <span class="o">Aurora PostgreSQL</span><br>
+    On-prem <span class="t">→ AWS ap-east-1</span>
+  </h1>
+  <p class="hero-sub">
+    Comprehensive technical migration reference for Cathay Cargo Terminal (CCT) — covering application server modernisation, database replatforming, cloud landing zone, identity integration, and interface migration for 6 application channels across internal, external, mobile, and airline user segments at Hong Kong International Airport.
+  </p>
+  <div class="hero-tags">
+    <span class="htag">WebLogic 12.x → JBoss EAP 8</span>
+    <span class="htag">Oracle → Aurora PostgreSQL</span>
+    <span class="htag">On-prem → AWS ap-east-1</span>
+    <span class="htag">Azure Entra ID OIDC/SAML</span>
+    <span class="htag">SITA · ACCS · GLS · HKIA One</span>
+    <span class="htag">Cathay Pacific Corporate Interfaces</span>
+    <span class="htag">Jakarta EE 10 · Java 17</span>
+    <span class="htag">AWS DMS · Aurora · EKS</span>
+  </div>
+  <div class="hero-metrics">
+    <div class="hmetric"><div class="hmetric-val">6</div><div class="hmetric-label">Application channels</div></div>
+    <div class="hmetric"><div class="hmetric-val">5</div><div class="hmetric-label">External integrations</div></div>
+    <div class="hmetric"><div class="hmetric-val">12–18</div><div class="hmetric-label">Month programme</div></div>
+    <div class="hmetric"><div class="hmetric-val">3-axis</div><div class="hmetric-label">Concurrent migrations</div></div>
+  </div>
+  <div class="hero-scroll">scroll ↓</div>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S01 EXECUTIVE SUMMARY ══════════════════════ -->
+<section id="exec">
+  <div class="section-label">Section 01</div>
+  <h2>Executive Summary &amp; Business Case</h2>
+  <p class="lead">CCT's current on-premises stack — WebLogic 12.x, Oracle RDBMS, and data-centre hosted integration — carries significant licensing cost, operational risk, and limits agility. This programme eliminates those constraints while preserving CCT's role as HKIA's primary cargo community operator.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val" style="color:var(--red);">High</div><div class="stat-label">Oracle CPU licensing cost exposure</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--amber);">EOS</div><div class="stat-label">WebLogic 12.2.1.x: extended support only from 2024</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--teal);">~40%</div><div class="stat-label">Estimated TCO reduction at steady state</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue);">&lt;15 min</div><div class="stat-label">Target RTO (Aurora Multi-AZ)</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green);">99.99%</div><div class="stat-label">SLA target on AWS (vs on-prem 99.9%)</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--orange);">ap-east-1</div><div class="stat-label">Data residency: Hong Kong region only</div></div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;">Migration axes &amp; rationale</h3>
+  <div class="grid3" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <span class="tag tag-teal">Axis 1 — App Server</span>
+      <h4>WebLogic 12.x → JBoss EAP 8</h4>
+      <p>Eliminates Oracle WebLogic licensing ($50K–$300K+/CPU-core). JBoss EAP 8 is Red Hat supported, Jakarta EE 10 compliant, Java 17/21 native, and free of Oracle vendor lock-in. Runs on any Linux compute (EC2, EKS) with no per-CPU charge.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-blue">Axis 2 — Database</span>
+      <h4>Oracle → Aurora PostgreSQL</h4>
+      <p>Oracle CPU-based cloud licensing is prohibitively expensive on AWS. Aurora PostgreSQL offers managed Multi-AZ HA, automated backups, point-in-time recovery, and integrates natively with AWS DMS for live migration. Open-source compatibility reduces long-term DBA tool dependency.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-orange">Axis 3 — Infrastructure</span>
+      <h4>On-prem → AWS ap-east-1</h4>
+      <p>Cloud hosting eliminates DC hardware refresh cycles, provides elastic scaling during peak cargo seasons (e.g. pre-CNY, Black Friday air freight surges), and enables a modern DevOps pipeline with IaC, CI/CD, and observability-as-code.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;">As-Is vs To-Be — technology stack</h3>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">As-Is</span><div class="map-name">Oracle WebLogic 12.2.1.x Cluster</div><div class="map-desc">Managed servers on VMware ESXi · Shared JNDI · WebLogic JMS · WebLogic JDBC Stores</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-teal">To-Be</span><div class="map-name">JBoss EAP 8.0 on EC2 / EKS</div><div class="map-desc">Jakarta EE 10 · ActiveMQ Artemis · Elytron OIDC · Infinispan · MicroProfile Config</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">As-Is</span><div class="map-name">Oracle RDBMS (RAC or single instance)</div><div class="map-desc">SAN storage · RMAN backup · Data Guard standby · PL/SQL business logic</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-teal">To-Be</span><div class="map-name">Amazon Aurora PostgreSQL (Multi-AZ)</div><div class="map-desc">pg_dump/DMS migration · plpgsql procs · Read replicas · Performance Insights · 35-day backup</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">As-Is</span><div class="map-name">On-prem datacentre (HKIA / CX HQ)</div><div class="map-desc">Physical/virtual servers · Hardware F5 LB · AD FS / LDAP SSO · IBM MQ</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-teal">To-Be</span><div class="map-name">AWS ap-east-1 VPC (Hong Kong)</div><div class="map-desc">ALB · Route 53 · CloudFront · WAF · Secrets Manager · Amazon MQ · Direct Connect hybrid</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">As-Is</span><div class="map-name">AD FS / Legacy SSO (internal)</div><div class="map-desc">Internal user authentication for terminal staff; Kerberos/NTLM for web</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-teal">To-Be</span><div class="map-name">Azure Entra ID (OIDC + SAML 2.0)</div><div class="map-desc">MFA · Conditional Access · group-based RBAC mapped to JBoss Elytron roles</div></div>
+  </div>
+
+  <div class="rec-box" style="margin-top:1rem;">
+    <strong>Programme governance:</strong> This is a CEO/CIO-level approved programme with a dedicated Programme Manager reporting to CCT IT leadership. Active steering committee participation from Cathay Pacific CIO office, AAHK HKIA One team, and SITA integration services required throughout.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S02 APPLICATIONS ══════════════════════ -->
+<section id="applications">
+  <div class="section-label">Section 02</div>
+  <h2>Application Portfolio</h2>
+  <p class="lead">CCT operates six distinct user-facing channels segmented by audience, network zone, and authentication model. Each maps to one or more deployable JBoss EAR/WAR units with its own security domain and database connection pool.</p>
+
+  <div class="grid2" style="margin-bottom:1.5rem;">
+    <div class="module-card">
+      <div class="module-icon">🏢</div>
+      <span class="tag tag-teal">Internal — Corporate VPN</span>
+      <h4>CCT Internal Web Application</h4>
+      <p>Terminal operations for CCT staff — cargo acceptance, build-up/break-down, ULD management, warehouse floor control, supervisor dashboards, and shift reporting. Authenticated exclusively via <strong>Azure Entra ID</strong> (corporate SSO). Accessible only over CPA VPN / Direct Connect from AWS.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">📱</div>
+      <span class="tag tag-teal">Internal Mobile — Corporate</span>
+      <h4>CCT Internal Mobile Application</h4>
+      <p>Rugged-device and tablet apps for ramp, warehouse, and gate staff. Offline-capable scan-and-sync. Entra ID auth via MSAL / OAuth 2.0 device code flow. REST/JSON API backend on JBoss. Push notifications via Firebase (or SNS).</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">🌐</div>
+      <span class="tag tag-purple">External — Internet DMZ</span>
+      <h4>Agents &amp; Freighters Portal</h4>
+      <p>Public-facing web portal for freight forwarders, GSAs, and NVOCC operators. Booking enquiries, status tracking, eAWB document upload. Internet zone — separate JBoss security realm, WAF protection, rate limiting. Self-service registration with email MFA.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">🚛</div>
+      <span class="tag tag-purple">External Mobile — Internet</span>
+      <h4>Trucker Mobile Application</h4>
+      <p>Driver-facing app for truck pre-notification, gate entry/exit, e-form submission, collection queue management, and e-receipt at CCT gates. Integrates with ACCS for truck gate passes and terminal access control via NFC/QR. OAuth 2.0 mobile flow.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">✈️</div>
+      <span class="tag tag-blue">Airline — Federated SSO</span>
+      <h4>Airline Web Application</h4>
+      <p>Dedicated portal for airline users — cargo loading plans, flight manifests, cargo allocations, special handling (DG, PER, VAL) requests, and airline messaging. Role-based access per IATA airline code. Federated SSO with airline identity providers (SAML).</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">⚙️</div>
+      <span class="tag tag-amber">Backend Services</span>
+      <h4>Integration &amp; Batch Services</h4>
+      <p>MDB listeners (ActiveMQ Artemis), scheduled EJB timers, file-drop processors (S3 event-driven), and REST/SOAP adapters for SITA, ACCS, GLS, HKIA One, and Cathay Pacific corporate interfaces. Deployed as headless EAR modules on JBoss. No direct user-facing traffic.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;">Network zones &amp; AWS placement</h3>
+  <div class="tbl-wrap">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr><th>Zone</th><th>Applications</th><th>Auth Model</th><th>AWS Placement</th><th>JBoss Cluster</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Corporate / Internal</td>
+          <td>CCT Internal Web, CCT Internal Mobile API</td>
+          <td>Azure Entra ID (OIDC)</td>
+          <td>Private subnets + ALB (internal). Direct Connect / Client VPN from CPA/CCT network.</td>
+          <td>JBoss Cluster A — internal</td>
+        </tr>
+        <tr>
+          <td>DMZ — Internet</td>
+          <td>Agents &amp; Freighters, Trucker Mobile API, Airline Portal</td>
+          <td>Local accounts + MFA; airline SSO federation (SAML)</td>
+          <td>Public ALB + CloudFront + AWS WAF. Isolated VPC subnets (DMZ). Separate SG / NACL.</td>
+          <td>JBoss Cluster B — DMZ</td>
+        </tr>
+        <tr>
+          <td>Integration Tier</td>
+          <td>SITA/ACCS/GLS adapters, CPA feeds, batch jobs</td>
+          <td>mTLS, API keys, IP allowlists, message-level security</td>
+          <td>Private subnets. NLB or VPC endpoints. No direct internet egress (NAT GW only).</td>
+          <td>JBoss Cluster C — integration</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rec-box">
+    <strong>Deployment recommendation:</strong> Maintain minimum two separate JBoss EAP 8 clusters (internal + DMZ) — ideally a third for headless integration services. This mirrors the existing WebLogic managed-server split and contains the blast radius. EKS migration is a future phase option for containerised microservices.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S03 INTEGRATIONS ══════════════════════ -->
+<section id="integrations">
+  <div class="section-label">Section 03</div>
+  <h2>External &amp; Corporate Integrations</h2>
+  <p class="lead">CCT sits at the centre of HKIA's cargo community. Five external/corporate interfaces carry regulatory, operational, and financial messages that must not be disrupted during migration. Each requires advance notice, parallel-run validation, and endpoint re-registration.</p>
+
+  <div class="flow" style="flex-wrap:wrap;gap:6px;">
+    <div class="fbox fbox-ext">SITA<br><small style="color:var(--faint);">Type B / MQ</small></div>
+    <div class="farrow">↔</div>
+    <div class="fbox fbox-jboss">CCT JBoss<br><small style="opacity:.7;">Integration Tier</small></div>
+    <div class="farrow">↔</div>
+    <div class="fbox fbox-ext">ACCS<br><small style="color:var(--faint);">HK Customs</small></div>
+    <div class="farrow" style="padding:0 4px;">|</div>
+    <div class="fbox fbox-ext">GLS<br><small style="color:var(--faint);">Logistics</small></div>
+    <div class="farrow">↔</div>
+    <div class="fbox fbox-jboss">CCT JBoss</div>
+    <div class="farrow">↔</div>
+    <div class="fbox fbox-ext">HKIA One<br><small style="color:var(--faint);">AAHK Data</small></div>
+    <div class="farrow" style="padding:0 4px;">|</div>
+    <div class="fbox fbox-ext">Cathay Pacific<br><small style="color:var(--faint);">CPA Corporate</small></div>
+    <div class="farrow">↔</div>
+    <div class="fbox fbox-pg">Aurora PG</div>
+  </div>
+
+  <div class="grid2" style="margin-top:1rem;margin-bottom:1.5rem;">
+    <div class="card">
+      <span class="tag tag-purple">SITA</span>
+      <h3>SITA Messaging &amp; Network Services</h3>
+      <p><strong>Protocol:</strong> IATA Cargo-IMP message types — FWB (Waybill), FHL (House Manifest), FSU (Status Update), FBL (Loading List). Transport: SITA MQ / Type B network or SITA Air Transport Communications (SITA ATC).<br><br>
+      <strong>Migration impact:</strong> WebLogic Foreign JMS connection factories referencing SITA MQ must be recreated in JBoss as remote ActiveMQ Artemis/IBM MQ bridges. AWS NAT Gateway egress IPs must be submitted to SITA for allowlisting. Direct Connect path preferred for latency SLA. MDB retry logic and DLQ handling must be validated on Artemis.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-purple">ACCS</span>
+      <h3>Air Cargo Clearance System (HK Customs)</h3>
+      <p><strong>Operator:</strong> Hong Kong Customs &amp; Excise Department. <strong>Purpose:</strong> Electronic cargo manifest submission, import/export clearance declarations, truck gate pass validation, and hold/release notifications for controlled cargo.<br><br>
+      <strong>Migration impact:</strong> Certificate-based client authentication must be re-issued for AWS endpoints. ACCS vendor must register new CCT callback URLs. Trucker mobile gate-pass flow is a primary ACCS consumer — validate with full trucker app integration test in ACCS sandbox.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-purple">GLS</span>
+      <h3>Global Logistics System</h3>
+      <p><strong>Purpose:</strong> Shipment tracking, status event exchange, inter-terminal manifest, and logistics partner EDI. May use SFTP file drops, AS2, or REST API depending on implementation version.<br><br>
+      <strong>Migration impact:</strong> SFTP drop zones move from on-prem NAS to <strong>S3 with SFTP endpoint (AWS Transfer Family)</strong> or S3 event-triggered Lambda replacing file watchers. AS2 partners require new EDI partner configuration pointing to AWS endpoints. Validate GLS handshake certificates.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-purple">HKIA One Data Platform</span>
+      <h3>Airport Authority HK — Unified Data Hub</h3>
+      <p><strong>Purpose:</strong> Operational and analytics data sharing across HKIA stakeholders — flight schedules, cargo volumes, gate utilisation, truck queuing analytics.<br><br>
+      <strong>Migration impact:</strong> Re-establish data pipeline from AWS. AAHK governance review required for cloud-hosted data sources. Confirm whether connector is API-pull, event push (Kafka/MQ), or SFTP. Data residency must remain ap-east-1 per AAHK governance policy.</p>
+    </div>
+    <div class="card" style="grid-column:1 / -1;">
+      <span class="tag tag-blue">Cathay Pacific Airways</span>
+      <h3>Parent Company — Corporate Data Interfaces</h3>
+      <p><strong>Interfaces include:</strong> Flight schedule feeds · Cargo capacity allocations · Revenue accounting reconciliation · HR/Identity (Entra ID federation from CPA tenant) · Operational KPI reporting · Shared Master Data (customer, agent, commodity codes).<br><br>
+      <strong>Implementation types:</strong> Oracle DB Links (to be replaced), REST APIs, ESB messaging (CPA MuleSoft), ETL batch files.<br><br>
+      <strong>Migration impact:</strong> Oracle DB Links from CCT Oracle to CPA Oracle schemas — replace with REST API or AWS PrivateLink endpoint into CPA network. Entra ID app registrations: new JBoss callback URLs on AWS must be registered in the shared CPA Entra tenant. SAML metadata must be updated. Coordinate with CPA IAM team (6–8 weeks lead time).</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;">Integration migration approach</h3>
+  <div class="tbl-wrap">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr><th>Integration</th><th>Current transport</th><th>AWS target</th><th>Partner notice needed</th><th>Cutover complexity</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SITA</td>
+          <td>WebLogic JMS → SITA MQ</td>
+          <td>Amazon MQ (ActiveMQ) → SITA MQ bridge over Direct Connect</td>
+          <td><span class="dot-yes">●</span> Yes — IP allowlisting, endpoint change</td>
+          <td><span class="dot-mid">▲</span> Medium</td>
+        </tr>
+        <tr>
+          <td>ACCS</td>
+          <td>HTTPS REST + client cert, on-prem IPs</td>
+          <td>AWS NAT/EIP registered with ACCS. New client cert issued for AWS.</td>
+          <td><span class="dot-yes">●</span> Yes — cert + IP re-registration</td>
+          <td><span class="dot-mid">▲</span> Medium</td>
+        </tr>
+        <tr>
+          <td>GLS</td>
+          <td>SFTP drop / AS2 / REST</td>
+          <td>AWS Transfer Family SFTP or S3 event-driven + Lambda</td>
+          <td><span class="dot-yes">●</span> Yes — partner EDI config change</td>
+          <td><span class="dot-no">■</span> Low–Medium</td>
+        </tr>
+        <tr>
+          <td>HKIA One</td>
+          <td>API / file push from on-prem</td>
+          <td>API from AWS (or Kafka bridge)</td>
+          <td><span class="dot-yes">●</span> Yes — AAHK approval for cloud source</td>
+          <td><span class="dot-no">■</span> Low</td>
+        </tr>
+        <tr>
+          <td>CPA Corporate</td>
+          <td>Oracle DB links + MuleSoft ESB + REST</td>
+          <td>REST APIs or PrivateLink into CPA network + Entra ID federation update</td>
+          <td><span class="dot-yes">●</span> Yes — IAM team + DB link decommission</td>
+          <td><span class="dot-mid">▲</span> High</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn-box">
+    <strong>Integration cutover risk:</strong> External partners require advance notice (typically 4–12 weeks) and sandbox/parallel-run periods. Do <em>not</em> migrate all interfaces in a single big-bang cutover. Maintain on-prem integration endpoints as fallback for the full hypercare period per partner.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S04 WEBLOGIC → JBOSS ══════════════════════ -->
+<section id="weblogic-jboss">
+  <div class="section-label">Section 04</div>
+  <h2>WebLogic 12.x → JBoss EAP 8 Migration</h2>
+  <p class="lead">JBoss EAP 8 is Red Hat's enterprise distribution of WildFly, targeting Jakarta EE 10 (Java 17/21). Migration from WebLogic requires application assessment, descriptor replacement, security model re-architecture, and JMS re-plumbing.</p>
+
+  <h3 style="margin-bottom:1rem;">Key differences — WebLogic vs JBoss EAP 8</h3>
+  <div class="tbl-wrap">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr><th>Area</th><th>WebLogic 12.x</th><th>JBoss EAP 8</th><th>Migration action</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Deployment descriptors</td>
+          <td>weblogic.xml, weblogic-application.xml, weblogic-ejb-jar.xml</td>
+          <td>jboss-web.xml, jboss-app.xml, jboss-ejb3.xml, jboss-deployment-structure.xml</td>
+          <td>Remove all WL descriptors; add JBoss equivalents or use portable Jakarta EE descriptors only</td>
+        </tr>
+        <tr>
+          <td>DataSource / JDBC</td>
+          <td>JDBC stores configured in config.xml / admin console</td>
+          <td>datasources subsystem in standalone.xml or domain.xml; managed via CLI</td>
+          <td>Export WL datasources; recreate in JBoss CLI with PG JDBC driver. Update JNDI to java:jboss/datasources/</td>
+        </tr>
+        <tr>
+          <td>JMS</td>
+          <td>WebLogic JMS Server, SAF agents, foreign JMS (IBM MQ)</td>
+          <td>ActiveMQ Artemis (embedded or Amazon MQ remote broker)</td>
+          <td>Remap queues/topics. Update @MessageDriven activation config. Validate DLQ and poison message handling on Artemis.</td>
+        </tr>
+        <tr>
+          <td>Security / AuthN</td>
+          <td>DefaultAuthenticator, LDAP authenticator, embedded LDAP</td>
+          <td>Elytron subsystem — SAML, OIDC, LDAP, file-backed realms</td>
+          <td>Configure Elytron OIDC client for Entra ID (internal). Configure standalone HTTP security realm for external apps. Separate security-domain per cluster.</td>
+        </tr>
+        <tr>
+          <td>Clustering / HA</td>
+          <td>Multicast / unicast cluster, replicated HTTP sessions</td>
+          <td>Infinispan distributed cache, mod_cluster / AWS ALB sticky sessions</td>
+          <td>Prefer stateless APIs + JWT for external-facing apps. Use Infinispan replication only for stateful internal web sessions.</td>
+        </tr>
+        <tr>
+          <td>Classloading</td>
+          <td>prefer-application-packages in weblogic.xml</td>
+          <td>jboss-deployment-structure.xml module exclusions/inclusions</td>
+          <td>Resolve library conflicts (Hibernate, Jackson, Log4j). Use deployment-structure.xml to isolate shared library versions.</td>
+        </tr>
+        <tr>
+          <td>Java version</td>
+          <td>Java 8 / 11 (typical WL 12.1.x–12.2.x)</td>
+          <td>Java 17 (required) / Java 21 (supported)</td>
+          <td>Mandatory javax → jakarta namespace migration (EE 10). Scan with MTA/Windup. Update all maven/gradle dependencies.</td>
+        </tr>
+        <tr>
+          <td>Thread pools / Work managers</td>
+          <td>WebLogic Work Managers with constraints</td>
+          <td>JBoss thread pool executor subsystem (io subsystem)</td>
+          <td>Map WL Work Manager thread constraints to EAP executor pool settings in standalone.xml</td>
+        </tr>
+        <tr>
+          <td>EJB Timers</td>
+          <td>WebLogic Timer Service (in-memory or persistent)</td>
+          <td>Jakarta EE Timer Service or MicroProfile Metrics-aware Quartz</td>
+          <td>Validate timer persistence. If cluster-wide timers are needed, use Jakarta EE persistent timer with Aurora PG as timer store.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">Application migration steps</h3>
+  <div class="phase-grid">
+    <div class="phase">
+      <div class="phase-num">Step 01 — Discovery</div>
+      <h4>Inventory all artefacts</h4>
+      <ul>
+        <li>List all EAR/WAR deployments and shared libraries in WebLogic domain</li>
+        <li>Export JNDI tree — datasources, JMS destinations, EJB references</li>
+        <li>Identify WebLogic-specific API imports (weblogic.* packages)</li>
+        <li>Document EJB timers, MDB activation specs, and Work Manager configurations</li>
+      </ul>
+    </div>
+    <div class="phase" style="border-top-color:var(--purple);">
+      <div class="phase-num" style="color:var(--purple);">Step 02 — Assessment</div>
+      <h4>MTA / Windup scan</h4>
+      <ul>
+        <li>Run Red Hat Migration Toolkit for Applications (MTA 6.x) against each EAR/WAR</li>
+        <li>Flag javax → jakarta, deprecated EJB 2.x, proprietary WebLogic APIs</li>
+        <li>Generate story-point effort estimates per module</li>
+        <li>Identify Oracle JDBC proprietary calls (OracleDataSource, OracleTypes)</li>
+      </ul>
+    </div>
+    <div class="phase" style="border-top-color:var(--blue);">
+      <div class="phase-num" style="color:var(--blue);">Step 03 — Refactor</div>
+      <h4>Code &amp; config updates</h4>
+      <ul>
+        <li>javax.* → jakarta.* namespace bulk refactor</li>
+        <li>Replace weblogic.xml with jboss-web.xml / jboss-deployment-structure.xml</li>
+        <li>Update persistence.xml: Hibernate dialect to PostgreSQLDialect</li>
+        <li>Replace WebLogic JMS with ActiveMQ Artemis @MessageDriven activation config</li>
+        <li>Externalise config to MicroProfile Config / environment variables</li>
+      </ul>
+    </div>
+    <div class="phase" style="border-top-color:var(--amber);">
+      <div class="phase-num" style="color:var(--amber);">Step 04 — Deploy &amp; Validate</div>
+      <h4>JBoss EAP 8 on AWS dev</h4>
+      <ul>
+        <li>Deploy each EAR/WAR; fix deployment exceptions</li>
+        <li>Functional smoke test per channel (internal, agents, trucker, airline)</li>
+        <li>Compare response time &amp; memory vs WebLogic baseline</li>
+        <li>End-to-end Entra ID OIDC login flow validation</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">JBoss EAP 8 — Key configuration examples</h3>
+
+  <!-- Datasource config -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">XML — JBoss EAP 8 CLI / standalone.xml</span>
+      <span class="code-file">standalone.xml — datasources subsystem</span>
+    </div>
+    <pre><code><span class="cm">&lt;!-- Aurora PostgreSQL Datasource — Internal Applications --&gt;</span>
+<span class="kw">&lt;datasource</span> <span class="at">jndi-name=</span><span class="st">"java:jboss/datasources/CCTDS"</span>
+            <span class="at">pool-name=</span><span class="st">"CCT_AURORA_PG"</span>
+            <span class="at">enabled=</span><span class="st">"true"</span>
+            <span class="at">use-java-context=</span><span class="st">"true"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;connection-url&gt;</span>jdbc:postgresql://<span class="st">${CCT_DB_HOST}</span>:<span class="nm">5432</span>/cctdb<span class="kw">&lt;/connection-url&gt;</span>
+  <span class="kw">&lt;driver&gt;</span>postgresql<span class="kw">&lt;/driver&gt;</span>
+  <span class="kw">&lt;security&gt;</span>
+    <span class="kw">&lt;user-name&gt;</span><span class="st">${CCT_DB_USER}</span><span class="kw">&lt;/user-name&gt;</span>
+    <span class="kw">&lt;password&gt;</span><span class="st">${CCT_DB_PASS}</span><span class="kw">&lt;/password&gt;</span> <span class="cm">&lt;!-- injected from AWS Secrets Manager --&gt;</span>
+  <span class="kw">&lt;/security&gt;</span>
+  <span class="kw">&lt;pool&gt;</span>
+    <span class="kw">&lt;min-pool-size&gt;</span><span class="nm">10</span><span class="kw">&lt;/min-pool-size&gt;</span>
+    <span class="kw">&lt;max-pool-size&gt;</span><span class="nm">50</span><span class="kw">&lt;/max-pool-size&gt;</span>
+    <span class="kw">&lt;prefill&gt;</span>true<span class="kw">&lt;/prefill&gt;</span>
+  <span class="kw">&lt;/pool&gt;</span>
+  <span class="kw">&lt;validation&gt;</span>
+    <span class="kw">&lt;check-valid-connection-sql&gt;</span>SELECT 1<span class="kw">&lt;/check-valid-connection-sql&gt;</span>
+    <span class="kw">&lt;validate-on-match&gt;</span>true<span class="kw">&lt;/validate-on-match&gt;</span>
+    <span class="kw">&lt;background-validation&gt;</span>true<span class="kw">&lt;/background-validation&gt;</span>
+  <span class="kw">&lt;/validation&gt;</span>
+<span class="kw">&lt;/datasource&gt;</span></code></pre>
+  </div>
+
+  <!-- OIDC / Entra ID config -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">XML — JBoss EAP 8 Elytron OIDC</span>
+      <span class="code-file">standalone.xml — Azure Entra ID OIDC for internal web apps</span>
+    </div>
+    <pre><code><span class="kw">&lt;subsystem</span> <span class="at">xmlns=</span><span class="st">"urn:wildfly:elytron-oidc-client:2.0"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;provider</span> <span class="at">name=</span><span class="st">"azure-entra"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;provider-url&gt;</span>https://login.microsoftonline.com/<span class="st">${ENTRA_TENANT_ID}</span>/v2.0<span class="kw">&lt;/provider-url&gt;</span>
+    <span class="kw">&lt;ssl-required&gt;</span>external<span class="kw">&lt;/ssl-required&gt;</span>
+  <span class="kw">&lt;/provider&gt;</span>
+  <span class="kw">&lt;secure-deployment</span> <span class="at">name=</span><span class="st">"cct-internal-web.war"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;provider&gt;</span>azure-entra<span class="kw">&lt;/provider&gt;</span>
+    <span class="kw">&lt;client-id&gt;</span><span class="st">${ENTRA_CLIENT_ID}</span><span class="kw">&lt;/client-id&gt;</span>
+    <span class="kw">&lt;credentials&gt;</span>
+      <span class="kw">&lt;secret&gt;</span><span class="st">${ENTRA_CLIENT_SECRET}</span><span class="kw">&lt;/secret&gt;</span> <span class="cm">&lt;!-- from Secrets Manager --&gt;</span>
+    <span class="kw">&lt;/credentials&gt;</span>
+    <span class="kw">&lt;redirect-rewrite-rule</span> <span class="at">pattern=</span><span class="st">"^/cct-internal-web(.*)"</span> <span class="at">replacement=</span><span class="st">"$1"</span><span class="kw">/&gt;</span>
+    <span class="kw">&lt;ssl-required&gt;</span>external<span class="kw">&lt;/ssl-required&gt;</span>
+    <span class="kw">&lt;principal-attribute&gt;</span>preferred_username<span class="kw">&lt;/principal-attribute&gt;</span>
+  <span class="kw">&lt;/secure-deployment&gt;</span>
+<span class="kw">&lt;/subsystem&gt;</span>
+
+<span class="cm">&lt;!-- Map Entra Group IDs to JBoss application roles in jboss-web.xml --&gt;</span>
+<span class="kw">&lt;jboss-web&gt;</span>
+  <span class="kw">&lt;security-domain&gt;</span>entra-oidc<span class="kw">&lt;/security-domain&gt;</span>
+  <span class="kw">&lt;valve&gt;</span>
+    <span class="kw">&lt;class-name&gt;</span>org.jboss.security.authorization.DelegatingAuthorizationModule<span class="kw">&lt;/class-name&gt;</span>
+  <span class="kw">&lt;/valve&gt;</span>
+<span class="kw">&lt;/jboss-web&gt;</span></code></pre>
+  </div>
+
+  <!-- JMS / MDB config -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Java — Message-Driven Bean (EE 10)</span>
+      <span class="code-file">SitaFwbMessageProcessor.java — updated for ActiveMQ Artemis</span>
+    </div>
+    <pre><code><span class="at">@MessageDriven</span>(activationConfig = {
+    <span class="at">@ActivationConfigProperty</span>(propertyName = <span class="st">"destinationType"</span>,   propertyValue = <span class="st">"jakarta.jms.Queue"</span>),
+    <span class="at">@ActivationConfigProperty</span>(propertyName = <span class="st">"destination"</span>,        propertyValue = <span class="st">"java:/jms/queue/sita.inbound.fwb"</span>),
+    <span class="at">@ActivationConfigProperty</span>(propertyName = <span class="st">"acknowledgeMode"</span>,    propertyValue = <span class="st">"Auto-acknowledge"</span>),
+    <span class="at">@ActivationConfigProperty</span>(propertyName = <span class="st">"maxSession"</span>,         propertyValue = <span class="st">"10"</span>),
+    <span class="at">@ActivationConfigProperty</span>(propertyName = <span class="st">"rebalanceConnections"</span>,propertyValue = <span class="st">"true"</span>) <span class="cm">// Artemis-specific</span>
+})
+<span class="kw">public class</span> <span class="fn">SitaFwbMessageProcessor</span> <span class="kw">implements</span> <span class="fn">MessageListener</span> {
+    <span class="at">@Inject</span> <span class="kw">private</span> CargoWaybillService waybillService;
+
+    <span class="at">@Override</span>
+    <span class="kw">public void</span> <span class="fn">onMessage</span>(Message message) {
+        <span class="kw">try</span> {
+            TextMessage tm = (TextMessage) message;
+            <span class="cm">// Parse IATA FWB cargo-IMP message</span>
+            waybillService.<span class="fn">processFwb</span>(tm.<span class="fn">getText</span>());
+        } <span class="kw">catch</span> (JMSException e) {
+            <span class="cm">// Artemis DLQ: automatic after maxDeliveryAttempts exceeded</span>
+            <span class="kw">throw new</span> <span class="fn">RuntimeException</span>(<span class="st">"FWB processing failed — routed to DLQ"</span>, e);
+        }
+    }
+}</code></pre>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">Azure Entra ID integration checklist</h3>
+  <div class="layer" style="border-color:var(--border2);">
+    <div class="layer-title">Internal user authentication flow on JBoss EAP 8</div>
+    <div class="layer-pills">
+      <span class="pill">1. Staff → CCT Internal Web / Mobile App</span>
+      <span class="pill pill-blue">2. JBoss Elytron OIDC redirect → Entra ID</span>
+      <span class="pill pill-teal">3. User authenticates (Conditional Access + MFA)</span>
+      <span class="pill pill-amber">4. ID Token + Access Token returned to JBoss</span>
+      <span class="pill pill-purple">5. Entra groups → JBoss roles via oidc-role-mapper</span>
+      <span class="pill">6. JWT forwarded to downstream API / DB</span>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top:1rem;">
+    <strong>Entra ID action checklist:</strong>
+    <ul style="margin-top:.5rem;padding-left:1.2rem;font-size:13px;line-height:1.8;">
+      <li>Register new app registrations in Azure portal — one per security domain (internal web, internal mobile, airline portal)</li>
+      <li>Configure redirect URIs for AWS ALB hostnames: <code style="font-family:var(--mono);font-size:12px;color:var(--teal);">https://cct-internal.cathay-cargo.com/callback</code></li>
+      <li>Map Entra security groups to JBoss roles via <code style="font-family:var(--mono);font-size:12px;color:var(--teal);">groups</code> claim or app roles claim</li>
+      <li>Enable Conditional Access policy — MFA required for all CCT app access</li>
+      <li>Update mobile MSAL config (<code style="font-family:var(--mono);font-size:12px;color:var(--teal);">msal_config.json</code>) with new API base URL on AWS</li>
+      <li>Coordinate with Cathay Pacific IAM team for federation trust update (6–8 weeks lead)</li>
+      <li>Test break-glass local admin accounts on JBoss file-backed realm as fallback</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S05 ORACLE → POSTGRESQL ══════════════════════ -->
+<section id="oracle-pg">
+  <div class="section-label">Section 05</div>
+  <h2>Oracle → Aurora PostgreSQL Migration</h2>
+  <p class="lead">Database replatforming is the highest-risk axis. CCT cargo systems rely heavily on PL/SQL stored procedures for cargo validation, customs calculations, and ACCS integration logic. This section covers schema conversion, data migration tooling, stored procedure rewrite, and cutover strategy.</p>
+
+  <h3 style="margin-bottom:1rem;">Data type mapping — Oracle → PostgreSQL</h3>
+  <div class="tbl-wrap">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr><th>Oracle type</th><th>PostgreSQL equivalent</th><th>Notes &amp; pitfalls</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>VARCHAR2 / NVARCHAR2</td><td>VARCHAR / TEXT</td><td>Oracle empty string ≡ NULL — PostgreSQL distinguishes them. Audit application null-checks.</td></tr>
+        <tr><td>NUMBER</td><td>NUMERIC(p,s) / INTEGER / BIGINT</td><td>NUMBER without precision → NUMERIC. Use INTEGER for pk/fk integers for performance.</td></tr>
+        <tr><td>DATE (includes time component)</td><td>TIMESTAMP</td><td>Oracle DATE stores time; PostgreSQL DATE is date-only. All Oracle DATE columns → TIMESTAMP.</td></tr>
+        <tr><td>TIMESTAMP WITH TIME ZONE</td><td>TIMESTAMPTZ</td><td>Direct equivalent. Confirm timezone handling in cargo event timestamps.</td></tr>
+        <tr><td>CLOB / NCLOB</td><td>TEXT</td><td>Max size unlimited in PG. Remove DBMS_LOB calls; use standard string functions.</td></tr>
+        <tr><td>BLOB</td><td>BYTEA</td><td>Change JDBC calls from OracleBLOB to setBytes/getBytes. Review binary doc storage pattern.</td></tr>
+        <tr><td>ROWID / ROWNUM</td><td>ctid (internal) / ROW_NUMBER()</td><td>Replace ROWNUM pagination with LIMIT/OFFSET. Remove direct ROWID references.</td></tr>
+        <tr><td>DUAL (pseudo-table)</td><td>Omit — SELECT without FROM</td><td>SELECT SYSDATE FROM DUAL → SELECT NOW(). Remove all references to DUAL.</td></tr>
+        <tr><td>SEQUENCE.NEXTVAL</td><td>NEXTVAL('seq_name')</td><td>Re-create Oracle sequences as PG sequences. Use IDENTITY columns for new tables.</td></tr>
+        <tr><td>SYSDATE / SYSTIMESTAMP</td><td>NOW() / CURRENT_TIMESTAMP</td><td>Direct replacement. Watch format differences in string concatenation.</td></tr>
+        <tr><td>NVL(a, b)</td><td>COALESCE(a, b)</td><td>Direct SQL equivalent.</td></tr>
+        <tr><td>DECODE</td><td>CASE WHEN … END</td><td>AWS SCT converts automatically. Verify complex DECODE nesting.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">PL/SQL → plpgsql conversion examples</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">PL/SQL — Oracle (Before)</span>
+      <span class="code-file">pkg_cargo_validation.sql — cargo weight validation procedure</span>
+    </div>
+    <pre><code><span class="cm">-- Oracle PL/SQL stored procedure</span>
+<span class="kw">CREATE OR REPLACE PROCEDURE</span> <span class="fn">validate_cargo_weight</span>(
+    p_awb_number   <span class="kw">IN</span>  VARCHAR2,
+    p_gross_weight <span class="kw">IN</span>  NUMBER,
+    p_result       <span class="kw">OUT</span> VARCHAR2
+) <span class="kw">AS</span>
+    v_limit NUMBER;
+    v_commodity VARCHAR2(<span class="nm">10</span>);
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span> weight_limit, commodity_code
+    <span class="kw">INTO</span>   v_limit, v_commodity
+    <span class="kw">FROM</span>   cargo_awb
+    <span class="kw">WHERE</span>  awb_number = p_awb_number
+    <span class="kw">AND</span>    ROWNUM = <span class="nm">1</span>;  <span class="cm">-- Oracle-specific!</span>
+
+    <span class="kw">IF</span> p_gross_weight &gt; v_limit <span class="kw">THEN</span>
+        p_result := <span class="st">'OVERWEIGHT:' || TO_CHAR(v_limit)</span>;
+    <span class="kw">ELSE</span>
+        p_result := <span class="st">'OK'</span>;
+    <span class="kw">END IF</span>;
+<span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN NO_DATA_FOUND THEN</span>
+        p_result := <span class="st">'AWB_NOT_FOUND'</span>;
+<span class="kw">END</span>;</code></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">plpgsql — PostgreSQL (After)</span>
+      <span class="code-file">fn_validate_cargo_weight.sql — converted for Aurora PostgreSQL</span>
+    </div>
+    <pre><code><span class="cm">-- PostgreSQL plpgsql function (procedures return void; use functions for output)</span>
+<span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">validate_cargo_weight</span>(
+    p_awb_number   VARCHAR,
+    p_gross_weight NUMERIC
+) <span class="kw">RETURNS</span> VARCHAR <span class="kw">AS</span> $$
+<span class="kw">DECLARE</span>
+    v_limit    NUMERIC;
+    v_commodity VARCHAR(<span class="nm">10</span>);
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span> weight_limit, commodity_code
+    <span class="kw">INTO</span>   v_limit, v_commodity
+    <span class="kw">FROM</span>   cargo_awb
+    <span class="kw">WHERE</span>  awb_number = p_awb_number
+    <span class="kw">LIMIT</span> <span class="nm">1</span>;  <span class="cm">-- replaces ROWNUM = 1</span>
+
+    <span class="kw">IF NOT FOUND THEN</span>
+        <span class="kw">RETURN</span> <span class="st">'AWB_NOT_FOUND'</span>;
+    <span class="kw">END IF</span>;
+
+    <span class="kw">IF</span> p_gross_weight &gt; v_limit <span class="kw">THEN</span>
+        <span class="kw">RETURN</span> <span class="st">'OVERWEIGHT:' || v_limit::TEXT</span>;
+    <span class="kw">ELSE</span>
+        <span class="kw">RETURN</span> <span class="st">'OK'</span>;
+    <span class="kw">END IF</span>;
+<span class="kw">END</span>;
+$$ <span class="kw">LANGUAGE</span> plpgsql;</code></pre>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">Migration tooling</h3>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag tag-orange">AWS SCT</span>
+      <h3>Schema Conversion Tool</h3>
+      <p>AWS SCT (Schema Conversion Tool) automatically converts Oracle DDL (tables, views, indexes, sequences) to PostgreSQL equivalents and generates an assessment report flagging manual conversion items — especially PL/SQL stored procedures. Target: Oracle → Aurora PostgreSQL conversion report before starting.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-orange">AWS DMS</span>
+      <h3>Database Migration Service (CDC)</h3>
+      <p>AWS DMS with Oracle LogMiner as source for Change Data Capture (CDC). Enables continuous replication from on-prem Oracle to Aurora PostgreSQL during migration period. Zero-downtime approach — both DBs stay in sync. Recommended cutover: stop writes → final flush → switch JDBC connection string.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-teal">Recommended</span>
+      <h3>Parallel-run reconciliation</h3>
+      <p>JBoss apps on AWS write to Aurora PostgreSQL. DMS continues to sync back for 2–4 week parallel run. Run nightly reconciliation SQL comparing critical cargo tables (AWBs, manifests, gate records). 100% match required before decommissioning Oracle.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-amber">Alternative</span>
+      <h3>Big-bang maintenance window</h3>
+      <p>Stop writes to Oracle, allow final DMS flush, switch JBoss datasource JNDI to Aurora, restart JBoss, resume. Requires extended maintenance window (4–6 hour minimum given CCT data volumes). Higher risk — only viable if cargo volumes permit a weekend window.</p>
+    </div>
+  </div>
+
+  <div class="warn-box" style="margin-top:1rem;">
+    <strong>Oracle-specific CCT risks:</strong>
+    <ul style="margin-top:.5rem;padding-left:1.2rem;font-size:13px;line-height:1.8;">
+      <li><strong>PL/SQL stored procedures</strong> — cargo validation, ACCS interface logic, weight calculations. High manual rewrite effort.</li>
+      <li><strong>Oracle Advanced Queuing (AQ)</strong> — if used as JMS transport, requires full re-architecture to Artemis/Amazon MQ.</li>
+      <li><strong>Partitioned tables</strong> — historical cargo records (3–7 years) likely partitioned by date. Recreate as PG declarative partitioning.</li>
+      <li><strong>Oracle Fine-Grained Auditing (FGA)</strong> — replace with PG row-level security + audit triggers or AWS CloudTrail for data plane.</li>
+      <li><strong>DB links to CPA Oracle</strong> — replace with REST API calls or PrivateLink to CPA network.</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S06 AWS ARCHITECTURE ══════════════════════ -->
+<section id="aws">
+  <div class="section-label">Section 06</div>
+  <h2>On-premises → AWS Cloud Architecture</h2>
+  <p class="lead">Target landing zone in AWS Asia Pacific (Hong Kong) — <strong>ap-east-1</strong>. All CCT data remains in Hong Kong for PDPO and HKIA governance compliance. Two-AZ deployment minimum for HA; Aurora Global Database deferred until data residency review.</p>
+
+  <h3 style="margin-bottom:1rem;">Target AWS architecture — layered</h3>
+  <div class="layer" style="border-color:var(--border2);">
+    <div class="layer-title">Users &amp; clients</div>
+    <div class="layer-pills">
+      <span class="pill">CCT staff (Entra ID — CPA VPN)</span>
+      <span class="pill">Freight agents &amp; freighters (Internet)</span>
+      <span class="pill">Truckers (mobile — Internet)</span>
+      <span class="pill">Airline users (federated SSO)</span>
+      <span class="pill">Cathay Pacific corporate network</span>
+      <span class="pill">SITA / ACCS / GLS / HKIA One systems</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Edge &amp; security (Internet-facing only)</div>
+    <div class="layer-pills">
+      <span class="pill pill-orange">Route 53 (DNS + health checks)</span>
+      <span class="pill pill-orange">CloudFront (static assets, mobile CDN)</span>
+      <span class="pill pill-orange">AWS WAF (OWASP Core Rule Set + custom CCT rules)</span>
+      <span class="pill pill-orange">AWS Shield Standard</span>
+      <span class="pill pill-orange">ACM (TLS 1.3 certificates)</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Load balancing — two separate ALBs</div>
+    <div class="layer-pills">
+      <span class="pill pill-teal">ALB-A — Internal (private subnets) → JBoss Cluster A</span>
+      <span class="pill pill-teal">ALB-B — DMZ (public subnets + WAF) → JBoss Cluster B</span>
+      <span class="pill">NLB — Integration services (static IP for ACCS/GLS partner allowlisting)</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Compute — JBoss EAP 8 clusters (EC2 Auto Scaling)</div>
+    <div class="layer-pills">
+      <span class="pill pill-teal">Cluster A — Internal web + mobile API (m6i.xlarge × 2+ AZ)</span>
+      <span class="pill pill-teal">Cluster B — DMZ: Agents + Trucker API + Airline portal (m6i.xlarge × 2+ AZ)</span>
+      <span class="pill pill-teal">Cluster C — Integration + batch services (m6i.large × 2, no ALB)</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Data &amp; messaging</div>
+    <div class="layer-pills">
+      <span class="pill pill-blue">Aurora PostgreSQL — Multi-AZ writer + 1 read replica</span>
+      <span class="pill pill-blue">ElastiCache Redis — JBoss HTTP session cache (internal)</span>
+      <span class="pill pill-blue">Amazon MQ (ActiveMQ) — SITA message bridge</span>
+      <span class="pill pill-blue">S3 — cargo docs, audit logs, GLS file drops</span>
+      <span class="pill pill-blue">AWS Transfer Family — SFTP endpoint (GLS/EDI partners)</span>
+      <span class="pill pill-blue">Secrets Manager — DB credentials, Entra client secrets, API keys</span>
+      <span class="pill pill-blue">KMS — encryption keys (at-rest: Aurora, S3, EBS)</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Connectivity &amp; observability</div>
+    <div class="layer-pills">
+      <span class="pill pill-purple">AWS Direct Connect (1 Gbps) — CPA HQ + HKIA datacentre</span>
+      <span class="pill pill-purple">Transit Gateway — multi-VPC routing</span>
+      <span class="pill pill-purple">Site-to-Site VPN (backup to Direct Connect)</span>
+      <span class="pill pill-purple">CloudWatch Logs + Metrics + Alarms</span>
+      <span class="pill pill-purple">AWS X-Ray — distributed tracing</span>
+      <span class="pill pill-purple">CloudTrail — API audit log</span>
+      <span class="pill pill-purple">GuardDuty + Security Hub</span>
+    </div>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">On-prem to AWS service mapping</h3>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">On-prem</span><div class="map-name">Hardware LB (F5 / Citrix NetScaler)</div><div class="map-desc">SSL termination, VIP routing to WebLogic cluster</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-orange">AWS</span><div class="map-name">Application Load Balancer (ALB) × 2</div><div class="map-desc">Path-based routing. ACM TLS termination. Separate ALBs for internal vs DMZ. WAF attached to DMZ ALB.</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">On-prem</span><div class="map-name">VMware vSphere / bare-metal servers</div><div class="map-desc">WebLogic managed servers; 4–8 vCPU, 16–32 GB RAM/node</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-orange">AWS</span><div class="map-name">EC2 m6i.xlarge / m6i.2xlarge (Auto Scaling)</div><div class="map-desc">ASG across 2 AZs. Golden AMI: RHEL 9 + JBoss EAP 8 + CloudWatch agent. Launch template with user data secrets injection.</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">On-prem</span><div class="map-name">Oracle RAC / single-node + Data Guard</div><div class="map-desc">SAN iSCSI/FC storage. RMAN backup. Standby DR node.</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-orange">AWS</span><div class="map-name">Amazon Aurora PostgreSQL (Multi-AZ)</div><div class="map-desc">Auto-failover &lt;30s. Automated backups 35-day retention. PITR. Performance Insights. Zero-downtime minor patching.</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">On-prem</span><div class="map-name">IBM MQ / WebLogic JMS Server</div><div class="map-desc">SITA message queues, internal async processing, SAF agents</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-orange">AWS</span><div class="map-name">Amazon MQ (ActiveMQ 5.x) + Artemis (embedded JBoss)</div><div class="map-desc">Amazon MQ for SITA bridge (managed broker). Artemis embedded in JBoss for internal async. JMS bridge between the two.</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">On-prem</span><div class="map-name">On-prem NAS / SFTP servers</div><div class="map-desc">GLS file drops, report exports, EDI partner exchanges</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-orange">AWS</span><div class="map-name">S3 + AWS Transfer Family (SFTP)</div><div class="map-desc">S3 event → Lambda triggers replace on-prem file watchers. Transfer Family provides partner-compatible SFTP endpoint.</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber">On-prem</span><div class="map-name">AD FS / on-prem LDAP</div><div class="map-desc">Windows Integrated Auth (Kerberos/NTLM) for CCT staff</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-orange">AWS</span><div class="map-name">Azure Entra ID (OIDC / SAML 2.0)</div><div class="map-desc">Cloud-native IdP. Conditional Access. MFA. Integrated with CPA corporate Entra tenant. JBoss Elytron OIDC subsystem.</div></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S07 SECURITY & COMPLIANCE ══════════════════════ -->
+<section id="security">
+  <div class="section-label">Section 07</div>
+  <h2>Security &amp; Compliance</h2>
+  <p class="lead">CCT processes regulated cargo data under HKIA operator agreements, Hong Kong PDPO, and aviation authority requirements. All data must remain in ap-east-1. External-facing applications are exposed to the public internet and require defence-in-depth.</p>
+
+  <div class="grid3" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <span class="tag tag-red">Compliance</span>
+      <h4>Hong Kong PDPO</h4>
+      <p>Personal Data (Privacy) Ordinance — passenger data, agent contact data. Data must not leave HK region. All Aurora data encrypted at rest (KMS). TLS 1.3 in transit. No cross-region replication without legal review.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-red">Compliance</span>
+      <h4>Aviation Security (AvSec)</h4>
+      <p>HKIA cargo security requirements under Civil Aviation Dept. Access to cargo manifest and security status data restricted. RBAC enforced at application + database level. Audit trail for all cargo status changes.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-red">Compliance</span>
+      <h4>HK Customs — ACCS</h4>
+      <p>Cargo clearance data handled under HK Customs mandate. Only authorised CCT terminals and approved integrators may submit. mTLS certificate-based auth for ACCS connectivity from AWS.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;">Security architecture layers</h3>
+  <div class="tbl-wrap">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr><th>Layer</th><th>Control</th><th>Implementation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Edge — Internet-facing</td>
+          <td>WAF, DDoS protection, geo-restriction</td>
+          <td>AWS WAF with OWASP CRS + custom rules (bot control, rate limiting per IP). AWS Shield Standard. CloudFront geo-block non-HK/CN agents if required.</td>
+        </tr>
+        <tr>
+          <td>Identity — Internal users</td>
+          <td>MFA, Conditional Access, RBAC</td>
+          <td>Azure Entra ID. MFA required for all CCT app logins. Conditional Access: block access from non-corporate devices. Entra groups → JBoss roles.</td>
+        </tr>
+        <tr>
+          <td>Identity — External users</td>
+          <td>Self-service registration, email MFA, API keys</td>
+          <td>JBoss custom security realm. Rate-limit registration API (WAF rule). API keys for trucker and airline system integrations.</td>
+        </tr>
+        <tr>
+          <td>Network — VPC</td>
+          <td>Segmentation, least privilege</td>
+          <td>3-tier VPC: public (ALB/NLB), private (JBoss EC2), data (Aurora, ElastiCache). NACLs restrict lateral movement. Security Groups: JBoss SG only accepts traffic from ALB SG.</td>
+        </tr>
+        <tr>
+          <td>Data at rest</td>
+          <td>Encryption, key management</td>
+          <td>Aurora: KMS CMK encryption. S3 buckets: SSE-KMS. EBS volumes (JBoss EC2): encrypted. KMS key rotation: annual. Secrets Manager for credentials rotation.</td>
+        </tr>
+        <tr>
+          <td>Data in transit</td>
+          <td>TLS everywhere</td>
+          <td>TLS 1.3 on ALB. Internal JBoss ↔ Aurora: SSL mode=verify-full. Amazon MQ: TLS-only. Direct Connect: MACsec Layer 2 encryption (if required by CPA).</td>
+        </tr>
+        <tr>
+          <td>Audit &amp; monitoring</td>
+          <td>Immutable audit trail</td>
+          <td>CloudTrail (all API calls). Aurora PostgreSQL pg_audit extension (row-level). CloudWatch Logs retention: 1 year. S3 Glacier archive: 7 years.</td>
+        </tr>
+        <tr>
+          <td>Vulnerability management</td>
+          <td>Continuous scanning</td>
+          <td>Amazon Inspector (EC2 + ECR container scanning). GuardDuty (threat detection). Security Hub (FSBP compliance score). Penetration test: pre-go-live on DMZ cluster.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">Secret management — AWS Secrets Manager</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Shell — AWS CLI</span>
+      <span class="code-file">secrets provisioning (pre-deployment)</span>
+    </div>
+    <pre><code><span class="cm"># Store Aurora PG credentials</span>
+aws secretsmanager create-secret \
+  --name <span class="st">"cct/prod/db/aurora-pg"</span> \
+  --description <span class="st">"CCT Aurora PostgreSQL credentials"</span> \
+  --secret-string <span class="st">'{"username":"cct_app","password":"&lt;GENERATED&gt;"}'</span> \
+  --kms-key-id <span class="st">"arn:aws:kms:ap-east-1:ACCOUNT:key/CCT-CMK"</span>
+
+<span class="cm"># Store Entra ID OIDC client secret</span>
+aws secretsmanager create-secret \
+  --name <span class="st">"cct/prod/entra/client-secret-internal"</span> \
+  --secret-string <span class="st">'{"clientId":"&lt;APP_ID&gt;","clientSecret":"&lt;SECRET&gt;"}'</span>
+
+<span class="cm"># Rotate automatically every 90 days</span>
+aws secretsmanager rotate-secret \
+  --secret-id <span class="st">"cct/prod/db/aurora-pg"</span> \
+  --rotation-lambda-arn <span class="st">"arn:aws:lambda:ap-east-1:ACCOUNT:function:cct-secret-rotator"</span> \
+  --rotation-rules <span class="st">'{"AutomaticallyAfterDays":90}'</span>
+
+<span class="cm"># JBoss startup: inject secrets via environment variable from ASG user data</span>
+<span class="kw">export</span> CCT_DB_PASS=$(<span class="fn">aws secretsmanager get-secret-value</span> \
+  --secret-id <span class="st">"cct/prod/db/aurora-pg"</span> \
+  --query <span class="st">'SecretString'</span> --output text | <span class="fn">jq -r</span> <span class="st">'.password'</span>)</code></pre>
+  </div>
+
+  <div class="amber-box">
+    <strong>Data residency enforcement:</strong> Apply a Service Control Policy (SCP) at the AWS Organization level to deny all API calls that write data outside ap-east-1 (e.g. <code style="font-family:var(--mono);font-size:12px;">aws:RequestedRegion != ap-east-1</code>). This prevents accidental cross-region data writes from any account in the CCT AWS Organisation.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S08 CI/CD ══════════════════════ -->
+<section id="cicd">
+  <div class="section-label">Section 08</div>
+  <h2>CI/CD Pipeline &amp; DevOps</h2>
+  <p class="lead">Moving to AWS enables a modern GitOps-driven deployment pipeline. Infrastructure is defined as code (Terraform), application builds are automated (Jenkins/GitHub Actions), and JBoss deployments are blue/green with automated rollback triggers.</p>
+
+  <h3 style="margin-bottom:1rem;">Pipeline architecture</h3>
+  <div class="flow" style="flex-wrap:wrap;gap:6px;justify-content:center;">
+    <div class="fbox" style="color:var(--purple);">Git push<br><small style="color:var(--faint);">GitHub / Bitbucket</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox fbox-muted">CI Build<br><small style="color:var(--faint);">Maven/Gradle + Unit tests</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox fbox-muted">SAST / DAST<br><small style="color:var(--faint);">SonarQube + OWASP ZAP</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox fbox-jboss">Build EAR/WAR<br><small style="opacity:.7;">Artifact to S3</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox fbox-aws">CodeDeploy<br><small style="color:var(--faint);">Blue/Green to EC2 ASG</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox" style="color:var(--green);">Health check<br><small style="color:var(--faint);">ALB → JBoss /health</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox" style="color:var(--teal);">Prod live<br><small style="color:var(--faint);">Route 53 swap</small></div>
+  </div>
+
+  <div class="grid2" style="margin-top:1rem;">
+    <div class="card">
+      <span class="tag tag-teal">IaC</span>
+      <h4>Terraform — Infrastructure as Code</h4>
+      <p>All AWS resources defined in Terraform modules: VPC, subnets, SGs, ALBs, EC2 ASGs, Aurora cluster, Amazon MQ, Secrets Manager, IAM roles. State stored in S3 + DynamoDB lock. Environments (dev/uat/prod) use Terraform workspaces. Module versions pinned — no unplanned drift.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-blue">Deploy</span>
+      <h4>Blue/Green Deployment (AWS CodeDeploy)</h4>
+      <p>CodeDeploy with EC2 ASG deployment groups. Blue = current production JBoss cluster. Green = new version cluster. ALB target group swap after JBoss health check passes (<code style="font-family:var(--mono);font-size:11px;">/health/ready</code>). Automatic rollback if health checks fail within 5 minutes.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-purple">DB</span>
+      <h4>Database Migrations — Flyway</h4>
+      <p>All Aurora PostgreSQL schema changes managed via Flyway version-controlled migration scripts. Migrations run automatically at JBoss startup (dev/uat) or via CI pipeline step (prod) before deployment. Flyway repair command available for failed migration recovery.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-amber">Config</span>
+      <h4>MicroProfile Config — Externalised Config</h4>
+      <p>All JBoss application configuration externalised via MicroProfile Config. Sources: environment variables (EC2 launch template) → Secrets Manager → system properties. No hardcoded config in EAR/WAR. Different values per environment with zero code change.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">YAML — GitHub Actions workflow</span>
+      <span class="code-file">.github/workflows/deploy-jboss.yml</span>
+    </div>
+    <pre><code><span class="at">name:</span> CCT JBoss EAP 8 — Build &amp; Deploy
+
+<span class="at">on:</span>
+  <span class="at">push:</span>
+    <span class="at">branches:</span> [main, release/*]
+
+<span class="at">jobs:</span>
+  <span class="at">build-and-deploy:</span>
+    <span class="at">runs-on:</span> ubuntu-latest
+    <span class="at">steps:</span>
+      - <span class="at">uses:</span> actions/checkout@v4
+      - <span class="at">name:</span> Set up Java 17
+        <span class="at">uses:</span> actions/setup-java@v4
+        <span class="at">with:</span> { java-version: <span class="st">'17'</span>, distribution: <span class="st">'temurin'</span> }
+      - <span class="at">name:</span> Maven build + unit test
+        <span class="at">run:</span> mvn clean package -Dmaven.test.skip=false
+      - <span class="at">name:</span> SonarQube SAST scan
+        <span class="at">run:</span> mvn sonar:sonar -Dsonar.host.url=$SONAR_URL
+      - <span class="at">name:</span> Upload EAR to S3
+        <span class="at">run:</span> aws s3 cp target/cct-app.ear s3://cct-artefacts/\$GITHUB_SHA/
+      - <span class="at">name:</span> CodeDeploy blue/green deployment
+        <span class="at">run:</span> |
+          aws deploy create-deployment \
+            --application-name cct-jboss-app \
+            --deployment-group-name prod-blue-green \
+            --s3-location bucket=cct-artefacts,key=\$GITHUB_SHA/cct-app.ear,bundleType=zip</code></pre>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S09 OBSERVABILITY ══════════════════════ -->
+<section id="observability">
+  <div class="section-label">Section 09</div>
+  <h2>Monitoring &amp; Observability</h2>
+  <p class="lead">CCT operates 24/7 for cargo handling at HKIA. Zero blind spots are acceptable on production. Three pillars: metrics (CloudWatch), traces (X-Ray), and logs (CloudWatch Logs / OpenSearch). Alerting integrated with CCT operations NOC.</p>
+
+  <div class="grid3" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <span class="tag tag-blue">Metrics</span>
+      <h4>CloudWatch Dashboards</h4>
+      <p>Custom CCT dashboard: JBoss JVM heap/GC metrics (CloudWatch agent), ALB request rate + 5xx error rate, Aurora DB CPU/connections/read latency, Amazon MQ queue depth (SITA backlog), EC2 Auto Scaling events, and active user session count per app cluster.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-teal">Traces</span>
+      <h4>AWS X-Ray Distributed Tracing</h4>
+      <p>X-Ray SDK instrumented in JBoss apps to trace: inbound ALB requests → JBoss → Aurora DB calls → Amazon MQ messages → external SITA/ACCS calls. Service map shows P95 latency per integration hop. Critical for diagnosing SITA message processing SLA breaches.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-purple">Logs</span>
+      <h4>Centralised Log Management</h4>
+      <p>CloudWatch Logs agent on all JBoss EC2 nodes. Log groups per cluster. Metric filters detect ERROR/EXCEPTION patterns. Optional: CloudWatch Logs → Kinesis → Amazon OpenSearch for full-text search over cargo AWB logs and SITA message history.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;">Critical alarms — CCT cargo operations</h3>
+  <div class="tbl-wrap">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr><th>Alarm</th><th>Threshold</th><th>Action</th><th>Priority</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SITA inbound queue depth</td>
+          <td>&gt; 100 messages for &gt;5 min</td>
+          <td>PagerDuty → CCT integration team on-call</td>
+          <td><span class="dot-no">■</span> P1</td>
+        </tr>
+        <tr>
+          <td>ACCS callback timeout rate</td>
+          <td>&gt; 5% errors in 5 min window</td>
+          <td>PagerDuty → operations team + ACCS partner notification</td>
+          <td><span class="dot-no">■</span> P1</td>
+        </tr>
+        <tr>
+          <td>ALB 5xx error rate (Agents portal)</td>
+          <td>&gt; 1% for 2 consecutive minutes</td>
+          <td>SNS → Slack #cct-ops + auto-scaling scale-out</td>
+          <td><span class="dot-mid">▲</span> P2</td>
+        </tr>
+        <tr>
+          <td>Aurora DB CPU</td>
+          <td>&gt; 80% for 10 minutes</td>
+          <td>SNS → DBA team. Consider read replica promotion.</td>
+          <td><span class="dot-mid">▲</span> P2</td>
+        </tr>
+        <tr>
+          <td>JBoss JVM heap usage</td>
+          <td>&gt; 90% for 5 minutes</td>
+          <td>CloudWatch alarm → ASG scale-out + thread dump capture</td>
+          <td><span class="dot-mid">▲</span> P2</td>
+        </tr>
+        <tr>
+          <td>Trucker gate API response time</td>
+          <td>P95 &gt; 2 sec for 5 min</td>
+          <td>SNS → operations team. Truck queue SLA at risk.</td>
+          <td><span class="dot-mid">▲</span> P2</td>
+        </tr>
+        <tr>
+          <td>Aurora failover event</td>
+          <td>RDS event: DB_INSTANCE_FAILOVER</td>
+          <td>PagerDuty P1. Validate JBoss connection pool reconnect.</td>
+          <td><span class="dot-no">■</span> P1</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight">
+    <strong>JBoss health check endpoint:</strong> Expose <code style="font-family:var(--mono);font-size:12px;color:var(--teal);">GET /health/ready</code> and <code style="font-family:var(--mono);font-size:12px;color:var(--teal);">GET /health/live</code> via MicroProfile Health (jakarta.health). ALB target group health check uses <code>/health/ready</code>. Readiness check validates: DB connection pool, Amazon MQ broker connection, ACCS endpoint reachability. Liveness check validates JVM is responsive.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S10 RACI ══════════════════════ -->
+<section id="raci">
+  <div class="section-label">Section 10</div>
+  <h2>Team Structure &amp; RACI</h2>
+  <p class="lead">Migration programme requires a dedicated cross-functional team of 8–12 engineers. Key decisions require active participation from Cathay Pacific IAM team, AAHK HKIA One team, and SITA/ACCS integration vendors.</p>
+
+  <div class="grid4" style="margin-bottom:1.5rem;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:24px;margin-bottom:6px;">👷</div>
+      <h4>App Engineers (×2–3)</h4>
+      <p style="font-size:11px;">javax→jakarta, JBoss descriptors, OIDC integration, MDB refactor</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:24px;margin-bottom:6px;">🗄️</div>
+      <h4>DBA / Data Engineers (×2)</h4>
+      <p style="font-size:11px;">Oracle→PG schema conversion, PL/SQL rewrite, DMS setup, reconciliation</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:24px;margin-bottom:6px;">☁️</div>
+      <h4>AWS Cloud Engineers (×2)</h4>
+      <p style="font-size:11px;">VPC, ALB, EC2 ASG, Aurora, IaC (Terraform), CI/CD pipeline</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:24px;margin-bottom:6px;">🔌</div>
+      <h4>Integration Engineers (×1–2)</h4>
+      <p style="font-size:11px;">SITA/ACCS/GLS connectivity, Amazon MQ bridge, partner liaison</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:24px;margin-bottom:6px;">🔒</div>
+      <h4>Security Engineer (×1)</h4>
+      <p style="font-size:11px;">WAF rules, KMS, IAM policies, pen test, PDPO compliance</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:24px;margin-bottom:6px;">🧪</div>
+      <h4>QA / Test Engineers (×1–2)</h4>
+      <p style="font-size:11px;">SIT, UAT, performance test, reconciliation scripts, regression automation</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:24px;margin-bottom:6px;">📋</div>
+      <h4>Programme Manager (×1)</h4>
+      <p style="font-size:11px;">Timeline, steering committee, partner coordination, risk management</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:24px;margin-bottom:6px;">🏢</div>
+      <h4>CPA IAM Team (Advisory)</h4>
+      <p style="font-size:11px;">Entra ID federation trust, app registration approvals, Conditional Access policies</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;">RACI matrix (R=Responsible A=Accountable C=Consulted I=Informed)</h3>
+  <div class="tbl-wrap">
+    <table class="raci-table" style="margin-top:0;">
+      <thead>
+        <tr>
+          <th>Activity</th>
+          <th>App Eng</th>
+          <th>DBA</th>
+          <th>Cloud Eng</th>
+          <th>Integration</th>
+          <th>Security</th>
+          <th>QA</th>
+          <th>PM</th>
+          <th>CPA IAM</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>MTA/Windup app assessment</td><td class="raci-R">R</td><td class="raci-C">C</td><td class="raci-I">I</td><td class="raci-I">I</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-A">A</td><td class="raci-I">I</td></tr>
+        <tr><td>AWS landing zone (VPC/IaC)</td><td class="raci-I">I</td><td class="raci-I">I</td><td class="raci-R">R</td><td class="raci-C">C</td><td class="raci-A">A</td><td class="raci-I">I</td><td class="raci-A">A</td><td class="raci-I">I</td></tr>
+        <tr><td>Oracle schema conversion (SCT)</td><td class="raci-C">C</td><td class="raci-R">R</td><td class="raci-C">C</td><td class="raci-I">I</td><td class="raci-I">I</td><td class="raci-C">C</td><td class="raci-A">A</td><td class="raci-I">I</td></tr>
+        <tr><td>JBoss EAP 8 app migration</td><td class="raci-R">R</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-A">A</td><td class="raci-I">I</td></tr>
+        <tr><td>Entra ID OIDC integration</td><td class="raci-R">R</td><td class="raci-I">I</td><td class="raci-C">C</td><td class="raci-I">I</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-A">A</td><td class="raci-R">R</td></tr>
+        <tr><td>SITA/ACCS endpoint migration</td><td class="raci-C">C</td><td class="raci-I">I</td><td class="raci-C">C</td><td class="raci-R">R</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-A">A</td><td class="raci-I">I</td></tr>
+        <tr><td>DMS CDC setup &amp; validation</td><td class="raci-I">I</td><td class="raci-R">R</td><td class="raci-C">C</td><td class="raci-I">I</td><td class="raci-I">I</td><td class="raci-C">C</td><td class="raci-A">A</td><td class="raci-I">I</td></tr>
+        <tr><td>UAT &amp; performance testing</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-R">R</td><td class="raci-A">A</td><td class="raci-I">I</td></tr>
+        <tr><td>Production cutover execution</td><td class="raci-R">R</td><td class="raci-R">R</td><td class="raci-R">R</td><td class="raci-R">R</td><td class="raci-C">C</td><td class="raci-C">C</td><td class="raci-A">A</td><td class="raci-C">C</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S11 PHASES ══════════════════════ -->
+<section id="phases">
+  <div class="section-label">Section 11</div>
+  <h2>Migration Phases &amp; Timeline</h2>
+  <p class="lead">Phased approach de-risks the three-axis migration. Recommended sequence: AWS foundation first, then database parallel-run, then application server cutover by wave. Total indicative duration: 12–18 months.</p>
+
+  <div class="phase-grid">
+    <div class="phase">
+      <div class="phase-num">Phase 0 — Foundation (8–12 wks)</div>
+      <h4>AWS landing zone &amp; governance</h4>
+      <ul>
+        <li>AWS Organisation, multi-account (dev/uat/prod)</li>
+        <li>VPC, subnets, SGs, NACLs, IAM, SCPs</li>
+        <li>Direct Connect 1 Gbps to CPA/HKIA DC</li>
+        <li>Terraform IaC for all infrastructure</li>
+        <li>CI/CD pipeline (GitHub Actions + CodeDeploy)</li>
+        <li>Entra ID app registrations for dev/uat URLs</li>
+        <li>CloudWatch dashboards, alarms, GuardDuty</li>
+      </ul>
+    </div>
+    <div class="phase" style="border-top-color:var(--purple);">
+      <div class="phase-num" style="color:var(--purple);">Phase 1 — Assess (6–8 wks)</div>
+      <h4>Discovery &amp; planning</h4>
+      <ul>
+        <li>MTA/Windup scan all EAR/WAR modules</li>
+        <li>Oracle SCT assessment report</li>
+        <li>Integration dependency mapping (all 5 partners)</li>
+        <li>Non-functional requirements (RTO/RPO, peak TPS)</li>
+        <li>Migration wave plan per application channel</li>
+        <li>DMS CDC proof-of-concept (pilot schema)</li>
+        <li>SITA/ACCS sandbox environment access</li>
+      </ul>
+    </div>
+    <div class="phase" style="border-top-color:var(--blue);">
+      <div class="phase-num" style="color:var(--blue);">Phase 2 — Build (12–16 wks)</div>
+      <h4>Target environment &amp; conversion</h4>
+      <ul>
+        <li>JBoss EAP 8 on EC2 (dev + UAT clusters)</li>
+        <li>Aurora PostgreSQL — schema conversion &amp; deploy</li>
+        <li>Application refactor: javax→jakarta, PG SQL</li>
+        <li>DMS CDC setup: Oracle (on-prem) → Aurora</li>
+        <li>Entra ID OIDC integration (dev/uat validation)</li>
+        <li>Amazon MQ + SITA bridge (sandbox)</li>
+        <li>Flyway DB migration scripts</li>
+      </ul>
+    </div>
+    <div class="phase" style="border-top-color:var(--teal);">
+      <div class="phase-num" style="color:var(--teal);">Phase 3 — Test (8–10 wks)</div>
+      <h4>SIT, UAT &amp; performance</h4>
+      <ul>
+        <li>Functional regression per application channel</li>
+        <li>Integration testing: SITA/ACCS/GLS sandboxes</li>
+        <li>Load test — 150% peak cargo handling TPS</li>
+        <li>Security penetration test (DMZ cluster)</li>
+        <li>DR failover test (Aurora Multi-AZ)</li>
+        <li>Trucker gate processing latency validation (&lt;30s)</li>
+        <li>Oracle → PostgreSQL data reconciliation report</li>
+      </ul>
+    </div>
+    <div class="phase" style="border-top-color:var(--amber);">
+      <div class="phase-num" style="color:var(--amber);">Phase 4 — Migration Waves (12–20 wks)</div>
+      <h4>Progressive channel cutover</h4>
+      <ul>
+        <li><strong>Wave 1:</strong> Integration/batch services only (lowest user impact)</li>
+        <li><strong>Wave 2:</strong> Airline web portal (controlled airline user base)</li>
+        <li><strong>Wave 3:</strong> Agents &amp; Freighters portal + Trucker mobile app</li>
+        <li><strong>Wave 4:</strong> Internal web &amp; mobile (Entra ID — CCT staff)</li>
+        <li>Parallel-run + hypercare period per wave (2–4 weeks)</li>
+        <li>Oracle DMS CDC continues throughout all waves</li>
+      </ul>
+    </div>
+    <div class="phase" style="border-top-color:var(--green);">
+      <div class="phase-num" style="color:var(--green);">Phase 5 — Decommission (4–6 wks)</div>
+      <h4>On-prem retirement</h4>
+      <ul>
+        <li>Final Oracle data reconciliation — 100% match confirmed</li>
+        <li>Oracle license termination notice to Oracle</li>
+        <li>WebLogic cluster graceful shutdown</li>
+        <li>On-prem VMware / bare-metal hardware return</li>
+        <li>Archive audit logs to S3 Glacier (7-year retention)</li>
+        <li>Post-implementation review &amp; lessons learned</li>
+        <li>Handover to CCT BAU operations team</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="rec-box" style="margin-top:1.5rem;">
+    <strong>Indicative total duration:</strong> 12–18 months for a programme of this complexity, assuming a dedicated team of 8–12 engineers (app, DBA, infra, integration, QA, security) and active engagement from Cathay Pacific IAM team, SITA, ACCS/HK Customs, and AAHK HKIA One teams. Gateway reviews at end of each phase recommended before proceeding.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════ S12 CUTOVER & RISKS ══════════════════════ -->
+<section id="cutover">
+  <div class="section-label">Section 12</div>
+  <h2>Cutover, Risks &amp; Testing Checklist</h2>
+  <p class="lead">CCT cargo terminal systems operate 24/7. Cutover planning must account for peak import/export windows, HKIA flight schedules, regulatory reporting deadlines, and ACCS gate operation hours.</p>
+
+  <h3 style="margin-bottom:1rem;">Top risks &amp; mitigations</h3>
+  <div class="tbl-wrap">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr><th>Risk</th><th>Impact</th><th>Likelihood</th><th>Mitigation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>PL/SQL conversion gaps</td>
+          <td>Data corruption, incorrect cargo calculations</td>
+          <td><span class="dot-mid">▲</span> Medium</td>
+          <td>Parallel-run with automated reconciliation. Dedicated DBA review of all stored procedures. Full regression before cutover.</td>
+        </tr>
+        <tr>
+          <td>SITA/ACCS connectivity break</td>
+          <td>Customs clearance delays, flight disruptions</td>
+          <td><span class="dot-mid">▲</span> Medium</td>
+          <td>Pre-register AWS NAT EIPs. Keep on-prem fallback endpoints live. Partner-approved cutover windows. SITA sandbox validation mandatory.</td>
+        </tr>
+        <tr>
+          <td>Entra ID SSO misconfiguration</td>
+          <td>CCT internal staff locked out of terminal systems</td>
+          <td><span class="dot-mid">▲</span> Medium</td>
+          <td>Pilot group of 20 users before full rollout. Keep break-glass local JBoss admin accounts. CPA IAM team on standby during cutover.</td>
+        </tr>
+        <tr>
+          <td>PostgreSQL performance regression</td>
+          <td>Slow gate processing, trucker queue backlog, SLA breach</td>
+          <td><span class="dot-mid">▲</span> Medium</td>
+          <td>Load test at 150% peak TPS. Tune indexes, query plans, vacuum settings. Aurora read replicas for reporting queries.</td>
+        </tr>
+        <tr>
+          <td>javax → jakarta breaking changes</td>
+          <td>Application deployment failures on JBoss EAP 8</td>
+          <td><span class="dot-no">●</span> High</td>
+          <td>MTA/Windup scan early in Phase 1. Full library upgrade in Phase 2. Consider JBoss EAP 7 (EE 8) as intermediate step if javax migration proves complex.</td>
+        </tr>
+        <tr>
+          <td>Oracle DB Links to CPA schemas</td>
+          <td>CPA data feeds broken on cutover</td>
+          <td><span class="dot-mid">▲</span> Medium</td>
+          <td>Replace DB Links with REST API or PrivateLink to CPA network in Phase 2. Validate all CPA interfaces in UAT before Wave 4.</td>
+        </tr>
+        <tr>
+          <td>Data residency / compliance breach</td>
+          <td>PDPO regulatory non-compliance</td>
+          <td><span class="dot-no">✕</span> Low</td>
+          <td>SCP denies writes outside ap-east-1. KMS CMK encryption. Legal review before any cross-border data sharing. No Aurora Global Database without approval.</td>
+        </tr>
+        <tr>
+          <td>HKIA One data platform disruption</td>
+          <td>AAHK operational reporting gaps</td>
+          <td><span class="dot-no">✕</span> Low</td>
+          <td>AAHK early notification (12+ weeks). Maintain on-prem feed as fallback. Validate new AWS-hosted feed in AAHK UAT environment.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">Rollback runbook (per wave)</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Markdown — Runbook</span>
+      <span class="code-file">CCT_ROLLBACK_RUNBOOK.md — decision tree</span>
+    </div>
+    <pre><code><span class="cm"># CCT Wave Rollback — Decision Tree</span>
+
+<span class="kw">TRIGGER:</span> Any of the following within hypercare window (72h):
+  - ALB 5xx rate &gt; 2% sustained 10 minutes
+  - SITA message processing backlog &gt; 500 messages
+  - Aurora failover + JBoss connection pool not recovering
+  - ACCS gate validation failure rate &gt; 5%
+  - Business sign-off withdrawal
+
+<span class="kw">ROLLBACK STEPS (target: &lt;30 min execution):</span>
+
+1. <span class="fn">PM decision</span>: confirm rollback with CCT IT Director
+2. <span class="fn">DNS</span>: Route 53 CNAME update → point cct-*.cathay-cargo.com back to on-prem F5 LB
+   - TTL: 60s (pre-set before cutover)
+   - Time: ~2 min
+3. <span class="fn">DMS</span>: Pause DMS CDC task (stop replication to Aurora)
+4. <span class="fn">Oracle</span>: Verify on-prem Oracle primary is healthy and accepting writes
+5. <span class="fn">JBoss on-prem</span>: Confirm WebLogic managed servers are still running (do NOT shut down during hypercare)
+6. <span class="fn">Integration</span>: Validate SITA/ACCS on-prem endpoints responding
+7. <span class="fn">Notify</span>: CPA IAM, SITA, ACCS, AAHK teams of rollback
+8. <span class="fn">Post-rollback</span>: Root cause analysis within 48h. Re-entry plan required before next cutover attempt.</code></pre>
+  </div>
+
+  <h3 style="margin:2rem 0 1rem;">Pre-cutover testing checklist</h3>
+  <ul class="checklist">
+    <li>All 6 application channels deploy successfully on JBoss EAP 8 (no startup exceptions in server.log)</li>
+    <li>Entra ID OIDC login/logout flow works for CCT internal web app with correct role mapping (supervisor, operator, viewer)</li>
+    <li>Entra ID MSAL mobile auth flow works on iOS and Android internal mobile app</li>
+    <li>External user self-registration, email MFA, and password reset validated on Agents &amp; Freighters portal</li>
+    <li>Trucker mobile gate entry flow: pre-notification → ACCS gate pass → gate open event — end-to-end</li>
+    <li>Airline portal: cargo loading plan view, special handling request submission — functional test per IATA airline code</li>
+    <li>SITA FWB, FHL, FSU message send/receive tested in SITA sandbox — zero message loss</li>
+    <li>ACCS cargo manifest submission and response cycle validated (import + export) in ACCS sandbox</li>
+    <li>GLS status update integration confirmed end-to-end (SFTP or API)</li>
+    <li>HKIA One data platform feed established and validated from AWS endpoint (AAHK UAT sign-off)</li>
+    <li>Cathay Pacific corporate interfaces — schedule feed, capacity data, revenue reconciliation — validated bi-directionally</li>
+    <li>Oracle → Aurora data reconciliation report: 100% row count match on all critical tables (cargo_awb, manifests, gate_events)</li>
+    <li>Performance test: gate truck processing API &lt;30 seconds at 150% simulated peak load</li>
+    <li>DR test: Aurora Multi-AZ failover completes, JBoss reconnects, within 15 minutes (RTO target)</li>
+    <li>Security scan: no Critical or High vulnerabilities on external-facing DMZ ALB/JBoss cluster (pen test report signed off)</li>
+    <li>CloudWatch alarms firing correctly (test: inject synthetic 5xx errors on staging)</li>
+    <li>Rollback procedure documented, rehearsed, and confirmed: Route 53 DNS revert &lt;30 minutes</li>
+    <li>CCT IT Director and Programme Manager have formally signed off on cutover go/no-go</li>
+  </ul>
+
+  <h3 style="margin:2rem 0 1rem;">Stakeholder Q&amp;A — quick reference</h3>
+  <div class="qa">
+    <div class="qa-q">Why migrate from WebLogic to JBoss EAP 8?</div>
+    <div class="qa-a">WebLogic licensing is Oracle CPU-based and expensive for cloud deployments. JBoss EAP 8 is Red Hat supported, Jakarta EE 10 compliant, Java 17/21 native, and carries no per-CPU licensing cost on AWS EC2. It also aligns CCT with an open-source, vendor-neutral Java EE stack for long-term flexibility.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Why Aurora PostgreSQL over Oracle on AWS?</div>
+    <div class="qa-a">Oracle CPU-based licensing on AWS adds $30K–$100K+/year per instance. Aurora PostgreSQL is fully managed, Multi-AZ out of the box, integrates natively with DMS for live migration, and has a rich open-source ecosystem. Long-term TCO reduction is estimated at 40%+ on the database layer alone.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">How do you migrate with zero downtime for a 24/7 cargo terminal?</div>
+    <div class="qa-a">DMS Change Data Capture (CDC) keeps Oracle and Aurora PostgreSQL in continuous sync during migration. Each application wave runs in parallel-run mode. Route 53 DNS cutover is scripted and rehearsed. Rollback (DNS revert to on-prem WebLogic) is executable in under 30 minutes. Integration partners are notified and have fallback paths.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">How does Azure Entra ID work with applications hosted on AWS?</div>
+    <div class="qa-a">Entra ID is cloud-agnostic as an OIDC/SAML identity provider. JBoss Elytron OIDC subsystem authenticates users against Entra ID regardless of where JBoss is hosted. Redirect URIs simply point to AWS ALB hostnames. The Entra ID token endpoint is on Microsoft's global infrastructure — no AWS-specific configuration needed on the IdP side.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">What is the single hardest part of this migration?</div>
+    <div class="qa-a">PL/SQL stored procedure rewrite combined with maintaining SITA and ACCS message SLAs during cutover. The application server migration (WebLogic → JBoss) is well-understood with MTA/Windup tooling. Database conversion and external aviation partner integration cutover require the most planning, partner coordination, and parallel-run validation in a live cargo terminal environment.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">How is Hong Kong data residency enforced on AWS?</div>
+    <div class="qa-a">AWS Service Control Policy (SCP) at the Organisation level denies writes to any AWS service outside ap-east-1. All Aurora data encrypted with a KMS Customer Managed Key (CMK) scoped to ap-east-1. S3 bucket policies block cross-region replication. Legal review required before any cross-border data movement.</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<footer>
+  <p>CCT Migration Guide v2.0 &middot; WebLogic → JBoss EAP 8 &middot; Oracle → Aurora PostgreSQL &middot; On-prem → AWS ap-east-1</p>
+  <p style="margin-top:6px;color:#2a3050;">Cathay Cargo Terminal &middot; SITA &middot; ACCS &middot; GLS &middot; HKIA One &middot; Cathay Pacific Airways &middot; Azure Entra ID</p>
+  <p style="margin-top:10px;color:#2a3050;">Sections: Executive · Applications · Integrations · JBoss Migration · Oracle→PG · AWS Architecture · Security · CI/CD · Observability · RACI · Phases · Cutover</p>
+  <p style="margin-top:10px;"><a href="index.html" style="color:var(--teal);text-decoration:none;">← Back to Mayank Chugh Portfolio</a> · <a href="cct_weblogic_jboss_aws_migration_guide.html" style="color:var(--muted);text-decoration:none;">v1 guide</a></p>
+</footer>
+
+</body>
+</html>
