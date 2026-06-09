@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D365 Migration — Data Engineering Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2535;
+    --bg4: #252d42;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --muted: #8b93a8;
+    --faint: #4a5168;
+    --blue: #4f9cf9;
+    --blue-dim: rgba(79,156,249,0.12);
+    --blue-border: rgba(79,156,249,0.3);
+    --purple: #9f7aea;
+    --purple-dim: rgba(159,122,234,0.12);
+    --purple-border: rgba(159,122,234,0.3);
+    --teal: #38c9a8;
+    --teal-dim: rgba(56,201,168,0.1);
+    --teal-border: rgba(56,201,168,0.3);
+    --amber: #f6ad55;
+    --amber-dim: rgba(246,173,85,0.1);
+    --amber-border: rgba(246,173,85,0.3);
+    --red: #fc8181;
+    --red-dim: rgba(252,129,129,0.1);
+    --green: #68d391;
+    --green-dim: rgba(104,211,145,0.1);
+    --green-border: rgba(104,211,145,0.3);
+    --font: 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.7; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(15,17,23,0.9); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-brand { font-family: var(--mono); font-size: 13px; color: var(--blue); letter-spacing: 0.04em; text-decoration: none; transition: color 0.2s; }
+  .nav-brand:hover { color: var(--text); }
+  .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 6rem 2rem 4rem;
+    max-width: 900px; margin: 0 auto;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 12px; color: var(--blue);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--blue); }
+  .hero h1 {
+    font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 600; line-height: 1.1;
+    letter-spacing: -0.03em; margin-bottom: 1.5rem;
+  }
+  .hero h1 span { color: var(--blue); }
+  .hero-sub { font-size: 1.05rem; color: var(--muted); max-width: 600px; margin-bottom: 2.5rem; line-height: 1.8; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .htag {
+    font-family: var(--mono); font-size: 11px; padding: 4px 12px;
+    border: 1px solid var(--border2); border-radius: 20px; color: var(--muted);
+  }
+  .hero-scroll {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    font-size: 11px; font-family: var(--mono); color: var(--faint); text-align: center;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+  /* GRID BG */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0; z-index: -1;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+  }
+
+  /* SECTIONS */
+  section { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; }
+  .section-label {
+    font-family: var(--mono); font-size: 11px; color: var(--blue);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  h2 { font-size: 1.8rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+  h3 { font-size: 1.1rem; font-weight: 500; margin-bottom: 0.5rem; }
+  p.lead { color: var(--muted); margin-bottom: 2rem; font-size: 1rem; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); max-width: 1000px; margin: 0 auto; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+  }
+  .card:hover { border-color: var(--border2); }
+  .card p { color: var(--muted); font-size: 0.875rem; line-height: 1.7; margin-top: 0.4rem; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block; font-size: 10px; font-family: var(--mono);
+    font-weight: 500; padding: 2px 8px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+  }
+  .tag-blue   { background: var(--blue-dim);   color: var(--blue);   border: 1px solid var(--blue-border); }
+  .tag-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
+  .tag-teal   { background: var(--teal-dim);   color: var(--teal);   border: 1px solid var(--teal-border); }
+  .tag-amber  { background: var(--amber-dim);  color: var(--amber);  border: 1px solid var(--amber-border); }
+  .tag-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid var(--green-border); }
+  .tag-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(252,129,129,0.3); }
+
+  /* MIGRATION MAP */
+  .map-row {
+    display: grid; grid-template-columns: 1fr 48px 1fr;
+    align-items: center; gap: 0; margin-bottom: 10px;
+  }
+  .map-old { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; }
+  .map-new { background: var(--bg2); border: 1px solid var(--blue-border); border-radius: 10px; padding: 0.85rem 1rem; }
+  .map-arrow { text-align: center; color: var(--blue); font-size: 18px; }
+  .map-name { font-size: 13px; font-weight: 500; }
+  .map-desc { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+  /* ARCHITECTURE LAYERS */
+  .layer {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.85rem 1.1rem; margin-bottom: 6px;
+    position: relative;
+  }
+  .layer-title { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .layer-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    font-size: 12px; font-weight: 500; padding: 4px 12px;
+    border-radius: 20px; border: 1px solid var(--border2); color: var(--text);
+    background: var(--bg3);
+  }
+  .pill-blue   { background: var(--blue-dim);   color: var(--blue);   border-color: var(--blue-border); }
+  .pill-purple { background: var(--purple-dim); color: var(--purple); border-color: var(--purple-border); }
+  .pill-teal   { background: var(--teal-dim);   color: var(--teal);   border-color: var(--teal-border); }
+  .pill-amber  { background: var(--amber-dim);  color: var(--amber);  border-color: var(--amber-border); }
+  .layer-arrow { text-align: center; color: var(--faint); font-size: 18px; margin: 2px 0; }
+
+  /* QLIK FLOW */
+  .flow {
+    display: flex; align-items: center; gap: 0;
+    overflow-x: auto; padding-bottom: 4px; margin-bottom: 1.5rem;
+  }
+  .fbox {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 16px; font-size: 12px; font-weight: 500;
+    white-space: nowrap; text-align: center; min-width: 120px;
+  }
+  .fbox-src    { color: var(--muted); }
+  .fbox-qlik   { background: var(--purple-dim); border-color: var(--purple-border); color: var(--purple); }
+  .fbox-azure  { background: var(--blue-dim);   border-color: var(--blue-border);   color: var(--blue); }
+  .fbox-d365   { background: var(--teal-dim);   border-color: var(--teal-border);   color: var(--teal); }
+  .farrow { padding: 0 8px; color: var(--faint); font-size: 14px; flex-shrink: 0; }
+
+  /* PHASES */
+  .phase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .phase {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.1rem;
+    border-top: 2px solid var(--blue);
+  }
+  .phase-num { font-family: var(--mono); font-size: 11px; color: var(--blue); margin-bottom: 6px; }
+  .phase h4 { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .phase p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* COMPARISON TABLE */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 1rem; }
+  .compare-table th {
+    text-align: left; padding: 10px 14px; font-family: var(--mono); font-size: 11px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border); background: var(--bg3);
+  }
+  .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+  .compare-table td:first-child { color: var(--text); font-weight: 500; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: var(--bg3); }
+  .dot-yes { color: var(--green); }
+  .dot-no  { color: var(--red); }
+  .dot-mid { color: var(--amber); }
+
+  /* HIGHLIGHT BOX */
+  .highlight {
+    background: var(--blue-dim); border: 1px solid var(--blue-border);
+    border-radius: 10px; padding: 1.1rem 1.25rem;
+    font-size: 13px; color: var(--muted); line-height: 1.7; margin: 1rem 0;
+  }
+  .highlight strong { color: var(--text); }
+
+  .warn-box {
+    background: var(--red-dim); border: 1px solid rgba(252,129,129,0.3);
+    border-radius: 10px; padding: 1rem 1.25rem;
+    font-size: 13px; color: var(--muted); line-height: 1.7; margin: 1rem 0;
+  }
+  .warn-box strong { color: var(--red); }
+
+  .rec-box {
+    background: var(--teal-dim); border: 1px solid var(--teal-border);
+    border-radius: 10px; padding: 1.1rem 1.25rem;
+    font-size: 13px; color: var(--muted); line-height: 1.7; margin: 1rem 0;
+  }
+  .rec-box strong { color: var(--teal); }
+
+  /* INTERVIEW QA */
+  .qa { border-left: 2px solid var(--blue); padding: 0.6rem 1rem; margin-bottom: 12px; }
+  .qa-q { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .qa-a { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* MODULES GRID */
+  .module-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.1rem;
+    transition: border-color 0.2s;
+  }
+  .module-card:hover { border-color: var(--border2); }
+  .module-icon { font-size: 20px; margin-bottom: 8px; }
+  .module-card h4 { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .module-card p { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border); padding: 2rem;
+    text-align: center; font-size: 12px; color: var(--faint);
+    font-family: var(--mono);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+  @media (max-width: 640px) {
+    nav .nav-links { display: none; }
+    .map-row { grid-template-columns: 1fr; }
+    .map-arrow { transform: rotate(90deg); }
+    h2 { font-size: 1.5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-scroll { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-brand">D365 // Migration Guide</a>
+  <ul class="nav-links">
+    <li><a href="index.html#learning-pages">Portfolio</a></li>
+    <li><a href="#what-is">What is D365</a></li>
+    <li><a href="#onprem">On-prem vs Cloud</a></li>
+    <li><a href="#migration">Migration Stack</a></li>
+    <li><a href="#qlik">Qlik & CDC</a></li>
+    <li><a href="#alternatives">Alternatives</a></li>
+    <li><a href="#interview">Interview Prep</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Data Engineering Perspective</div>
+  <h1>Microsoft <span>Dynamics 365</span><br>Migration Guide</h1>
+  <p class="hero-sub">Everything you need to understand D365 — from the legacy on-prem stack (SSIS, SSAS, SSRS) to a modern Azure cloud architecture using ADF, Fabric, Qlik, and beyond.</p>
+  <div class="hero-tags">
+    <span class="htag">SSIS → ADF</span>
+    <span class="htag">SSAS → Fabric Semantic Model</span>
+    <span class="htag">SSRS → Power BI</span>
+    <span class="htag">Qlik Replicate / CDC</span>
+    <span class="htag">Dataverse &amp; Synapse Link</span>
+    <span class="htag">HK &amp; India deployment</span>
+  </div>
+  <div class="hero-scroll">scroll ↓</div>
+</div>
+
+<hr class="divider">
+
+<!-- WHAT IS D365 -->
+<section id="what-is">
+  <div class="section-label">Section 01</div>
+  <h2>What is Microsoft Dynamics 365?</h2>
+  <p class="lead">A modular cloud suite combining CRM and ERP — not one product, but a connected ecosystem of business apps running on Azure.</p>
+
+  <div class="highlight">
+    <strong>One-line definition:</strong> Dynamics 365 is Microsoft's cloud-hosted suite of business applications covering customer relationship management (CRM) and enterprise resource planning (ERP), deeply integrated with Azure, Microsoft 365 (Teams, Outlook, Excel), and the Power Platform.
+  </div>
+
+  <h3 style="margin: 1.5rem 0 1rem;">The two sides of D365</h3>
+  <div class="grid2" style="margin-bottom: 1.5rem;">
+    <div class="card">
+      <span class="tag tag-blue">CRM — Customer facing</span>
+      <h3>Sales, Service, Marketing</h3>
+      <p>Manage leads, opportunities, customer cases, SLAs, and campaigns. The D365 equivalent of Salesforce — but embedded in the Microsoft ecosystem.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-amber">ERP — Back office</span>
+      <h3>Finance, Supply Chain, Business Central</h3>
+      <p>General ledger, accounts payable, inventory, manufacturing, procurement. The Microsoft alternative to SAP — Finance &amp; Operations for enterprise, Business Central for SMB.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 1rem;">All D365 modules at a glance</h3>
+  <div class="grid3">
+    <div class="module-card">
+      <div class="module-icon">📈</div>
+      <h4>Sales</h4>
+      <p>AI-assisted pipeline, lead scoring, opportunity management. Agents for next-best-action.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">🎧</div>
+      <h4>Customer Service</h4>
+      <p>Omnichannel support, case management, knowledge base, SLA enforcement.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">📣</div>
+      <h4>Customer Insights</h4>
+      <p>CDP + marketing journeys. Unifies customer data for segmentation and personalisation.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">💰</div>
+      <h4>Finance</h4>
+      <p>General ledger, AP/AR, budgeting, financial reporting. Large enterprise.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">🚚</div>
+      <h4>Supply Chain</h4>
+      <p>Inventory, warehousing, manufacturing, procurement, logistics.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">🏪</div>
+      <h4>Business Central</h4>
+      <p>All-in-one ERP for SMB — finance, ops, sales. The cloud successor to Dynamics NAV.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">🔧</div>
+      <h4>Field Service</h4>
+      <p>Work order management, resource scheduling, asset tracking, mobile tools for frontline workers.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">🛍️</div>
+      <h4>Commerce</h4>
+      <p>Headless omnichannel retail — POS, digital commerce (B2C/B2B), call centre.</p>
+    </div>
+    <div class="module-card">
+      <div class="module-icon">🤖</div>
+      <h4>Copilot (AI layer)</h4>
+      <p>Embedded across all apps — summarises, drafts, predicts, automates tasks in every module.</p>
+    </div>
+  </div>
+
+  <div class="highlight" style="margin-top: 1.5rem;">
+    <strong>Key platform concepts:</strong> <strong>Dataverse</strong> is the shared data layer all D365 apps sit on. <strong>Power Platform</strong> (Power Apps, Power Automate, Power BI, Copilot Studio) extends D365. <strong>Release waves</strong> happen twice a year — Microsoft handles all upgrades in the cloud.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ON-PREM VS CLOUD -->
+<section id="onprem">
+  <div class="section-label">Section 02</div>
+  <h2>On-prem vs Cloud</h2>
+  <p class="lead">D365 is natively cloud-first on Azure — but legacy on-prem predecessors are still running in thousands of organisations.</p>
+
+  <h3 style="margin-bottom: 1rem;">The legacy on-prem predecessors</h3>
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem;">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr>
+          <th>Old on-prem name</th>
+          <th>Also known as</th>
+          <th>Modern cloud equivalent</th>
+          <th>Migration status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dynamics AX</td>
+          <td>Axapta</td>
+          <td>D365 Finance &amp; Supply Chain</td>
+          <td><span class="dot-mid">▲</span> Active migration market</td>
+        </tr>
+        <tr>
+          <td>Dynamics NAV</td>
+          <td>Navision</td>
+          <td>D365 Business Central</td>
+          <td><span class="dot-mid">▲</span> Large installed base</td>
+        </tr>
+        <tr>
+          <td>Dynamics CRM</td>
+          <td>—</td>
+          <td>D365 Sales / Customer Service</td>
+          <td><span class="dot-yes">●</span> Most already migrated</td>
+        </tr>
+        <tr>
+          <td>Dynamics GP</td>
+          <td>Great Plains</td>
+          <td>Business Central (partial)</td>
+          <td><span class="dot-no">✕</span> Being retired — no direct path</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="tag tag-blue">Cloud (primary)</span>
+      <h3>SaaS on Azure</h3>
+      <p>All new implementations go cloud-first. Modern features — Copilot AI, Power Platform, Synapse Link, automatic release waves — are cloud-only. Microsoft manages infrastructure, security, and updates.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-amber">On-premises (legacy)</span>
+      <h3>D365 F&amp;O + Business Central</h3>
+      <p>On-prem deployments still exist for organisations with data sovereignty, regulatory, or connectivity requirements. These lag behind cloud in features. Microsoft's stated future is cloud-only.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- MIGRATION STACK -->
+<section id="migration">
+  <div class="section-label">Section 03</div>
+  <h2>Migration Stack — SSIS / SSAS / SSRS → Azure</h2>
+  <p class="lead">Tool-by-tool map from your current on-prem Microsoft BI stack to the modern Azure / Fabric cloud equivalents.</p>
+
+  <h3 style="margin-bottom: 1rem;">Tool replacement map</h3>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber" style="margin-bottom:4px;">On-prem</span><div class="map-name">SSIS</div><div class="map-desc">SQL Server Integration Services — ETL pipelines, data movement</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-blue" style="margin-bottom:4px;">Cloud</span><div class="map-name">Azure Data Factory (ADF)</div><div class="map-desc">Cloud-native ETL/ELT. 90+ connectors incl. D365 native. Low-code pipeline builder. Scales automatically.</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber" style="margin-bottom:4px;">On-prem</span><div class="map-name">SSAS</div><div class="map-desc">SQL Server Analysis Services — OLAP cubes, tabular models, MDX/DAX</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-blue" style="margin-bottom:4px;">Cloud</span><div class="map-name">Azure Analysis Services / Fabric Semantic Model</div><div class="map-desc">Managed tabular models in cloud. DAX knowledge carries over directly. Fabric Semantic Models are the long-term successor to SSAS.</div></div>
+  </div>
+  <div class="map-row">
+    <div class="map-old"><span class="tag tag-amber" style="margin-bottom:4px;">On-prem</span><div class="map-name">SSRS</div><div class="map-desc">SQL Server Reporting Services — paginated &amp; scheduled reports</div></div>
+    <div class="map-arrow">→</div>
+    <div class="map-new"><span class="tag tag-blue" style="margin-bottom:4px;">Cloud</span><div class="map-name">Power BI + Fabric Paginated Reports</div><div class="map-desc">Interactive dashboards via Power BI. Pixel-perfect paginated reports via Fabric (same RDL format — low migration effort).</div></div>
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem;">Modern cloud architecture — layered</h3>
+  <div class="layer" style="border-color: var(--border2);">
+    <div class="layer-title">Source systems</div>
+    <div class="layer-pills">
+      <span class="pill">D365 Finance</span>
+      <span class="pill">D365 Sales / CRM</span>
+      <span class="pill">D365 Supply Chain</span>
+      <span class="pill" style="color:var(--muted);">Legacy SQL Server / AX / NAV</span>
+      <span class="pill" style="color:var(--muted);">Flat files / APIs</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Ingestion &amp; orchestration</div>
+    <div class="layer-pills">
+      <span class="pill pill-blue">Azure Data Factory (ADF)</span>
+      <span class="pill pill-blue">Fabric Data Pipeline</span>
+      <span class="pill pill-blue">D365 Dataverse / Synapse Link</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Storage — data lakehouse</div>
+    <div class="layer-pills">
+      <span class="pill pill-teal">Azure Data Lake Storage Gen2</span>
+      <span class="pill pill-teal">Microsoft Fabric OneLake</span>
+      <span class="pill pill-teal">Azure Synapse Analytics</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Transform &amp; model</div>
+    <div class="layer-pills">
+      <span class="pill pill-purple">dbt (data build tool)</span>
+      <span class="pill pill-purple">Fabric Notebooks (PySpark)</span>
+      <span class="pill pill-purple">Azure Databricks</span>
+      <span class="pill pill-purple">Fabric Dataflows Gen2</span>
+    </div>
+  </div>
+  <div class="layer-arrow">↓</div>
+  <div class="layer">
+    <div class="layer-title">Serve &amp; report</div>
+    <div class="layer-pills">
+      <span class="pill pill-amber">Power BI</span>
+      <span class="pill pill-amber">Fabric Semantic Model (→ SSAS)</span>
+      <span class="pill pill-amber">Fabric Paginated Reports (→ SSRS)</span>
+    </div>
+  </div>
+
+  <div class="highlight" style="margin-top:1.5rem;">
+    <strong>D365 Synapse Link</strong> is the critical feature for data engineers. It continuously replicates D365 Dataverse tables into your Azure Data Lake in near-real-time — no custom SSIS packages needed. This replaces the old BYOD (Bring Your Own Database) pattern and is Microsoft's recommended analytics integration approach.
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem;">Migration phases</h3>
+  <div class="phase-grid">
+    <div class="phase">
+      <div class="phase-num">Phase 01</div>
+      <h4>Assess</h4>
+      <p>Inventory all SSIS packages, SSAS cubes, and SSRS reports. Use Microsoft's Data Migration Assistant (DMA) to identify compatibility issues.</p>
+    </div>
+    <div class="phase" style="border-top-color: var(--purple);">
+      <div class="phase-num" style="color:var(--purple);">Phase 02</div>
+      <h4>Migrate</h4>
+      <p>SSIS → ADF pipelines. SSAS tabular → Fabric Semantic Model. Set up Dataverse Synapse Link for ongoing D365 replication.</p>
+    </div>
+    <div class="phase" style="border-top-color: var(--teal);">
+      <div class="phase-num" style="color:var(--teal);">Phase 03</div>
+      <h4>Modernise</h4>
+      <p>Adopt medallion lakehouse (Bronze/Silver/Gold). Enable Power BI. Introduce dbt or Spark for governed transforms.</p>
+    </div>
+    <div class="phase" style="border-top-color: var(--amber);">
+      <div class="phase-num" style="color:var(--amber);">Phase 04</div>
+      <h4>Optimise</h4>
+      <p>Embed Copilot AI. Retire remaining on-prem infrastructure. Achieve full cloud-native operating model.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- QLIK -->
+<section id="qlik">
+  <div class="section-label">Section 04</div>
+  <h2>Where Qlik Fits — CDC &amp; Data Movement</h2>
+  <p class="lead">Qlik acts as the data movement layer between on-prem sources and Azure, solving the hardest part of migration: getting data out of legacy systems reliably and in real-time.</p>
+
+  <h3 style="margin-bottom: 1rem;">The flow</h3>
+  <div class="flow">
+    <div class="fbox fbox-src">On-prem SQL Server<br><small style="color:var(--faint);">AX / NAV / CRM</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox fbox-qlik">Qlik Replicate<br><small style="opacity:0.7;">CDC engine</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox fbox-azure">Azure Data Lake<br><small style="opacity:0.7;">ADLS Gen2</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox fbox-azure">ADF Pipelines<br><small style="opacity:0.7;">Orchestration</small></div>
+    <div class="farrow">→</div>
+    <div class="fbox fbox-d365">D365 Cloud<br><small style="opacity:0.7;">+ Fabric</small></div>
+  </div>
+
+  <div class="highlight">
+    <strong>What is CDC (Change Data Capture)?</strong> Instead of nightly full batch dumps, Qlik reads your SQL Server <em>transaction logs</em> and streams only what changed — inserts, updates, deletes — in near real-time to Azure. Your on-prem system stays live with zero downtime and zero performance impact.
+  </div>
+
+  <h3 style="margin: 1.5rem 0 1rem;">The 3 Qlik tools involved</h3>
+  <div class="grid3">
+    <div class="card">
+      <span class="tag tag-purple">Qlik Replicate</span>
+      <h3>CDC &amp; replication engine</h3>
+      <p>Reads transaction logs from SQL Server, Oracle, SAP, mainframes and streams to Azure targets (ADLS, Synapse, Databricks Delta Lake). GUI-based — no manual coding. Replaces SSIS for data extraction.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-purple">Qlik Compose</span>
+      <h3>Automated lakehouse builder</h3>
+      <p>Takes raw replicated data and auto-generates warehouse structures — star schemas, dimension/fact tables, medallion layers. Think automated dbt, working directly with Azure Synapse and ADLS.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-purple">Qlik Data Gateway</span>
+      <h3>Hybrid secure bridge</h3>
+      <p>When using Qlik Cloud SaaS, the gateway allows secure access to on-prem sources without opening firewall ports. Essential during the hybrid transition phase of migration.</p>
+    </div>
+  </div>
+
+  <h3 style="margin: 1.5rem 0 1rem;">Qlik vs ADF — who does what</h3>
+  <div class="grid2">
+    <div class="card" style="border-color: var(--purple-border);">
+      <span class="tag tag-purple">Qlik handles</span>
+      <p style="margin-top:8px; line-height:2;">
+        <span class="dot-yes">✓</span> Real-time CDC from on-prem sources<br>
+        <span class="dot-yes">✓</span> Initial full load + ongoing delta sync<br>
+        <span class="dot-yes">✓</span> Schema auto-mapping to Azure targets<br>
+        <span class="dot-yes">✓</span> Basic transforms during replication<br>
+        <span class="dot-yes">✓</span> Pipeline monitoring &amp; alerting<br>
+        <span class="dot-yes">✓</span> Multi-source fan-in to one Azure target
+      </p>
+    </div>
+    <div class="card" style="border-color: var(--blue-border);">
+      <span class="tag tag-blue">ADF still handles</span>
+      <p style="margin-top:8px; line-height:2;">
+        <span class="dot-yes">✓</span> Orchestration &amp; scheduling<br>
+        <span class="dot-yes">✓</span> Complex transforms within Azure<br>
+        <span class="dot-yes">✓</span> 90+ Azure-native service connectors<br>
+        <span class="dot-yes">✓</span> Running remaining SSIS packages<br>
+        <span class="dot-yes">✓</span> Triggers, dependencies, retry logic<br>
+        <span class="dot-yes">✓</span> Integration with Fabric / Synapse
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ALTERNATIVES / HK & INDIA -->
+<section id="alternatives">
+  <div class="section-label">Section 05</div>
+  <h2>Reducing Qlik Dependency — HK &amp; India</h2>
+  <p class="lead">Thin local support coverage in Hong Kong and India is a real operational risk. Here's a structured strategy to mitigate it.</p>
+
+  <div class="warn-box">
+    <strong>The risks of thin vendor coverage:</strong> Pipeline failures with no timely SLA response · Licensing issues across time zones · No on-site professional services · Knowledge locked in one vendor relationship · Emergency support costs escalate when overseas teams are needed.
+  </div>
+
+  <h3 style="margin: 1.5rem 0 1rem;">Option 1 — Mitigate within Qlik (keep Qlik, reduce dependency)</h3>
+  <div class="grid2" style="margin-bottom: 1.5rem;">
+    <div class="card">
+      <span class="tag tag-green">Qlik partner route</span>
+      <h3>Engage a certified SI partner</h3>
+      <p><strong style="color:var(--text);">India:</strong> TCS, Wipro, HCL, and Infosys all carry certified Qlik practices with local language support and faster SLA. India has the strongest Qlik partner ecosystem in APAC.</p>
+      <p style="margin-top:8px;"><strong style="color:var(--text);">Hong Kong:</strong> NTT Data, DXC Technology, and regional SIs cover HK — fewer options but workable via the Qlik partner locator (qlik-partners.com).</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-green">Internal capability</span>
+      <h3>Build internal Qlik expertise</h3>
+      <p>Train 1–2 data engineers on Qlik Replicate via Qlik Learning (online). With internal knowledge, day-to-day ops don't require vendor calls — only critical incidents need escalation. Reduces vendor dependency by ~70%.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 1rem;">Option 2 — Replace Qlik Replicate with an alternative</h3>
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem;">
+    <table class="compare-table" style="margin-top:0;">
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Type</th>
+          <th>Best for</th>
+          <th>HK / India support</th>
+          <th>Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ADF Native CDC</td>
+          <td>Microsoft managed</td>
+          <td>SQL Server sources → Azure</td>
+          <td><span class="dot-yes">●</span> Azure global SLA</td>
+          <td>Included in ADF</td>
+        </tr>
+        <tr>
+          <td>Debezium</td>
+          <td>Open source</td>
+          <td>Kafka-based, multi-source</td>
+          <td><span class="dot-yes">●</span> Community / self-managed</td>
+          <td>Free</td>
+        </tr>
+        <tr>
+          <td>Fivetran</td>
+          <td>Managed SaaS</td>
+          <td>300+ connectors, zero ops</td>
+          <td><span class="dot-yes">●</span> APAC support available</td>
+          <td>Per connector</td>
+        </tr>
+        <tr>
+          <td>Striim</td>
+          <td>Enterprise SaaS</td>
+          <td>In-flight transforms + CDC</td>
+          <td><span class="dot-mid">▲</span> Cloud SaaS model</td>
+          <td>Enterprise pricing</td>
+        </tr>
+        <tr>
+          <td>Oracle GoldenGate</td>
+          <td>Enterprise</td>
+          <td>Oracle DB sources</td>
+          <td><span class="dot-yes">●</span> Strong Oracle India/HK offices</td>
+          <td>Premium</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rec-box">
+    <strong>Recommended strategy for your proposal:</strong><br><br>
+    <strong>Short term (migration phase):</strong> Keep Qlik Replicate but engage a certified SI in India (TCS/Wipro/HCL) for local support. Train 1–2 engineers internally on Replicate basics.<br><br>
+    <strong>Medium term (post-migration):</strong> Replace Qlik with ADF Native CDC for SQL Server sources (no extra cost, Microsoft global SLA) + Debezium/Kafka for any non-SQL sources. Once D365 Synapse Link is live, Qlik's role ends entirely.<br><br>
+    <strong>In the proposal:</strong> Frame Qlik as a <em>migration accelerator for Phase 1–2 only</em>, with a planned exit to ADF-native CDC post-cutover. This shows maturity, reduces long-term vendor risk, and is a strong story for leadership.
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- INTERVIEW PREP -->
+<section id="interview">
+  <div class="section-label">Section 06</div>
+  <h2>Interview Prep — Quick Reference</h2>
+  <p class="lead">Likely questions and the angles that demonstrate genuine understanding — not just surface knowledge.</p>
+
+  <div class="qa">
+    <div class="qa-q">What is Dynamics 365 and how does it differ from Salesforce or SAP?</div>
+    <div class="qa-a">D365 is a modular cloud suite combining CRM and ERP under one roof — Salesforce is CRM-only, SAP is ERP-heavy. D365's key differentiator is deep integration with the full Microsoft ecosystem: Teams, Outlook, Azure, Power Platform, and Fabric. It's one licence relationship for the whole stack.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">What is the difference between CRM and ERP in D365?</div>
+    <div class="qa-a">CRM modules (Sales, Customer Service, Marketing) are customer-facing — managing relationships, pipelines, and service. ERP modules (Finance, Supply Chain, Business Central) are back-office — accounting, inventory, manufacturing. Both share the same Dataverse data layer, which is a key technical advantage.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">What is Dataverse?</div>
+    <div class="qa-a">The unified data layer beneath all D365 apps. Stores records in a consistent, secure, cloud-hosted schema. It makes sharing data between D365 apps seamless — a Sales opportunity can reference a Finance invoice with no custom integration. Synapse Link replicates Dataverse tables to Azure for analytics.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">How does D365 use AI?</div>
+    <div class="qa-a">Microsoft Copilot is embedded across all modules — it summarises emails, suggests next steps for sales reps, predicts stock shortfalls, automates case routing, and generates marketing content. In D365 Sales, AI agents can discover leads, prioritise tasks, and automate follow-ups autonomously.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">How would you migrate from SSIS / SSAS / SSRS to Azure?</div>
+    <div class="qa-a">SSIS → Azure Data Factory (pipelines). SSAS → Azure Analysis Services or Fabric Semantic Models (DAX carries over directly). SSRS → Power BI for dashboards plus Fabric Paginated Reports for pixel-perfect reports (same RDL format). For D365 data specifically, Dataverse Synapse Link handles ongoing replication — no SSIS extraction packages needed.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">What is Qlik Replicate and why use it over ADF?</div>
+    <div class="qa-a">Qlik Replicate is a log-based CDC engine — it reads transaction logs from on-prem SQL Server, Oracle, or SAP and streams changes to Azure in near real-time, without impacting the source system. ADF is an orchestration tool, not a CDC tool. They complement each other: Qlik moves data out of legacy systems, ADF orchestrates what happens to it inside Azure. Post-migration, ADF's native CDC for SQL Server can replace Qlik for most scenarios.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">What is the medallion architecture?</div>
+    <div class="qa-a">A lakehouse design pattern using three layers: Bronze (raw ingested data, no transforms), Silver (cleaned, validated, conformed data), Gold (business-ready aggregations and models for reporting). It replaces the old data warehouse ETL pattern with a more flexible, Spark-friendly approach on ADLS or Fabric OneLake.</div>
+  </div>
+
+  <div class="highlight" style="margin-top: 1.5rem;">
+    <strong>Tip for interviews:</strong> Frame D365 as a <em>platform</em>, not a product. Interviewers appreciate candidates who understand the modularity and the Microsoft ecosystem surrounding it. Mention Dataverse, Synapse Link, and Power Platform — these signal you understand the data engineering angle, not just the business application surface.
+  </div>
+</section>
+
+<hr class="divider">
+
+<footer>
+  <p>D365 Migration Guide · Data Engineering Perspective · Built for HK &amp; India deployment context</p>
+  <p style="margin-top: 6px; color: #2a3050;">SSIS · SSAS · SSRS · ADF · Synapse · Fabric · Qlik Replicate · Dataverse · Power BI</p>
+  <p style="margin-top: 10px;"><a href="index.html" style="color: var(--blue); text-decoration: none;">← Back to Mayank Chugh Portfolio</a></p>
+</footer>
+
+</body>
+</html>

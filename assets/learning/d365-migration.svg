@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="D365 Migration Guide">
+  <defs>
+    <linearGradient id="heroBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f1117"/>
+      <stop offset="50%" stop-color="#161b27"/>
+      <stop offset="100%" stop-color="#0f1117"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="18%" r="55%">
+      <stop offset="0%" stop-color="rgba(79,156,249,0.35)"/>
+      <stop offset="100%" stop-color="rgba(79,156,249,0)"/>
+    </radialGradient>
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8eaf0"/>
+      <stop offset="55%" stop-color="#4f9cf9"/>
+      <stop offset="100%" stop-color="#38c9a8"/>
+    </linearGradient>
+    <linearGradient id="accentBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4f9cf9"/>
+      <stop offset="100%" stop-color="#38c9a8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="225" fill="url(#heroBg)"/>
+  <ellipse cx="200" cy="28" rx="170" ry="70" fill="url(#glow)"/>
+
+  <!-- badge -->
+  <rect x="98" y="22" width="204" height="22" rx="11" fill="rgba(79,156,249,0.12)" stroke="rgba(79,156,249,0.35)" stroke-width="1"/>
+  <rect x="112" y="31" width="88" height="4" rx="2" fill="#4f9cf9" opacity="0.9"/>
+  <rect x="208" y="31" width="78" height="4" rx="2" fill="#4a5168" opacity="0.55"/>
+
+  <!-- title -->
+  <text x="200" y="82" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" fill="url(#titleGrad)">Dynamics 365</text>
+  <text x="200" y="112" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="url(#titleGrad)" opacity="0.92">Migration Guide</text>
+
+  <!-- subtitle bars -->
+  <rect x="72" y="126" width="256" height="5" rx="2.5" fill="rgba(139,147,168,0.35)"/>
+  <rect x="104" y="136" width="192" height="4" rx="2" fill="rgba(74,81,104,0.45)"/>
+
+  <!-- migration flow -->
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="48" y="158" width="72" height="36" rx="6" fill="#1e2535" stroke="rgba(79,156,249,0.3)" stroke-width="1"/>
+    <text x="84" y="180" text-anchor="middle" font-size="9" font-weight="600" fill="#8b93a8">SSIS</text>
+
+    <text x="136" y="180" text-anchor="middle" font-size="14" fill="#4f9cf9">’</text>
+
+    <rect x="148" y="158" width="72" height="36" rx="6" fill="#1e2535" stroke="rgba(56,201,168,0.3)" stroke-width="1"/>
+    <text x="184" y="180" text-anchor="middle" font-size="9" font-weight="600" fill="#38c9a8">ADF</text>
+
+    <text x="236" y="180" text-anchor="middle" font-size="14" fill="#4f9cf9">’</text>
+
+    <rect x="248" y="158" width="104" height="36" rx="6" fill="#1e2535" stroke="rgba(159,122,234,0.3)" stroke-width="1"/>
+    <text x="300" y="180" text-anchor="middle" font-size="9" font-weight="600" fill="#9f7aea">Fabric</text>
+  </g>
+
+  <!-- tags -->
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="108" y="210" text-anchor="middle" font-size="8" fill="#4a5168">CDC</text>
+    <text x="200" y="210" text-anchor="middle" font-size="8" fill="#4a5168">Dataverse</text>
+    <text x="292" y="210" text-anchor="middle" font-size="8" fill="#4a5168">Power BI</text>
+  </g>
+
+  <!-- bottom accent line -->
+  <rect x="0" y="223" width="400" height="2" fill="url(#accentBar)" opacity="0.85"/>
+</svg>
