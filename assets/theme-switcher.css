@@ -325,6 +325,56 @@
   --tel-bg: #002211; --red: #f66; --grn: #0f8;
 }
 
+/* ─── D365 migration guide ────────────────────────────────── */
+[data-page="d365"][data-theme="dark"] {
+  --bg: #0f1117; --bg2: #161b27; --bg3: #1e2535; --bg4: #252d42;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+  --text: #e8eaf0; --muted: #8b93a8; --faint: #4a5168;
+  --blue: #4f9cf9; --blue-dim: rgba(79,156,249,0.12); --blue-border: rgba(79,156,249,0.3);
+  --purple: #9f7aea; --purple-dim: rgba(159,122,234,0.12); --purple-border: rgba(159,122,234,0.3);
+  --teal: #38c9a8; --teal-dim: rgba(56,201,168,0.1); --teal-border: rgba(56,201,168,0.3);
+  --amber: #f6ad55; --amber-dim: rgba(246,173,85,0.1); --amber-border: rgba(246,173,85,0.3);
+  --red: #fc8181; --red-dim: rgba(252,129,129,0.1);
+  --green: #68d391; --green-dim: rgba(104,211,145,0.1); --green-border: rgba(104,211,145,0.3);
+  --nav-bg: rgba(15,17,23,0.9);
+}
+[data-page="d365"][data-theme="light"] {
+  --bg: #f7f8fc; --bg2: #ffffff; --bg3: #eef1f8; --bg4: #e2e6f0;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14);
+  --text: #12131a; --muted: #5c637a; --faint: #8b93a8;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.1); --blue-border: rgba(37,99,235,0.25);
+  --purple: #7c3aed; --purple-dim: rgba(124,58,237,0.1); --purple-border: rgba(124,58,237,0.25);
+  --teal: #0d9488; --teal-dim: rgba(13,148,136,0.1); --teal-border: rgba(13,148,136,0.25);
+  --amber: #d97706; --amber-dim: rgba(217,119,6,0.1); --amber-border: rgba(217,119,6,0.25);
+  --red: #dc2626; --red-dim: rgba(220,38,38,0.1);
+  --green: #16a34a; --green-dim: rgba(22,163,74,0.1); --green-border: rgba(22,163,74,0.25);
+  --nav-bg: rgba(247,248,252,0.92);
+}
+[data-page="d365"][data-theme="midnight"] {
+  --bg: #080a10; --bg2: #0f121c; --bg3: #161c2a; --bg4: #1c2438;
+  --border: rgba(255,255,255,0.06); --border2: rgba(255,255,255,0.1);
+  --text: #e0e4f0; --muted: #7a8298; --faint: #3d4458;
+  --blue: #4f9cf9; --blue-dim: rgba(79,156,249,0.1); --blue-border: rgba(79,156,249,0.25);
+  --purple: #9f7aea; --purple-dim: rgba(159,122,234,0.1); --purple-border: rgba(159,122,234,0.25);
+  --teal: #38c9a8; --teal-dim: rgba(56,201,168,0.08); --teal-border: rgba(56,201,168,0.25);
+  --amber: #f6ad55; --amber-dim: rgba(246,173,85,0.08); --amber-border: rgba(246,173,85,0.25);
+  --red: #fc8181; --red-dim: rgba(252,129,129,0.08);
+  --green: #68d391; --green-dim: rgba(104,211,145,0.08); --green-border: rgba(104,211,145,0.25);
+  --nav-bg: rgba(8,10,16,0.94);
+}
+[data-page="d365"][data-theme="contrast"] {
+  --bg: #000; --bg2: #0a0a0a; --bg3: #141414; --bg4: #1e1e1e;
+  --border: #fff; --border2: #fff;
+  --text: #fff; --muted: #ddd; --faint: #aaa;
+  --blue: #0ff; --blue-dim: rgba(0,255,255,0.12); --blue-border: #0ff;
+  --purple: #ccf; --purple-dim: rgba(204,204,255,0.12); --purple-border: #ccf;
+  --teal: #0f8; --teal-dim: rgba(0,255,136,0.12); --teal-border: #0f8;
+  --amber: #fc0; --amber-dim: rgba(255,204,0,0.12); --amber-border: #fc0;
+  --red: #f66; --red-dim: rgba(255,102,102,0.12);
+  --green: #0f8; --green-dim: rgba(0,255,136,0.12); --green-border: #0f8;
+  --nav-bg: rgba(0,0,0,0.96);
+}
+
 /* ─── Profile / index page ────────────────────────────────── */
 [data-page="profile"][data-theme="light"] {
   --white: #ffffff; --off: #f4f6f9; --text: #1a1a2e; --muted: #5a6a7e;
