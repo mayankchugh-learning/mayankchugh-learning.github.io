@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSAS Migration Proposal — Multidimensional to Fabric</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Palette — steel proposal */
+  --navy:       #0e1e35;
+  --navy-mid:   #1a3454;
+  --navy-light: #254d7a;
+  --steel:      #3a6494;
+  --sky:        #4f8ec9;
+  --sky-pale:   #daeaf8;
+  --sky-faint:  #f0f7fd;
+  --slate:      #f4f6f9;
+  --white:      #ffffff;
+  --ink:        #111827;
+  --body:       #374151;
+  --muted:      #6b7280;
+  --faint:      #9ca3af;
+  --border:     #e5e7eb;
+  --border2:    #d1d5db;
+
+  /* Phase colours */
+  --p1:         #7c3aed; /* step 1 - assess */
+  --p1-bg:      #f5f3ff;
+  --p1-bdr:     #c4b5fd;
+  --p2:         #0369a1; /* step 2 - tabular rebuild */
+  --p2-bg:      #f0f9ff;
+  --p2-bdr:     #7dd3fc;
+  --p3:         #047857; /* step 3 - cloud */
+  --p3-bg:      #f0fdf4;
+  --p3-bdr:     #6ee7b7;
+  --warn:       #b45309;
+  --warn-bg:    #fffbeb;
+  --warn-bdr:   #fcd34d;
+  --red:        #991b1b;
+  --red-bg:     #fef2f2;
+  --red-bdr:    #fca5a5;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --radius:       6px;
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.06);
+  --shadow:       0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--white);
+  color: var(--body);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── PRINT ── */
+@media print {
+  nav, .no-print { display: none !important; }
+  body { font-size: 13px; }
+  .hero { padding: 2rem 0 1.5rem; }
+  section { break-inside: avoid; }
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(14,30,53,0.97); backdrop-filter: blur(8px);
+  height: 50px; padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: var(--font-mono); font-size: 11px;
+  color: #7dd3fc; letter-spacing: 0.08em;
+}
+.nav-right { display: flex; align-items: center; gap: 1.25rem; }
+.nav-links { display: flex; gap: 1.1rem; list-style: none; }
+.nav-links a {
+  color: rgba(255,255,255,0.5); text-decoration: none;
+  font-size: 12px; transition: color 0.15s;
+}
+.nav-links a:hover { color: rgba(255,255,255,0.9); }
+.nav-print {
+  font-size: 11px; font-family: var(--font-mono);
+  background: transparent; border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.5); padding: 3px 10px; border-radius: 4px;
+  cursor: pointer; transition: all 0.15s;
+}
+.nav-print:hover { border-color: rgba(255,255,255,0.5); color: white; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--navy);
+  padding: 7rem 2rem 5rem;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent 0px, transparent 40px,
+    rgba(255,255,255,0.018) 40px, rgba(255,255,255,0.018) 41px
+  );
+}
+.hero-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+.hero-meta {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 2rem;
+}
+.hero-doc-type {
+  font-family: var(--font-mono); font-size: 10px;
+  color: #7dd3fc; letter-spacing: 0.1em; text-transform: uppercase;
+  border: 1px solid rgba(125,211,252,0.3); padding: 3px 10px; border-radius: 3px;
+}
+.hero-date { font-size: 12px; color: rgba(255,255,255,0.35); font-family: var(--font-mono); }
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 500; line-height: 1.05;
+  letter-spacing: -0.02em; color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+.hero h1 span { color: #7dd3fc; font-style: italic; }
+.hero-sub {
+  font-size: 1rem; color: rgba(255,255,255,0.55);
+  max-width: 620px; line-height: 1.8; margin-bottom: 2.5rem;
+}
+.hero-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.hero-pill {
+  font-size: 11px; font-family: var(--font-mono);
+  color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 3px 11px; border-radius: 20px; background: rgba(255,255,255,0.04);
+}
+
+/* ── EXECUTIVE SUMMARY BAND ── */
+.exec-band {
+  background: var(--sky-faint);
+  border-top: 3px solid var(--sky);
+  border-bottom: 1px solid var(--sky-pale);
+  padding: 2.5rem 2rem;
+}
+.exec-inner { max-width: 860px; margin: 0 auto; }
+.exec-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 1.25rem; }
+.exec-cell { background: var(--white); padding: 1rem 1.1rem; }
+.exec-label { font-family: var(--font-mono); font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+.exec-value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 500; color: var(--navy); line-height: 1; margin-bottom: 4px; }
+.exec-sub { font-size: 11px; color: var(--muted); }
+
+/* ── PAGE BODY ── */
+.page { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+section { padding: 3.5rem 0; border-bottom: 1px solid var(--border); }
+section:last-of-type { border-bottom: none; }
+
+/* ── SECTION HEADERS ── */
+.sec-eyebrow {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--sky); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+h2 {
+  font-family: var(--font-display); font-size: 1.75rem;
+  font-weight: 500; color: var(--navy);
+  letter-spacing: -0.02em; margin-bottom: 0.5rem; line-height: 1.2;
+}
+.sec-intro { color: var(--muted); font-size: 0.9rem; max-width: 640px; margin-bottom: 1.75rem; }
+h3 { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+
+/* ── CALLOUTS ── */
+.callout {
+  border-radius: var(--radius); padding: 1rem 1.25rem;
+  font-size: 13px; line-height: 1.75; margin: 1rem 0;
+  display: flex; gap: 0.75rem; align-items: flex-start;
+}
+.callout-icon { font-size: 15px; flex-shrink: 0; margin-top: 2px; }
+.callout div strong { display: block; font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.callout-warn  { background: var(--warn-bg); border-left: 3px solid var(--warn); color: #78350f; }
+.callout-red   { background: var(--red-bg);  border-left: 3px solid var(--red);  color: #7f1d1d; }
+.callout-blue  { background: var(--sky-faint); border-left: 3px solid var(--sky); color: #0c4a6e; }
+.callout-green { background: var(--p3-bg);   border-left: 3px solid var(--p3);  color: #14532d; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+.card p { font-size: 13px; color: var(--muted); line-height: 1.7; margin-top: 4px; }
+.card ul { padding-left: 1.1rem; margin-top: 4px; }
+.card ul li { font-size: 13px; color: var(--muted); margin-bottom: 3px; line-height: 1.6; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px; }
+
+/* ── TAGS ── */
+.tag {
+  display: inline-block; font-size: 10px; font-family: var(--font-mono);
+  font-weight: 500; padding: 2px 8px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 7px;
+}
+.tag-p1 { background: var(--p1-bg); color: var(--p1); border: 1px solid var(--p1-bdr); }
+.tag-p2 { background: var(--p2-bg); color: var(--p2); border: 1px solid var(--p2-bdr); }
+.tag-p3 { background: var(--p3-bg); color: var(--p3); border: 1px solid var(--p3-bdr); }
+.tag-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-bdr); }
+.tag-red  { background: var(--red-bg);  color: var(--red);  border: 1px solid var(--red-bdr); }
+
+/* ── SIGNATURE ELEMENT: MIGRATION PATHWAY ── */
+.pathway {
+  position: relative;
+  margin: 2rem 0;
+}
+.pathway-track {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr 60px 1fr;
+  align-items: stretch;
+  gap: 0;
+}
+.pathway-node {
+  border-radius: 8px;
+  padding: 1.5rem 1.25rem;
+  position: relative;
+}
+.pn-1 { background: var(--p1-bg); border: 1.5px solid var(--p1-bdr); }
+.pn-2 { background: var(--p2-bg); border: 1.5px solid var(--p2-bdr); }
+.pn-3 { background: var(--p3-bg); border: 1.5px solid var(--p3-bdr); }
+.pn-num {
+  font-family: var(--font-display); font-size: 2.5rem; font-weight: 300;
+  line-height: 1; margin-bottom: 6px; opacity: 0.25;
+}
+.pn-1 .pn-num { color: var(--p1); }
+.pn-2 .pn-num { color: var(--p2); }
+.pn-3 .pn-num { color: var(--p3); }
+.pn-label {
+  font-family: var(--font-mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.pn-1 .pn-label { color: var(--p1); }
+.pn-2 .pn-label { color: var(--p2); }
+.pn-3 .pn-label { color: var(--p3); }
+.pn-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+.pn-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+.pn-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.pn-pill {
+  font-size: 10px; font-family: var(--font-mono);
+  padding: 2px 7px; border-radius: 3px;
+  border: 1px solid var(--border); color: var(--muted);
+  background: var(--white);
+}
+.pathway-arrow {
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.pathway-arrow::before {
+  content: '';
+  position: absolute; top: 50%; left: 15%; right: 15%;
+  height: 1px; background: var(--border2);
+  transform: translateY(-50%);
+}
+.arrow-badge {
+  position: relative; z-index: 1;
+  background: var(--white); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 3px 8px;
+  font-size: 10px; font-family: var(--font-mono); color: var(--muted);
+  white-space: nowrap;
+}
+.pathway-sub {
+  display: grid; grid-template-columns: 1fr 60px 1fr 60px 1fr;
+  gap: 0; margin-top: 6px;
+}
+.psub { text-align: center; font-size: 11px; color: var(--muted); padding: 0 4px; }
+.psub-arrow { display: flex; align-items: center; justify-content: center; color: var(--faint); font-size: 12px; }
+
+/* ── COMPARISON TABLE ── */
+.tbl-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  text-align: left; padding: 9px 14px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em;
+  background: var(--slate); border-bottom: 1px solid var(--border);
+}
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--muted); }
+tbody td:first-child { color: var(--ink); font-weight: 500; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--sky-faint); }
+.dot-g { color: #16a34a; font-size: 13px; }
+.dot-r { color: #dc2626; font-size: 13px; }
+.dot-y { color: #d97706; font-size: 13px; }
+
+/* ── RISK TABLE ── */
+.risk-sev { display: inline-block; font-size: 10px; font-family: var(--font-mono); padding: 2px 7px; border-radius: 3px; font-weight: 500; }
+.sev-h { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bdr); }
+.sev-m { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-bdr); }
+.sev-l { background: var(--p3-bg); color: var(--p3); border: 1px solid var(--p3-bdr); }
+
+/* ── TIMELINE ── */
+.timeline { padding-left: 1.75rem; position: relative; }
+.timeline::before { content:''; position:absolute; left:6px; top:8px; bottom:8px; width:1px; background: var(--border2); }
+.tl-item { position:relative; margin-bottom:1.25rem; }
+.tl-dot { position:absolute; left:-1.5rem; top:5px; width:10px; height:10px; border-radius:50%; border:2px solid var(--white); box-shadow:0 0 0 1.5px var(--sky); background:var(--sky); }
+.tl-dot.d-p1 { background:var(--p1); box-shadow:0 0 0 1.5px var(--p1); }
+.tl-dot.d-p2 { background:var(--p2); box-shadow:0 0 0 1.5px var(--p2); }
+.tl-dot.d-p3 { background:var(--p3); box-shadow:0 0 0 1.5px var(--p3); }
+.tl-dot.d-warn { background:var(--warn); box-shadow:0 0 0 1.5px var(--warn); }
+.tl-span { font-family:var(--font-mono); font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:3px; }
+.tl-title { font-size:13px; font-weight:500; color:var(--ink); margin-bottom:4px; }
+.tl-desc { font-size:12px; color:var(--muted); line-height:1.65; }
+.tl-deliverables { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+.tl-del { font-size:10px; font-family:var(--font-mono); padding:2px 7px; border-radius:3px; background:var(--slate); border:1px solid var(--border); color:var(--muted); }
+
+/* ── MDX DAX MAP ── */
+.mdx-row {
+  display: grid; grid-template-columns: 1fr 44px 1fr;
+  align-items: center; margin-bottom: 8px; gap: 0;
+}
+.mdx-old { background: var(--p1-bg); border: 1px solid var(--p1-bdr); border-radius: 6px; padding: 0.7rem 1rem; }
+.mdx-new { background: var(--p2-bg); border: 1px solid var(--p2-bdr); border-radius: 6px; padding: 0.7rem 1rem; }
+.mdx-arr { text-align:center; color:var(--faint); font-size:16px; }
+.mdx-name { font-size:12px; font-weight:500; color:var(--ink); margin-bottom:2px; }
+.mdx-code { font-family:var(--font-mono); font-size:11px; color:var(--muted); background:rgba(0,0,0,0.04); padding:2px 6px; border-radius:3px; display:inline-block; margin-top:2px; }
+.mdx-desc { font-size:11px; color:var(--muted); margin-top:3px; line-height:1.5; }
+
+/* ── DECISION MATRIX ── */
+.decision-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; }
+.dec-card { border-radius:var(--radius); padding:1rem 1.1rem; border:1.5px solid; }
+.dec-now  { background:var(--red-bg);  border-color:var(--red-bdr); }
+.dec-mid  { background:var(--warn-bg); border-color:var(--warn-bdr); }
+.dec-long { background:var(--p3-bg);   border-color:var(--p3-bdr); }
+.dec-card h4 { font-size:12px; font-weight:500; margin-bottom:5px; }
+.dec-now  h4 { color:var(--red); }
+.dec-mid  h4 { color:var(--warn); }
+.dec-long h4 { color:var(--p3); }
+.dec-card ul { padding-left:1rem; }
+.dec-card ul li { font-size:12px; color:var(--muted); margin-bottom:3px; line-height:1.55; }
+
+/* ── SUCCESS METRICS ── */
+.metrics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+.metric { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; text-align:center; box-shadow:var(--shadow-sm); }
+.metric-val { font-family:var(--font-display); font-size:2rem; font-weight:500; color:var(--navy); line-height:1; margin-bottom:4px; }
+.metric-label { font-size:11px; color:var(--muted); line-height:1.4; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy); color: rgba(255,255,255,0.35);
+  padding: 2.5rem 2rem; margin-top: 0;
+}
+.footer-inner { max-width:860px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+.footer-brand { font-family:var(--font-display); font-size:1rem; color:rgba(255,255,255,0.6); font-style:italic; }
+.footer-meta { font-family:var(--font-mono); font-size:10px; text-align:right; line-height:1.8; }
+
+@media (max-width: 640px) {
+  nav .nav-links { display:none; }
+  .pathway-track, .pathway-sub { grid-template-columns:1fr; }
+  .pathway-arrow { padding:0.5rem 0; transform:rotate(90deg); }
+  .exec-grid { grid-template-columns:1fr 1fr; }
+  .mdx-row { grid-template-columns:1fr; gap:6px; }
+  .mdx-arr { transform:rotate(90deg); }
+}
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">Migration Proposal · SSAS → Fabric</span>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#context">Context</a></li>
+      <li><a href="#pathway">Migration Path</a></li>
+      <li><a href="#phase1">Phase 1</a></li>
+      <li><a href="#phase2">Phase 2</a></li>
+      <li><a href="#phase3">Phase 3</a></li>
+      <li><a href="#risks">Risks</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+    </ul>
+    <button class="nav-print no-print" onclick="window.print()">Print / PDF</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-meta">
+      <span class="hero-doc-type">Migration Proposal</span>
+      <span class="hero-date">Prepared June 2026</span>
+    </div>
+    <h1>SSAS Multidimensional<br>to <span>Microsoft Fabric</span></h1>
+    <p class="hero-sub">A structured two-phase migration proposal for moving a legacy SQL Server 2016 SSAS Multidimensional (MDX) environment to a modern cloud-native Fabric Semantic Model — with zero disruption to live reporting.</p>
+    <div class="hero-pills">
+      <span class="hero-pill">SQL Server 2016 EOL</span>
+      <span class="hero-pill">SSAS Multidimensional → Tabular</span>
+      <span class="hero-pill">MDX → DAX</span>
+      <span class="hero-pill">Azure Analysis Services</span>
+      <span class="hero-pill">Microsoft Fabric Semantic Model</span>
+      <span class="hero-pill">Power BI</span>
+    </div>
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY BAND -->
+<div class="exec-band">
+  <div class="exec-inner">
+    <div class="sec-eyebrow">Executive Summary</div>
+    <h2 style="margin-bottom:0.25rem;">The case for acting now</h2>
+    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:1.25rem;">SQL Server 2016 Extended Support ended July 2026. Every day of inaction increases compliance, security, and operational risk. This proposal provides a clear, low-disruption path forward.</p>
+    <div class="exec-grid">
+      <div class="exec-cell">
+        <div class="exec-label">Support ended</div>
+        <div class="exec-value" style="color:var(--red); font-size:1.3rem;">Jul 2026</div>
+        <div class="exec-sub">SQL Server 2016 Extended Support</div>
+      </div>
+      <div class="exec-cell">
+        <div class="exec-label">Migration phases</div>
+        <div class="exec-value">2</div>
+        <div class="exec-sub">Assess → Tabular → Cloud</div>
+      </div>
+      <div class="exec-cell">
+        <div class="exec-label">Est. timeline</div>
+        <div class="exec-value">9</div>
+        <div class="exec-sub">Months end-to-end</div>
+      </div>
+      <div class="exec-cell">
+        <div class="exec-label">Reporting downtime</div>
+        <div class="exec-value" style="color:var(--p3);">Zero</div>
+        <div class="exec-sub">Parallel run until cutover</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══ SECTION 1: CONTEXT ══ -->
+<section id="context">
+  <div class="sec-eyebrow">Section 01 · Background</div>
+  <h2>Context &amp; Why This Migration Is Necessary</h2>
+  <p class="sec-intro">Understanding the technical and business drivers before proposing any solution.</p>
+
+  <div class="callout callout-red">
+    <span class="callout-icon">⚠</span>
+    <div>
+      <strong>Compliance risk — immediate</strong>
+      SQL Server 2016 Extended Support officially ended July 12, 2026. The organisation is now operating a production analytics environment with no Microsoft security patches, no compliance coverage, and increasing audit exposure. This is not a future risk — it is a present one.
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:1.25rem;">
+    <div class="card">
+      <span class="tag tag-red">Current state</span>
+      <h3>SSAS Multidimensional on SQL Server 2016</h3>
+      <p>The existing environment runs SSAS Multidimensional cubes — the older MDX-based architecture. This technology predates 2012, has no direct cloud equivalent, and is no longer on Microsoft's strategic roadmap. There is no "lift and shift" path to Azure; a deliberate rebuild is required.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-warn">Technical debt</span>
+      <h3>Why Multidimensional has no cloud path</h3>
+      <p>SSAS Multidimensional uses MDX (Multidimensional Expressions) — a query language and storage model not supported in Azure Analysis Services or Microsoft Fabric. Both cloud platforms support <strong>Tabular models only</strong>. The migration therefore requires a model rebuild, not a migration of files.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-p2">Strategic direction</span>
+      <h3>Microsoft Fabric is the target state</h3>
+      <p>Microsoft Fabric unifies Azure Synapse, Power BI, ADF, and Analysis Services into one platform. Fabric Semantic Models (formerly Power BI Premium datasets) are the long-term successor to both Azure Analysis Services and SSAS Tabular. Building toward Fabric future-proofs the investment.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-p3">Opportunity</span>
+      <h3>More than compliance — modernisation</h3>
+      <p>This migration is not just a compliance exercise. Done right, it delivers a faster, more maintainable analytics layer, Power BI-native reporting, lower infrastructure cost (no on-prem server), and DAX-based models that are better understood by a wider pool of engineers and analysts.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-warn" style="margin-top:0.5rem;">
+    <span class="callout-icon">💡</span>
+    <div>
+      <strong>Immediate bridge action</strong>
+      While the migration project is being scoped and resourced, register the SQL Server 2016 instance with <strong>Azure Arc</strong> to qualify for Extended Security Updates (ESU) at no additional charge for Azure customers. This buys compliance coverage during the migration window — typically up to 3 additional years, though acting immediately is still recommended.
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 2: MIGRATION PATHWAY ══ -->
+<section id="pathway">
+  <div class="sec-eyebrow">Section 02 · Architecture</div>
+  <h2>The Two-Phase Migration Pathway</h2>
+  <p class="sec-intro">There is no single-step migration from SSAS Multidimensional to the cloud. The path is deliberate and sequential — each phase independently deliverable and verifiable.</p>
+
+  <div class="pathway">
+    <div class="pathway-track">
+      <div class="pathway-node pn-1">
+        <div class="pn-num">01</div>
+        <div class="pn-label">Current State</div>
+        <div class="pn-title">SSAS Multidimensional<br>(SQL Server 2016)</div>
+        <div class="pn-desc">MDX cubes, on-prem, end-of-support. SSIS feeds, SSRS consumers. Complex calculated members, named sets, KPIs in MDX syntax.</div>
+        <div class="pn-pills">
+          <span class="pn-pill">MDX queries</span>
+          <span class="pn-pill">On-premises</span>
+          <span class="pn-pill">SQL Server 2016</span>
+          <span class="pn-pill">SSRS / Excel</span>
+        </div>
+      </div>
+      <div class="pathway-arrow">
+        <span class="arrow-badge">Phase 1<br>Rebuild</span>
+      </div>
+      <div class="pathway-node pn-2">
+        <div class="pn-num">02</div>
+        <div class="pn-label">Intermediate State</div>
+        <div class="pn-title">SSAS Tabular<br>(SQL Server 2019/2022)</div>
+        <div class="pn-desc">Same business logic, rebuilt in Tabular model using DAX. Validated against existing cube outputs. Deployed on updated SQL Server. Users see no change.</div>
+        <div class="pn-pills">
+          <span class="pn-pill">DAX measures</span>
+          <span class="pn-pill">On-premises or VM</span>
+          <span class="pn-pill">SQL Server 2022</span>
+          <span class="pn-pill">Power BI / Excel</span>
+        </div>
+      </div>
+      <div class="pathway-arrow">
+        <span class="arrow-badge">Phase 2<br>Cloud lift</span>
+      </div>
+      <div class="pathway-node pn-3">
+        <div class="pn-num">03</div>
+        <div class="pn-label">Target State</div>
+        <div class="pn-title">Microsoft Fabric<br>Semantic Model</div>
+        <div class="pn-desc">Tabular model deployed to Fabric. Data sourced from ADLS / Synapse or Dataverse Synapse Link. Power BI-native. Managed cloud, zero infrastructure.</div>
+        <div class="pn-pills">
+          <span class="pn-pill">DAX measures</span>
+          <span class="pn-pill">Cloud-native</span>
+          <span class="pn-pill">Fabric / Azure</span>
+          <span class="pn-pill">Power BI</span>
+        </div>
+      </div>
+    </div>
+    <div class="pathway-sub">
+      <div class="psub">MDX cubes · No cloud path · EOL now</div>
+      <div class="psub-arrow">→</div>
+      <div class="psub">Logic preserved in DAX · Validated against old numbers</div>
+      <div class="psub-arrow">→</div>
+      <div class="psub">Zero on-prem infra · Power BI native · Auto-updated</div>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">ℹ</span>
+    <div>
+      <strong>Why two steps — not one?</strong>
+      Attempting to jump directly from SSAS Multidimensional to Fabric in one step combines two transformation risks: (1) re-learning MDX→DAX logic, and (2) re-pointing all data sources to cloud. Separating these means Phase 1 can be validated against existing data on known infrastructure, before cloud complexity is introduced in Phase 2.
+    </div>
+  </div>
+
+  <h3 style="margin:1.5rem 0 0.75rem;">Multidimensional vs Tabular vs Fabric — key differences</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th>SSAS Multidimensional</th>
+          <th>SSAS Tabular</th>
+          <th>Fabric Semantic Model</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Query language</td>
+          <td>MDX (+ DAX limited)</td>
+          <td>DAX (+ MDX compatible)</td>
+          <td>DAX (primary)</td>
+        </tr>
+        <tr>
+          <td>Cloud deployment</td>
+          <td><span class="dot-r">✕</span> Not supported</td>
+          <td><span class="dot-y">▲</span> Azure Analysis Services</td>
+          <td><span class="dot-g">✓</span> Fabric native</td>
+        </tr>
+        <tr>
+          <td>Power BI integration</td>
+          <td><span class="dot-y">▲</span> Via gateway only</td>
+          <td><span class="dot-y">▲</span> Via gateway or AAS</td>
+          <td><span class="dot-g">✓</span> Direct, zero-gateway</td>
+        </tr>
+        <tr>
+          <td>Performance (typical)</td>
+          <td>Good for large aggregations</td>
+          <td>Faster for most query patterns</td>
+          <td>Fastest — columnar + DirectLake</td>
+        </tr>
+        <tr>
+          <td>Infrastructure management</td>
+          <td>On-prem server required</td>
+          <td>On-prem or Azure VM</td>
+          <td><span class="dot-g">✓</span> Fully managed by Microsoft</td>
+        </tr>
+        <tr>
+          <td>Microsoft future investment</td>
+          <td><span class="dot-r">✕</span> Maintenance only</td>
+          <td><span class="dot-y">▲</span> Stable, limited new features</td>
+          <td><span class="dot-g">✓</span> Primary investment focus</td>
+        </tr>
+        <tr>
+          <td>Calculated members</td>
+          <td>MDX — complex, flexible</td>
+          <td>DAX measures — simpler syntax</td>
+          <td>DAX measures — identical to Tabular</td>
+        </tr>
+        <tr>
+          <td>Security model</td>
+          <td>Cell &amp; dimension security</td>
+          <td>Row-level security (RLS)</td>
+          <td>RLS + Object-level security (OLS)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ SECTION 3: PHASE 1 ══ -->
+<section id="phase1">
+  <div class="sec-eyebrow">Section 03 · Phase 1</div>
+  <h2>Phase 1 — Assessment &amp; Tabular Rebuild</h2>
+  <p class="sec-intro">The most technically demanding phase. Every MDX calculation must be understood, documented, and faithfully re-expressed in DAX. No number should change without a business reason.</p>
+
+  <h3 style="margin-bottom:0.75rem;">Step 1A — Deep assessment of the existing cube</h3>
+  <div class="grid2" style="margin-bottom:1.25rem;">
+    <div class="card">
+      <h3>Inventory every artefact</h3>
+      <ul>
+        <li>All measure groups and their source fact tables</li>
+        <li>All dimensions, attributes, and hierarchies</li>
+        <li>All calculated members and named sets (MDX)</li>
+        <li>All KPIs — definition, target, status expressions</li>
+        <li>All perspectives (if used)</li>
+        <li>All roles and security definitions</li>
+        <li>All SSIS packages feeding the cube</li>
+        <li>All SSRS / Excel reports consuming the cube</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Tools for the inventory</h3>
+      <ul>
+        <li><strong>SSMS DMVs</strong> — query <code style="font-family:var(--font-mono);font-size:11px;">$SYSTEM.DISCOVER_XML_METADATA</code> to extract full model schema</li>
+        <li><strong>SQL Server Profiler</strong> — capture live MDX queries to see what users actually run</li>
+        <li><strong>Tabular Editor</strong> — open the .bim export for structural analysis</li>
+        <li><strong>Excel PivotTable connections</strong> — find all workbooks connected to the cube</li>
+        <li><strong>SSRS Report Manager</strong> — list all reports with cube data sources</li>
+        <li><strong>Business user interviews</strong> — which numbers do they trust? Which do they cross-check?</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:0.75rem;">Step 1B — MDX to DAX translation</h3>
+  <p style="font-size:13px; color:var(--muted); margin-bottom:1rem;">MDX and DAX approach calculations fundamentally differently. MDX is set-based and navigates the cube space; DAX is column-based and works with filter context. Each MDX calculated member needs to be re-understood in DAX terms — not line-by-line translated.</p>
+
+  <div class="mdx-row">
+    <div class="mdx-old">
+      <div class="mdx-name">Rolling 12-month sales (MDX)</div>
+      <div class="mdx-code">ParallelPeriod([Date].[Year], 1, [Date].[Month].CurrentMember)</div>
+      <div class="mdx-desc">Set-based navigation over the date dimension hierarchy</div>
+    </div>
+    <div class="mdx-arr">→</div>
+    <div class="mdx-new">
+      <div class="mdx-name">Rolling 12-month sales (DAX)</div>
+      <div class="mdx-code">CALCULATE([Sales], DATESINPERIOD(Date[Date], LASTDATE(Date[Date]), -12, MONTH))</div>
+      <div class="mdx-desc">Filter context manipulation — same result, different mental model</div>
+    </div>
+  </div>
+  <div class="mdx-row">
+    <div class="mdx-old">
+      <div class="mdx-name">Year-over-year % (MDX)</div>
+      <div class="mdx-code">([Measures].[Sales], ParallelPeriod([Date].[Year],1))</div>
+      <div class="mdx-desc">References prior period via tuple navigation</div>
+    </div>
+    <div class="mdx-arr">→</div>
+    <div class="mdx-new">
+      <div class="mdx-name">Year-over-year % (DAX)</div>
+      <div class="mdx-code">DIVIDE([Sales] - [Sales LY], [Sales LY])</div>
+      <div class="mdx-desc">Explicit measure reference with CALCULATE + SAMEPERIODLASTYEAR</div>
+    </div>
+  </div>
+  <div class="mdx-row">
+    <div class="mdx-old">
+      <div class="mdx-name">Named set — Top 10 products (MDX)</div>
+      <div class="mdx-code">TopCount([Product].[Product].Members, 10, [Measures].[Sales])</div>
+      <div class="mdx-desc">Named set defined once, reused across reports</div>
+    </div>
+    <div class="mdx-arr">→</div>
+    <div class="mdx-new">
+      <div class="mdx-name">Equivalent in DAX / Power BI</div>
+      <div class="mdx-code">TOPN(10, ALL('Product'), [Sales], DESC)</div>
+      <div class="mdx-desc">Used inside measures or as Power BI visual filter — more flexible</div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn" style="margin-top:1rem;">
+    <span class="callout-icon">⚡</span>
+    <div>
+      <strong>The hidden risk in MDX translation</strong>
+      Many MDX calculated members contain undocumented business assumptions — which warehouse locations to include, how to handle null members, fiscal year offsets. These must be surfaced and documented during assessment, then verified by a business owner before the DAX equivalent is written. A technically correct DAX measure that reflects the wrong business rule is worse than no measure at all.
+    </div>
+  </div>
+
+  <h3 style="margin:1.5rem 0 0.75rem;">Step 1C — Tabular model design principles</h3>
+  <div class="grid3">
+    <div class="card">
+      <span class="tag tag-p2">Schema</span>
+      <h3>Star schema — strictly enforced</h3>
+      <p>Tabular models perform best with a clean star schema: one fact table per subject area, dimension tables with single-column surrogate keys. Avoid snowflaking — flatten dimension hierarchies into single tables.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-p2">Measures</span>
+      <h3>All logic in measures — not columns</h3>
+      <p>Do not put business logic in calculated columns unless required for relationship keys or row-level filtering. Every KPI, ratio, and time-intelligence calculation should be a DAX measure. Measures are recalculated in context; columns are computed at refresh — wrong placement kills performance.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-p2">Date table</span>
+      <h3>Explicit date dimension — always</h3>
+      <p>Create a dedicated Date table (marked as a Date Table in Tabular) with continuous dates covering all fact data. All time-intelligence DAX functions — SAMEPERIODLASTYEAR, DATESBETWEEN, DATESYTD — require this. Do not rely on auto-date tables.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-p2">Security</span>
+      <h3>Row-Level Security (RLS) design</h3>
+      <p>SSAS Multidimensional dimension security maps to Tabular RLS roles. Map each existing dimension security rule to a DAX filter expression on the relevant table. Test every role before cutover — RLS failures are a serious data governance risk.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-p2">Partitions</span>
+      <h3>Partition strategy for large fact tables</h3>
+      <p>Partition large fact tables by month or quarter. Incremental refresh processes only new/changed partitions — critical for supply chain fact tables with high daily transaction volumes. This reduces nightly processing window from hours to minutes.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-p2">Naming</span>
+      <h3>Business-friendly naming from day one</h3>
+      <p>Use business names (not source column names) for all measures, dimensions, and attributes. "Gross Sales Amount" not "AMT_SALE_GRS". This is the moment to clean up years of cryptic technical naming — it will not get easier later.</p>
+    </div>
+  </div>
+
+  <h3 style="margin:1.5rem 0 0.75rem;">Step 1D — Validation &amp; parallel run</h3>
+  <div class="callout callout-green">
+    <span class="callout-icon">✓</span>
+    <div>
+      <strong>The golden rule: numbers must match before cutover</strong>
+      Run the old SSAS Multidimensional cube and the new Tabular model in parallel for a minimum of 4–8 weeks. For every key metric, compare old vs new across at least 3 historical reporting periods. Any divergence must be explained — either the old cube was wrong (document why the new number is correct) or the new model has a bug (fix it). Only cut over when a business owner signs off that the new numbers are trusted.
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 4: PHASE 2 ══ -->
+<section id="phase2">
+  <div class="sec-eyebrow">Section 04 · Phase 2</div>
+  <h2>Phase 2 — Cloud Migration to Microsoft Fabric</h2>
+  <p class="sec-intro">With the Tabular model validated on-prem, Phase 2 moves the model and its data sources to the cloud. The semantic model is already correct — the task is re-pointing data sources and deploying to Fabric.</p>
+
+  <h3 style="margin-bottom:0.75rem;">Step 2A — Data source migration</h3>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag tag-p3">For D365 sources</span>
+      <h3>Dataverse Synapse Link</h3>
+      <p>If the organisation is migrating to D365 cloud, use <strong>Dataverse Synapse Link</strong> to continuously replicate D365 tables into Azure Data Lake Gen2. The Tabular model's data source is re-pointed from on-prem SQL Server to the ADLS / Synapse tables. Near-real-time replication with no SSIS packages to maintain.</p>
+    </div>
+    <div class="card">
+      <span class="tag tag-p3">For non-D365 sources</span>
+      <h3>Azure Data Factory (ADF)</h3>
+      <p>For any remaining on-prem data sources (ERP databases, flat files, APIs), build ADF pipelines to land data into ADLS Gen2 or Azure SQL. These replace the on-prem SSIS packages. SSIS packages can also be lifted to ADF's SSIS Integration Runtime as a transitional step, then gradually rebuilt as native ADF pipelines.</p>
+    </div>
+  </div>
+
+  <h3 style="margin:1.5rem 0 0.75rem;">Step 2B — Deploying the Tabular model to Fabric</h3>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot d-p3"></div>
+      <div class="tl-span">Step 1</div>
+      <div class="tl-title">Export .bim file from SSDT / Tabular Editor</div>
+      <div class="tl-desc">The Tabular model built in Phase 1 is exported as a .bim (Business Intelligence Model) JSON file from SQL Server Data Tools or Tabular Editor. This file contains the full model definition — tables, relationships, measures, roles.</div>
+      <div class="tl-deliverables"><span class="tl-del">.bim file</span><span class="tl-del">Version controlled in Git</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p3"></div>
+      <div class="tl-span">Step 2</div>
+      <div class="tl-title">Create a Fabric Workspace &amp; Semantic Model</div>
+      <div class="tl-desc">In Microsoft Fabric, create a dedicated workspace for the analytics layer. Import the .bim file as a new Semantic Model. Fabric accepts the same Tabular model format — DAX measures, relationships, and RLS roles all carry over.</div>
+      <div class="tl-deliverables"><span class="tl-del">Fabric workspace</span><span class="tl-del">Semantic Model deployed</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p3"></div>
+      <div class="tl-span">Step 3</div>
+      <div class="tl-title">Re-point data sources to ADLS / Synapse</div>
+      <div class="tl-desc">Update all data source connections in the Fabric Semantic Model to point at the cloud data sources (ADLS Gen2, Azure SQL, or Synapse Analytics) rather than the on-prem SQL Server. Use DirectLake mode where possible — this allows Fabric to read Delta tables in ADLS directly without an import step, delivering the fastest query performance.</div>
+      <div class="tl-deliverables"><span class="tl-del">Cloud data sources configured</span><span class="tl-del">DirectLake mode enabled</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p3"></div>
+      <div class="tl-span">Step 4</div>
+      <div class="tl-title">Configure refresh schedule &amp; monitoring</div>
+      <div class="tl-desc">Set up incremental refresh in Fabric (replacing the SQL Agent SSAS processing jobs). Configure failure alerting via Fabric monitoring hub or Power Automate. Set up semantic model refresh logging to detect silent failures — one of the key risks in the current on-prem environment.</div>
+      <div class="tl-deliverables"><span class="tl-del">Refresh schedule</span><span class="tl-del">Failure alerts configured</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p3"></div>
+      <div class="tl-span">Step 5</div>
+      <div class="tl-title">Re-point Power BI reports &amp; Excel workbooks</div>
+      <div class="tl-desc">Migrate SSRS reports to Power BI reports built on the Fabric Semantic Model. For Excel workbooks using Analyze in Excel or OLAP connections, re-point the connection string to the Fabric workspace. Power BI reports built on top of the model can be deployed to the same Fabric workspace.</div>
+      <div class="tl-deliverables"><span class="tl-del">Power BI reports migrated</span><span class="tl-del">Excel connections updated</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p3" style="background:var(--p3)"></div>
+      <div class="tl-span">Step 6 · Cutover</div>
+      <div class="tl-title">Decommission on-prem SSAS environment</div>
+      <div class="tl-desc">After a parallel validation period (minimum 4 weeks), formally decommission the on-prem SSAS Multidimensional cube and the Phase 1 Tabular model. Retain read-only access for 30 days post-cutover as a safety net. Archive the SSDT project files in Git.</div>
+      <div class="tl-deliverables"><span class="tl-del">Sign-off from business owners</span><span class="tl-del">On-prem decommissioned</span><span class="tl-del">Archive completed</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 5: REPORTING MIGRATION ══ -->
+<section id="phase3">
+  <div class="sec-eyebrow">Section 05 · Reporting Layer</div>
+  <h2>Reporting Migration — SSRS to Power BI</h2>
+  <p class="sec-intro">The reporting layer migration runs in parallel with Phase 2 and does not need to be completed before cutover — but a clear plan for each report type is required.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Report type</th>
+          <th>Current tool</th>
+          <th>Target tool</th>
+          <th>Effort</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Interactive dashboards</td>
+          <td>SSRS / Excel PivotTable</td>
+          <td>Power BI Report (Fabric)</td>
+          <td><span class="dot-y">▲</span> Medium</td>
+          <td>Rebuild in Power BI Desktop against Fabric Semantic Model. Better UX for users.</td>
+        </tr>
+        <tr>
+          <td>Pixel-perfect paginated reports</td>
+          <td>SSRS (.rdl files)</td>
+          <td>Fabric Paginated Reports</td>
+          <td><span class="dot-g">✓</span> Low</td>
+          <td>Same RDL file format — upload to Fabric, re-point data source. Minimal rework.</td>
+        </tr>
+        <tr>
+          <td>Excel Analyze in Excel</td>
+          <td>SSAS OLAP connection</td>
+          <td>Fabric Semantic Model connection</td>
+          <td><span class="dot-g">✓</span> Low</td>
+          <td>Update connection string in Excel. Pivot tables continue working — no rebuild.</td>
+        </tr>
+        <tr>
+          <td>Scheduled email reports</td>
+          <td>SSRS subscriptions</td>
+          <td>Power BI subscriptions / Power Automate</td>
+          <td><span class="dot-y">▲</span> Medium</td>
+          <td>Rebuild subscription logic in Power BI or Power Automate. Better delivery options.</td>
+        </tr>
+        <tr>
+          <td>Operational reports (high volume)</td>
+          <td>SSRS parameterised</td>
+          <td>Fabric Paginated Reports</td>
+          <td><span class="dot-g">✓</span> Low</td>
+          <td>Keep as paginated for performance and format consistency. RDL migration is low risk.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">ℹ</span>
+    <div>
+      <strong>Adoption strategy — do not force the switch</strong>
+      Run Power BI alongside SSRS during the migration window. Identify a champion in each business team. Let users pull toward Power BI by demonstrating its advantages (drill-through, mobile, self-service). Only retire SSRS once usage data shows Power BI has replaced it for key reports. Forcing a big-bang switch is the most common cause of BI migration failure.
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 6: RISKS ══ -->
+<section id="risks">
+  <div class="sec-eyebrow">Section 06 · Risk Register</div>
+  <h2>Risks, Mitigations &amp; Owners</h2>
+  <p class="sec-intro">Every identified risk with a concrete mitigation — not generic advice.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Risk</th><th>Severity</th><th>Phase</th><th>Mitigation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SQL Server 2016 security breach during migration window</td>
+          <td><span class="risk-sev sev-h">Critical</span></td>
+          <td>Now</td>
+          <td>Register with Azure Arc immediately for Extended Security Updates. Network-isolate the SSAS server. Patch any OS-level vulnerabilities.</td>
+        </tr>
+        <tr>
+          <td>Undocumented MDX business logic lost in translation</td>
+          <td><span class="risk-sev sev-h">High</span></td>
+          <td>Phase 1</td>
+          <td>Full MDX inventory before any DAX work begins. Business owner sign-off on every calculated measure definition. Parallel run validation for 3+ periods.</td>
+        </tr>
+        <tr>
+          <td>Numbers change between old and new model — user distrust</td>
+          <td><span class="risk-sev sev-h">High</span></td>
+          <td>Phase 1</td>
+          <td>Reconciliation report comparing old vs new for every key metric. Any difference must be explained. Never cut over with unexplained variances.</td>
+        </tr>
+        <tr>
+          <td>SSIS packages failing silently — stale data in cube</td>
+          <td><span class="risk-sev sev-h">High</span></td>
+          <td>Phase 1</td>
+          <td>Add email/Teams failure alerts to all SQL Agent jobs. Add row-count validation steps to each SSIS package. Create a data freshness indicator visible in reports.</td>
+        </tr>
+        <tr>
+          <td>Row-Level Security gaps — wrong data exposed to wrong users</td>
+          <td><span class="risk-sev sev-h">High</span></td>
+          <td>Phase 1–2</td>
+          <td>Map every existing dimension security rule to Tabular RLS before go-live. Test each role with real user credentials. Security sign-off required before cutover.</td>
+        </tr>
+        <tr>
+          <td>Performance regression — Tabular slower than Multidimensional for specific query patterns</td>
+          <td><span class="risk-sev sev-m">Medium</span></td>
+          <td>Phase 1</td>
+          <td>Profile the 10 slowest MDX queries from Profiler. Reproduce them as DAX. If performance is worse, add aggregation tables or review the partition strategy. Tabular is faster for most patterns — regression is uncommon but possible for deep many-to-many cube scenarios.</td>
+        </tr>
+        <tr>
+          <td>Cloud data source latency — Fabric refresh slower than on-prem SSAS</td>
+          <td><span class="risk-sev sev-m">Medium</span></td>
+          <td>Phase 2</td>
+          <td>Enable DirectLake mode in Fabric (reads Delta tables directly — no import). Validate refresh window against business SLA before cutover. Incremental refresh on large fact tables reduces this significantly.</td>
+        </tr>
+        <tr>
+          <td>User resistance to Power BI — SSRS dependency</td>
+          <td><span class="risk-sev sev-m">Medium</span></td>
+          <td>Phase 2</td>
+          <td>Paginated Reports for all SSRS equivalents — same look and feel. Keep SSRS live during transition. Run Power BI training workshops. Identify a power user champion in each team.</td>
+        </tr>
+        <tr>
+          <td>Key person dependency — only one engineer knows the cube</td>
+          <td><span class="risk-sev sev-m">Medium</span></td>
+          <td>All phases</td>
+          <td>Documentation-first approach. All model artefacts in Git. The migration itself produces the documentation — every DAX measure written gets a business definition written alongside it.</td>
+        </tr>
+        <tr>
+          <td>Scope creep — stakeholders add new requirements mid-migration</td>
+          <td><span class="risk-sev sev-l">Low</span></td>
+          <td>Phase 1–2</td>
+          <td>Strict change freeze on the existing cube during migration. New requirements go into a backlog for Phase 3. Communicate: migration reproduces what exists — enhancements come after.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ SECTION 7: ROADMAP ══ -->
+<section id="roadmap">
+  <div class="sec-eyebrow">Section 07 · Delivery Plan</div>
+  <h2>9-Month Delivery Roadmap</h2>
+  <p class="sec-intro">A realistic, month-by-month plan with clear deliverables at each milestone. Timeline assumes a single lead data engineer with part-time business analyst support.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot d-warn"></div>
+      <div class="tl-span">Immediate · Week 1</div>
+      <div class="tl-title">Azure Arc registration — compliance bridge</div>
+      <div class="tl-desc">Register SQL Server 2016 with Azure Arc to activate Extended Security Updates. This removes the immediate compliance risk and buys time for the migration project to be properly resourced. Estimated effort: half a day.</div>
+      <div class="tl-deliverables"><span class="tl-del">Azure Arc enabled</span><span class="tl-del">ESU activated</span><span class="tl-del">Compliance risk mitigated</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p1"></div>
+      <div class="tl-span">Month 1 · Weeks 1–4</div>
+      <div class="tl-title">Assessment — inventory &amp; documentation</div>
+      <div class="tl-desc">Full audit of the SSAS Multidimensional cube: all measure groups, dimensions, calculated members, KPIs, named sets, roles, SSIS feeds, and report consumers. Business owner interviews. Output: a complete artefact inventory and a business-approved data dictionary.</div>
+      <div class="tl-deliverables"><span class="tl-del">Artefact inventory</span><span class="tl-del">MDX logic documented</span><span class="tl-del">Data dictionary draft</span><span class="tl-del">SSIS package register</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p1"></div>
+      <div class="tl-span">Month 2–3 · Weeks 5–12</div>
+      <div class="tl-title">Tabular model build — core measures &amp; dimensions</div>
+      <div class="tl-desc">Build the star schema Tabular model in SSDT or Tabular Editor. Migrate all dimensions and fact tables. Translate all MDX measures to DAX. Implement RLS roles. Deploy to a SQL Server 2022 development environment for initial testing.</div>
+      <div class="tl-deliverables"><span class="tl-del">Tabular model (dev)</span><span class="tl-del">All DAX measures</span><span class="tl-del">RLS roles implemented</span><span class="tl-del">Git repository set up</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p2"></div>
+      <div class="tl-span">Month 4 · Weeks 13–16</div>
+      <div class="tl-title">Validation — parallel run against old cube</div>
+      <div class="tl-desc">Deploy Tabular model to UAT. Run parallel reconciliation: every key metric compared between old cube and new model across 3 reporting periods. Business owner sign-off on all measures. Fix any divergences. Do not proceed to Phase 2 until sign-off is complete.</div>
+      <div class="tl-deliverables"><span class="tl-del">Reconciliation report</span><span class="tl-del">Business sign-off</span><span class="tl-del">Bug fixes complete</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p2"></div>
+      <div class="tl-span">Month 5 · Weeks 17–20</div>
+      <div class="tl-title">Cloud infrastructure setup</div>
+      <div class="tl-desc">Provision Azure Data Lake Storage Gen2, Fabric workspace, and Synapse or ADF pipelines. Configure Dataverse Synapse Link (if D365 is in scope). Migrate or rebuild SSIS packages as ADF pipelines. Set up monitoring and alerting infrastructure.</div>
+      <div class="tl-deliverables"><span class="tl-del">ADLS Gen2 provisioned</span><span class="tl-del">Fabric workspace created</span><span class="tl-del">ADF pipelines built</span><span class="tl-del">Monitoring configured</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p3"></div>
+      <div class="tl-span">Month 6–7 · Weeks 21–28</div>
+      <div class="tl-title">Fabric Semantic Model deployment &amp; Power BI</div>
+      <div class="tl-desc">Deploy Tabular model to Fabric. Re-point data sources to cloud. Enable DirectLake where applicable. Migrate SSRS paginated reports to Fabric Paginated Reports. Build key Power BI reports on the Fabric Semantic Model. User acceptance testing with business teams.</div>
+      <div class="tl-deliverables"><span class="tl-del">Fabric Semantic Model live</span><span class="tl-del">Power BI reports deployed</span><span class="tl-del">Paginated reports migrated</span><span class="tl-del">UAT sign-off</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p3"></div>
+      <div class="tl-span">Month 8 · Weeks 29–32</div>
+      <div class="tl-title">Parallel run — Fabric vs on-prem</div>
+      <div class="tl-desc">Run Fabric Semantic Model and on-prem Tabular model in parallel for 4 weeks. All key users validate their reports on the Fabric version. Track any issues. Build user confidence before decommission.</div>
+      <div class="tl-deliverables"><span class="tl-del">Parallel run complete</span><span class="tl-del">User feedback resolved</span><span class="tl-del">Final sign-off</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot d-p3" style="background:var(--p3); width:12px; height:12px; left:-1.6rem;"></div>
+      <div class="tl-span">Month 9 · Cutover</div>
+      <div class="tl-title">Decommission on-prem — migration complete</div>
+      <div class="tl-desc">Formally retire the SSAS Multidimensional cube and the SQL Server 2016 server. Decommission the Phase 1 Tabular model on-prem. Archive all project files in Git. Retain read-only access to old server for 30 days. Migration complete.</div>
+      <div class="tl-deliverables"><span class="tl-del">On-prem decommissioned</span><span class="tl-del">Documentation finalised</span><span class="tl-del">Archive complete</span><span class="tl-del">Handover done</span></div>
+    </div>
+  </div>
+
+  <h3 style="margin:1.5rem 0 0.75rem;">Decision framework — when to escalate vs proceed</h3>
+  <div class="decision-grid">
+    <div class="dec-card dec-now">
+      <h4>Stop &amp; escalate immediately if…</h4>
+      <ul>
+        <li>Reconciliation shows unexplained variances > 0.1% on revenue or inventory</li>
+        <li>RLS testing reveals data visible to wrong user groups</li>
+        <li>Azure Arc registration fails (compliance gap remains open)</li>
+        <li>Any production SSIS package failure goes undetected for > 24 hrs</li>
+      </ul>
+    </div>
+    <div class="dec-card dec-mid">
+      <h4>Review before proceeding if…</h4>
+      <ul>
+        <li>Tabular model query performance is > 2x slower than old cube on key reports</li>
+        <li>Cloud data refresh is consistently missing the business SLA window</li>
+        <li>More than 30% of users have not completed Power BI UAT</li>
+        <li>Scope additions threaten the cutover timeline by > 2 weeks</li>
+      </ul>
+    </div>
+    <div class="dec-card dec-long">
+      <h4>Proceed with confidence when…</h4>
+      <ul>
+        <li>All key metrics reconciled and signed off by business owners</li>
+        <li>All RLS roles tested with real user accounts</li>
+        <li>Fabric refresh completing within SLA window for 2+ weeks</li>
+        <li>At least one champion in each business team using Fabric reports</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin:1.5rem 0 0.75rem;">Success metrics</h3>
+  <div class="metrics-grid">
+    <div class="metric">
+      <div class="metric-val">0</div>
+      <div class="metric-label">Unexplained metric variances at cutover</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">100%</div>
+      <div class="metric-label">MDX calculated members documented before Phase 1 ends</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">&lt;15 min</div>
+      <div class="metric-label">Target Fabric incremental refresh window (vs hours on-prem)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">0</div>
+      <div class="metric-label">On-prem infrastructure remaining post-cutover</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">9 mo</div>
+      <div class="metric-label">End-to-end migration timeline</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">Zero</div>
+      <div class="metric-label">Reporting downtime during migration</div>
+    </div>
+  </div>
+</section>
+
+</div><!-- end .page -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">SSAS Multidimensional → Microsoft Fabric</div>
+    <div class="footer-meta">
+      Migration Proposal · Prepared June 2026<br>
+      SQL Server 2016 · SSAS · DAX · Azure Fabric · Power BI
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

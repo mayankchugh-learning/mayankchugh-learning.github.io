@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSAS Migration — Costing & Resourcing</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:       #0e1e35;
+  --navy-mid:   #1a3454;
+  --white:      #ffffff;
+  --slate:      #f6f7f9;
+  --slate2:     #eef0f4;
+  --border:     #e2e5eb;
+  --border2:    #c8cdd8;
+  --ink:        #111827;
+  --body:       #374151;
+  --muted:      #6b7280;
+  --faint:      #9ca3af;
+
+  --gold:       #c9922a;
+  --gold-light: #f5e8d0;
+  --gold-pale:  #fdf8f0;
+  --gold-bdr:   #e8c87a;
+
+  --sky:        #4f8ec9;
+  --sky-pale:   #eef5fc;
+  --sky-bdr:    #a8cde8;
+
+  --green:      #0f7b55;
+  --green-pale: #edfaf4;
+  --green-bdr:  #6fcfa8;
+
+  --red:        #c0392b;
+  --red-pale:   #fdf2f1;
+  --red-bdr:    #f4a69e;
+
+  --purple:     #6d28d9;
+  --purple-pale:#f5f3ff;
+  --purple-bdr: #c4b5fd;
+
+  --ai-0:       #6b7280;
+  --ai-25:      #0f7b55;
+  --ai-50:      #6d28d9;
+
+  --font-d:  'Fraunces', Georgia, serif;
+  --font-b:  'DM Sans', system-ui, sans-serif;
+  --font-m:  'DM Mono', monospace;
+  --radius:  6px;
+  --sh:      0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --sh-md:   0 4px 16px rgba(0,0,0,0.09), 0 1px 3px rgba(0,0,0,0.05);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--white);
+  color: var(--body);
+  font-family: var(--font-b);
+  font-size: 15px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  background: rgba(14,30,53,0.97); backdrop-filter: blur(8px);
+  height: 50px; padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { font-family: var(--font-m); font-size: 11px; color: #f5e8d0; letter-spacing: 0.07em; }
+.nav-links { display: flex; gap: 1.25rem; list-style: none; }
+.nav-links a { color: rgba(255,255,255,0.45); text-decoration: none; font-size: 12px; transition: color 0.15s; }
+.nav-links a:hover { color: rgba(255,255,255,0.85); }
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+.btn-print {
+  font-family: var(--font-m); font-size: 11px; cursor: pointer;
+  background: transparent; border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.45); padding: 3px 10px; border-radius: 4px;
+  transition: all 0.15s;
+}
+.btn-print:hover { border-color: rgba(255,255,255,0.5); color: white; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--navy);
+  padding: 6.5rem 2rem 4rem;
+  position: relative; overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+/* subtle diagonal texture */
+.hero::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 80% 50%, rgba(201,146,42,0.07) 0%, transparent 70%),
+    repeating-linear-gradient(-45deg, transparent 0, transparent 30px, rgba(255,255,255,0.012) 30px, rgba(255,255,255,0.012) 31px);
+}
+.hero-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+.hero-kicker {
+  font-family: var(--font-m); font-size: 10px; color: var(--gold);
+  letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-kicker::before { content:''; width:28px; height:1px; background:var(--gold); }
+.hero h1 {
+  font-family: var(--font-d); font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 500; line-height: 1.05; letter-spacing: -0.025em;
+  color: var(--white); margin-bottom: 1.25rem;
+}
+.hero h1 em { font-style: italic; color: var(--gold); }
+.hero-sub { font-size: 0.95rem; color: rgba(255,255,255,0.5); max-width: 580px; line-height: 1.8; margin-bottom: 2.5rem; }
+.hero-assumptions {
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.assumption {
+  font-size: 12px; font-family: var(--font-m);
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 4px 12px; border-radius: 3px;
+  background: rgba(255,255,255,0.03);
+}
+
+/* ── AI LEVER — SIGNATURE ELEMENT ── */
+.ai-lever-wrap {
+  background: var(--gold-pale);
+  border-top: 1px solid var(--gold-bdr);
+  border-bottom: 1px solid var(--gold-bdr);
+  padding: 2rem 2rem;
+}
+.ai-lever-inner { max-width: 900px; margin: 0 auto; }
+.lever-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;
+}
+.lever-title-block h2 {
+  font-family: var(--font-d); font-size: 1.4rem; font-weight: 500;
+  color: var(--navy); letter-spacing: -0.02em; margin-bottom: 3px;
+}
+.lever-title-block p { font-size: 13px; color: var(--muted); }
+.ai-mode-btns { display: flex; gap: 6px; align-items: center; }
+.ai-btn {
+  font-family: var(--font-m); font-size: 11px; cursor: pointer;
+  padding: 6px 14px; border-radius: 4px; border: 1.5px solid var(--border2);
+  background: var(--white); color: var(--muted);
+  transition: all 0.2s; font-weight: 400;
+}
+.ai-btn:hover { border-color: var(--gold); color: var(--gold); }
+.ai-btn.active-0 { background: var(--slate2); border-color: var(--border2); color: var(--ink); }
+.ai-btn.active-25 { background: var(--green-pale); border-color: var(--green-bdr); color: var(--green); }
+.ai-btn.active-50 { background: var(--purple-pale); border-color: var(--purple-bdr); color: var(--purple); }
+
+/* Slider */
+.lever-slider-row { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+.lever-label { font-family: var(--font-m); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+input[type=range] {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 4px; border-radius: 2px; outline: none; cursor: pointer;
+  background: linear-gradient(to right, var(--gold) 0%, var(--gold) var(--pct, 0%), var(--border) var(--pct, 0%), var(--border) 100%);
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--white); border: 2px solid var(--gold);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* Savings summary bar */
+.savings-bar {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--sh);
+}
+.sbar-cell { background: var(--white); padding: 1rem 1.25rem; }
+.sbar-label { font-family: var(--font-m); font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+.sbar-value {
+  font-family: var(--font-d); font-size: 2rem; font-weight: 500;
+  line-height: 1; transition: all 0.35s ease;
+}
+.sbar-sub { font-size: 11px; color: var(--muted); margin-top: 3px; transition: all 0.35s ease; }
+.sbar-value.val-total { color: var(--navy); }
+.sbar-value.val-saved { color: var(--green); }
+.sbar-value.val-net   { color: var(--gold); }
+
+/* ── PAGE BODY ── */
+.page { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+section { padding: 3rem 0; border-bottom: 1px solid var(--border); }
+section:last-of-type { border-bottom: none; }
+
+.sec-eyebrow {
+  font-family: var(--font-m); font-size: 10px;
+  color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+h2 {
+  font-family: var(--font-d); font-size: 1.6rem; font-weight: 500;
+  color: var(--navy); letter-spacing: -0.02em; margin-bottom: 0.4rem;
+}
+.sec-intro { color: var(--muted); font-size: 0.875rem; max-width: 600px; margin-bottom: 1.5rem; }
+
+/* ── RESOURCE TABLE ── */
+.res-table-wrap {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--sh); margin-bottom: 1rem;
+}
+.phase-header {
+  padding: 8px 16px;
+  font-family: var(--font-m); font-size: 10px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  display: flex; align-items: center; gap: 8px;
+}
+.ph-p1 { background: #f5f3ff; color: var(--purple); border-bottom: 1px solid var(--purple-bdr); }
+.ph-p2 { background: var(--sky-pale); color: var(--sky); border-bottom: 1px solid var(--sky-bdr); }
+.ph-p3 { background: var(--green-pale); color: var(--green); border-bottom: 1px solid var(--green-bdr); }
+.ph-ongoing { background: var(--gold-pale); color: var(--gold); border-bottom: 1px solid var(--gold-bdr); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  padding: 8px 14px; text-align: left;
+  font-family: var(--font-m); font-size: 10px; color: var(--faint);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  background: var(--slate); border-bottom: 1px solid var(--border);
+}
+thead th.num { text-align: right; }
+tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--muted); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--slate); }
+tbody td:first-child { color: var(--ink); font-weight: 500; }
+td.num { text-align: right; font-family: var(--font-m); font-size: 12px; }
+td.ai-days { text-align: right; font-family: var(--font-m); font-size: 12px; transition: all 0.3s ease; }
+td.ai-cost { text-align: right; font-family: var(--font-m); font-size: 12px; font-weight: 500; color: var(--ink); transition: all 0.3s ease; }
+.tfoot-row td {
+  background: var(--slate2); font-weight: 500;
+  color: var(--ink); border-top: 1.5px solid var(--border2);
+  font-family: var(--font-m); font-size: 12px;
+}
+.tfoot-row td.num { color: var(--navy); font-weight: 500; }
+.ai-saving { font-size: 11px; color: var(--green); font-family: var(--font-m); }
+.ai-badge {
+  display: inline-block; font-size: 10px; font-family: var(--font-m);
+  padding: 1px 6px; border-radius: 3px; margin-left: 5px;
+  transition: all 0.3s ease;
+}
+.ai-badge-green { background: var(--green-pale); color: var(--green); border: 1px solid var(--green-bdr); }
+.ai-badge-purple { background: var(--purple-pale); color: var(--purple); border: 1px solid var(--purple-bdr); }
+.ai-badge-gray   { background: var(--slate2); color: var(--faint); border: 1px solid var(--border); }
+
+/* ── RATE CARD ── */
+.rate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+.rate-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1rem 1.1rem; box-shadow: var(--sh);
+}
+.rate-role { font-size: 12px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.rate-val { font-family: var(--font-d); font-size: 1.6rem; font-weight: 500; color: var(--navy); line-height: 1; }
+.rate-unit { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.rate-note { font-size: 11px; color: var(--faint); margin-top: 4px; font-style: italic; }
+
+/* ── SCENARIO COMPARISON ── */
+.scenarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+.scenario {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem 1.1rem;
+  box-shadow: var(--sh); position: relative;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.scenario.active { box-shadow: var(--sh-md); }
+.scenario.active-0  { border-color: var(--border2); }
+.scenario.active-25 { border-color: var(--green-bdr); }
+.scenario.active-50 { border-color: var(--purple-bdr); }
+.sc-label {
+  font-family: var(--font-m); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.07em; margin-bottom: 8px;
+}
+.sc-label-0  { color: var(--muted); }
+.sc-label-25 { color: var(--green); }
+.sc-label-50 { color: var(--purple); }
+.sc-total {
+  font-family: var(--font-d); font-size: 2rem; font-weight: 500;
+  line-height: 1; margin-bottom: 4px;
+}
+.sc-total-0  { color: var(--navy); }
+.sc-total-25 { color: var(--green); }
+.sc-total-50 { color: var(--purple); }
+.sc-saving { font-size: 12px; color: var(--green); font-family: var(--font-m); margin-bottom: 8px; }
+.sc-timeline { font-size: 12px; color: var(--muted); }
+.sc-items { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.sc-item { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.sc-item span:last-child { font-family: var(--font-m); color: var(--ink); }
+.rec-flag {
+  position: absolute; top: -1px; right: -1px;
+  background: var(--green); color: white;
+  font-family: var(--font-m); font-size: 10px;
+  padding: 2px 9px; border-radius: 0 var(--radius) 0 var(--radius);
+}
+
+/* ── AI TASKS TABLE ── */
+.ai-tasks-wrap {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--sh); margin-bottom: 1rem;
+}
+.ai-tasks-header {
+  background: var(--gold-pale); border-bottom: 1px solid var(--gold-bdr);
+  padding: 10px 16px;
+  font-family: var(--font-m); font-size: 10px; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.ai-row td:nth-child(3) { color: var(--green); font-family: var(--font-m); font-size: 12px; }
+.impact-bar {
+  display: flex; align-items: center; gap: 6px;
+}
+.impact-fill {
+  height: 4px; border-radius: 2px; background: var(--green);
+  transition: width 0.3s ease;
+}
+.impact-bg { flex: 1; height: 4px; border-radius: 2px; background: var(--border); position: relative; }
+.impact-inner { height: 4px; border-radius: 2px; background: var(--green); position: absolute; top: 0; left: 0; }
+
+/* ── CALLOUTS ── */
+.callout {
+  border-radius: var(--radius); padding: 0.9rem 1.1rem;
+  font-size: 13px; line-height: 1.75; margin: 0.75rem 0;
+  display: flex; gap: 0.75rem; align-items: flex-start;
+}
+.callout-icon { font-size: 15px; flex-shrink: 0; margin-top: 2px; }
+.callout div strong { display: block; font-size: 11px; font-family: var(--font-m); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.callout-warn  { background: #fffbeb; border-left: 3px solid #d97706; color: #78350f; }
+.callout-blue  { background: var(--sky-pale); border-left: 3px solid var(--sky); color: #0c4a6e; }
+.callout-green { background: var(--green-pale); border-left: 3px solid var(--green); color: #14532d; }
+.callout-gold  { background: var(--gold-pale); border-left: 3px solid var(--gold); color: #78350f; }
+
+/* ── BUDGET DONUT CHART ── */
+.budget-visual { display: grid; grid-template-columns: 200px 1fr; gap: 2rem; align-items: center; margin-bottom: 1.5rem; }
+.donut-wrap { position: relative; width: 180px; height: 180px; }
+.donut-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.donut-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+}
+.donut-total { font-family: var(--font-d); font-size: 1.4rem; font-weight: 500; color: var(--navy); line-height: 1; transition: all 0.3s; }
+.donut-label { font-size: 10px; font-family: var(--font-m); color: var(--faint); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+.legend { display: flex; flex-direction: column; gap: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.legend-label { font-size: 12px; color: var(--muted); }
+.legend-pct { font-family: var(--font-m); font-size: 12px; color: var(--ink); margin-left: auto; }
+
+/* ── GANTT-STYLE TIMELINE ── */
+.gantt { margin-bottom: 1rem; }
+.gantt-head {
+  display: grid; grid-template-columns: 180px repeat(9, 1fr);
+  gap: 0; margin-bottom: 4px;
+}
+.gantt-month { font-family: var(--font-m); font-size: 9px; color: var(--faint); text-align: center; text-transform: uppercase; letter-spacing: 0.05em; }
+.gantt-row {
+  display: grid; grid-template-columns: 180px repeat(9, 1fr);
+  gap: 0; margin-bottom: 3px; align-items: center;
+}
+.gantt-label { font-size: 11px; color: var(--muted); padding-right: 8px; }
+.gantt-cells { display: contents; }
+.gantt-cell { height: 20px; border-right: 1px solid var(--border); }
+.gantt-bar {
+  height: 16px; border-radius: 3px; margin: 2px 2px;
+  display: flex; align-items: center; padding: 0 6px;
+  font-family: var(--font-m); font-size: 9px; color: rgba(255,255,255,0.9);
+  white-space: nowrap; overflow: hidden;
+}
+.gb-p1  { background: var(--purple); }
+.gb-p2  { background: var(--sky); }
+.gb-p3  { background: var(--green); }
+.gb-arc { background: var(--gold); }
+.gb-overlap { background: linear-gradient(90deg, var(--sky), var(--green)); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy);
+  padding: 2rem 2rem;
+}
+.footer-inner {
+  max-width: 900px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 1rem;
+}
+.footer-brand { font-family: var(--font-d); font-size: 1rem; color: rgba(255,255,255,0.5); font-style: italic; }
+.footer-meta { font-family: var(--font-m); font-size: 10px; color: rgba(255,255,255,0.25); text-align: right; line-height: 1.9; }
+
+@media print { nav, .no-print { display: none !important; } }
+@media (max-width: 640px) {
+  nav .nav-links { display: none; }
+  .scenarios { grid-template-columns: 1fr; }
+  .budget-visual { grid-template-columns: 1fr; }
+  .gantt-head, .gantt-row { grid-template-columns: 120px repeat(9, 1fr); }
+  .gantt-label { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">SSAS Migration · Costing &amp; Resourcing</span>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#rates">Rate Card</a></li>
+      <li><a href="#breakdown">Cost Breakdown</a></li>
+      <li><a href="#ai-tasks">AI Leverage</a></li>
+      <li><a href="#scenarios">Scenarios</a></li>
+      <li><a href="#budget">Budget</a></li>
+      <li><a href="#schedule">Schedule</a></li>
+    </ul>
+    <button class="btn-print no-print" onclick="window.print()">Print / PDF</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker">Costing, Resourcing &amp; Budget</div>
+    <h1>Migration Investment<br>Plan with <em>AI Leverage</em></h1>
+    <p class="hero-sub">Full cost model for the SSAS Multidimensional → Fabric migration across three scenarios: no AI assistance, 25% AI leverage, and 50% AI leverage. Use the interactive calculator below to model the impact.</p>
+    <div class="hero-assumptions">
+      <span class="assumption">Day rate: consultant-grade</span>
+      <span class="assumption">Region: APAC / Europe blended</span>
+      <span class="assumption">Currency: USD</span>
+      <span class="assumption">Timeline: 9 months</span>
+      <span class="assumption">AI tool: GitHub Copilot + Claude</span>
+    </div>
+  </div>
+</div>
+
+<!-- AI LEVER — SIGNATURE ELEMENT -->
+<div class="ai-lever-wrap">
+  <div class="ai-lever-inner">
+    <div class="lever-head">
+      <div class="lever-title-block">
+        <h2>AI Leverage Calculator</h2>
+        <p>Drag the slider or click a scenario to see how AI assistance changes your total investment</p>
+      </div>
+      <div class="ai-mode-btns">
+        <button class="ai-btn active-0" id="btn0" onclick="setLever(0)">0% — No AI</button>
+        <button class="ai-btn" id="btn25" onclick="setLever(25)">25% — Moderate</button>
+        <button class="ai-btn" id="btn50" onclick="setLever(50)">50% — Aggressive</button>
+      </div>
+    </div>
+    <div class="lever-slider-row">
+      <span class="lever-label">No AI · 0%</span>
+      <input type="range" id="aiSlider" min="0" max="50" step="1" value="0" oninput="setLever(this.value)">
+      <span class="lever-label">50% · Max AI</span>
+    </div>
+    <div class="savings-bar">
+      <div class="sbar-cell">
+        <div class="sbar-label">Baseline (no AI)</div>
+        <div class="sbar-value val-total" id="sb-baseline">$198,500</div>
+        <div class="sbar-sub">Total project cost</div>
+      </div>
+      <div class="sbar-cell">
+        <div class="sbar-label">AI saving at <span id="sb-pct-label">0%</span></div>
+        <div class="sbar-value val-saved" id="sb-saving">$0</div>
+        <div class="sbar-sub" id="sb-days-saved">0 days recovered</div>
+      </div>
+      <div class="sbar-cell">
+        <div class="sbar-label">Net investment</div>
+        <div class="sbar-value val-net" id="sb-net">$198,500</div>
+        <div class="sbar-sub" id="sb-net-sub">+ AI tooling ~$3,600/yr</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══ RATE CARD ══ -->
+<section id="rates">
+  <div class="sec-eyebrow">Rate Card</div>
+  <h2>Resource Roles &amp; Day Rates</h2>
+  <p class="sec-intro">Rates are blended APAC/Europe consultant-grade day rates in USD. Internal (FTE) rates are shown at a 40% discount to consultant market rate to reflect the lower direct cost where internal resource is available.</p>
+
+  <div class="rate-grid">
+    <div class="rate-card">
+      <div class="rate-role">Lead BI / Data Engineer</div>
+      <div class="rate-val">$850</div>
+      <div class="rate-unit">per day (consultant)</div>
+      <div class="rate-note">Internal FTE equiv: ~$510/day</div>
+    </div>
+    <div class="rate-card">
+      <div class="rate-role">SSAS / DAX Specialist</div>
+      <div class="rate-val">$950</div>
+      <div class="rate-unit">per day (consultant)</div>
+      <div class="rate-note">Specialist rate — SSAS expertise commands premium</div>
+    </div>
+    <div class="rate-card">
+      <div class="rate-role">Azure / Fabric Architect</div>
+      <div class="rate-val">$1,050</div>
+      <div class="rate-unit">per day (consultant)</div>
+      <div class="rate-note">Internal FTE equiv: ~$630/day</div>
+    </div>
+    <div class="rate-card">
+      <div class="rate-role">Business Analyst</div>
+      <div class="rate-val">$650</div>
+      <div class="rate-unit">per day (consultant)</div>
+      <div class="rate-note">Internal FTE equiv: ~$390/day</div>
+    </div>
+    <div class="rate-card">
+      <div class="rate-role">QA / Test Engineer</div>
+      <div class="rate-val">$650</div>
+      <div class="rate-unit">per day (consultant)</div>
+      <div class="rate-note">Reconciliation &amp; UAT phase focus</div>
+    </div>
+    <div class="rate-card">
+      <div class="rate-role">Project Manager</div>
+      <div class="rate-val">$750</div>
+      <div class="rate-unit">per day (part-time)</div>
+      <div class="rate-note">Governance, reporting, stakeholder mgmt</div>
+    </div>
+  </div>
+
+  <div class="callout callout-gold">
+    <span class="callout-icon">💡</span>
+    <div>
+      <strong>Rate assumption</strong>
+      All costs below use consultant-grade rates as the baseline. If internal FTE resources are used for any role, the equivalent phase cost reduces by approximately 40%. The AI leverage calculation applies on top of whichever rate basis you choose.
+    </div>
+  </div>
+</section>
+
+<!-- ══ COST BREAKDOWN ══ -->
+<section id="breakdown">
+  <div class="sec-eyebrow">Cost Breakdown</div>
+  <h2>Phase-by-Phase Resource Plan</h2>
+  <p class="sec-intro">Days estimated per role per phase. The "AI-adjusted days" column updates live based on your AI leverage setting above.</p>
+
+  <!-- PHASE 0 -->
+  <div class="res-table-wrap">
+    <div class="phase-header ph-arc">
+      <span>⚡ Immediate · Azure Arc Bridge</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Task</th>
+          <th class="num">Base days</th>
+          <th class="num">Day rate</th>
+          <th class="num">AI-adj. days</th>
+          <th class="num">Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Azure / Fabric Architect</td>
+          <td>Azure Arc registration, ESU activation, compliance documentation<span class="ai-badge ai-badge-gray" data-aiable="low">Low AI</span></td>
+          <td class="num">2</td>
+          <td class="num">$1,050</td>
+          <td class="num ai-days" data-base="2" data-aiable="0.1">2.0</td>
+          <td class="num ai-cost" data-base="2100" data-rate="1050" data-aiable="0.1">$2,100</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="tfoot-row">
+          <td colspan="4">Phase subtotal</td>
+          <td class="num ai-days phase-total-days" data-phase="arc">2.0 days</td>
+          <td class="num ai-cost phase-total-cost" data-phase="arc">$2,100</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="res-table-wrap" style="margin-top:10px;">
+    <div class="phase-header ph-p1">
+      <span>Phase 1A–D · Assessment &amp; Tabular Rebuild (Months 1–4)</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Task</th>
+          <th class="num">Base days</th>
+          <th class="num">Day rate</th>
+          <th class="num">AI-adj. days</th>
+          <th class="num">Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SSAS / DAX Specialist</td>
+          <td>MDX inventory, cube audit, artefact documentation<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">15</td><td class="num">$950</td>
+          <td class="num ai-days" data-base="15" data-aiable="0.35">15.0</td>
+          <td class="num ai-cost" data-base="14250" data-rate="950" data-aiable="0.35">$14,250</td>
+        </tr>
+        <tr>
+          <td>Business Analyst</td>
+          <td>Business owner interviews, KPI definitions, sign-off sessions<span class="ai-badge ai-badge-gray" data-aiable="low">Low AI</span></td>
+          <td class="num">10</td><td class="num">$650</td>
+          <td class="num ai-days" data-base="10" data-aiable="0.1">10.0</td>
+          <td class="num ai-cost" data-base="6500" data-rate="650" data-aiable="0.1">$6,500</td>
+        </tr>
+        <tr>
+          <td>SSAS / DAX Specialist</td>
+          <td>MDX → DAX translation, calculated measures rebuild<span class="ai-badge ai-badge-gray" data-aiable="high">High AI</span></td>
+          <td class="num">20</td><td class="num">$950</td>
+          <td class="num ai-days" data-base="20" data-aiable="0.55">20.0</td>
+          <td class="num ai-cost" data-base="19000" data-rate="950" data-aiable="0.55">$19,000</td>
+        </tr>
+        <tr>
+          <td>Lead BI Engineer</td>
+          <td>Star schema design, dimension/fact table build, data modelling<span class="ai-badge ai-badge-gray" data-aiable="high">High AI</span></td>
+          <td class="num">18</td><td class="num">$850</td>
+          <td class="num ai-days" data-base="18" data-aiable="0.5">18.0</td>
+          <td class="num ai-cost" data-base="15300" data-rate="850" data-aiable="0.5">$15,300</td>
+        </tr>
+        <tr>
+          <td>Lead BI Engineer</td>
+          <td>RLS role design, security implementation &amp; testing<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">5</td><td class="num">$850</td>
+          <td class="num ai-days" data-base="5" data-aiable="0.3">5.0</td>
+          <td class="num ai-cost" data-base="4250" data-rate="850" data-aiable="0.3">$4,250</td>
+        </tr>
+        <tr>
+          <td>QA / Test Engineer</td>
+          <td>Parallel reconciliation, number validation, UAT coordination<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">12</td><td class="num">$650</td>
+          <td class="num ai-days" data-base="12" data-aiable="0.3">12.0</td>
+          <td class="num ai-cost" data-base="7800" data-rate="650" data-aiable="0.3">$7,800</td>
+        </tr>
+        <tr>
+          <td>Project Manager</td>
+          <td>Governance, stakeholder reporting, risk management<span class="ai-badge ai-badge-gray" data-aiable="low">Low AI</span></td>
+          <td class="num">8</td><td class="num">$750</td>
+          <td class="num ai-days" data-base="8" data-aiable="0.15">8.0</td>
+          <td class="num ai-cost" data-base="6000" data-rate="750" data-aiable="0.15">$6,000</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="tfoot-row">
+          <td colspan="4">Phase 1 subtotal</td>
+          <td class="num ai-days phase-total-days" data-phase="p1">88.0 days</td>
+          <td class="num ai-cost phase-total-cost" data-phase="p1">$73,100</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="res-table-wrap" style="margin-top:10px;">
+    <div class="phase-header ph-p2">
+      <span>Phase 2 · Cloud Migration to Microsoft Fabric (Months 5–8)</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th><th>Task</th>
+          <th class="num">Base days</th><th class="num">Day rate</th>
+          <th class="num">AI-adj. days</th><th class="num">Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Azure / Fabric Architect</td>
+          <td>ADLS Gen2, Fabric workspace, Synapse provisioning &amp; setup<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">10</td><td class="num">$1,050</td>
+          <td class="num ai-days" data-base="10" data-aiable="0.3">10.0</td>
+          <td class="num ai-cost" data-base="10500" data-rate="1050" data-aiable="0.3">$10,500</td>
+        </tr>
+        <tr>
+          <td>Lead BI Engineer</td>
+          <td>ADF pipeline build — SSIS package replacement<span class="ai-badge ai-badge-gray" data-aiable="high">High AI</span></td>
+          <td class="num">15</td><td class="num">$850</td>
+          <td class="num ai-days" data-base="15" data-aiable="0.55">15.0</td>
+          <td class="num ai-cost" data-base="12750" data-rate="850" data-aiable="0.55">$12,750</td>
+        </tr>
+        <tr>
+          <td>Azure / Fabric Architect</td>
+          <td>Fabric Semantic Model deployment, DirectLake configuration<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">8</td><td class="num">$1,050</td>
+          <td class="num ai-days" data-base="8" data-aiable="0.3">8.0</td>
+          <td class="num ai-cost" data-base="8400" data-rate="1050" data-aiable="0.3">$8,400</td>
+        </tr>
+        <tr>
+          <td>Lead BI Engineer</td>
+          <td>Dataverse Synapse Link setup, data source re-pointing<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">6</td><td class="num">$850</td>
+          <td class="num ai-days" data-base="6" data-aiable="0.35">6.0</td>
+          <td class="num ai-cost" data-base="5100" data-rate="850" data-aiable="0.35">$5,100</td>
+        </tr>
+        <tr>
+          <td>Lead BI Engineer</td>
+          <td>Power BI report build on Fabric Semantic Model<span class="ai-badge ai-badge-gray" data-aiable="high">High AI</span></td>
+          <td class="num">12</td><td class="num">$850</td>
+          <td class="num ai-days" data-base="12" data-aiable="0.5">12.0</td>
+          <td class="num ai-cost" data-base="10200" data-rate="850" data-aiable="0.5">$10,200</td>
+        </tr>
+        <tr>
+          <td>Lead BI Engineer</td>
+          <td>SSRS → Fabric Paginated Reports migration<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">8</td><td class="num">$850</td>
+          <td class="num ai-days" data-base="8" data-aiable="0.35">8.0</td>
+          <td class="num ai-cost" data-base="6800" data-rate="850" data-aiable="0.35">$6,800</td>
+        </tr>
+        <tr>
+          <td>QA / Test Engineer</td>
+          <td>Fabric vs on-prem parallel validation, cloud UAT<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">10</td><td class="num">$650</td>
+          <td class="num ai-days" data-base="10" data-aiable="0.3">10.0</td>
+          <td class="num ai-cost" data-base="6500" data-rate="650" data-aiable="0.3">$6,500</td>
+        </tr>
+        <tr>
+          <td>Project Manager</td>
+          <td>Cutover planning, change management, decommission sign-off<span class="ai-badge ai-badge-gray" data-aiable="low">Low AI</span></td>
+          <td class="num">6</td><td class="num">$750</td>
+          <td class="num ai-days" data-base="6" data-aiable="0.1">6.0</td>
+          <td class="num ai-cost" data-base="4500" data-rate="750" data-aiable="0.1">$4,500</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="tfoot-row">
+          <td colspan="4">Phase 2 subtotal</td>
+          <td class="num ai-days phase-total-days" data-phase="p2">75.0 days</td>
+          <td class="num ai-cost phase-total-cost" data-phase="p2">$64,750</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- PHASE 3 — ONGOING -->
+  <div class="res-table-wrap" style="margin-top:10px;">
+    <div class="phase-header ph-p3">
+      <span>Phase 3 · Cutover, Handover &amp; Documentation (Month 9)</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th><th>Task</th>
+          <th class="num">Base days</th><th class="num">Day rate</th>
+          <th class="num">AI-adj. days</th><th class="num">Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Lead BI Engineer</td>
+          <td>Final documentation, Git archiving, knowledge transfer<span class="ai-badge ai-badge-gray" data-aiable="high">High AI</span></td>
+          <td class="num">8</td><td class="num">$850</td>
+          <td class="num ai-days" data-base="8" data-aiable="0.6">8.0</td>
+          <td class="num ai-cost" data-base="6800" data-rate="850" data-aiable="0.6">$6,800</td>
+        </tr>
+        <tr>
+          <td>SSAS / DAX Specialist</td>
+          <td>Final model review, handover sessions with internal team<span class="ai-badge ai-badge-gray" data-aiable="low">Low AI</span></td>
+          <td class="num">4</td><td class="num">$950</td>
+          <td class="num ai-days" data-base="4" data-aiable="0.1">4.0</td>
+          <td class="num ai-cost" data-base="3800" data-rate="950" data-aiable="0.1">$3,800</td>
+        </tr>
+        <tr>
+          <td>Business Analyst</td>
+          <td>User training, Power BI adoption sessions, report sign-off<span class="ai-badge ai-badge-gray" data-aiable="low">Low AI</span></td>
+          <td class="num">6</td><td class="num">$650</td>
+          <td class="num ai-days" data-base="6" data-aiable="0.1">6.0</td>
+          <td class="num ai-cost" data-base="3900" data-rate="650" data-aiable="0.1">$3,900</td>
+        </tr>
+        <tr>
+          <td>Project Manager</td>
+          <td>Project closure, lessons learned, decommission records<span class="ai-badge ai-badge-gray" data-aiable="med">Med AI</span></td>
+          <td class="num">3</td><td class="num">$750</td>
+          <td class="num ai-days" data-base="3" data-aiable="0.25">3.0</td>
+          <td class="num ai-cost" data-base="2250" data-rate="750" data-aiable="0.25">$2,250</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="tfoot-row">
+          <td colspan="4">Phase 3 subtotal</td>
+          <td class="num ai-days phase-total-days" data-phase="p3">21.0 days</td>
+          <td class="num ai-cost phase-total-cost" data-phase="p3">$16,750</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- INFRASTRUCTURE -->
+  <div class="res-table-wrap" style="margin-top:10px;">
+    <div class="phase-header ph-ongoing" style="background:var(--slate); color:var(--muted); border-bottom:1px solid var(--border);">
+      <span>Infrastructure &amp; Tooling (fixed costs — not AI-reducible)</span>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Item</th><th>Detail</th><th class="num">Unit cost</th><th class="num">Qty / period</th><th class="num" colspan="2">Total</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Microsoft Fabric capacity</td>
+          <td>F4 SKU — analytics + Power BI Premium</td>
+          <td class="num">$730/mo</td><td class="num">9 months</td>
+          <td class="num" colspan="2">$6,570</td>
+        </tr>
+        <tr>
+          <td>Azure Data Lake Storage Gen2</td>
+          <td>~5TB estimated, LRS redundancy</td>
+          <td class="num">$110/mo</td><td class="num">9 months</td>
+          <td class="num" colspan="2">$990</td>
+        </tr>
+        <tr>
+          <td>Azure Data Factory</td>
+          <td>Pipeline runs, data integration unit hours</td>
+          <td class="num">$180/mo</td><td class="num">9 months</td>
+          <td class="num" colspan="2">$1,620</td>
+        </tr>
+        <tr>
+          <td>SQL Server 2022 Dev licence</td>
+          <td>Phase 1 tabular model dev/UAT server</td>
+          <td class="num">$0</td><td class="num">Developer Ed.</td>
+          <td class="num" colspan="2">$0</td>
+        </tr>
+        <tr>
+          <td>GitHub Copilot Business</td>
+          <td>AI coding assistant — 3 engineers × 9 months</td>
+          <td class="num">$19/mo/user</td><td class="num">3 × 9 mo</td>
+          <td class="num" colspan="2">$513</td>
+        </tr>
+        <tr>
+          <td>Claude / AI assistant</td>
+          <td>Documentation, DAX generation, test case writing</td>
+          <td class="num">$20/mo</td><td class="num">3 × 9 mo</td>
+          <td class="num" colspan="2">$540</td>
+        </tr>
+        <tr>
+          <td>Tabular Editor licence</td>
+          <td>Professional SSAS/Fabric modelling tool</td>
+          <td class="num">$600/yr</td><td class="num">2 licences</td>
+          <td class="num" colspan="2">$1,200</td>
+        </tr>
+        <tr>
+          <td>Contingency (10%)</td>
+          <td>Scope risk buffer on labour costs</td>
+          <td class="num">—</td><td class="num">—</td>
+          <td class="num" colspan="2" id="contingency-cell">$13,670</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="tfoot-row">
+          <td colspan="4">Infrastructure &amp; tooling subtotal</td>
+          <td class="num" colspan="2" id="infra-total">$25,103</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</section>
+
+<!-- ══ AI TASKS ══ -->
+<section id="ai-tasks">
+  <div class="sec-eyebrow">AI Leverage Detail</div>
+  <h2>Where AI Saves the Most Time</h2>
+  <p class="sec-intro">Not all tasks benefit equally from AI assistance. This table shows which activities in this migration are highest-yield for AI tools — and why.</p>
+
+  <div class="ai-tasks-wrap">
+    <div class="ai-tasks-header">AI-leverageable tasks — impact by activity</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>AI tool</th>
+          <th>Max time saving</th>
+          <th>Impact level</th>
+          <th>How AI helps</th>
+        </tr>
+      </thead>
+      <tbody class="ai-row">
+        <tr>
+          <td>MDX → DAX translation</td>
+          <td style="font-family:var(--font-m);font-size:11px;">Claude / Copilot</td>
+          <td>50–60%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:90%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--green);">Very High</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">AI can convert MDX syntax to DAX equivalents, explain filter context differences, and suggest DAX patterns. Requires human review of business logic assumptions.</td>
+        </tr>
+        <tr>
+          <td>DAX measure writing</td>
+          <td style="font-family:var(--font-m);font-size:11px;">GitHub Copilot</td>
+          <td>40–55%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:85%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--green);">Very High</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">Copilot autocompletes time intelligence patterns (SAMEPERIODLASTYEAR, DATESBETWEEN, CALCULATE). Reduces boilerplate time substantially.</td>
+        </tr>
+        <tr>
+          <td>ADF pipeline build</td>
+          <td style="font-family:var(--font-m);font-size:11px;">Copilot + Azure AI</td>
+          <td>40–50%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:80%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--green);">High</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">AI generates ARM templates, pipeline JSON, and linked service configurations. Azure's native AI features suggest connector settings from source schemas.</td>
+        </tr>
+        <tr>
+          <td>Documentation writing</td>
+          <td style="font-family:var(--font-m);font-size:11px;">Claude</td>
+          <td>50–70%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:95%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--green);">Very High</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">Given a DAX measure or SSIS package, AI can draft the plain-English business definition, assumptions, and operational notes. Reduces one of the most time-consuming manual tasks.</td>
+        </tr>
+        <tr>
+          <td>Star schema design</td>
+          <td style="font-family:var(--font-m);font-size:11px;">Claude</td>
+          <td>30–40%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:65%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--muted);">Medium</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">AI can suggest dimension/fact table structures from source schema descriptions. Business domain knowledge still required — AI produces a first draft, not a final design.</td>
+        </tr>
+        <tr>
+          <td>Test case generation</td>
+          <td style="font-family:var(--font-m);font-size:11px;">Claude / Copilot</td>
+          <td>40–50%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:75%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--green);">High</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">AI generates reconciliation test scripts, SQL validation queries, and UAT test cases from measure definitions. Significant saving on QA effort.</td>
+        </tr>
+        <tr>
+          <td>SSRS → Paginated Reports</td>
+          <td style="font-family:var(--font-m);font-size:11px;">Migration tooling</td>
+          <td>20–30%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:45%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--muted);">Medium</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">RDL format is the same — migration is already low-effort. AI can assist with data source re-pointing scripts but the gain is smaller here.</td>
+        </tr>
+        <tr>
+          <td>Business owner interviews</td>
+          <td style="font-family:var(--font-m);font-size:11px;">N/A</td>
+          <td>0–5%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:8%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--faint);">Minimal</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">Human relationship and domain knowledge — AI cannot replace this. AI can help prepare interview guides and summarise notes afterwards.</td>
+        </tr>
+        <tr>
+          <td>RLS security testing</td>
+          <td style="font-family:var(--font-m);font-size:11px;">N/A</td>
+          <td>0–10%</td>
+          <td>
+            <div class="impact-bar">
+              <div class="impact-bg"><div class="impact-inner" style="width:12%"></div></div>
+              <span style="font-family:var(--font-m);font-size:10px;color:var(--faint);">Minimal</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">Security testing requires human validation with real credentials and real data. Cannot be delegated to AI — governance risk is too high.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠</span>
+    <div>
+      <strong>Important caveat on AI leverage</strong>
+      AI reduces time on individual tasks — it does not eliminate the need for expert review. Every AI-generated DAX measure, pipeline config, or documentation output must be validated by a qualified engineer before production use. The saving is in first-draft speed and boilerplate elimination, not in replacing expertise. Budget for review time: assume 20–30% of AI-generated output requires meaningful correction.
+    </div>
+  </div>
+</section>
+
+<!-- ══ SCENARIOS ══ -->
+<section id="scenarios">
+  <div class="sec-eyebrow">Scenario Comparison</div>
+  <h2>Three Investment Scenarios</h2>
+  <p class="sec-intro">Total project cost across the three AI leverage scenarios, including labour, infrastructure, tooling, and contingency.</p>
+
+  <div class="scenarios">
+    <div class="scenario active active-0" id="sc-0">
+      <div class="sc-label sc-label-0">Scenario A · No AI</div>
+      <div class="sc-total sc-total-0" id="sc0-total">$198,500</div>
+      <div class="sc-saving" id="sc0-saving">&nbsp;</div>
+      <div class="sc-timeline">Est. timeline: 9 months</div>
+      <div class="sc-items">
+        <div class="sc-item"><span>Labour (186 days)</span><span id="sc0-labour">$156,827</span></div>
+        <div class="sc-item"><span>Infrastructure &amp; tooling</span><span>$11,433</span></div>
+        <div class="sc-item"><span>Contingency (10%)</span><span id="sc0-cont">$15,683</span></div>
+        <div class="sc-item"><span>AI tools cost</span><span>$0</span></div>
+      </div>
+    </div>
+    <div class="scenario active-25" id="sc-25">
+      <div class="rec-badge">Recommended</div>
+      <div class="sc-label sc-label-25">Scenario B · 25% AI</div>
+      <div class="sc-total sc-total-25" id="sc25-total">$155,200</div>
+      <div class="sc-saving" id="sc25-saving">Save ~$43,300 vs no AI</div>
+      <div class="sc-timeline">Est. timeline: 7–8 months</div>
+      <div class="sc-items">
+        <div class="sc-item"><span>Labour (~140 days)</span><span id="sc25-labour">$117,350</span></div>
+        <div class="sc-item"><span>Infrastructure &amp; tooling</span><span>$11,433</span></div>
+        <div class="sc-item"><span>Contingency (10%)</span><span id="sc25-cont">$11,735</span></div>
+        <div class="sc-item"><span>AI tools cost</span><span>$1,053</span></div>
+      </div>
+    </div>
+    <div class="scenario active-50" id="sc-50">
+      <div class="sc-label sc-label-50">Scenario C · 50% AI</div>
+      <div class="sc-total sc-total-50" id="sc50-total">$117,900</div>
+      <div class="sc-saving" id="sc50-saving">Save ~$80,600 vs no AI</div>
+      <div class="sc-timeline">Est. timeline: 6–7 months</div>
+      <div class="sc-items">
+        <div class="sc-item"><span>Labour (~93 days)</span><span id="sc50-labour">$78,233</span></div>
+        <div class="sc-item"><span>Infrastructure &amp; tooling</span><span>$11,433</span></div>
+        <div class="sc-item"><span>Contingency (10%)</span><span id="sc50-cont">$7,823</span></div>
+        <div class="sc-item"><span>AI tools cost</span><span>$1,053</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">✓</span>
+    <div>
+      <strong>Recommendation: Scenario B — 25% AI leverage</strong>
+      The 25% scenario is the most defensible position. It is achievable with widely available tools (GitHub Copilot + Claude), realistic given the need for expert review of all AI outputs, and delivers a ~22% cost reduction versus baseline. The 50% scenario is achievable but requires a team experienced in AI-assisted development workflows and carries higher review overhead — better suited to organisations already embedded in AI tooling.
+    </div>
+  </div>
+</section>
+
+<!-- ══ BUDGET SUMMARY ══ -->
+<section id="budget">
+  <div class="sec-eyebrow">Budget Summary</div>
+  <h2>Budget Allocation</h2>
+  <p class="sec-intro">Cost distribution by phase and category at the recommended 25% AI scenario.</p>
+
+  <div class="budget-visual">
+    <div class="donut-wrap">
+      <svg viewBox="0 0 120 120">
+        <!-- donut slices — Phase 1: 49%, Phase 2: 30%, Phase 3: 10%, Infra: 11% -->
+        <!-- r=42, circumference=263.9 -->
+        <!-- Phase 1: 49% = 129.3 -->
+        <circle cx="60" cy="60" r="42" fill="none" stroke="#e2e5eb" stroke-width="18"/>
+        <circle cx="60" cy="60" r="42" fill="none" stroke="#6d28d9" stroke-width="18"
+          stroke-dasharray="129.3 263.9" stroke-dashoffset="0"/>
+        <circle cx="60" cy="60" r="42" fill="none" stroke="#4f8ec9" stroke-width="18"
+          stroke-dasharray="79.2 263.9" stroke-dashoffset="-129.3"/>
+        <circle cx="60" cy="60" r="42" fill="none" stroke="#0f7b55" stroke-width="18"
+          stroke-dasharray="26.4 263.9" stroke-dashoffset="-208.5"/>
+        <circle cx="60" cy="60" r="42" fill="none" stroke="#c9922a" stroke-width="18"
+          stroke-dasharray="29.0 263.9" stroke-dashoffset="-234.9"/>
+      </svg>
+      <div class="donut-center">
+        <div class="donut-total" id="donut-total">$155k</div>
+        <div class="donut-label">25% AI</div>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#6d28d9;"></div>
+        <span class="legend-label">Phase 1 — Assess &amp; Rebuild</span>
+        <span class="legend-pct">49%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#4f8ec9;"></div>
+        <span class="legend-label">Phase 2 — Cloud Migration</span>
+        <span class="legend-pct">30%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#0f7b55;"></div>
+        <span class="legend-label">Phase 3 — Cutover &amp; Handover</span>
+        <span class="legend-pct">10%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#c9922a;"></div>
+        <span class="legend-label">Infrastructure, Tooling &amp; Contingency</span>
+        <span class="legend-pct">11%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">ℹ</span>
+    <div>
+      <strong>Ongoing cost post-migration (annual)</strong>
+      Microsoft Fabric capacity (F4): ~$8,760/yr · ADLS Gen2 storage: ~$1,320/yr · Azure Data Factory: ~$600/yr · Power BI Pro licences (if needed beyond Fabric): $120/user/yr · AI tools (Copilot + Claude): ~$1,200/yr for 3 users. Estimated total ongoing cloud cost: <strong>~$12,000–15,000/yr</strong> vs on-prem server maintenance and licencing costs. Payback on migration investment typically achieved within 2–3 years.
+    </div>
+  </div>
+</section>
+
+<!-- ══ GANTT SCHEDULE ══ -->
+<section id="schedule">
+  <div class="sec-eyebrow">Delivery Schedule</div>
+  <h2>Resource Schedule by Month</h2>
+  <p class="sec-intro">High-level Gantt showing when each role and phase is active across the 9-month project.</p>
+
+  <div class="gantt">
+    <div class="gantt-head">
+      <div></div>
+      <div class="gantt-month">M1</div>
+      <div class="gantt-month">M2</div>
+      <div class="gantt-month">M3</div>
+      <div class="gantt-month">M4</div>
+      <div class="gantt-month">M5</div>
+      <div class="gantt-month">M6</div>
+      <div class="gantt-month">M7</div>
+      <div class="gantt-month">M8</div>
+      <div class="gantt-month">M9</div>
+    </div>
+    <!-- Azure Arc -->
+    <div class="gantt-row">
+      <div class="gantt-label">Azure Arc bridge</div>
+      <div style="grid-column: 2 / 3; padding: 2px;">
+        <div class="gantt-bar gb-arc" style="width:30%;">Arc</div>
+      </div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div>
+    </div>
+    <!-- Assessment -->
+    <div class="gantt-row">
+      <div class="gantt-label">Assessment &amp; audit</div>
+      <div style="grid-column: 2 / 3; padding: 2px;">
+        <div class="gantt-bar gb-p1">Assess</div>
+      </div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div>
+    </div>
+    <!-- Tabular build -->
+    <div class="gantt-row">
+      <div class="gantt-label">Tabular model build</div>
+      <div class="gantt-cell"></div>
+      <div style="grid-column: 3 / 5; padding: 2px;">
+        <div class="gantt-bar gb-p1">MDX → DAX Rebuild</div>
+      </div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div>
+    </div>
+    <!-- Validation -->
+    <div class="gantt-row">
+      <div class="gantt-label">Parallel validation</div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div style="grid-column: 5 / 6; padding: 2px;">
+        <div class="gantt-bar gb-p2">Validate</div>
+      </div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div>
+    </div>
+    <!-- Cloud infra -->
+    <div class="gantt-row">
+      <div class="gantt-label">Cloud infra setup</div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div style="grid-column: 6 / 7; padding: 2px;">
+        <div class="gantt-bar gb-p2">Infra</div>
+      </div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+    </div>
+    <!-- Fabric deploy + PBI -->
+    <div class="gantt-row">
+      <div class="gantt-label">Fabric deploy + Power BI</div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div style="grid-column: 7 / 9; padding: 2px;">
+        <div class="gantt-bar gb-p3">Fabric + Power BI</div>
+      </div>
+      <div class="gantt-cell"></div>
+    </div>
+    <!-- Parallel run -->
+    <div class="gantt-row">
+      <div class="gantt-label">Cloud parallel run</div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div style="grid-column: 9 / 10; padding: 2px;">
+        <div class="gantt-bar gb-p3">Parallel</div>
+      </div>
+      <div class="gantt-cell"></div>
+    </div>
+    <!-- Cutover -->
+    <div class="gantt-row">
+      <div class="gantt-label">Cutover &amp; handover</div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div class="gantt-cell"></div><div class="gantt-cell"></div>
+      <div style="grid-column: 10 / 11; padding: 2px;">
+        <div class="gantt-bar gb-p3">Go-live</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-gold" style="margin-top:1rem;">
+    <span class="callout-icon">📋</span>
+    <div>
+      <strong>Resourcing note</strong>
+      This plan assumes a core team of 3 people (Lead BI Engineer, SSAS/DAX Specialist, Azure Architect) with part-time BA, QA, and PM support. If resourcing to a single senior engineer, extend the timeline to 12–14 months. If this is an internal FTE project with consultant specialist support only for MDX→DAX translation and Azure architecture, total cost reduces by approximately 40% on labour — bring the Scenario B cost to approximately <strong>$93,000–$100,000</strong>.
+    </div>
+  </div>
+</section>
+
+</div><!-- end .page -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">SSAS Migration · Costing &amp; Resourcing</div>
+    <div class="footer-meta">
+      Prepared June 2026 · Confidential<br>
+      USD · Consultant-grade rates · APAC / Europe blended
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── DATA ──
+const BASE_LABOUR = 156827; // baseline total labour cost (no AI)
+const BASE_DAYS   = 186;    // baseline total days
+const INFRA_FIXED = 11433;  // infra + tooling (not AI-reducible)
+const AI_TOOL_COST = 1053;  // annual AI tool cost
+
+// Per-row: [base_days, aiable_fraction, rate]
+// aiable_fraction = how much of this task can AI help with (0–1)
+// weighted average reduction = leverage% * aiable_fraction
+// So at 50% leverage, a task with aiable=0.5 saves 25% of days
+
+function formatUSD(n) {
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+function formatDays(n) {
+  return n.toFixed(1);
+}
+
+function setLever(pct) {
+  pct = Math.round(Number(pct));
+  // sync slider
+  const slider = document.getElementById('aiSlider');
+  slider.value = pct;
+  slider.style.setProperty('--pct', (pct / 50 * 100) + '%');
+
+  // sync buttons
+  ['0','25','50'].forEach(v => {
+    const btn = document.getElementById('btn' + v);
+    btn.className = 'ai-btn';
+    if (Number(v) === pct) btn.classList.add('active-' + v);
+  });
+
+  // ── update each row ──
+  let totalDays = 0;
+  let totalLabour = 0;
+
+  // phase sums
+  const phaseDays = { arc: 0, p1: 0, p2: 0, p3: 0 };
+  const phaseCost = { arc: 0, p1: 0, p2: 0, p3: 0 };
+
+  // detect phase from DOM order
+  const phaseMap = {};
+  document.querySelectorAll('.res-table-wrap').forEach((wrap, i) => {
+    const phase = ['arc','p1','p2','p3','infra'][i] || 'other';
+    wrap.querySelectorAll('tr[data-phase], td.ai-days').forEach(el => {
+      el._phase = phase;
+    });
+  });
+
+  // assign phases to rows
+  let currentPhase = 'arc';
+  document.querySelectorAll('.res-table-wrap').forEach((wrap, wi) => {
+    currentPhase = ['arc','p1','p2','p3','infra'][wi] || 'other';
+    wrap.querySelectorAll('td.ai-days').forEach((dayCell) => {
+      const base     = parseFloat(dayCell.dataset.base);
+      const aiable   = parseFloat(dayCell.dataset.aiable);
+      const adjDays  = base * (1 - (pct / 100) * aiable);
+      dayCell.textContent = formatDays(adjDays);
+
+      // find sibling cost cell
+      const costCell = dayCell.nextElementSibling;
+      if (costCell && costCell.classList.contains('ai-cost')) {
+        const rate = parseFloat(costCell.dataset.rate);
+        const cost = adjDays * rate;
+        costCell.textContent = formatUSD(cost);
+
+        if (currentPhase !== 'infra') {
+          if (phaseDays[currentPhase] !== undefined) {
+            phaseDays[currentPhase] += adjDays;
+            phaseCost[currentPhase] += cost;
+          }
+          totalDays   += adjDays;
+          totalLabour += cost;
+        }
+      }
+
+      // update AI badge colour
+      const badge = dayCell.previousElementSibling?.querySelector?.('.ai-badge') ||
+                    dayCell.closest('td')?.previousElementSibling?.querySelector('.ai-badge');
+
+      // simpler: find badge in the task td (2nd td in row)
+      const row = dayCell.closest('tr');
+      if (row) {
+        const b = row.querySelector('.ai-badge');
+        if (b) {
+          b.className = 'ai-badge';
+          const aiableVal = parseFloat(dayCell.dataset.aiable);
+          if (pct === 0) {
+            b.classList.add('ai-badge-gray');
+          } else if (aiableVal >= 0.45) {
+            b.classList.add('ai-badge-green');
+          } else if (aiableVal >= 0.25) {
+            b.classList.add(pct >= 25 ? 'ai-badge-green' : 'ai-badge-gray');
+          } else {
+            b.classList.add('ai-badge-gray');
+          }
+        }
+      }
+    });
+
+    // update phase totals
+    if (currentPhase !== 'infra') {
+      const ptd = wrap.querySelector('.phase-total-days');
+      const ptc = wrap.querySelector('.phase-total-cost');
+      if (ptd && phaseDays[currentPhase] !== undefined) {
+        ptd.textContent = formatDays(phaseDays[currentPhase]) + ' days';
+        ptc.textContent = formatUSD(phaseCost[currentPhase]);
+      }
+    }
+  });
+
+  // contingency (10% of labour)
+  const contingency = totalLabour * 0.10;
+  const infCell = document.getElementById('contingency-cell');
+  if (infCell) infCell.textContent = formatUSD(contingency);
+
+  // infra total (fixed items sum = 6570+990+1620+0+513+540+1200)
+  const fixedInfra = 6570 + 990 + 1620 + 0 + 513 + 540 + 1200;
+  const infraTotal = fixedInfra + contingency;
+  const infTotalCell = document.getElementById('infra-total');
+  if (infTotalCell) infTotalCell.textContent = formatUSD(infraTotal);
+
+  // grand total
+  const aiToolCost  = pct > 0 ? AI_TOOL_COST : 0;
+  const grandTotal  = totalLabour + infraTotal + aiToolCost;
+  const baseline    = 198500;
+  const saving      = baseline - grandTotal;
+  const daysSaved   = BASE_DAYS - totalDays;
+
+  // savings bar
+  document.getElementById('sb-pct-label').textContent = pct + '%';
+  document.getElementById('sb-saving').textContent    = pct > 0 ? formatUSD(saving) : '$0';
+  document.getElementById('sb-days-saved').textContent = pct > 0 ? Math.round(daysSaved) + ' days recovered' : '0 days recovered';
+  document.getElementById('sb-net').textContent        = formatUSD(grandTotal);
+
+  // donut total
+  const dt = document.getElementById('donut-total');
+  if (dt) dt.textContent = '$' + Math.round(grandTotal/1000) + 'k';
+
+  // scenario highlight
+  ['0','25','50'].forEach(v => {
+    const sc = document.getElementById('sc-' + v);
+    if (sc) {
+      sc.classList.toggle('active', Number(v) === pct);
+    }
+  });
+}
+
+// Initialise
+window.addEventListener('DOMContentLoaded', () => {
+  // set slider fill initial
+  const slider = document.getElementById('aiSlider');
+  slider.style.setProperty('--pct', '0%');
+  setLever(0);
+});
+</script>
+
+</body>
+</html>
