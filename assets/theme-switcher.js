@@ -51,7 +51,7 @@
     if (document.querySelector('link[href*="theme-switcher.css"]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'assets/theme-switcher.css';
+    link.href = '/assets/theme-switcher.css';
     (document.head || document.documentElement).appendChild(link);
   }
 
@@ -116,7 +116,7 @@
 
     if (!isProfilePage()) {
       var home = makeChromeButton('a', 'site-chrome-home');
-      home.href = 'index.html';
+      home.href = '/index.html';
       home.setAttribute('aria-label', 'Back to profile');
       home.setAttribute('title', 'Back to profile');
 
