@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/assets/theme-switcher.js"></script>
+<title>AI Pioneers — Practical GenAI & RAG Engineering | Mayank Chugh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:     #0A1628;
+  --dark:     #0D1F35;
+  --dark2:    #091423;
+  --border:   #1E3A5A;
+  --border2:  #2A4A6A;
+  --teal:     #0D9488;
+  --teal-lt:  #5EEAD4;
+  --teal-bg:  #042F2E;
+  --mint:     #14B8A6;
+  --gold:     #F59E0B;
+  --gold-lt:  #FCD34D;
+  --purple:   #7C3AED;
+  --purp-lt:  #C4B5FD;
+  --green:    #10B981;
+  --green-lt: #6EE7B7;
+  --slate:    #94A3B8;
+  --slate-d:  #475569;
+  --white:    #FFFFFF;
+  --ff-display: 'Space Grotesk', sans-serif;
+  --ff-body:    'Inter', sans-serif;
+  --ff-mono:    'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--ff-body);
+  background: var(--navy);
+  color: var(--slate);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--teal); }
+
+/* ── NAV ──────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10, 22, 40, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.nav-brand {
+  font-family: var(--ff-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.05em;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.nav-brand span { color: var(--teal); }
+
+.nav-links {
+  display: flex; align-items: center; gap: 1.5rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--slate);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--teal-lt); }
+
+.nav-cta {
+  background: var(--teal);
+  color: var(--white) !important;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-weight: 600 !important;
+  transition: background 0.2s !important;
+}
+.nav-cta:hover { background: var(--mint) !important; color: var(--dark2) !important; }
+
+/* ── HERO ─────────────────────────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 100px 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 40%, rgba(13,148,136,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 80%, rgba(124,58,237,0.05) 0%, transparent 70%);
+}
+
+/* Grid dot pattern */
+.hero-bg::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(30,58,90,0.6) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.4;
+}
+
+.hero-inner {
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+}
+
+.hero-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: 0.72rem;
+  color: var(--teal);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block; width: 24px; height: 1px;
+  background: var(--teal);
+}
+
+.hero-title {
+  font-family: var(--ff-display);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.hero-title .accent { color: var(--teal-lt); }
+.hero-title .accent2 { color: var(--gold); }
+
+/* Terminal typing effect */
+.terminal {
+  background: var(--dark2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  font-family: var(--ff-mono);
+  font-size: 0.78rem;
+}
+.terminal-bar {
+  background: var(--border);
+  padding: 0.5rem 1rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.terminal-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.terminal-dot:nth-child(1) { background: #EF4444; }
+.terminal-dot:nth-child(2) { background: var(--gold); }
+.terminal-dot:nth-child(3) { background: var(--green); }
+.terminal-label {
+  font-size: 0.68rem; color: var(--slate-d);
+  margin-left: 0.5rem; letter-spacing: 0.05em;
+}
+.terminal-body {
+  padding: 1.2rem 1.4rem;
+  min-height: 200px;
+}
+.terminal-line {
+  display: flex; gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.5;
+}
+.prompt { color: var(--teal); }
+.cmd { color: var(--white); }
+.output { color: var(--slate); padding-left: 1rem; }
+.output.success { color: var(--green-lt); }
+.output.teal { color: var(--teal-lt); }
+.output.gold { color: var(--gold-lt); }
+.cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: var(--teal); vertical-align: middle; margin-left: 2px;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+.hero-tagline {
+  font-size: 1rem; color: var(--slate); margin: 1.2rem 0 2rem;
+  line-height: 1.7; max-width: 480px;
+}
+
+.hero-stats {
+  display: flex; gap: 2rem; margin-bottom: 2rem;
+}
+.stat-item { }
+.stat-num {
+  font-family: var(--ff-display);
+  font-size: 1.8rem; font-weight: 700;
+  color: var(--white); line-height: 1;
+}
+.stat-num span { color: var(--teal); }
+.stat-label {
+  font-size: 0.72rem; color: var(--slate-d);
+  letter-spacing: 0.05em; text-transform: uppercase; margin-top: 0.2rem;
+}
+
+.hero-ctas {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-family: var(--ff-body);
+  font-size: 0.875rem; font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s; cursor: pointer; border: none;
+}
+.btn-primary {
+  background: var(--teal); color: var(--white);
+}
+.btn-primary:hover { background: var(--mint); color: var(--dark2); transform: translateY(-1px); }
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--slate);
+}
+.btn-secondary:hover { border-color: var(--teal); color: var(--teal-lt); }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+.btn-ghost:hover { background: rgba(245,158,11,0.1); }
+
+/* ── PHASE STRIP ──────────────────────────────────────────────────── */
+.phase-strip {
+  background: var(--dark2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 1.2rem 2rem;
+}
+.phase-strip-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; flex-wrap: wrap;
+}
+.phase-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.5rem 1.5rem;
+}
+.phase-item:not(:last-child)::after {
+  content: '→';
+  color: var(--border2);
+  margin-left: 1.5rem;
+  font-size: 0.9rem;
+}
+.phase-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.phase-text { font-size: 0.78rem; font-weight: 500; }
+.phase-week { font-family: var(--ff-mono); font-size: 0.65rem; opacity: 0.6; display: block; }
+
+/* ── SECTIONS ─────────────────────────────────────────────────────── */
+section { padding: 5rem 2rem; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+
+.section-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: 0.7rem; color: var(--teal);
+  letter-spacing: 0.15em; text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.section-eyebrow::before {
+  content: ''; display: inline-block;
+  width: 20px; height: 1px; background: var(--teal);
+}
+
+.section-title {
+  font-family: var(--ff-display);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 700; color: var(--white);
+  line-height: 1.2; letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+.section-sub {
+  font-size: 1rem; color: var(--slate);
+  max-width: 600px; line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+/* ── OUTCOME GRID ────────────────────────────────────────────────── */
+.outcome-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+.outcome-card {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.outcome-card:hover { border-color: var(--teal); transform: translateY(-2px); }
+.outcome-icon {
+  font-size: 1.5rem; margin-bottom: 0.75rem;
+}
+.outcome-title {
+  font-family: var(--ff-display);
+  font-size: 0.95rem; font-weight: 600;
+  color: var(--white); margin-bottom: 0.4rem;
+}
+.outcome-desc { font-size: 0.85rem; color: var(--slate); line-height: 1.6; }
+
+/* ── WEEK ACCORDION ──────────────────────────────────────────────── */
+.week-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+}
+
+.week-card {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.week-card:hover { border-color: var(--border2); }
+.week-card.active { border-color: var(--teal); }
+
+.week-header {
+  padding: 1.1rem 1.25rem;
+  display: flex; align-items: center; gap: 1rem;
+  user-select: none;
+}
+.week-num {
+  font-family: var(--ff-mono);
+  font-size: 0.65rem; font-weight: 500;
+  color: var(--teal); letter-spacing: 0.1em;
+  background: var(--teal-bg);
+  padding: 0.2rem 0.5rem; border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid rgba(13,148,136,0.3);
+}
+.week-title {
+  font-family: var(--ff-display);
+  font-size: 0.9rem; font-weight: 600;
+  color: var(--white); flex: 1;
+}
+.week-chevron {
+  color: var(--slate-d); font-size: 0.8rem;
+  transition: transform 0.25s;
+}
+.week-card.active .week-chevron { transform: rotate(180deg); }
+
+.week-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.3s ease;
+  border-top: 1px solid transparent;
+}
+.week-card.active .week-body {
+  max-height: 300px;
+  border-top-color: var(--border);
+}
+.week-body-inner { padding: 1rem 1.25rem 1.25rem; }
+
+.week-phase {
+  font-family: var(--ff-mono);
+  font-size: 0.65rem; letter-spacing: 0.1em;
+  margin-bottom: 0.75rem; padding: 0.15rem 0.5rem;
+  border-radius: 4px; display: inline-block;
+}
+
+.week-sessions {
+  display: flex; flex-direction: column; gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+.week-session {
+  display: flex; gap: 0.5rem; align-items: flex-start;
+  font-size: 0.8rem; color: var(--slate);
+}
+.week-session::before {
+  content: '▸'; color: var(--teal); flex-shrink: 0; margin-top: 1px;
+}
+.week-deliverable {
+  font-size: 0.75rem;
+  color: var(--gold-lt);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  display: flex; align-items: flex-start; gap: 0.4rem;
+}
+.week-deliverable::before { content: '✨'; flex-shrink: 0; }
+
+/* Phase colour variants */
+.phase-1 { background: rgba(13,148,136,0.1); color: var(--teal-lt); border: 1px solid rgba(13,148,136,0.25); }
+.phase-2 { background: rgba(124,58,237,0.1); color: var(--purp-lt); border: 1px solid rgba(124,58,237,0.25); }
+.phase-3 { background: rgba(245,158,11,0.1); color: var(--gold-lt); border: 1px solid rgba(245,158,11,0.25); }
+.phase-4 { background: rgba(20,184,166,0.1); color: #5EEAD4; border: 1px solid rgba(20,184,166,0.25); }
+
+/* ── TECH STACK ──────────────────────────────────────────────────── */
+.tech-section { background: var(--dark2); }
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+.tech-item {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.tech-item:hover { border-color: var(--teal); transform: translateY(-2px); }
+.tech-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+.tech-name {
+  font-family: var(--ff-mono);
+  font-size: 0.75rem; font-weight: 500;
+  color: var(--white); margin-bottom: 0.2rem;
+}
+.tech-role { font-size: 0.7rem; color: var(--slate-d); }
+
+/* ── TESTIMONIALS ────────────────────────────────────────────────── */
+.testimonial-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+.testimonial-card {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: relative;
+}
+.testimonial-card::before {
+  content: '"';
+  font-family: var(--ff-display);
+  font-size: 4rem; line-height: 1;
+  color: var(--teal); opacity: 0.2;
+  position: absolute; top: 0.5rem; left: 1rem;
+}
+.testimonial-text {
+  font-size: 0.9rem; color: var(--slate);
+  line-height: 1.7; font-style: italic;
+  margin-bottom: 1.25rem; padding-top: 1rem;
+}
+.testimonial-author {
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.testimonial-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-display); font-size: 0.85rem;
+  font-weight: 600; color: var(--teal-lt);
+  border: 1px solid var(--border2);
+}
+.testimonial-name {
+  font-size: 0.85rem; font-weight: 600; color: var(--white);
+}
+.testimonial-role { font-size: 0.72rem; color: var(--slate-d); }
+
+.testimonial-placeholder {
+  border-style: dashed;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 160px;
+  color: var(--slate-d);
+  font-size: 0.8rem; text-align: center;
+}
+
+/* ── INSTRUCTOR ──────────────────────────────────────────────────── */
+.instructor-section { background: var(--dark2); }
+
+.instructor-inner {
+  display: grid; grid-template-columns: 280px 1fr; gap: 4rem; align-items: start;
+}
+.instructor-card {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  position: sticky; top: 80px;
+}
+.instructor-avatar {
+  width: 100px; height: 100px; border-radius: 50%;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, var(--teal-bg), var(--border));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-display); font-size: 2.5rem; font-weight: 700;
+  color: var(--teal-lt);
+  border: 2px solid var(--teal);
+}
+.instructor-name {
+  font-family: var(--ff-display);
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--white); margin-bottom: 0.2rem;
+}
+.instructor-title {
+  font-size: 0.78rem; color: var(--teal-lt);
+  margin-bottom: 1rem; line-height: 1.4;
+}
+.instructor-links {
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+.instructor-link {
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  font-size: 0.75rem; color: var(--slate);
+  text-decoration: none; padding: 0.4rem;
+  border-radius: 6px; transition: color 0.2s, background 0.2s;
+}
+.instructor-link:hover { color: var(--teal-lt); background: rgba(13,148,136,0.08); }
+
+.instructor-bio-title {
+  font-family: var(--ff-display);
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--white); margin-bottom: 1rem;
+}
+.instructor-bio p {
+  font-size: 0.9rem; color: var(--slate); line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.cert-grid {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem;
+}
+.cert-badge {
+  font-family: var(--ff-mono);
+  font-size: 0.68rem;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--slate);
+  padding: 0.25rem 0.6rem; border-radius: 4px;
+}
+
+.experience-list {
+  list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;
+}
+.experience-list li {
+  display: flex; align-items: flex-start; gap: 0.5rem;
+  font-size: 0.85rem; color: var(--slate);
+}
+.experience-list li::before { content: '▸'; color: var(--teal); flex-shrink: 0; }
+
+/* ── CTA SECTION ─────────────────────────────────────────────────── */
+.cta-section {
+  background: var(--teal-bg);
+  border-top: 1px solid rgba(13,148,136,0.3);
+  border-bottom: 1px solid rgba(13,148,136,0.3);
+  text-align: center; padding: 5rem 2rem;
+}
+.cta-badge {
+  font-family: var(--ff-mono);
+  font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--teal); border: 1px solid rgba(13,148,136,0.4);
+  padding: 0.3rem 0.8rem; border-radius: 20px;
+  display: inline-block; margin-bottom: 1.5rem;
+}
+.cta-title {
+  font-family: var(--ff-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700; color: var(--white);
+  line-height: 1.2; margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+.cta-sub {
+  font-size: 1rem; color: var(--slate);
+  max-width: 500px; margin: 0 auto 2rem; line-height: 1.7;
+}
+.cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+.price-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--ff-mono); font-size: 0.78rem;
+  color: var(--gold-lt); margin-top: 1.5rem;
+}
+.price-badge::before { content: ''; width: 20px; height: 1px; background: var(--gold); }
+.price-badge::after  { content: ''; width: 20px; height: 1px; background: var(--gold); }
+
+/* ── FOOTER ──────────────────────────────────────────────────────── */
+footer {
+  background: var(--dark2);
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 2rem;
+}
+.footer-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+}
+.footer-brand {
+  font-family: var(--ff-display);
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--white);
+}
+.footer-brand span { color: var(--teal); }
+.footer-links {
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+}
+.footer-links a {
+  font-size: 0.78rem; color: var(--slate-d);
+  text-decoration: none; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--teal-lt); }
+.footer-copy { font-size: 0.72rem; color: var(--slate-d); }
+
+/* ── SCROLL REVEAL ───────────────────────────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── BADGE PILL ──────────────────────────────────────────────────── */
+.badge {
+  display: inline-block; font-family: var(--ff-mono);
+  font-size: 0.65rem; padding: 0.15rem 0.5rem;
+  border-radius: 4px; font-weight: 500; letter-spacing: 0.05em;
+}
+.badge-teal   { background: rgba(13,148,136,0.15); color: var(--teal-lt); border: 1px solid rgba(13,148,136,0.25); }
+.badge-gold   { background: rgba(245,158,11,0.12); color: var(--gold-lt); border: 1px solid rgba(245,158,11,0.2); }
+.badge-purple { background: rgba(124,58,237,0.12); color: var(--purp-lt); border: 1px solid rgba(124,58,237,0.2); }
+.badge-green  { background: rgba(16,185,129,0.12); color: var(--green-lt); border: 1px solid rgba(16,185,129,0.2); }
+
+/* ── DIVIDER ─────────────────────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .week-grid { grid-template-columns: 1fr; }
+  .instructor-inner { grid-template-columns: 1fr; }
+  .instructor-card { position: static; }
+  .nav-links { display: none; }
+}
+@media (max-width: 600px) {
+  .hero-stats { gap: 1.2rem; }
+  .phase-strip-inner { flex-direction: column; gap: 0.5rem; }
+  .phase-item:not(:last-child)::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none; opacity: 1; transform: none; }
+  @keyframes blink { opacity: 1; }
+}
+</style>
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+
+<!-- ── NAV ──────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-brand">AI PIONEERS <span>·</span> COHORT 1</div>
+  <ul class="nav-links">
+    <li><a href="#outcomes">Outcomes</a></li>
+    <li><a href="#curriculum">Curriculum</a></li>
+    <li><a href="#stack">Tech stack</a></li>
+    <li><a href="#instructor">Instructor</a></li>
+    <li><a href="https://mayanklearns.gumroad.com/l/aaskky" target="_blank" class="nav-cta">Enrol →</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────────────────────── -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+
+    <div>
+      <div class="hero-eyebrow">AI Pioneers — Cohort 1 · 2026</div>
+      <h1 class="hero-title">
+        Build real<br>
+        <span class="accent">GenAI apps</span><br>
+        in <span class="accent2">8 weeks</span>
+      </h1>
+      <p class="hero-tagline">
+        A hands-on, practitioner-led programme for IT professionals ready to move from
+        prompt-tinkering to shipping production RAG systems, agents, and deployed AI applications.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">8<span>wk</span></div>
+          <div class="stat-label">Live sessions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">16</div>
+          <div class="stat-label">Notebooks</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">1<span>×</span></div>
+          <div class="stat-label">Deployed app</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Carry-on skills</div>
+        </div>
+      </div>
+
+      <div class="hero-ctas">
+        <a href="https://mayanklearns.gumroad.com/l/aaskky" target="_blank" class="btn btn-primary">Join Cohort 2 →</a>
+        <a href="#curriculum" class="btn btn-secondary">View curriculum</a>
+        <a href="https://topmate.io/mayank_chugh" target="_blank" class="btn btn-ghost">Book a call</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-dot"></div>
+          <div class="terminal-dot"></div>
+          <div class="terminal-dot"></div>
+          <span class="terminal-label">rag_app.py — AI Pioneers Week 7</span>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-line">
+            <span class="prompt">$</span>
+            <span class="cmd">python rag_app.py --query "VPN keeps dropping"</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output teal">🔎 Retrieving top-4 chunks from ChromaDB...</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output">   [runbook_vpn.md] dist=0.1241</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output">   [runbook_vpn.md] dist=0.1893</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output teal">🤖 Generating grounded answer with Claude...</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output success">✅ Answer:</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output">• Check GlobalProtect logs at PanGPS.log</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output">• Set keep-alive interval to 20 seconds</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output">• Verify MTU is set to 1400</span>
+          </div>
+          <div class="terminal-line">
+            <span class="output gold">SOURCES: runbook_vpn.md</span>
+          </div>
+          <div class="terminal-line">
+            <span class="prompt">$</span>
+            <span class="cursor"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PHASE STRIP ─────────────────────────────────────────────── -->
+<div class="phase-strip">
+  <div class="phase-strip-inner">
+    <div class="phase-item">
+      <div class="phase-dot" style="background:var(--teal)"></div>
+      <div>
+        <span class="phase-text" style="color:var(--teal-lt)">Foundations</span>
+        <span class="phase-week">Weeks 1–2</span>
+      </div>
+    </div>
+    <div class="phase-item">
+      <div class="phase-dot" style="background:var(--purple)"></div>
+      <div>
+        <span class="phase-text" style="color:var(--purp-lt)">APIs & Tools</span>
+        <span class="phase-week">Weeks 3–4</span>
+      </div>
+    </div>
+    <div class="phase-item">
+      <div class="phase-dot" style="background:var(--gold)"></div>
+      <div>
+        <span class="phase-text" style="color:var(--gold-lt)">RAG Systems</span>
+        <span class="phase-week">Weeks 5–6</span>
+      </div>
+    </div>
+    <div class="phase-item">
+      <div class="phase-dot" style="background:var(--mint)"></div>
+      <div>
+        <span class="phase-text" style="color:#5EEAD4">Deploy & Ship</span>
+        <span class="phase-week">Weeks 7–8</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── OUTCOMES ───────────────────────────────────────────────── -->
+<section id="outcomes">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-eyebrow">What you will build</div>
+      <h2 class="section-title">From zero to production AI — in 8 weeks</h2>
+      <p class="section-sub">
+        Every week ships a working deliverable. By week 8 you have a live RAG application,
+        a public GitHub portfolio, and a LinkedIn post to show for it.
+      </p>
+    </div>
+    <div class="outcome-grid">
+      <div class="outcome-card reveal">
+        <div class="outcome-icon">🐍</div>
+        <div class="outcome-title">Python for AI — from scratch</div>
+        <div class="outcome-desc">Virtual environments, file I/O, API calls — everything you need and nothing you don't. No math degree required.</div>
+      </div>
+      <div class="outcome-card reveal">
+        <div class="outcome-icon">✍️</div>
+        <div class="outcome-title">Production prompt engineering</div>
+        <div class="outcome-desc">Zero-shot, few-shot, CoT, JSON output, IT ticket classifier with qualitative evaluation on 10 real cases.</div>
+      </div>
+      <div class="outcome-card reveal">
+        <div class="outcome-icon">🔗</div>
+        <div class="outcome-title">LangChain memory chatbot</div>
+        <div class="outcome-desc">Multi-turn domain chatbot with 8 provider support — Anthropic, OpenAI, Groq, Gemini, Ollama and more.</div>
+      </div>
+      <div class="outcome-card reveal">
+        <div class="outcome-icon">🔍</div>
+        <div class="outcome-title">Semantic search engine</div>
+        <div class="outcome-desc">10+ domain documents indexed in ChromaDB with embeddings. Retrieve by meaning, not by keyword.</div>
+      </div>
+      <div class="outcome-card reveal">
+        <div class="outcome-icon">🏗️</div>
+        <div class="outcome-title">Full RAG pipeline</div>
+        <div class="outcome-desc">Chunk → embed → retrieve → generate with source citations. The architecture behind every enterprise AI assistant.</div>
+      </div>
+      <div class="outcome-card reveal">
+        <div class="outcome-icon">🚀</div>
+        <div class="outcome-title">Live deployed AI app</div>
+        <div class="outcome-desc">Streamlit RAG chatbot deployed on Hugging Face Spaces. A real public URL to share with your team and on LinkedIn.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── CURRICULUM ─────────────────────────────────────────────── -->
+<section id="curriculum">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-eyebrow">8-week curriculum</div>
+      <h2 class="section-title">Week-by-week breakdown</h2>
+      <p class="section-sub">
+        Two 90-minute live sessions per week. Every session ends with a runnable deliverable.
+        Click any week to see what's inside.
+      </p>
+    </div>
+
+    <div class="week-grid" id="weekGrid">
+
+      <div class="week-card reveal" data-week="0">
+        <div class="week-header">
+          <span class="week-num">WEEK 01</span>
+          <span class="week-title">Python Basics & AI Landscape</span>
+          <span class="week-chevron">▾</span>
+        </div>
+        <div class="week-body">
+          <div class="week-body-inner">
+            <span class="week-phase phase-1">Phase 1 — Foundations</span>
+            <div class="week-sessions">
+              <div class="week-session">Python crash course — variables, loops, functions, file I/O, log analyser lab</div>
+              <div class="week-session">AI landscape + first Anthropic API call — tokens, context, temperature</div>
+            </div>
+            <div class="week-deliverable">Working Python script that calls Claude API and handles missing key gracefully</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-card reveal" data-week="1">
+        <div class="week-header">
+          <span class="week-num">WEEK 02</span>
+          <span class="week-title">Prompt Engineering</span>
+          <span class="week-chevron">▾</span>
+        </div>
+        <div class="week-body">
+          <div class="week-body-inner">
+            <span class="week-phase phase-1">Phase 1 — Foundations</span>
+            <div class="week-sessions">
+              <div class="week-session">Prompt anatomy — instruction, context, format, constraints, few-shot</div>
+              <div class="week-session">CoT, structured JSON output, IT ticket classifier lab with evaluation</div>
+            </div>
+            <div class="week-deliverable">Notebook with 3 real-work prompts + IT ticket classifier evaluated on ≥10 cases</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-card reveal" data-week="2">
+        <div class="week-header">
+          <span class="week-num">WEEK 03</span>
+          <span class="week-title">AI APIs & LangChain Intro</span>
+          <span class="week-chevron">▾</span>
+        </div>
+        <div class="week-body">
+          <div class="week-body-inner">
+            <span class="week-phase phase-2">Phase 2 — APIs & Tools</span>
+            <div class="week-sessions">
+              <div class="week-session">Auth patterns, streaming, multi-turn history, token management</div>
+              <div class="week-session">LangChain LCEL chains, RunnableWithMessageHistory, memory chatbot</div>
+            </div>
+            <div class="week-deliverable">Domain-specific memory chatbot — 8-provider support, 6+ conversation turns</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-card reveal" data-week="3">
+        <div class="week-header">
+          <span class="week-num">WEEK 04</span>
+          <span class="week-title">Embeddings & Vector Databases</span>
+          <span class="week-chevron">▾</span>
+        </div>
+        <div class="week-body">
+          <div class="week-body-inner">
+            <span class="week-phase phase-2">Phase 2 — APIs & Tools</span>
+            <div class="week-sessions">
+              <div class="week-session">Embeddings intuition — GPS analogy, cosine similarity from scratch</div>
+              <div class="week-session">ChromaDB — collections, upsert, query, metadata filters</div>
+            </div>
+            <div class="week-deliverable">≥10 domain documents in ChromaDB + semantic search with 5 queries documented</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-card reveal" data-week="4">
+        <div class="week-header">
+          <span class="week-num">WEEK 05</span>
+          <span class="week-title">Building a RAG Pipeline ★</span>
+          <span class="week-chevron">▾</span>
+        </div>
+        <div class="week-body">
+          <div class="week-body-inner">
+            <span class="week-phase phase-3">Phase 3 — RAG Systems</span>
+            <div class="week-sessions">
+              <div class="week-session">RAG architecture — chunk → embed → retrieve → augment → generate</div>
+              <div class="week-session">Ingest pipeline, retrieval function, grounded generation with citations</div>
+            </div>
+            <div class="week-deliverable">Full RAG chatbot over ≥5 real documents with source citations on every answer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-card reveal" data-week="5">
+        <div class="week-header">
+          <span class="week-num">WEEK 06</span>
+          <span class="week-title">Advanced RAG & Evaluation</span>
+          <span class="week-chevron">▾</span>
+        </div>
+        <div class="week-body">
+          <div class="week-body-inner">
+            <span class="week-phase phase-3">Phase 3 — RAG Systems</span>
+            <div class="week-sessions">
+              <div class="week-session">Re-ranking, hybrid search (BM25 + dense), query rewriting, HyDE</div>
+              <div class="week-session">LLM-as-judge evaluation, golden Q&A set, before/after comparison table</div>
+            </div>
+            <div class="week-deliverable">Evaluated RAG system with documented quality metrics and top-2 failure modes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-card reveal" data-week="6">
+        <div class="week-header">
+          <span class="week-num">WEEK 07</span>
+          <span class="week-title">AI Agents & Deployment</span>
+          <span class="week-chevron">▾</span>
+        </div>
+        <div class="week-body">
+          <div class="week-body-inner">
+            <span class="week-phase phase-4">Phase 4 — Deploy & Ship</span>
+            <div class="week-sessions">
+              <div class="week-session">Agent loop — tool calling, plan/act/observe, max steps guard</div>
+              <div class="week-session">Streamlit UI, Hugging Face Spaces deployment, secrets management</div>
+            </div>
+            <div class="week-deliverable">Live, publicly accessible AI web application with working RAG backend</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-card reveal" data-week="7">
+        <div class="week-header">
+          <span class="week-num">WEEK 08</span>
+          <span class="week-title">Capstone & Demo Day</span>
+          <span class="week-chevron">▾</span>
+        </div>
+        <div class="week-body">
+          <div class="week-body-inner">
+            <span class="week-phase phase-4">Phase 4 — Deploy & Ship</span>
+            <div class="week-sessions">
+              <div class="week-session">Capstone build — project spec, peer review, polish sprint</div>
+              <div class="week-session">Live 5-minute demos, career tracks, Layer 3 roadmap</div>
+            </div>
+            <div class="week-deliverable">Polished capstone repo + LinkedIn post + demo video</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── TECH STACK ─────────────────────────────────────────────── -->
+<section id="stack" class="tech-section">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-eyebrow">Technology stack</div>
+      <h2 class="section-title">Tools you will use in production</h2>
+      <p class="section-sub">
+        No toy frameworks. Every tool is either already used in enterprise AI systems
+        or on the path there. Local-first with Ollama — no cloud API key required to get started.
+      </p>
+    </div>
+    <div class="tech-grid reveal">
+      <div class="tech-item">
+        <div class="tech-icon">🐍</div>
+        <div class="tech-name">Python 3.11</div>
+        <div class="tech-role">Core language</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔗</div>
+        <div class="tech-name">LangChain</div>
+        <div class="tech-role">Orchestration</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🗄️</div>
+        <div class="tech-name">ChromaDB</div>
+        <div class="tech-role">Vector store</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🤖</div>
+        <div class="tech-name">Anthropic Claude</div>
+        <div class="tech-role">LLM API</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🦙</div>
+        <div class="tech-name">Ollama</div>
+        <div class="tech-role">Local LLMs</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">📊</div>
+        <div class="tech-name">Streamlit</div>
+        <div class="tech-role">Web UI</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🤗</div>
+        <div class="tech-name">Hugging Face</div>
+        <div class="tech-role">Models + Deploy</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔭</div>
+        <div class="tech-name">LangSmith</div>
+        <div class="tech-role">Observability</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">📄</div>
+        <div class="tech-name">pypdf</div>
+        <div class="tech-role">Document ingest</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔮</div>
+        <div class="tech-name">sentence-transformers</div>
+        <div class="tech-role">Embeddings</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">☁️</div>
+        <div class="tech-name">OpenAI / Groq / Gemini</div>
+        <div class="tech-role">Multi-provider</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">💻</div>
+        <div class="tech-name">VS Code / Cursor</div>
+        <div class="tech-role">IDE</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2.5rem; display:flex; flex-wrap:wrap; gap:0.5rem;" class="reveal">
+      <span class="badge badge-teal">RAG Architecture</span>
+      <span class="badge badge-teal">Semantic Search</span>
+      <span class="badge badge-teal">Vector Embeddings</span>
+      <span class="badge badge-purple">LangChain LCEL</span>
+      <span class="badge badge-purple">Memory & History</span>
+      <span class="badge badge-purple">Streaming APIs</span>
+      <span class="badge badge-gold">Chunking Strategies</span>
+      <span class="badge badge-gold">Re-ranking</span>
+      <span class="badge badge-gold">LLM-as-Judge Eval</span>
+      <span class="badge badge-green">HF Spaces Deploy</span>
+      <span class="badge badge-green">Agent Tool Calling</span>
+      <span class="badge badge-green">Source Citations</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ───────────────────────────────────────────── -->
+<section id="testimonials">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-eyebrow">Cohort 1 — in progress</div>
+      <h2 class="section-title">What students are saying</h2>
+      <p class="section-sub">
+        Cohort 1 is live through Week 5. Testimonials will be added as students complete
+        their capstone projects in Week 8.
+      </p>
+    </div>
+    <div class="testimonial-grid">
+      <div class="testimonial-card reveal">
+        <p class="testimonial-text">
+          "Coming from a network engineering background with zero Python experience,
+          I was sceptical I could build a RAG app in 8 weeks. By Week 5 I had a working
+          chatbot answering questions from my own runbooks with citations."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AK</div>
+          <div>
+            <div class="testimonial-name">Arun K.</div>
+            <div class="testimonial-role">Network Engineer · Cohort 1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card reveal">
+        <p class="testimonial-text">
+          "Mayank's IT analogies made embeddings and vector databases click immediately.
+          'ChromaDB is PostgreSQL for embeddings' — I finally understood what I was building
+          and why, not just how to run the code."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">SR</div>
+          <div>
+            <div class="testimonial-name">Sonal R.</div>
+            <div class="testimonial-role">IT Operations Lead · Cohort 1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card testimonial-placeholder reveal">
+        <div>
+          <div style="font-size:1.5rem;margin-bottom:0.5rem">📝</div>
+          <div>More testimonials coming after Demo Day — Week 8</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── INSTRUCTOR ─────────────────────────────────────────────── -->
+<section id="instructor" class="instructor-section">
+  <div class="section-inner">
+    <div class="reveal" style="margin-bottom:3rem">
+      <div class="section-eyebrow">Your instructor</div>
+      <h2 class="section-title">Built by a practitioner, taught by a practitioner</h2>
+    </div>
+    <div class="instructor-inner">
+
+      <div class="instructor-card reveal">
+        <div class="instructor-avatar">MC</div>
+        <div class="instructor-name">Mayank Chugh</div>
+        <div class="instructor-title">Azure OpenAI & GenAI Architecture<br>20+ years enterprise experience</div>
+        <div class="instructor-links">
+          <a href="https://youtube.com/@itaienthusiast" target="_blank" class="instructor-link">📺 YouTube @itaienthusiast</a>
+          <a href="https://github.com/mayankchugh-learning" target="_blank" class="instructor-link">💻 GitHub</a>
+          <a href="https://linkedin.com/in/mchugh77" target="_blank" class="instructor-link">💼 LinkedIn</a>
+          <a href="https://medium.com/@mayankchugh.jobathk" target="_blank" class="instructor-link">✍️ Medium</a>
+          <a href="https://topmate.io/mayank_chugh" target="_blank" class="instructor-link">📅 Book a 1:1 call</a>
+          <a href="https://mayanklearns.gumroad.com/l/aaskky" target="_blank" class="instructor-link">🛒 Course page</a>
+        </div>
+      </div>
+
+      <div class="instructor-bio reveal">
+        <h3 class="instructor-bio-title">Enterprise AI — delivered in plain English</h3>
+        <p>
+          Mayank Chugh is an AI Solutions Architect with 20+ years of enterprise experience,
+          including production GenAI deployments at <strong style="color:var(--white)">Cathay Pacific</strong> and
+          <strong style="color:var(--white)">HSBC</strong>. He has shipped RAG pipelines, agentic systems, and
+          LangChain integrations in financial services environments where hallucination is not
+          an option and provenance is a compliance requirement.
+        </p>
+        <p>
+          He runs the <strong style="color:var(--white)">IT AI Enthusiast</strong> YouTube channel — a technical
+          education channel targeting AI/ML practitioners and enterprise architects — and
+          produces content on Advanced RAG, LangGraph, Azure OpenAI, and production GenAI patterns.
+        </p>
+        <p>
+          AI Pioneers is the course Mayank wished existed when he started — application-first,
+          top-down, no unnecessary theory. Every session builds something runnable.
+          Every IT analogy comes from real enterprise experience, not a textbook.
+        </p>
+
+        <ul class="experience-list">
+          <li>Production RAG delivery at Cathay Pacific and HSBC</li>
+          <li>Advanced RAG Series — Hybrid Search, Reranking, Evaluation (YouTube)</li>
+          <li>12+ certifications: AZ-400, AWS Solutions Architect, Terraform, TOGAF, CrewAI</li>
+          <li>MCP server ecosystem — 5 public GitHub repos</li>
+          <li>HireIQ AI recruitment platform (LangGraph state machine)</li>
+        </ul>
+
+        <div class="cert-grid">
+          <span class="cert-badge">AZ-400</span>
+          <span class="cert-badge">AWS SA</span>
+          <span class="cert-badge">Terraform</span>
+          <span class="cert-badge">TOGAF</span>
+          <span class="cert-badge">CrewAI</span>
+          <span class="cert-badge">Azure OpenAI</span>
+          <span class="cert-badge">LangChain</span>
+          <span class="cert-badge">LangGraph</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────────── -->
+<section class="cta-section" id="enrol">
+  <div class="section-inner" style="max-width:700px">
+    <div class="cta-badge">Applications open — Cohort 2</div>
+    <h2 class="cta-title">Ready to ship your first AI application?</h2>
+    <p class="cta-sub">
+      Join the next cohort of IT professionals building production-grade RAG systems,
+      AI agents, and deployed applications in 8 weeks.
+    </p>
+    <div class="cta-buttons">
+      <a href="https://mayanklearns.gumroad.com/l/aaskky" target="_blank" class="btn btn-primary" style="font-size:1rem;padding:0.85rem 2rem">
+        Enrol in Cohort 2 →
+      </a>
+      <a href="https://topmate.io/mayank_chugh" target="_blank" class="btn btn-secondary">
+        Book a discovery call
+      </a>
+    </div>
+    <div class="price-badge">Live cohort · Saturday mornings IST · 8 weeks · Limited seats</div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">AI PIONEERS <span>·</span> COHORT 1 <span style="color:var(--slate-d);font-weight:400"> · Mayank Chugh · 2026</span></div>
+    <div class="footer-links">
+      <a href="https://youtube.com/@itaienthusiast" target="_blank">YouTube</a>
+      <a href="https://github.com/mayankchugh-learning" target="_blank">GitHub</a>
+      <a href="https://linkedin.com/in/mchugh77" target="_blank">LinkedIn</a>
+      <a href="https://medium.com/@mayankchugh.jobathk" target="_blank">Medium</a>
+      <a href="https://mayanklearns.gumroad.com/l/aaskky" target="_blank">Course</a>
+      <a href="https://topmate.io/mayank_chugh" target="_blank">Book a call</a>
+    </div>
+    <div class="footer-copy">Practical GenAI & RAG Engineering for Working Professionals</div>
+  </div>
+</footer>
+
+<script>
+/* ── WEEK ACCORDION ────────────────────────────────────────────── */
+document.querySelectorAll('.week-card').forEach(card => {
+  card.querySelector('.week-header').addEventListener('click', () => {
+    const isActive = card.classList.contains('active');
+    document.querySelectorAll('.week-card').forEach(c => c.classList.remove('active'));
+    if (!isActive) card.classList.add('active');
+  });
+});
+
+/* ── SCROLL REVEAL ─────────────────────────────────────────────── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => {
+        entry.target.classList.add('visible');
+      }, (entry.target.dataset.delay || 0));
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.dataset.delay = (i % 4) * 80;
+  observer.observe(el);
+});
+
+/* ── SMOOTH NAV SCROLL ─────────────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+/* ── TERMINAL TYPEWRITER ───────────────────────────────────────── */
+// Lines are already rendered — just animate them in sequentially
+(function() {
+  const lines = document.querySelectorAll('.terminal-body .terminal-line');
+  lines.forEach((line, i) => {
+    line.style.opacity = '0';
+    line.style.transform = 'translateX(-6px)';
+    line.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    setTimeout(() => {
+      line.style.opacity = '1';
+      line.style.transform = 'none';
+    }, 600 + i * 200);
+  });
+})();
+</script>
+</body>
+</html>

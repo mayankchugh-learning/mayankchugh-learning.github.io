@@ -59,6 +59,7 @@ Static HTML site hosted on GitHub Pages. The main portfolio lives at `index.html
 
 | Page | Description |
 |------|-------------|
+| [ai_pioneers_page.html](pages/ai-learning/ai_pioneers_page.html) | AI Pioneers — 8-week GenAI & RAG engineering cohort |
 | [claude_code_tutorial.html](pages/ai-learning/claude_code_tutorial.html) | Claude Code beginner's guide |
 | [fineTuning.html](pages/ai-learning/fineTuning.html) | Fine-tuning large language models |
 | [LLM-Explorer-Standalone.html](pages/ai-learning/LLM-Explorer-Standalone.html) | Interactive LLM explorer |
