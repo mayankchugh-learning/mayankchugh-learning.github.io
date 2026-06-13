@@ -386,11 +386,40 @@
     margin-right: 0.5rem;
   }
 
+  .confetti-btn {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 1000;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.55rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(240,165,0,0.35);
+    background: rgba(22,22,26,0.92);
+    color: var(--accent);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .confetti-btn:hover {
+    transform: translateY(-2px);
+    border-color: rgba(240,165,0,0.6);
+    background: rgba(30,30,36,0.96);
+  }
+  .confetti-btn:focus-visible {
+    outline: 2px solid var(--accent2);
+    outline-offset: 2px;
+  }
+
   @media (max-width: 600px) {
     body { padding: 1.5rem 1rem 4rem; }
     .header h1 { font-size: 2.2rem; }
     h2 { font-size: 1.4rem; }
     .card-grid { grid-template-columns: 1fr; }
+    .confetti-btn { bottom: 1rem; right: 1rem; }
   }
 </style>
 <link rel="stylesheet" href="assets/theme-switcher.css">
@@ -1001,6 +1030,95 @@
 <footer style="margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); line-height: 1.8;">
   <div>Topics: Fine-Tuning · SFT · PEFT · LoRA · QLoRA · DoRA · RLHF · DPO · Preference Alignment</div>
 </footer>
+
+<button type="button" class="confetti-btn" id="confetti-replay" aria-label="Replay confetti celebration">Confetti blast</button>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var CONFETTI_COLORS = ['#f0a500', '#7dd4c6', '#f07a6b', '#9b8fff', '#6bcf7f', '#ffffff'];
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function fireConfettiExplosion() {
+    if (typeof confetti !== 'function') return;
+
+    var burstDefaults = {
+      colors: CONFETTI_COLORS,
+      ticks: 180,
+      gravity: 0.95,
+      decay: 0.92,
+      zIndex: 9999,
+      disableForReducedMotion: true
+    };
+
+    confetti(Object.assign({}, burstDefaults, {
+      particleCount: 180,
+      spread: 110,
+      startVelocity: 58,
+      origin: { x: 0.5, y: 0.32 },
+      scalar: 1.05
+    }));
+
+    confetti(Object.assign({}, burstDefaults, {
+      particleCount: 70,
+      angle: 58,
+      spread: 62,
+      startVelocity: 52,
+      origin: { x: 0.08, y: 0.42 }
+    }));
+
+    confetti(Object.assign({}, burstDefaults, {
+      particleCount: 70,
+      angle: 122,
+      spread: 62,
+      startVelocity: 52,
+      origin: { x: 0.92, y: 0.42 }
+    }));
+
+    var duration = 2200;
+    var end = Date.now() + duration;
+
+    (function frame() {
+      confetti(Object.assign({}, burstDefaults, {
+        particleCount: 3,
+        startVelocity: 38,
+        spread: 360,
+        origin: {
+          x: randomInRange(0.12, 0.88),
+          y: randomInRange(0.05, 0.25)
+        }
+      }));
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
+  }
+
+  function initConfetti() {
+    var replayBtn = document.getElementById('confetti-replay');
+    if (replayBtn) {
+      replayBtn.addEventListener('click', fireConfettiExplosion);
+    }
+
+    if (prefersReducedMotion) return;
+
+    window.setTimeout(fireConfettiExplosion, 450);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initConfetti);
+  } else {
+    initConfetti();
+  }
+})();
+</script>
 
 </body>
 </html>
