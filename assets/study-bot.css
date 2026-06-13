@@ -1,0 +1,160 @@
+/* ── Interactive study-bot ── */
+:root {
+  --study-bot-accent: #0d9488;
+  --study-bot-accent-light: #5eead4;
+  --study-bot-glow: rgba(13, 148, 136, 0.28);
+  --study-bot-halo: rgba(13, 148, 136, 0.16);
+  --study-bot-bubble-bg: #0d1f35;
+  --study-bot-bubble-border: #0d9488;
+  --study-bot-bubble-text: #99f6e4;
+  --study-bot-heart: #f59e0b;
+}
+
+.robot-stage {
+  position: relative;
+  margin: 0 auto 0.5rem;
+  width: min(150px, 36vw);
+  height: min(210px, 50vw);
+  z-index: 10;
+  pointer-events: auto;
+  cursor: pointer;
+  outline: none;
+  filter: drop-shadow(0 8px 24px var(--study-bot-glow))
+          drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.robot-stage:focus-visible {
+  outline: 2px solid var(--study-bot-accent);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.robot-stage::before {
+  content: "";
+  position: absolute;
+  inset: -18px -10px -8px;
+  background: radial-gradient(ellipse at 50% 60%, var(--study-bot-halo) 0%, transparent 72%);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.robot-stage svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.robot-head-anim {
+  transform-origin: 100px 118px;
+  transform-box: fill-box;
+}
+
+.robot-arm-r {
+  transform-origin: 132px 138px;
+  transform-box: fill-box;
+  transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.robot-eye-grid circle {
+  transition: opacity 0.15s, fill 0.2s;
+}
+
+.robot-body-stroke {
+  stroke: #b8c8dc;
+  stroke-width: 1.2;
+  fill: none;
+  opacity: 0.55;
+}
+
+.robot-stage.reacting-wave .robot-arm-r {
+  animation: robot-wave 0.7s ease-in-out;
+}
+
+.robot-stage.reacting-blink .robot-eye-grid circle {
+  opacity: 0.08;
+}
+
+.robot-stage.reacting-surprise .robot-head-anim {
+  animation: robot-surprise 0.55s ease-out;
+}
+
+.robot-stage.reacting-nod .robot-head-anim {
+  animation: robot-nod 0.5s ease-in-out;
+}
+
+.robot-stage.reacting-heart .robot-eye-grid circle.eye-core {
+  fill: var(--study-bot-heart);
+  opacity: 1;
+}
+
+.robot-stage.reacting-heart .robot-eye-grid circle:not(.eye-core) {
+  opacity: 0;
+}
+
+.robot-bubble {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-top: 0.35rem;
+  transform: translateX(-50%) scale(0.85);
+  opacity: 0;
+  background: var(--study-bot-bubble-bg);
+  border: 1px solid var(--study-bot-bubble-border);
+  color: var(--study-bot-bubble-text);
+  font-size: 0.72rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.robot-stage.show-bubble .robot-bubble {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+@keyframes robot-wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-28deg); }
+  50% { transform: rotate(18deg); }
+  75% { transform: rotate(-12deg); }
+}
+
+@keyframes robot-surprise {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-6px) scale(1.04); }
+  60% { transform: translateY(2px) scale(0.98); }
+}
+
+@keyframes robot-nod {
+  0%, 100% { transform: rotate(0deg); }
+  35% { transform: rotate(8deg); }
+  70% { transform: rotate(-4deg); }
+}
+
+.hero-robot-wrap {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .robot-stage {
+    width: 120px;
+    height: 168px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .robot-arm-r {
+    transition: none;
+  }
+
+  .robot-stage.reacting-wave .robot-arm-r,
+  .robot-stage.reacting-surprise .robot-head-anim,
+  .robot-stage.reacting-nod .robot-head-anim {
+    animation: none;
+  }
+}

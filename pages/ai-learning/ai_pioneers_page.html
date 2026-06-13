@@ -670,6 +670,7 @@ footer {
 }
 </style>
 <link rel="stylesheet" href="/assets/theme-switcher.css">
+<link rel="stylesheet" href="/assets/study-bot.css">
 </head>
 <body>
 
@@ -691,6 +692,100 @@ footer {
   <div class="hero-inner">
 
     <div>
+      <div class="hero-robot-wrap">
+        <div class="robot-stage" id="studyBot" tabindex="0" role="button" aria-label="AI Pioneers study assistant — click for a reaction">
+          <span class="robot-bubble" id="robotBubble" aria-live="polite"></span>
+          <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="sbMatteBody" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#9aa8b8"/>
+                <stop offset="55%" stop-color="#6b7a8c"/>
+                <stop offset="100%" stop-color="#4a5568"/>
+              </linearGradient>
+              <linearGradient id="sbGlossHead" x1="15%" y1="0%" x2="85%" y2="100%">
+                <stop offset="0%" stop-color="#d8e2ef"/>
+                <stop offset="40%" stop-color="#a8b8cc"/>
+                <stop offset="100%" stop-color="#6b7f96"/>
+              </linearGradient>
+              <linearGradient id="sbVisorGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#1a2840"/>
+                <stop offset="100%" stop-color="#0d1520"/>
+              </linearGradient>
+              <filter id="sbSoftGlow">
+                <feGaussianBlur stdDeviation="2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <filter id="sbEyeGlow">
+                <feGaussianBlur stdDeviation="1.8" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <ellipse cx="100" cy="268" rx="38" ry="6" fill="#0D9488" opacity="0.2"/>
+            <rect x="78" y="228" width="18" height="38" rx="6" fill="url(#sbMatteBody)" stroke="#c5d4e8" stroke-width="1"/>
+            <rect x="104" y="228" width="18" height="38" rx="6" fill="url(#sbMatteBody)" stroke="#c5d4e8" stroke-width="1"/>
+            <circle cx="87" cy="248" r="5" fill="#0D9488" opacity="0.75"/>
+            <circle cx="113" cy="248" r="5" fill="#0D9488" opacity="0.75"/>
+
+            <g id="robotTorso">
+              <path d="M62 155 Q58 175 64 210 Q100 222 136 210 Q142 175 138 155 Q128 142 100 142 Q72 142 62 155Z" fill="url(#sbMatteBody)" stroke="#d0dae8" stroke-width="1.4"/>
+              <path d="M78 158 Q100 168 122 158" fill="none" stroke="#e7ecf3" stroke-width="1.4" opacity="0.45"/>
+              <rect x="92" y="172" width="16" height="22" rx="3" fill="#132033" stroke="#0D9488" stroke-width="1.2"/>
+              <g>
+                <ellipse cx="58" cy="148" rx="10" ry="8" fill="#8a95a5" stroke="#d0dae8" stroke-width="1"/>
+                <rect x="48" y="152" width="14" height="32" rx="7" fill="url(#sbMatteBody)" stroke="#c5d4e8" stroke-width="1" transform="rotate(12 55 168)"/>
+                <circle cx="46" cy="188" r="6" fill="#6b7a8c" stroke="#d0dae8" stroke-width="1"/>
+                <rect x="38" y="190" width="12" height="18" rx="4" fill="#8a95a5" stroke="#c5d4e8" stroke-width="0.8" transform="rotate(8 44 199)"/>
+              </g>
+              <g class="robot-arm-r" id="robotArmR">
+                <ellipse cx="142" cy="148" rx="10" ry="8" fill="#8a95a5" stroke="#d0dae8" stroke-width="1"/>
+                <rect x="138" y="152" width="14" height="32" rx="7" fill="url(#sbMatteBody)" stroke="#c5d4e8" stroke-width="1" transform="rotate(-10 145 168)"/>
+                <circle cx="152" cy="186" r="6" fill="#6b7a8c" stroke="#d0dae8" stroke-width="1"/>
+                <rect x="148" y="188" width="12" height="18" rx="4" fill="#8a95a5" stroke="#c5d4e8" stroke-width="0.8" transform="rotate(-14 154 197)"/>
+              </g>
+              <rect x="92" y="128" width="16" height="18" rx="4" fill="#8a95a5" stroke="#d0dae8" stroke-width="1"/>
+              <line x1="96" y1="132" x2="104" y2="140" stroke="#0D9488" stroke-width="1.2" opacity="0.7"/>
+              <line x1="104" y1="132" x2="96" y2="140" stroke="#0D9488" stroke-width="1.2" opacity="0.7"/>
+            </g>
+
+            <g class="robot-head-anim" id="robotHeadAnim">
+              <g id="robotHead">
+                <ellipse cx="100" cy="88" rx="36" ry="40" fill="url(#sbGlossHead)" stroke="#e7ecf3" stroke-width="1.5"/>
+                <line x1="100" y1="48" x2="100" y2="58" stroke="#9aa8b8" stroke-width="2.5"/>
+                <circle cx="100" cy="45" r="4" fill="#0D9488" filter="url(#sbSoftGlow)">
+                  <animate attributeName="opacity" values="0.6;1;0.6" dur="2.4s" repeatCount="indefinite"/>
+                </circle>
+                <ellipse cx="100" cy="90" rx="28" ry="22" fill="url(#sbVisorGlow)" stroke="#0D9488" stroke-width="1" opacity="0.95"/>
+                <g class="robot-eye-grid" id="robotEyes" filter="url(#sbEyeGlow)">
+                  <g id="eyeLeft">
+                    <circle class="eye-core" cx="0" cy="0" r="2.4" fill="#ffffff"/>
+                    <circle cx="-5" cy="-5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="0" cy="-5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="5" cy="-5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="-5" cy="0" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="5" cy="0" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="-5" cy="5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="0" cy="5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="5" cy="5" r="1.6" fill="#5EEAD4"/>
+                  </g>
+                  <g id="eyeRight">
+                    <circle class="eye-core" cx="0" cy="0" r="2.4" fill="#ffffff"/>
+                    <circle cx="-5" cy="-5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="0" cy="-5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="5" cy="-5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="-5" cy="0" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="5" cy="0" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="-5" cy="5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="0" cy="5" r="1.6" fill="#5EEAD4"/>
+                    <circle cx="5" cy="5" r="1.6" fill="#5EEAD4"/>
+                  </g>
+                </g>
+                <path d="M88 108 Q100 114 112 108" fill="none" stroke="#9aa8b8" stroke-width="1.2" opacity="0.6"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
       <div class="hero-eyebrow">AI Pioneers — Cohort 1 · 2026</div>
       <h1 class="hero-title">
         Build real<br>
@@ -1327,5 +1422,17 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 })();
 </script>
+<script>
+window.StudyBotConfig = {
+  reactions: [
+    { cls: 'reacting-wave', msg: 'Welcome, AI Pioneer!' },
+    { cls: 'reacting-blink', msg: 'RAG mode activated.' },
+    { cls: 'reacting-surprise', msg: 'New cohort starting!' },
+    { cls: 'reacting-nod', msg: 'Ship that capstone.' },
+    { cls: 'reacting-heart', msg: 'Production AI awaits.' }
+  ]
+};
+</script>
+<script src="/assets/study-bot.js"></script>
 </body>
 </html>
