@@ -46,33 +46,38 @@
 }
 
 .robot-head-anim {
-  transform-origin: 100px 118px;
+  transform-origin: 100px 100px;
   transform-box: fill-box;
 }
 
 .robot-arm-r {
-  transform-origin: 132px 138px;
+  transform-origin: 152px 188px;
   transform-box: fill-box;
   transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
-.robot-eye-grid circle {
-  transition: opacity 0.15s, fill 0.2s;
+.robot-eye-grid .eye-core {
+  transition: opacity 0.15s, fill 0.2s, transform 0.15s;
 }
 
-.robot-body-stroke {
-  stroke: #b8c8dc;
-  stroke-width: 1.2;
-  fill: none;
-  opacity: 0.55;
+.robot-stage.reacting-blink .robot-eye-grid .eye-core {
+  opacity: 0.12;
+  transform: scaleY(0.15);
+}
+
+.robot-stage.reacting-heart .robot-eye-grid .eye-core {
+  fill: var(--study-bot-heart);
+  opacity: 1;
+  transform: scaleY(1.4);
+}
+
+.robot-stage.reacting-heart .robot-eye-grid .eye-glow {
+  opacity: 0.6;
+  fill: var(--study-bot-heart);
 }
 
 .robot-stage.reacting-wave .robot-arm-r {
   animation: robot-wave 0.7s ease-in-out;
-}
-
-.robot-stage.reacting-blink .robot-eye-grid circle {
-  opacity: 0.08;
 }
 
 .robot-stage.reacting-surprise .robot-head-anim {
@@ -81,15 +86,6 @@
 
 .robot-stage.reacting-nod .robot-head-anim {
   animation: robot-nod 0.5s ease-in-out;
-}
-
-.robot-stage.reacting-heart .robot-eye-grid circle.eye-core {
-  fill: var(--study-bot-heart);
-  opacity: 1;
-}
-
-.robot-stage.reacting-heart .robot-eye-grid circle:not(.eye-core) {
-  opacity: 0;
 }
 
 .robot-bubble {

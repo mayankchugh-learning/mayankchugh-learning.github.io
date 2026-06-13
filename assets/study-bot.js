@@ -24,10 +24,10 @@
   var reactions = config.reactions || DEFAULT_REACTIONS;
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var EYE_L = { x: 82, y: 86 };
-  var EYE_R = { x: 118, y: 86 };
-  var NECK = { x: 100, y: 118 };
-  var TORSO = { x: 100, y: 168 };
+  var EYE_L = { x: 82, y: 58 };
+  var EYE_R = { x: 118, y: 58 };
+  var NECK = { x: 100, y: 100 };
+  var TORSO = { x: 100, y: 180 };
 
   var reactionIdx = 0;
   var reactionTimer = null;
@@ -45,7 +45,7 @@
     var scale = rect.width / 200;
     return {
       x: rect.left + NECK.x * scale,
-      y: rect.top + 88 * scale
+      y: rect.top + 55 * scale
     };
   }
 
