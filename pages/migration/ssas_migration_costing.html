@@ -1249,9 +1249,11 @@ const AI_TOOL_COST = 1053;  // annual AI tool cost
 // So at 50% leverage, a task with aiable=0.5 saves 25% of days
 
 function formatUSD(n) {
+  if (!Number.isFinite(n)) return '$0';
   return '$' + Math.round(n).toLocaleString('en-US');
 }
 function formatDays(n) {
+  if (!Number.isFinite(n)) return '0.0';
   return n.toFixed(1);
 }
 
@@ -1286,11 +1288,12 @@ function setLever(pct) {
     });
   });
 
-  // assign phases to rows
+  // assign phases to rows (tbody only — skip tfoot phase totals)
   let currentPhase = 'arc';
   document.querySelectorAll('.res-table-wrap').forEach((wrap, wi) => {
     currentPhase = ['arc','p1','p2','p3','infra'][wi] || 'other';
-    wrap.querySelectorAll('td.ai-days').forEach((dayCell) => {
+    if (currentPhase === 'infra') return;
+    wrap.querySelectorAll('tbody td.ai-days').forEach((dayCell) => {
       const base     = parseFloat(dayCell.dataset.base);
       const aiable   = parseFloat(dayCell.dataset.aiable);
       const adjDays  = base * (1 - (pct / 100) * aiable);
@@ -1369,7 +1372,7 @@ function setLever(pct) {
   // savings bar
   document.getElementById('sb-pct-label').textContent = pct + '%';
   document.getElementById('sb-saving').textContent    = pct > 0 ? formatUSD(saving) : '$0';
-  document.getElementById('sb-days-saved').textContent = pct > 0 ? Math.round(daysSaved) + ' days recovered' : '0 days recovered';
+  document.getElementById('sb-days-saved').textContent = pct > 0 && Number.isFinite(daysSaved) ? Math.round(daysSaved) + ' days recovered' : '0 days recovered';
   document.getElementById('sb-net').textContent        = formatUSD(grandTotal);
 
   // donut total
