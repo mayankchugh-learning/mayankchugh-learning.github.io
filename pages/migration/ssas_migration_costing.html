@@ -1057,49 +1057,46 @@ footer {
 <section id="budget">
   <div class="sec-eyebrow">Budget Summary</div>
   <h2>Budget Allocation</h2>
-  <p class="sec-intro">Cost distribution by phase and category at the recommended 25% AI scenario.</p>
+  <p class="sec-intro" id="budget-intro">Cost distribution by phase and category — updates with your AI leverage setting above.</p>
 
   <div class="budget-visual">
     <div class="donut-wrap">
-      <svg viewBox="0 0 120 120">
-        <!-- donut slices — Phase 1: 49%, Phase 2: 30%, Phase 3: 10%, Infra: 11% -->
-        <!-- r=42, circumference=263.9 -->
-        <!-- Phase 1: 49% = 129.3 -->
+      <svg viewBox="0 0 120 120" aria-hidden="true">
         <circle cx="60" cy="60" r="42" fill="none" stroke="#e2e5eb" stroke-width="18"/>
-        <circle cx="60" cy="60" r="42" fill="none" stroke="#6d28d9" stroke-width="18"
+        <circle id="donut-slice-1" cx="60" cy="60" r="42" fill="none" stroke="#6d28d9" stroke-width="18"
           stroke-dasharray="129.3 263.9" stroke-dashoffset="0"/>
-        <circle cx="60" cy="60" r="42" fill="none" stroke="#4f8ec9" stroke-width="18"
+        <circle id="donut-slice-2" cx="60" cy="60" r="42" fill="none" stroke="#4f8ec9" stroke-width="18"
           stroke-dasharray="79.2 263.9" stroke-dashoffset="-129.3"/>
-        <circle cx="60" cy="60" r="42" fill="none" stroke="#0f7b55" stroke-width="18"
+        <circle id="donut-slice-3" cx="60" cy="60" r="42" fill="none" stroke="#0f7b55" stroke-width="18"
           stroke-dasharray="26.4 263.9" stroke-dashoffset="-208.5"/>
-        <circle cx="60" cy="60" r="42" fill="none" stroke="#c9922a" stroke-width="18"
+        <circle id="donut-slice-4" cx="60" cy="60" r="42" fill="none" stroke="#c9922a" stroke-width="18"
           stroke-dasharray="29.0 263.9" stroke-dashoffset="-234.9"/>
       </svg>
       <div class="donut-center">
         <div class="donut-total" id="donut-total">$155k</div>
-        <div class="donut-label">25% AI</div>
+        <div class="donut-label" id="donut-ai-label">0% AI</div>
       </div>
     </div>
     <div class="legend">
       <div class="legend-item">
         <div class="legend-dot" style="background:#6d28d9;"></div>
         <span class="legend-label">Phase 1 — Assess &amp; Rebuild</span>
-        <span class="legend-pct">49%</span>
+        <span class="legend-pct" id="legend-pct-1">49%</span>
       </div>
       <div class="legend-item">
         <div class="legend-dot" style="background:#4f8ec9;"></div>
         <span class="legend-label">Phase 2 — Cloud Migration</span>
-        <span class="legend-pct">30%</span>
+        <span class="legend-pct" id="legend-pct-2">30%</span>
       </div>
       <div class="legend-item">
         <div class="legend-dot" style="background:#0f7b55;"></div>
         <span class="legend-label">Phase 3 — Cutover &amp; Handover</span>
-        <span class="legend-pct">10%</span>
+        <span class="legend-pct" id="legend-pct-3">10%</span>
       </div>
       <div class="legend-item">
         <div class="legend-dot" style="background:#c9922a;"></div>
         <span class="legend-label">Infrastructure, Tooling &amp; Contingency</span>
-        <span class="legend-pct">11%</span>
+        <span class="legend-pct" id="legend-pct-4">11%</span>
       </div>
     </div>
   </div>
@@ -1257,6 +1254,37 @@ function formatDays(n) {
   return n.toFixed(1);
 }
 
+const DONUT_CIRC = 2 * Math.PI * 42;
+
+function updateDonutChart(pct, phaseCost, infraTotal, aiToolCost, grandTotal) {
+  if (!Number.isFinite(grandTotal) || grandTotal <= 0) return;
+
+  const amounts = [
+    (phaseCost.arc || 0) + (phaseCost.p1 || 0),
+    phaseCost.p2 || 0,
+    phaseCost.p3 || 0,
+    infraTotal + aiToolCost
+  ];
+
+  let offset = 0;
+  amounts.forEach((amount, i) => {
+    const len = (amount / grandTotal) * DONUT_CIRC;
+    const circle = document.getElementById('donut-slice-' + (i + 1));
+    const legend = document.getElementById('legend-pct-' + (i + 1));
+    if (circle) {
+      circle.setAttribute('stroke-dasharray', len.toFixed(1) + ' ' + DONUT_CIRC.toFixed(1));
+      circle.setAttribute('stroke-dashoffset', (-offset).toFixed(1));
+    }
+    if (legend) {
+      legend.textContent = Math.round((amount / grandTotal) * 100) + '%';
+    }
+    offset += len;
+  });
+
+  const label = document.getElementById('donut-ai-label');
+  if (label) label.textContent = pct + '% AI';
+}
+
 function setLever(pct) {
   pct = Math.round(Number(pct));
   // sync slider
@@ -1375,9 +1403,10 @@ function setLever(pct) {
   document.getElementById('sb-days-saved').textContent = pct > 0 && Number.isFinite(daysSaved) ? Math.round(daysSaved) + ' days recovered' : '0 days recovered';
   document.getElementById('sb-net').textContent        = formatUSD(grandTotal);
 
-  // donut total
+  // donut total + slices
   const dt = document.getElementById('donut-total');
-  if (dt) dt.textContent = '$' + Math.round(grandTotal/1000) + 'k';
+  if (dt) dt.textContent = '$' + Math.round(grandTotal / 1000) + 'k';
+  updateDonutChart(pct, phaseCost, infraTotal, aiToolCost, grandTotal);
 
   // scenario highlight
   ['0','25','50'].forEach(v => {
