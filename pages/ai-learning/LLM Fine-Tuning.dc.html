@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0E0F0C;color:#F7F8F2;font-family:'Space Grotesk',sans-serif;line-height:1.6}
+:root{
+  --bg:#0E0F0C;--sur:#181A16;--sur2:#24261F;--sur3:#3A3D33;
+  --bdr:rgba(58,61,51,0.65);--txt:#F7F8F2;--mut:#A4A89A;--sub:#5A5E50;
+  --amb:#D97534;--amba:rgba(217,117,52,0.14);--ambb:rgba(217,117,52,0.3);
+  --tel:#4FAEA7;--tela:rgba(79,174,167,0.14);--telb:rgba(79,174,167,0.3);
+  --plm:#C394C0;--plma:rgba(195,148,192,0.14);--plmb:rgba(195,148,192,0.3);
+  --fn:'Space Grotesk',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+a{color:var(--tel);text-decoration:none}
+a:hover{color:var(--amb)}
+.kw{color:#E89352}.fn{color:#4FAEA7}.st{color:#82CCC6}.cm{color:#5A5E50;font-style:italic}.cl{color:#C394C0}.nm{color:#F7F8F2}
+@keyframes mbox{
+  0%,14%{background:var(--sur2);border-color:var(--bdr);box-shadow:none}
+  20%,45%{background:rgba(217,117,52,0.16);border-color:rgba(217,117,52,0.55);box-shadow:0 0 22px rgba(217,117,52,0.2)}
+  52%,100%{background:var(--sur2);border-color:var(--bdr);box-shadow:none}
+}
+@keyframes marr{
+  0%,14%{opacity:0.18}
+  20%,45%{opacity:1}
+  52%,100%{opacity:0.18}
+}
+.m0{animation:mbox 8s ease-in-out infinite 0s}
+.m1{animation:mbox 8s ease-in-out infinite 2s}
+.m2{animation:mbox 8s ease-in-out infinite 4s}
+.m3{animation:mbox 8s ease-in-out infinite 6s}
+.arr0{animation:marr 8s ease-in-out infinite 0s}
+.arr1{animation:marr 8s ease-in-out infinite 2s}
+.arr2{animation:marr 8s ease-in-out infinite 4s}
+details>summary{cursor:pointer}
+details>summary::marker,details>summary::-webkit-details-marker{display:none}
+.nl{color:var(--mut);text-decoration:none;font-size:13px;font-weight:500;padding:4px 0;transition:color 0.15s;white-space:nowrap}
+.nl:hover{color:var(--amb)}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:18px 20px}
+.eyebrow{font-family:var(--fm);font-size:11px;letter-spacing:0.13em;text-transform:uppercase;margin-bottom:8px}
+.section-wrap{max-width:960px;margin:0 auto;padding:0 24px}
+</style>
+</helmet>
+
+<nav style="position:sticky;top:0;z-index:50;background:rgba(14,15,12,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr)">
+  <div style="max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:28px;height:50px">
+    <span style="font-family:var(--fm);font-size:11px;font-weight:500;color:var(--amb);letter-spacing:0.1em;flex-shrink:0">LLM Fine-Tuning</span>
+    <div style="display:flex;gap:20px;overflow-x:auto">
+      <a href="#pipeline" class="nl">Pipeline</a>
+      <a href="#stage1" class="nl">Stage 1</a>
+      <a href="#stage2" class="nl">Stage 2</a>
+      <a href="#stage3" class="nl">Stage 3 · DPO</a>
+      <a href="#lora" class="nl">LoRA math</a>
+    </div>
+  </div>
+</nav>
+
+<header style="max-width:960px;margin:0 auto;padding:72px 24px 60px">
+  <div class="eyebrow" style="color:var(--amb)">End-to-End Guide · Hugging Face + TRL</div>
+  <h1 style="font-size:50px;font-weight:700;letter-spacing:-0.03em;line-height:1.07;max-width:720px;margin-bottom:18px">Fine-tuning LLMs<br><span style="color:var(--amb)">from base to aligned</span></h1>
+  <p style="font-size:17px;color:var(--mut);max-width:600px;margin-bottom:32px;line-height:1.65">Three progressive stages teach a model domain knowledge, conversational behavior, and human-preferred quality — each adding a lightweight LoRA adapter then merging it into the weights.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    <span style="background:var(--amba);color:var(--amb);border:1px solid var(--ambb);font-family:var(--fm);font-size:11px;padding:5px 14px;border-radius:999px">01 · Non-Instruction</span>
+    <span style="background:var(--tela);color:var(--tel);border:1px solid var(--telb);font-family:var(--fm);font-size:11px;padding:5px 14px;border-radius:999px">02 · Instruction / SFT</span>
+    <span style="background:var(--plma);color:var(--plm);border:1px solid var(--plmb);font-family:var(--fm);font-size:11px;padding:5px 14px;border-radius:999px">03 · Preference / DPO</span>
+    <span style="background:var(--sur2);color:var(--mut);border:1px solid var(--bdr);font-family:var(--fm);font-size:11px;padding:5px 14px;border-radius:999px">QLoRA · LoRA · merge_and_unload</span>
+  </div>
+</header>
+
+<!-- ══ PIPELINE ══ -->
+<section id="pipeline" style="max-width:960px;margin:0 auto;padding:0 24px 88px">
+  <div class="eyebrow" style="color:var(--sub)">The three-stage pipeline</div>
+  <h2 style="font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:10px">From base model to aligned expert</h2>
+  <p style="color:var(--mut);font-size:15px;max-width:640px;margin-bottom:48px">Each stage trains a LoRA adapter then merges it into the weights — the merged result is the foundation for the next stage. Watch the signal travel M0 → M3.</p>
+
+  <div style="display:flex;align-items:center;overflow-x:auto;padding:8px 0 12px;gap:0">
+    <div class="m0" style="flex-shrink:0;width:148px;border:1px solid var(--bdr);border-radius:12px;padding:18px 16px;text-align:center;transition:background 0.5s,border-color 0.5s,box-shadow 0.5s">
+      <div style="font-family:var(--fm);font-size:26px;font-weight:700;color:var(--amb)">M0</div>
+      <div style="font-size:12px;font-weight:600;margin:4px 0 2px">Base Model</div>
+      <div style="font-size:11px;color:var(--sub)">TinyLlama-1.1B</div>
+      <div style="margin-top:10px;font-family:var(--fm);font-size:10px;background:var(--sur3);border-radius:4px;padding:3px 6px;color:var(--sub)">pretrained</div>
+    </div>
+    <div class="arr0" style="flex:1;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;color:var(--amb)">
+      <div style="font-family:var(--fm);font-size:9px;text-align:center;color:inherit;letter-spacing:0.05em">LoRA₁</div>
+      <div style="font-family:var(--fm);font-size:9px;color:var(--sub)">non-instruct</div>
+      <svg width="44" height="14" viewBox="0 0 44 14" fill="none"><path d="M2 7H38M34 3L38 7L34 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="m1" style="flex-shrink:0;width:148px;border:1px solid var(--bdr);border-radius:12px;padding:18px 16px;text-align:center;transition:background 0.5s,border-color 0.5s,box-shadow 0.5s">
+      <div style="font-family:var(--fm);font-size:26px;font-weight:700;color:var(--amb)">M1</div>
+      <div style="font-size:12px;font-weight:600;margin:4px 0 2px">Domain Expert</div>
+      <div style="font-size:11px;color:var(--sub)">pharma vocab</div>
+      <div style="margin-top:10px;font-family:var(--fm);font-size:10px;background:var(--amba);border-radius:4px;padding:3px 6px;color:var(--amb)">+ domain text</div>
+    </div>
+    <div class="arr1" style="flex:1;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;color:var(--tel)">
+      <div style="font-family:var(--fm);font-size:9px;text-align:center;color:inherit;letter-spacing:0.05em">LoRA₂</div>
+      <div style="font-family:var(--fm);font-size:9px;color:var(--sub)">instruction</div>
+      <svg width="44" height="14" viewBox="0 0 44 14" fill="none"><path d="M2 7H38M34 3L38 7L34 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="m2" style="flex-shrink:0;width:148px;border:1px solid var(--bdr);border-radius:12px;padding:18px 16px;text-align:center;transition:background 0.5s,border-color 0.5s,box-shadow 0.5s">
+      <div style="font-family:var(--fm);font-size:26px;font-weight:700;color:var(--tel)">M2</div>
+      <div style="font-size:12px;font-weight:600;margin:4px 0 2px">Instruct Expert</div>
+      <div style="font-size:11px;color:var(--sub)">Q&amp;A format</div>
+      <div style="margin-top:10px;font-family:var(--fm);font-size:10px;background:var(--tela);border-radius:4px;padding:3px 6px;color:var(--tel)">+ SFT</div>
+    </div>
+    <div class="arr2" style="flex:1;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;color:var(--plm)">
+      <div style="font-family:var(--fm);font-size:9px;text-align:center;color:inherit;letter-spacing:0.05em">LoRA₃</div>
+      <div style="font-family:var(--fm);font-size:9px;color:var(--sub)">preference</div>
+      <svg width="44" height="14" viewBox="0 0 44 14" fill="none"><path d="M2 7H38M34 3L38 7L34 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="m3" style="flex-shrink:0;width:148px;border:1px solid var(--bdr);border-radius:12px;padding:18px 16px;text-align:center;transition:background 0.5s,border-color 0.5s,box-shadow 0.5s">
+      <div style="font-family:var(--fm);font-size:26px;font-weight:700;color:var(--plm)">M3</div>
+      <div style="font-size:12px;font-weight:600;margin:4px 0 2px">Aligned Expert</div>
+      <div style="font-size:11px;color:var(--sub)">human-preferred</div>
+      <div style="margin-top:10px;font-family:var(--fm);font-size:10px;background:var(--plma);border-radius:4px;padding:3px 6px;color:var(--plm)">+ DPO</div>
+    </div>
+  </div>
+
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:16px 22px;margin-top:28px;display:grid;grid-template-columns:20px 1fr;gap:14px;align-items:start">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--amb);margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">Why you must merge before the next stage</div>
+      <p style="font-size:13px;color:var(--mut);margin:0">You can't attach LoRA₃ to M0 and get M3. Each <code style="font-family:var(--fm);font-size:12px;background:var(--sur2);color:var(--tel);padding:1px 6px;border-radius:4px">merge_and_unload()</code> bakes the adapter's learned knowledge into the weights permanently. The merged model is the correct foundation for the next adapter. Analogy from class: M0 = Class 10 student — you can't attach "Class 12 behavior" on top of Class 10; you must graduate through Class 11 first.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STAGE 1 ══ -->
+<section id="stage1" style="max-width:960px;margin:0 auto;padding:0 24px 88px">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--bdr)">
+    <div style="width:44px;height:44px;border-radius:50%;background:var(--amba);border:1px solid var(--ambb);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:13px;font-weight:600;color:var(--amb);flex-shrink:0">01</div>
+    <div>
+      <div class="eyebrow" style="color:var(--amb);margin-bottom:2px">Stage 1</div>
+      <h2 style="font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:0">Non-Instruction Fine-Tuning</h2>
+    </div>
+  </div>
+  <p style="font-size:16px;color:#C9CCBE;max-width:700px;margin-bottom:32px">Continued pretraining on raw domain text — no Q&amp;A structure, no instructions. The model learns specialized vocabulary, entity co-occurrences, and statistical patterns from YOUR corpus. Training objective: next-token prediction, identical to original pretraining.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px">
+    <div class="card">
+      <div class="eyebrow" style="color:var(--amb)">Input data</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">Raw text: PDF → extract → clean → chunk into <code style="font-family:var(--fm);font-size:12px;background:var(--sur2);color:var(--tel);padding:1px 5px;border-radius:4px">512-token</code> blocks. No labels, no answers — just domain text.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="color:var(--amb)">Objective</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">Minimize cross-entropy on <code style="font-family:var(--fm);font-size:12px;background:var(--sur2);color:var(--tel);padding:1px 5px;border-radius:4px">P(token_n | context)</code>. The model learns which pharma terms co-occur, not how to answer questions.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="color:var(--amb)">What it learns</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">Domain terminology, drug-mechanism collocations, scientific sentence structure. It does NOT learn to "answer" — that's Stage 2.</p>
+    </div>
+    <div class="card" style="border-color:rgba(79,174,167,0.25)">
+      <div class="eyebrow" style="color:var(--tel)">Can you skip this?</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">Yes. If your domain isn't highly specialized, start at Stage 2 on the base model directly. Stage 1 matters most for rare, technical corpora.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:600;margin-bottom:12px">Data format — raw 512-token text chunks</h3>
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:28px">
+    <div style="background:var(--sur2);border-bottom:1px solid var(--bdr);padding:8px 16px;display:flex;align-items:center;gap:8px">
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--sur3);display:inline-block"></span>
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--sur3);display:inline-block"></span>
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--sur3);display:inline-block"></span>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-left:8px">pharma_corpus.txt — one 512-token block</span>
+    </div>
+    <pre style="padding:20px 24px;font-family:var(--fm);font-size:13px;color:#C9CCBE;line-height:1.7;overflow-x:auto;white-space:pre-wrap">Metformin belongs to the biguanide class of oral antidiabetic agents. It activates AMP-activated protein kinase (AMPK), which suppresses hepatic gluconeogenesis and increases peripheral glucose uptake in skeletal muscle. Unlike sulfonylureas, metformin does not stimulate insulin secretion and carries a low risk of hypoglycemia. Long-term use is associated with reduced cardiovascular events in patients with type 2 diabetes...</pre>
+  </div>
+
+  <details>
+    <summary style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--amb)"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <span style="font-size:14px;font-weight:600">Stage 1 — Full code walkthrough</span>
+        <span style="font-family:var(--fm);font-size:10px;background:var(--amba);color:var(--amb);padding:2px 8px;border-radius:999px">QLoRA + Trainer</span>
+      </div>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--sub)">▸ expand</span>
+    </summary>
+    <div style="border:1px solid var(--bdr);border-top:none;border-radius:0 0 10px 10px;overflow:hidden">
+      <div style="background:#090a08;padding:24px 28px;font-family:var(--fm);font-size:13px;line-height:1.82;overflow-x:auto">
+<pre style="margin:0"><span class="cm"># ── Step 1: Quantize base model to 4-bit NF4 ────────────────</span>
+<span class="kw">from</span> transformers <span class="kw">import</span> <span class="cl">AutoModelForCausalLM</span>, <span class="cl">AutoTokenizer</span>, <span class="cl">BitsAndBytesConfig</span>
+<span class="kw">from</span> peft <span class="kw">import</span> <span class="cl">LoraConfig</span>, <span class="fn">get_peft_model</span>, <span class="fn">prepare_model_for_kbit_training</span>
+<span class="kw">import</span> torch
+
+bnb_config = <span class="cl">BitsAndBytesConfig</span>(
+    load_in_4bit=<span class="kw">True</span>,
+    bnb_4bit_quant_type=<span class="st">"nf4"</span>,              <span class="cm"># NormalFloat4 — optimal for NN weights</span>
+    bnb_4bit_compute_dtype=torch.float16    <span class="cm"># adapter forward pass in fp16</span>
+)
+model = <span class="cl">AutoModelForCausalLM</span>.<span class="fn">from_pretrained</span>(
+    <span class="st">"TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T"</span>,
+    quantization_config=bnb_config, device_map=<span class="st">"auto"</span>
+)
+model = <span class="fn">prepare_model_for_kbit_training</span>(model)  <span class="cm"># cast LayerNorms to fp32</span>
+
+<span class="cm"># ── Step 2: Attach LoRA₁ adapter ────────────────────────────</span>
+<span class="cm"># Only trains B and A matrices (r×d and d×r) — everything else frozen</span>
+lora_config = <span class="cl">LoraConfig</span>(
+    r=<span class="nm">8</span>,               <span class="cm"># rank — adapter capacity (higher = more params)</span>
+    lora_alpha=<span class="nm">16</span>,    <span class="cm"># scaling = alpha/r = 2.0 (lr multiplier effect)</span>
+    target_modules=[<span class="st">"q_proj"</span>, <span class="st">"v_proj"</span>],  <span class="cm"># query + value attention layers</span>
+    lora_dropout=<span class="nm">0.05</span>,
+    task_type=<span class="st">"CAUSAL_LM"</span>
+)
+model = <span class="fn">get_peft_model</span>(model, lora_config)
+model.<span class="fn">print_trainable_parameters</span>()
+<span class="cm"># trainable: 2,097,152 || all: 1,100,048,384 || trainable%: 0.1907</span>
+
+<span class="cm"># ── Step 3: Tokenize raw text and train ─────────────────────</span>
+<span class="kw">from</span> transformers <span class="kw">import</span> <span class="cl">Trainer</span>, <span class="cl">TrainingArguments</span>, <span class="cl">DataCollatorForLanguageModeling</span>
+
+tokenizer = <span class="cl">AutoTokenizer</span>.<span class="fn">from_pretrained</span>(<span class="st">"TinyLlama/TinyLlama-1.1B-..."</span>)
+tokenizer.pad_token = tokenizer.eos_token
+
+trainer = <span class="cl">Trainer</span>(
+    model=model,
+    train_dataset=tokenized_dataset,          <span class="cm"># raw text, 512-token chunks</span>
+    data_collator=<span class="cl">DataCollatorForLanguageModeling</span>(tokenizer, mlm=<span class="kw">False</span>),
+    args=<span class="cl">TrainingArguments</span>(
+        num_train_epochs=<span class="nm">2</span>,
+        per_device_train_batch_size=<span class="nm">4</span>,
+        learning_rate=<span class="nm">2e-4</span>, fp16=<span class="kw">True</span>,
+        output_dir=<span class="st">"./stage1_output"</span>
+    )
+)
+trainer.<span class="fn">train</span>()
+
+<span class="cm"># ── Step 4: Merge LoRA₁ into base → save as M1 ──────────────</span>
+<span class="cm"># W_new = W_base + B·A  (the rank-decomposed update is baked in)</span>
+model = model.<span class="fn">merge_and_unload</span>()
+model.<span class="fn">save_pretrained</span>(<span class="st">"pharma_tinyllama_noninstruct_merged"</span>)   <span class="cm"># ← M1</span>
+tokenizer.<span class="fn">save_pretrained</span>(<span class="st">"pharma_tinyllama_noninstruct_merged"</span>)</pre>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- ══ STAGE 2 ══ -->
+<section id="stage2" style="max-width:960px;margin:0 auto;padding:0 24px 88px">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--bdr)">
+    <div style="width:44px;height:44px;border-radius:50%;background:var(--tela);border:1px solid var(--telb);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:13px;font-weight:600;color:var(--tel);flex-shrink:0">02</div>
+    <div>
+      <div class="eyebrow" style="color:var(--tel);margin-bottom:2px">Stage 2</div>
+      <h2 style="font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:0">Instruction Fine-Tuning (SFT)</h2>
+    </div>
+  </div>
+  <p style="font-size:16px;color:#C9CCBE;max-width:700px;margin-bottom:32px">Supervised Fine-Tuning on structured instruction–response pairs. Stage 1 taught the model what words belong in pharma text. Stage 2 teaches it <em>how to answer</em> — to follow the Alpaca prompt format and respond usefully to domain questions.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px">
+    <div class="card">
+      <div class="eyebrow" style="color:var(--tel)">Input data</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">Structured JSONL with <code style="font-family:var(--fm);font-size:12px;background:var(--sur2);color:var(--tel);padding:1px 5px;border-radius:4px">instruction</code>, <code style="font-family:var(--fm);font-size:12px;background:var(--sur2);color:var(--tel);padding:1px 5px;border-radius:4px">input</code> (optional context), and <code style="font-family:var(--fm);font-size:12px;background:var(--sur2);color:var(--tel);padding:1px 5px;border-radius:4px">output</code> fields — the Alpaca format.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="color:var(--tel)">Objective</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">Cross-entropy on <strong>response tokens only</strong> — the instruction is masked. The model learns to produce the answer, not to "guess the question".</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="color:var(--tel)">Base model</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">M1 — the domain-adapted merged model. LoRA₂ on M1 means the adapter builds on pharma vocabulary already baked in from Stage 1.</p>
+    </div>
+    <div class="card" style="border-color:rgba(195,148,192,0.25)">
+      <div class="eyebrow" style="color:var(--plm)">Scale guidance</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">1,000–10,000 Q&amp;A pairs is practical for a POC. In regulated domains (pharma, healthcare), quality beats quantity — SME review is non-negotiable.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:600;margin-bottom:12px">Data format — Alpaca JSONL</h3>
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:28px">
+    <div style="background:var(--sur2);border-bottom:1px solid var(--bdr);padding:8px 16px;display:flex;align-items:center;gap:8px">
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--sur3);display:inline-block"></span>
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--sur3);display:inline-block"></span>
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--sur3);display:inline-block"></span>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-left:8px">pharma_instruction_dataset.jsonl</span>
+    </div>
+    <pre style="padding:20px 24px;font-family:var(--fm);font-size:13px;line-height:1.7;overflow-x:auto"><span class="cm">// Each row has three fields — SFTTrainer formats them automatically</span>
+{
+  <span class="st">"instruction"</span>: <span class="st">"Explain the primary mechanism of action of metformin."</span>,
+  <span class="st">"input"</span>:       <span class="st">""</span>,   <span class="cm">// optional extra context (empty = no additional context)</span>
+  <span class="st">"output"</span>:      <span class="st">"Metformin activates AMP-activated protein kinase (AMPK), reducing hepatic
+               glucose production and improving peripheral insulin sensitivity..."</span>
+}
+
+<span class="cm">// Prompt template that SFTTrainer constructs from the row:</span>
+<span class="nm">"""### Instruction:
+Explain the primary mechanism of action of metformin.
+
+### Input:
+[empty]
+
+### Response:
+Metformin activates AMP-activated protein kinase (AMPK)..."""</span></pre>
+  </div>
+
+  <details>
+    <summary style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--tel)"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <span style="font-size:14px;font-weight:600">Stage 2 — Full code walkthrough</span>
+        <span style="font-family:var(--fm);font-size:10px;background:var(--tela);color:var(--tel);padding:2px 8px;border-radius:999px">TRL SFTTrainer</span>
+      </div>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--sub)">▸ expand</span>
+    </summary>
+    <div style="border:1px solid var(--bdr);border-top:none;border-radius:0 0 10px 10px;overflow:hidden">
+      <div style="background:#090a08;padding:24px 28px;font-family:var(--fm);font-size:13px;line-height:1.82;overflow-x:auto">
+<pre style="margin:0"><span class="kw">from</span> trl <span class="kw">import</span> <span class="cl">SFTTrainer</span>, <span class="cl">SFTConfig</span>
+<span class="kw">from</span> datasets <span class="kw">import</span> <span class="fn">load_dataset</span>
+
+<span class="cm"># ── Load M1 (Stage 1 merged model) as the base for Stage 2 ──</span>
+model = <span class="cl">AutoModelForCausalLM</span>.<span class="fn">from_pretrained</span>(
+    <span class="st">"pharma_tinyllama_noninstruct_merged"</span>,   <span class="cm"># ← M1</span>
+    quantization_config=bnb_config, device_map=<span class="st">"auto"</span>
+)
+model = <span class="fn">prepare_model_for_kbit_training</span>(model)
+model = <span class="fn">get_peft_model</span>(model, lora_config)    <span class="cm"># ← LoRA₂, fresh adapter on M1</span>
+
+<span class="cm"># ── Alpaca prompt formatter ───────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">format_alpaca</span>(example):
+    <span class="kw">return</span> (
+        <span class="st">f"### Instruction:\n{example['instruction']}\n\n"</span>
+        <span class="st">f"### Input:\n{example['input']}\n\n"</span>
+        <span class="st">f"### Response:\n{example['output']}"</span>
+    )
+
+<span class="cm"># ── Train — SFTTrainer masks instruction tokens automatically ─</span>
+instruction_ds = <span class="fn">load_dataset</span>(<span class="st">"json"</span>,
+    data_files=<span class="st">"pharma_instruction_dataset.jsonl"</span>)
+
+trainer = <span class="cl">SFTTrainer</span>(
+    model=model,
+    train_dataset=instruction_ds[<span class="st">"train"</span>],
+    formatting_func=format_alpaca,
+    args=<span class="cl">SFTConfig</span>(
+        num_train_epochs=<span class="nm">3</span>,
+        per_device_train_batch_size=<span class="nm">4</span>,
+        learning_rate=<span class="nm">2e-4</span>,
+        max_seq_length=<span class="nm">512</span>,
+        fp16=<span class="kw">True</span>
+    )
+)
+trainer.<span class="fn">train</span>()
+
+<span class="cm"># ── Merge LoRA₂ into M1 → save as M2 ────────────────────────</span>
+model = model.<span class="fn">merge_and_unload</span>()
+model.<span class="fn">save_pretrained</span>(<span class="st">"pharma_tinyllama_instruct_merged"</span>)   <span class="cm"># ← M2</span>
+tokenizer.<span class="fn">save_pretrained</span>(<span class="st">"pharma_tinyllama_instruct_merged"</span>)</pre>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- ══ STAGE 3 DPO ══ -->
+<section id="stage3" style="max-width:960px;margin:0 auto;padding:0 24px 88px">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--bdr)">
+    <div style="width:44px;height:44px;border-radius:50%;background:var(--plma);border:1px solid var(--plmb);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:13px;font-weight:600;color:var(--plm);flex-shrink:0">03</div>
+    <div>
+      <div class="eyebrow" style="color:var(--plm);margin-bottom:2px">Stage 3</div>
+      <h2 style="font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:0">Preference Tuning — DPO</h2>
+    </div>
+  </div>
+  <p style="font-size:16px;color:#C9CCBE;max-width:700px;margin-bottom:32px">Stage 2 teaches the model <em>how to answer</em>. Stage 3 teaches it <em>which answer is better</em>. Given a prompt and two responses — one preferred by domain experts, one not — DPO nudges the model to favor the chosen response.</p>
+
+  <div style="background:rgba(195,148,192,0.07);border:1px solid var(--plmb);border-radius:10px;padding:20px 24px;margin-bottom:32px">
+    <div class="eyebrow" style="color:var(--plm)">Classroom analogy</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#F07A6B;margin-bottom:6px">✗ Rejected</div>
+        <p style="font-size:14px;color:#C9CCBE;margin:0">"Study for 48 hours continuously without sleep before your exam."</p>
+        <p style="font-size:12px;color:var(--sub);margin-top:6px">Plausible-sounding but unrealistic and harmful.</p>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--tel);margin-bottom:6px">✓ Chosen</div>
+        <p style="font-size:14px;color:#C9CCBE;margin:0">"Focus on high-weight topics, study in 90-minute blocks with breaks, review past papers actively."</p>
+        <p style="font-size:12px;color:var(--sub);margin-top:6px">Evidence-based, safe, and actionable.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DPO Explorer -->
+  <h3 style="font-size:15px;font-weight:600;margin-bottom:12px">Interactive — Pharma preference dataset</h3>
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:32px">
+    <div style="background:var(--sur2);border-bottom:1px solid var(--bdr);padding:10px 20px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-family:var(--fm);font-size:11px;color:var(--sub)">pharma_preference_dataset.jsonl — example {{ dpoIdx }} of {{ dpoTotal }}</span>
+      <div style="display:flex;gap:8px">
+        <button onClick="{{ prevEx }}" style="background:var(--sur3);border:1px solid var(--bdr);border-radius:6px;padding:5px 14px;font-family:var(--fm);font-size:11px;color:var(--mut);cursor:pointer;transition:background 0.15s">← prev</button>
+        <button onClick="{{ nextEx }}" style="background:var(--amb);border:none;border-radius:6px;padding:5px 14px;font-family:var(--fm);font-size:11px;color:#0E0F0C;font-weight:600;cursor:pointer">next →</button>
+      </div>
+    </div>
+    <div style="padding:20px 24px">
+      <div class="eyebrow" style="color:var(--sub);margin-bottom:8px">Prompt</div>
+      <pre style="font-family:var(--fm);font-size:13px;color:#C9CCBE;white-space:pre-wrap;line-height:1.6;background:var(--sur2);border-radius:8px;padding:12px 16px;margin-bottom:16px">{{ dpoPrompt }}</pre>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:rgba(79,174,167,0.08);border:1px solid rgba(79,174,167,0.25);border-radius:8px;padding:14px 16px">
+          <div style="font-family:var(--fm);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--tel);margin-bottom:8px">✓ Chosen — what the model should prefer</div>
+          <p style="font-size:13px;color:#C9CCBE;margin:0;line-height:1.65">{{ dpoChosen }}</p>
+        </div>
+        <div style="background:rgba(240,122,107,0.08);border:1px solid rgba(240,122,107,0.25);border-radius:8px;padding:14px 16px">
+          <div style="font-family:var(--fm);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#F07A6B;margin-bottom:8px">✗ Rejected — what to avoid</div>
+          <p style="font-size:13px;color:#C9CCBE;margin:0;line-height:1.65">{{ dpoRejected }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DPO vs RLHF -->
+  <h3 style="font-size:15px;font-weight:600;margin-bottom:16px">DPO vs RLHF — preference alignment methods</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px">
+    <div class="card">
+      <div style="font-size:14px;font-weight:600;color:var(--mut);margin-bottom:4px">RLHF + PPO</div>
+      <div style="font-family:var(--fm);font-size:10px;color:var(--sub);margin-bottom:14px;letter-spacing:0.06em">OpenAI · InstructGPT · ChatGPT</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:13px;color:#C9CCBE;padding-left:12px;border-left:2px solid var(--sur3)">Train a separate <strong>reward model</strong> on human rankings</div>
+        <div style="font-size:13px;color:#C9CCBE;padding-left:12px;border-left:2px solid var(--sur3)">PPO policy optimization against reward signal</div>
+        <div style="font-size:13px;color:#C9CCBE;padding-left:12px;border-left:2px solid var(--sur3)">Actor + critic + reference + reward = 4 models in VRAM</div>
+        <div style="font-size:13px;color:#C9CCBE;padding-left:12px;border-left:2px solid var(--sur3)">Complex, unstable training, very GPU-intensive</div>
+      </div>
+    </div>
+    <div style="background:var(--plma);border:1px solid var(--plmb);border-radius:10px;padding:18px 20px">
+      <div style="font-size:14px;font-weight:600;color:var(--plm);margin-bottom:4px">DPO — Direct Preference Optimization</div>
+      <div style="font-family:var(--fm);font-size:10px;color:var(--sub);margin-bottom:14px;letter-spacing:0.06em">Rafailov et al. 2023 · No reward model</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:13px;color:#C9CCBE;padding-left:12px;border-left:2px solid var(--plmb)">Trains <strong>directly</strong> on chosen/rejected pairs</div>
+        <div style="font-size:13px;color:#C9CCBE;padding-left:12px;border-left:2px solid var(--plmb)">Single training loop — no RL, no PPO, no reward model</div>
+        <div style="font-size:13px;color:#C9CCBE;padding-left:12px;border-left:2px solid var(--plmb)">Policy + reference = 2 models (reference can be implicit)</div>
+        <div style="font-size:13px;color:#C9CCBE;padding-left:12px;border-left:2px solid var(--plmb)">Simpler, stable, practical — use TRL's DPOTrainer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DPO loss -->
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:22px 26px;margin-bottom:28px">
+    <div class="eyebrow" style="color:var(--plm)">DPO loss — math intuition</div>
+    <p style="font-size:14px;color:#C9CCBE;margin:12px 0">DPO optimizes a policy π to prefer the chosen response over the rejected one, relative to a reference model π<sub>ref</sub> (the model before alignment). The β parameter controls how far the policy can drift.</p>
+    <div style="background:#090a08;border-radius:8px;padding:16px 24px;font-family:var(--fm);font-size:15px;color:var(--plm);text-align:center;letter-spacing:0.02em;line-height:2">
+      ℒ<sub>DPO</sub> = −𝔼 log σ(β · log[π(y<sub>w</sub>|x) / π<sub>ref</sub>(y<sub>w</sub>|x)] − β · log[π(y<sub>l</sub>|x) / π<sub>ref</sub>(y<sub>l</sub>|x)])
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
+      <div style="font-size:12px;color:var(--mut)"><span style="color:var(--plm);font-family:var(--fm)">y_w</span> — chosen (winning) response</div>
+      <div style="font-size:12px;color:var(--mut)"><span style="color:#F07A6B;font-family:var(--fm)">y_l</span> — rejected (losing) response</div>
+      <div style="font-size:12px;color:var(--mut)"><span style="color:var(--tel);font-family:var(--fm)">β = 0.1</span> — KL penalty (lower = more aggressive alignment)</div>
+    </div>
+    <p style="font-size:13px;color:var(--sub);margin-top:14px;margin-bottom:0">In plain English: maximize the model's preference for y_w over y_l, but don't let it drift too far from the reference model (β controls this tension).</p>
+  </div>
+
+  <details>
+    <summary style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--plm)"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <span style="font-size:14px;font-weight:600">Stage 3 — Full code walkthrough</span>
+        <span style="font-family:var(--fm);font-size:10px;background:var(--plma);color:var(--plm);padding:2px 8px;border-radius:999px">TRL DPOTrainer</span>
+      </div>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--sub)">▸ expand</span>
+    </summary>
+    <div style="border:1px solid var(--bdr);border-top:none;border-radius:0 0 10px 10px;overflow:hidden">
+      <div style="background:#090a08;padding:24px 28px;font-family:var(--fm);font-size:13px;line-height:1.82;overflow-x:auto">
+<pre style="margin:0"><span class="kw">from</span> trl <span class="kw">import</span> <span class="cl">DPOTrainer</span>, <span class="cl">DPOConfig</span>
+
+<span class="cm"># ── Load M2 (Stage 2 merged model) as the base for Stage 3 ──</span>
+model = <span class="cl">AutoModelForCausalLM</span>.<span class="fn">from_pretrained</span>(
+    <span class="st">"pharma_tinyllama_instruct_merged"</span>,   <span class="cm"># ← M2</span>
+    quantization_config=bnb_config, device_map=<span class="st">"auto"</span>
+)
+model = <span class="fn">prepare_model_for_kbit_training</span>(model)
+model = <span class="fn">get_peft_model</span>(model, lora_config)   <span class="cm"># ← LoRA₃, fresh adapter on M2</span>
+
+<span class="cm"># ── Load preference dataset (prompt / chosen / rejected) ─────</span>
+pref_ds = <span class="fn">load_dataset</span>(<span class="st">"json"</span>,
+    data_files=<span class="st">"pharma_preference_dataset.jsonl"</span>).<span class="fn">train_test_split</span>(<span class="nm">0.1</span>)
+<span class="cm"># 48 rows in demo — DPOTrainer expects exactly these three column names</span>
+
+<span class="cm"># ── DPO training — no reward model needed ───────────────────</span>
+trainer = <span class="cl">DPOTrainer</span>(
+    model=model,
+    ref_model=<span class="kw">None</span>,             <span class="cm"># None = implicit reference from frozen base</span>
+    train_dataset=pref_ds[<span class="st">"train"</span>],
+    eval_dataset=pref_ds[<span class="st">"test"</span>],
+    args=<span class="cl">DPOConfig</span>(
+        beta=<span class="nm">0.1</span>,               <span class="cm"># KL penalty — lower = more alignment aggression</span>
+        num_train_epochs=<span class="nm">3</span>,
+        per_device_train_batch_size=<span class="nm">4</span>,
+        learning_rate=<span class="nm">1e-4</span>,     <span class="cm"># lower LR than SFT for fine-grained tuning</span>
+        max_prompt_length=<span class="nm">256</span>,
+        max_length=<span class="nm">512</span>,
+        fp16=<span class="kw">True</span>
+    )
+)
+trainer.<span class="fn">train</span>()
+
+<span class="cm"># ── Merge LoRA₃ into M2 → M3 (final aligned model) ──────────</span>
+model = model.<span class="fn">merge_and_unload</span>()
+model.<span class="fn">save_pretrained</span>(<span class="st">"pharma_tinyllama_preference_dpo_merged"</span>)  <span class="cm"># ← M3</span>
+model.<span class="fn">push_to_hub</span>(<span class="st">"your-hf-username/pharma-tinyllama-dpo"</span>)    <span class="cm"># optional</span></pre>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- ══ LORA MATH ══ -->
+<section id="lora" style="max-width:960px;margin:0 auto;padding:0 24px 88px">
+  <div class="eyebrow" style="color:var(--sub);margin-bottom:8px">Under the hood</div>
+  <h2 style="font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:10px">LoRA &amp; QLoRA — the math</h2>
+  <p style="color:var(--mut);font-size:15px;max-width:640px;margin-bottom:44px">Full fine-tuning updates every weight in the model — billions of parameters, expensive and prone to catastrophic forgetting. LoRA freezes the base weights and instead trains small rank-decomposed matrices that approximate the update.</p>
+
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:28px 32px;margin-bottom:24px">
+    <div class="eyebrow" style="color:var(--sub);margin-bottom:20px">Weight decomposition: W = W₀ + ΔW = W₀ + B·A</div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:32px">
+      <div style="text-align:center">
+        <div style="width:78px;height:78px;border:1.5px solid var(--bdr);border-radius:8px;background:var(--sur2);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:20px;font-weight:600;color:var(--mut)">W</div>
+        <div style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5">d × d<br>frozen</div>
+      </div>
+      <div style="font-size:22px;color:var(--sub)">=</div>
+      <div style="text-align:center">
+        <div style="width:78px;height:78px;border:1.5px solid var(--bdr);border-radius:8px;background:var(--sur2);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:17px;font-weight:600;color:var(--mut)">W₀</div>
+        <div style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5">original<br>frozen</div>
+      </div>
+      <div style="font-size:22px;color:var(--sub)">+</div>
+      <div style="text-align:center">
+        <div style="width:26px;height:78px;border:1.5px solid var(--ambb);border-radius:6px;background:var(--amba);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:14px;font-weight:600;color:var(--amb)">B</div>
+        <div style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5">d × r<br>trained</div>
+      </div>
+      <div style="font-size:16px;color:var(--sub)">×</div>
+      <div style="text-align:center">
+        <div style="width:78px;height:26px;border:1.5px solid var(--ambb);border-radius:6px;background:var(--amba);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:14px;font-weight:600;color:var(--amb)">A</div>
+        <div style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5">r × d<br>trained</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="background:#090a08;border-radius:8px;padding:16px 20px">
+        <div style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-bottom:8px">Full fine-tuning</div>
+        <div style="font-family:var(--fm);font-size:26px;font-weight:700;color:#F07A6B">d²</div>
+        <div style="font-size:13px;color:var(--mut);margin-top:6px">e.g. d=4096 → <strong>16.8M params</strong> per attention matrix</div>
+      </div>
+      <div style="background:#090a08;border-radius:8px;padding:16px 20px">
+        <div style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-bottom:8px">LoRA with r=8</div>
+        <div style="font-family:var(--fm);font-size:26px;font-weight:700;color:var(--amb)">2·d·r</div>
+        <div style="font-size:13px;color:var(--mut);margin-top:6px">d=4096, r=8 → <strong>65K params</strong> — 256× smaller</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:24px 28px;margin-bottom:24px">
+    <div class="eyebrow" style="color:var(--tel);margin-bottom:16px">QLoRA — Quantized LoRA (Dettmers et al. 2023)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px">
+      <div style="text-align:center;background:var(--sur2);border-radius:8px;padding:18px 12px;border:1px solid var(--bdr)">
+        <div style="font-family:var(--fm);font-size:30px;font-weight:700;color:var(--sub)">FP32</div>
+        <div style="font-size:12px;color:var(--sub);margin-top:6px">original weights<br>32 bits per param</div>
+      </div>
+      <div style="text-align:center;background:var(--sur2);border-radius:8px;padding:18px 12px;border:1px solid var(--bdr)">
+        <div style="font-family:var(--fm);font-size:30px;font-weight:700;color:var(--mut)">NF4</div>
+        <div style="font-size:12px;color:var(--sub);margin-top:6px">base quantized<br>4 bits per param</div>
+      </div>
+      <div style="text-align:center;background:var(--amba);border-radius:8px;padding:18px 12px;border:1px solid var(--ambb)">
+        <div style="font-family:var(--fm);font-size:30px;font-weight:700;color:var(--amb)">FP16</div>
+        <div style="font-size:12px;color:var(--mut);margin-top:6px">LoRA adapters<br>trained in fp16</div>
+      </div>
+    </div>
+    <p style="font-size:14px;color:#C9CCBE;margin:0">Result: a 1.1B model (normally ~4GB) trains in ~2GB VRAM. A 7B model fits on a free T4 Colab GPU. NF4 quantization uses 4-bit NormalFloat — information-theoretically optimal for normally-distributed neural network weights, so accuracy loss is minimal.</p>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">Key hyperparameters</h3>
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:32px">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:var(--sur2)">
+          <th style="text-align:left;padding:10px 18px;font-family:var(--fm);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sub);border-bottom:1px solid var(--bdr)">Param</th>
+          <th style="text-align:left;padding:10px 18px;font-family:var(--fm);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sub);border-bottom:1px solid var(--bdr)">Typical value</th>
+          <th style="text-align:left;padding:10px 18px;font-family:var(--fm);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sub);border-bottom:1px solid var(--bdr)">What it controls</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--bdr)">
+          <td style="padding:10px 18px;font-family:var(--fm);color:var(--amb)">r (rank)</td>
+          <td style="padding:10px 18px;color:#C9CCBE">8 – 64</td>
+          <td style="padding:10px 18px;color:var(--mut)">Adapter capacity. Higher r = more parameters but slower training. Start at 8; increase if the model plateaus.</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--bdr)">
+          <td style="padding:10px 18px;font-family:var(--fm);color:var(--amb)">lora_alpha</td>
+          <td style="padding:10px 18px;color:#C9CCBE">2 × r</td>
+          <td style="padding:10px 18px;color:var(--mut)">Scaling = alpha / r. alpha = 2r → scale = 2.0. Controls how much the adapter contributes relative to the frozen base.</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--bdr)">
+          <td style="padding:10px 18px;font-family:var(--fm);color:var(--amb)">target_modules</td>
+          <td style="padding:10px 18px;color:#C9CCBE">q_proj, v_proj</td>
+          <td style="padding:10px 18px;color:var(--mut)">Which weight matrices to adapt. Query + Value is standard. Adding k_proj and o_proj increases capacity at more cost.</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 18px;font-family:var(--fm);color:var(--plm)">beta (DPO)</td>
+          <td style="padding:10px 18px;color:#C9CCBE">0.1</td>
+          <td style="padding:10px 18px;color:var(--mut)">KL divergence strength. Low β = aggressively align to preferences. High β = stay closer to reference model behavior.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div style="max-width:960px;margin:0 auto;padding:0 24px 80px">
+  <div style="border-top:1px solid var(--bdr);padding-top:32px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Next in the series</div>
+      <div style="font-size:13px;color:var(--mut)">LoRA / QLoRA theory deep-dive · Unsloth · RLHF · GRPO · ORPO · Fine-tuning mega assignment</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="https://huggingface.co/docs/trl/dpo_trainer" style="background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:8px 14px;font-family:var(--fm);font-size:11px;color:var(--tel)">TRL DPO docs ↗</a>
+      <a href="https://arxiv.org/abs/2305.18290" style="background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:8px 14px;font-family:var(--fm);font-size:11px;color:var(--tel)">DPO paper ↗</a>
+      <a href="https://arxiv.org/abs/2106.09685" style="background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:8px 14px;font-family:var(--fm);font-size:11px;color:var(--tel)">LoRA paper ↗</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { dpoIdx: 0 };
+
+  renderVals() {
+    const examples = [
+      {
+        prompt: "### Instruction:\nExplain the primary mechanism of action of metformin.\n\n### Response:",
+        chosen: "Metformin activates AMP-activated protein kinase (AMPK) in the liver, suppressing hepatic gluconeogenesis. It also improves peripheral insulin sensitivity in skeletal muscle without stimulating insulin secretion — making hypoglycemia unlikely.",
+        rejected: "Metformin mainly works by directly stimulating insulin secretion from pancreatic beta cells, similar to sulfonylureas, which helps lower blood glucose levels after meals."
+      },
+      {
+        prompt: "### Instruction:\nWhat are the key differences between Type 1 and Type 2 diabetes?\n\n### Response:",
+        chosen: "Type 1 is an autoimmune condition causing absolute insulin deficiency through beta-cell destruction; onset is typically in youth. Type 2 involves progressive insulin resistance and relative deficiency; it is strongly linked to lifestyle factors. Type 1 requires lifelong insulin replacement; Type 2 is often managed initially with metformin and lifestyle modification.",
+        rejected: "Type 1 and Type 2 diabetes are basically the same disease — they both involve blood sugar problems. The only real difference is that Type 2 is more serious and harder to treat than Type 1."
+      },
+      {
+        prompt: "### Instruction:\nDescribe how statins lower LDL cholesterol at the molecular level.\n\n### Response:",
+        chosen: "Statins competitively inhibit HMG-CoA reductase, the rate-limiting enzyme in hepatic cholesterol synthesis. Reduced intracellular cholesterol upregulates LDLR expression on hepatocytes, increasing LDL clearance from the plasma. This dual mechanism — synthesis inhibition plus receptor upregulation — produces the significant LDL reductions seen clinically.",
+        rejected: "Statins lower LDL by blocking fat absorption in the small intestine, preventing dietary cholesterol from reaching the bloodstream. They work similarly to bile acid sequestrants by trapping fats before they can be absorbed."
+      }
+    ];
+
+    const { dpoIdx } = this.state;
+    const ex = examples[dpoIdx];
+
+    return {
+      dpoPrompt:   ex.prompt,
+      dpoChosen:   ex.chosen,
+      dpoRejected: ex.rejected,
+      dpoIdx:      dpoIdx + 1,
+      dpoTotal:    examples.length,
+      nextEx: () => this.setState(s => ({ dpoIdx: (s.dpoIdx + 1) % examples.length })),
+      prevEx: () => this.setState(s => ({ dpoIdx: (s.dpoIdx - 1 + examples.length) % examples.length }))
+    };
+  }
+}
+</script>
+</body>
+</html>
