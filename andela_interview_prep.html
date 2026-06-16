@@ -1,0 +1,410 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{padding:1rem 0;font-family:var(--font-sans)}
+.tabs{display:flex;gap:4px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:4px;margin-bottom:1.5rem}
+.tab{flex:1;background:transparent;border:none;padding:8px 4px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-radius:var(--border-radius-md);font-family:var(--font-sans);transition:all 0.15s;font-weight:400}
+.tab.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border:0.5px solid var(--color-border-tertiary)}
+.section{display:none}.section.active{display:block}
+
+.progress-bar{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem}
+.progress-track{flex:1;height:4px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:#1D9E75;border-radius:2px;transition:width 0.3s}
+.progress-label{font-size:12px;color:var(--color-text-secondary);white-space:nowrap}
+
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem}
+
+.flashcard{min-height:220px;cursor:pointer;position:relative;perspective:1000px}
+.flashcard-inner{position:relative;width:100%;min-height:220px;transition:transform 0.5s;transform-style:preserve-3d}
+.flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
+.flashcard-front,.flashcard-back{position:absolute;width:100%;min-height:220px;backface-visibility:hidden;padding:1.5rem;display:flex;flex-direction:column;justify-content:center}
+.flashcard-back{transform:rotateY(180deg);background:var(--color-background-secondary)}
+.card-type{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;color:var(--color-text-secondary)}
+.card-type.qa{color:#185FA5}
+.card-type.arch{color:#0F6E56}
+.card-type.demo{color:#854F0B}
+.card-type.warn{color:#993C1D}
+.card-q{font-size:16px;font-weight:500;color:var(--color-text-primary);line-height:1.5;margin-bottom:8px}
+.card-hint{font-size:12px;color:var(--color-text-secondary)}
+.card-a{font-size:14px;color:var(--color-text-primary);line-height:1.6}
+.card-tip{margin-top:12px;padding:8px 12px;background:var(--color-background-primary);border-radius:var(--border-radius-md);border-left:2px solid #1D9E75;font-size:12px;color:var(--color-text-secondary)}
+.flip-hint{position:absolute;bottom:12px;right:14px;font-size:11px;color:var(--color-text-secondary)}
+
+.nav-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:1rem}
+.nav-btn{background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:7px 16px;font-size:13px;color:var(--color-text-primary);cursor:pointer;font-family:var(--font-sans);transition:background 0.1s}
+.nav-btn:hover{background:var(--color-background-secondary)}
+.nav-btn:disabled{opacity:0.35;cursor:not-allowed}
+.card-counter{font-size:13px;color:var(--color-text-secondary)}
+
+.category-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.cat-btn{background:transparent;border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all 0.1s}
+.cat-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-secondary)}
+
+.arch-box{padding:1rem 1.25rem;margin-bottom:8px;border-radius:var(--border-radius-md);border-left:3px solid}
+.arch-box.blue{background:#E6F1FB;border-color:#185FA5}
+.arch-box.green{background:#E2EFDA;border-color:#0F6E56}
+.arch-box.amber{background:#FAEEDA;border-color:#854F0B}
+.arch-box.red{background:#FAECE7;border-color:#993C1D}
+.arch-box.purple{background:#EEEDFE;border-color:#534AB7}
+.arch-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.arch-detail{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.arch-code{font-size:11px;font-family:var(--font-mono);background:var(--color-background-secondary);padding:2px 6px;border-radius:4px;color:var(--color-text-primary)}
+
+.demo-step{display:flex;gap:12px;padding:12px 14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.demo-step:last-child{border-bottom:none}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--color-text-primary);flex-shrink:0;margin-top:1px}
+.step-num.active-step{background:#1D9E75;color:white}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.step-say{font-size:12px;color:#185FA5;line-height:1.5;font-style:italic;margin-bottom:3px}
+.step-do{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.step-time{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+
+.decision-row{padding:12px 14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.decision-row:last-child{border-bottom:none}
+.decision-q{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.decision-a{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.decision-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;margin-right:4px;margin-bottom:2px}
+.badge-chosen{background:#E2EFDA;color:#375623}
+.badge-alt{background:#F1EFE8;color:#5F5E5A}
+.badge-tradeoff{background:#FAEEDA;color:#854F0B}
+
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.5rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center}
+.metric-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+
+.shuffle-btn{background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
+.shuffle-btn:hover{background:var(--color-background-secondary)}
+</style>
+
+<h2 class="sr-only">Andela technical interview preparation — interactive flashcards, architecture reference, demo script, and decision log</h2>
+
+<div class="app">
+<div class="metric-row">
+  <div class="metric"><div class="metric-val" id="total-cards">15</div><div class="metric-label">Flashcards</div></div>
+  <div class="metric"><div class="metric-val" id="seen-count">0</div><div class="metric-label">Seen</div></div>
+  <div class="metric"><div class="metric-val" id="known-count">0</div><div class="metric-label">Known</div></div>
+  <div class="metric"><div class="metric-val">4</div><div class="metric-label">Sections</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showSection('flashcards',this)">Flashcards</button>
+  <button class="tab" onclick="showSection('architecture',this)">Architecture</button>
+  <button class="tab" onclick="showSection('demo',this)">Demo script</button>
+  <button class="tab" onclick="showSection('decisions',this)">Why X?</button>
+</div>
+
+<!-- FLASHCARDS -->
+<div id="flashcards" class="section active">
+  <div class="category-row">
+    <button class="cat-btn active" onclick="filterCards('all',this)">All</button>
+    <button class="cat-btn" onclick="filterCards('qa',this)">Q&A</button>
+    <button class="cat-btn" onclick="filterCards('arch',this)">Architecture</button>
+    <button class="cat-btn" onclick="filterCards('demo',this)">Demo</button>
+    <button class="cat-btn" onclick="filterCards('warn',this)">Watch out</button>
+    <button class="shuffle-btn" onclick="shuffle()" style="margin-left:auto">Shuffle</button>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">0 / 0</div>
+  </div>
+
+  <div class="flashcard card" id="flashcard" onclick="flipCard()">
+    <div class="flashcard-inner" id="flashcard-inner">
+      <div class="flashcard-front">
+        <div class="card-type" id="card-type-front">Q&A</div>
+        <div class="card-q" id="card-q">Loading...</div>
+        <div class="card-hint" id="card-hint">Tap to reveal answer</div>
+        <div class="flip-hint">tap to flip</div>
+      </div>
+      <div class="flashcard-back">
+        <div class="card-type" id="card-type-back">Answer</div>
+        <div class="card-a" id="card-a"></div>
+        <div class="card-tip" id="card-tip" style="display:none"></div>
+        <div class="flip-hint">tap to flip back</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" id="prev-btn" onclick="prevCard()" disabled>← Previous</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <span class="card-counter" id="card-counter">1 / 15</span>
+      <button class="nav-btn" onclick="markKnown()" style="font-size:11px;padding:4px 10px;color:#0F6E56;border-color:#0F6E56">Mark known ✓</button>
+    </div>
+    <button class="nav-btn" id="next-btn" onclick="nextCard()">Next →</button>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="architecture" class="section">
+  <div class="card">
+    <div style="padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;font-weight:500;color:var(--color-text-primary)">System architecture — know this cold</div>
+    <div style="padding:14px 16px">
+      <div class="arch-box blue">
+        <div class="arch-title">Presentation layer — Streamlit</div>
+        <div class="arch-detail">Single file <span class="arch-code">dashboard/app.py</span> · File uploader · Risk score display (colour-coded 0-100) · Findings table · Scan history · Calls FastAPI via HTTP — never imports app modules directly</div>
+      </div>
+      <div class="arch-box green">
+        <div class="arch-title">API layer — FastAPI + Uvicorn</div>
+        <div class="arch-detail"><span class="arch-code">POST /scan</span> · <span class="arch-code">GET /scans</span> · <span class="arch-code">GET /scans/{id}</span> · <span class="arch-code">GET /health</span> · Auto OpenAPI docs at /docs · CORS middleware · Security headers middleware · Rate limiting via slowapi (10/min)</div>
+      </div>
+      <div class="arch-box amber">
+        <div class="arch-title">Scanner — python-hcl2 + pyyaml</div>
+        <div class="arch-detail"><span class="arch-code">hcl_parser.py</span> — Terraform .tf files via python-hcl2 · Custom <span class="arch-code">_unquote()</span> for v8 quoting behaviour · <span class="arch-code">cf_parser.py</span> — CloudFormation .yaml via pyyaml with custom multi-constructor for !Ref !Sub tags</div>
+      </div>
+      <div class="arch-box purple">
+        <div class="arch-title">Rules engine — 11 CIS rules</div>
+        <div class="arch-detail">Critical (40pts): PUBLIC_S3_BUCKET, OPEN_ALL_PORTS · High (25pts): OPEN_SSH, OPEN_RDP, UNENCRYPTED_EBS, UNENCRYPTED_RDS, HARDCODED_SECRET · Medium (20pts): NO_MFA, WEAK_IAM_POLICY, HTTP_LISTENER, UNRESTRICTED_OUTBOUND</div>
+      </div>
+      <div class="arch-box red">
+        <div class="arch-title">Risk scoring — capped at 100</div>
+        <div class="arch-detail">Score = min(sum of all finding points, 100) · 0 = Clean · 1-25 = Low · 26-50 = Medium · 51-75 = High · 76-100 = Critical</div>
+      </div>
+      <div class="arch-box blue">
+        <div class="arch-title">Database — SQLite + SQLAlchemy</div>
+        <div class="arch-detail"><span class="arch-code">ScanResult</span>: id, filename, timestamp, risk_score, counts · <span class="arch-code">Finding</span>: id, scan_id (FK), rule_id, severity, points, resource_name, description · Secrets NEVER stored — value redacted</div>
+      </div>
+      <div class="arch-box green">
+        <div class="arch-title">Security controls</div>
+        <div class="arch-detail">File type whitelist (.tf .yaml .yml) · 10MB size limit · Filename sanitisation · Temp file try/finally cleanup · Rate limiting 10/min · Security headers (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection) · No secrets in DB or logs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;font-weight:500;color:var(--color-text-primary)">Numbers to know cold</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+      <div style="padding:10px 16px;border-bottom:0.5px solid var(--color-border-tertiary);border-right:0.5px solid var(--color-border-tertiary)"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">1h 55min</span><div style="font-size:11px;color:var(--color-text-secondary)">Total build time</div></div>
+      <div style="padding:10px 16px;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">29 / 29</span><div style="font-size:11px;color:var(--color-text-secondary)">Tests passing</div></div>
+      <div style="padding:10px 16px;border-bottom:0.5px solid var(--color-border-tertiary);border-right:0.5px solid var(--color-border-tertiary)"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">11 rules</span><div style="font-size:11px;color:var(--color-text-secondary)">Security rules</div></div>
+      <div style="padding:10px 16px;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">0 / 100</span><div style="font-size:11px;color:var(--color-text-secondary)">Clean / Critical scores</div></div>
+      <div style="padding:10px 16px;border-right:0.5px solid var(--color-border-tertiary)"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">13 years</span><div style="font-size:11px;color:var(--color-text-secondary)">Client-embedded at Cathay</div></div>
+      <div style="padding:10px 16px"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">55+ RFPs</span><div style="font-size:11px;color:var(--color-text-secondary)">Won for Cathay / BA / M&S</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO SCRIPT -->
+<div id="demo" class="section">
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem">10-12 minute demo flow. Click each step to mark active.</div>
+  <div class="card">
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Open with the problem</div>
+        <div class="step-say">"Cloud misconfigurations are the #1 cause of enterprise breaches. Teams review Terraform files manually — slow and error-prone. I built something that automates this in under 3 seconds."</div>
+        <div class="step-do">Show GitHub repo — point to green CI badge and commit history</div>
+        <div class="step-time">1 min</div>
+      </div>
+    </div>
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Scan the clean file</div>
+        <div class="step-say">"Let me start with a clean file to show the baseline."</div>
+        <div class="step-do">Upload clean_infra.tf → Show Risk Score 0 — Clean</div>
+        <div class="step-time">1 min</div>
+      </div>
+    </div>
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Scan the vulnerable file</div>
+        <div class="step-say">"Now let me show you what a misconfigured file looks like."</div>
+        <div class="step-do">Upload vulnerable_infra.tf → Risk Score 100 Critical → Walk through 6 findings: PUBLIC_S3, SSH, RDP, NO_MFA, EBS, HTTP</div>
+        <div class="step-time">3 min</div>
+      </div>
+    </div>
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Scan the mixed CloudFormation file</div>
+        <div class="step-say">"CloudFormation template — Medium Risk, score 45. Two violations in an otherwise clean stack."</div>
+        <div class="step-do">Upload mixed_infra.yaml → Risk Score 45 Medium</div>
+        <div class="step-time">1 min</div>
+      </div>
+    </div>
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Show scan history</div>
+        <div class="step-say">"Every scan is persisted. Complete audit trail of how infrastructure posture changes over time."</div>
+        <div class="step-do">Point to scan history section — show 3 past scans</div>
+        <div class="step-time">30 sec</div>
+      </div>
+    </div>
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">Show the API</div>
+        <div class="step-say">"The dashboard calls a FastAPI REST API. Any CI/CD pipeline can call POST /scan and gate a deployment if risk score exceeds a threshold."</div>
+        <div class="step-do">Open localhost:8000/docs → Show OpenAPI → Execute GET /scans live</div>
+        <div class="step-time">2 min</div>
+      </div>
+    </div>
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <div class="step-title">Show security controls</div>
+        <div class="step-say">"Hardcoded secrets are detected but never stored. The finding says value redacted. This is built to enterprise standards."</div>
+        <div class="step-do">Open SECURITY_AND_PII.md → Point to PII controls checklist</div>
+        <div class="step-time">1 min</div>
+      </div>
+    </div>
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">8</div>
+      <div class="step-body">
+        <div class="step-title">Show the vibe coding audit trail</div>
+        <div class="step-say">"Every prompt I gave Claude Code is logged here with elapsed time and files changed. The architecture is made visible."</div>
+        <div class="step-do">Open prompts.md → Scroll through turn log</div>
+        <div class="step-time">1 min</div>
+      </div>
+    </div>
+    <div class="demo-step" onclick="activateStep(this)">
+      <div class="step-num">9</div>
+      <div class="step-body">
+        <div class="step-title">Close strong</div>
+        <div class="step-say">"29 tests, green CI, 11 security rules, full PII controls, complete docs — built in 1h 55min. Happy to go deeper on any component."</div>
+        <div class="step-do">Return to dashboard — leave risk score 100 visible as final image</div>
+        <div class="step-time">30 sec</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DECISIONS -->
+<div id="decisions" class="section">
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem">Every "why did you choose X?" question — answered. Structure: chosen → alternatives → rationale → trade-off.</div>
+  <div class="card">
+    <div class="decision-row">
+      <div class="decision-q">Why FastAPI over Flask?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">FastAPI</span><span class="decision-badge badge-alt">Flask</span><span class="decision-badge badge-alt">Django REST</span></div>
+      <div class="decision-a">Auto OpenAPI docs at /docs with zero extra work — critical for demo. Pydantic v2 validation built in. Async-native for scaling. The JD mentioned FastAPI in examples.</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: more initial complexity than Flask</div>
+    </div>
+    <div class="decision-row">
+      <div class="decision-q">Why SQLite over PostgreSQL?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">SQLite</span><span class="decision-badge badge-alt">PostgreSQL</span><span class="decision-badge badge-alt">MongoDB</span></div>
+      <div class="decision-a">Zero setup — no database server needed. SQLAlchemy abstracts the DB entirely — swap to PostgreSQL with one config line. Challenge required free-tier local deployment.</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: no concurrent writes. PostgreSQL swap = one line when needed.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decision-q">Why Streamlit over React?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">Streamlit</span><span class="decision-badge badge-alt">React</span><span class="decision-badge badge-alt">Jinja2 HTML</span></div>
+      <div class="decision-a">Professional dashboard from a single Python file. No frontend build tooling. React would take 45+ minutes just on scaffolding. FDE means shipping working solutions fast.</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: less customisable. No real-time updates without polling.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decision-q">Why python-hcl2 for Terraform?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">python-hcl2</span><span class="decision-badge badge-alt">regex parsing</span><span class="decision-badge badge-alt">pyhcl (unmaintained)</span></div>
+      <div class="decision-a">Most actively maintained HCL2 parser in Python. Handles nested blocks, for_each, dynamic blocks. Alternatives are unmaintained or require shelling out.</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: v8 quoting behaviour needed custom _unquote() helper.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decision-q">Why risk score capped at 100?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">0-100 capped</span><span class="decision-badge badge-alt">unbounded points</span><span class="decision-badge badge-alt">CVSS style</span></div>
+      <div class="decision-a">0-100 is intuitive and universally understood. Capping at 100 means the display is always meaningful — 100 always means "critical, act now" regardless of violation count.</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: can't distinguish 3 vs 10 critical findings from score alone. Findings table provides that detail.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decision-q">Why redact secret values?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">Value redacted</span><span class="decision-badge badge-alt">store for debugging</span><span class="decision-badge badge-alt">hash the value</span></div>
+      <div class="decision-a">A security tool that stores the secrets it finds would itself be a security risk. Resource name + attribute is sufficient for remediation. Value adds no value, adds significant risk.</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: engineers must check original file. This is intentional, not a limitation.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decision-q">Why local deployment only?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">Local</span><span class="decision-badge badge-alt">HuggingFace Spaces</span><span class="decision-badge badge-alt">Render free tier</span></div>
+      <div class="decision-a">Challenge warned about cloud costs — zero risk by staying local. Also appropriate for a security tool — you wouldn't send client infrastructure files to a third-party service.</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: not publicly accessible without a tunnel. For demo, screen share is sufficient.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decision-q">Why Claude Code over Cursor?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">Claude Code</span><span class="decision-badge badge-alt">Cursor</span><span class="decision-badge badge-alt">GitHub Copilot</span></div>
+      <div class="decision-a">Terminal access — can run tests and fix failures autonomously. Maintains file context across a full session. The challenge accepted all three; Claude Code gives the most end-to-end autonomy.</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: more tokens per turn than inline Copilot suggestions.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const allCards=[
+  {type:'qa',typeLabel:'Q&A',q:'Tell me about this project in 60 seconds.',a:'Enterprise Security Guardrail Auditor — scans Terraform and CloudFormation files for 11 CIS Benchmark violations, calculates a Risk Score 0-100, stores history in SQLite, exposes a FastAPI REST API, and visualises findings in Streamlit. Built in 1h 55min using Vibe Coding — I directed Claude Code as architect. 29 tests passing, green CI, full PII controls. Repo is public — you can clone and run it right now.',tip:'Lead with the audit trail and GitHub repo — that\'s your strongest credibility signal.'},
+  {type:'qa',typeLabel:'Q&A',q:'Under 2 hours? How can the quality be good?',a:'The time reflects the Vibe Coding workflow — I directed an AI that executed. But quality is verifiable: 29 automated tests all passing, green CI on GitHub, ruff and black clean, 11 security rules, full PII controls. The repo is public — clone it and run it right now. Fast execution with verifiable quality is exactly what an FDE needs to deliver.',tip:'Hold your ground. Don\'t apologise for the speed.'},
+  {type:'qa',typeLabel:'Q&A',q:'Why Project 2 over the other options?',a:'Three reasons. First, I hold HashiCorp Terraform certification — the only project where a certification directly maps to the core technology. Second, tightest scope: static config files I control, no cloud accounts, no synthetic data. Third, JD explicitly lists Terraform and compliance as requirements — choosing Project 2 signals I read the JD carefully. That\'s what a senior FDE does before writing a single line of code.',tip:'Mention the Terraform cert specifically — it\'s verifiable.'},
+  {type:'qa',typeLabel:'Q&A',q:'How does your rules engine work?',a:'Parser produces a dict of resource blocks keyed by type and name. Rules engine applies all 11 check functions to each block. Each violation returns a Finding dataclass with rule_id, severity, points, resource_name, description. Risk scorer sums points and caps at 100. HARDCODED_SECRET uses regex pattern matching but skips values starting with var. or data. — so it only flags actual strings, not variable references.',tip:'If asked about CloudFormation difference — separate parsers, equivalent rules mapped to AWS:: resource types.'},
+  {type:'qa',typeLabel:'Q&A',q:'What would you change for production?',a:'Six things: swap SQLite for PostgreSQL (one config line), add JWT auth (FastAPI dependency injection makes this clean), add async scanning for large files with webhook callbacks, add detect-secrets library for more comprehensive credential scanning, containerise with Docker + Kubernetes, add RAGAS-style evaluation for the rules engine. Architecture is already layered to support all of these without major refactoring.',tip:'This shows you think beyond the demo. That\'s what separates senior engineers.'},
+  {type:'qa',typeLabel:'Q&A',q:'Aren\'t you just letting AI write your code?',a:'I directed every architectural decision — tech stack, 11 security rules, risk scoring algorithm, PII controls, test strategy. The AI executed my instructions. The prompts.md file shows exactly what I directed and in what order. Also — the JD explicitly requires "demonstrated use of AI coding assistants to accelerate delivery." I demonstrated exactly that, with a full audit trail.',tip:'Don\'t be defensive. You did exactly what the challenge asked.'},
+  {type:'arch',typeLabel:'Architecture',q:'What are the 7 layers of the architecture?',a:'1. Streamlit — presentation layer, single file dashboard\n2. FastAPI + Uvicorn — REST API, 4 endpoints\n3. python-hcl2 + pyyaml — scanner/parser layer\n4. Rules engine — 11 CIS rules, Finding dataclass\n5. Risk scorer — weighted algorithm, capped at 100\n6. SQLite + SQLAlchemy — persistence layer\n7. Security middleware — rate limiting, headers, PII controls',tip:'Draw this as a vertical stack when explaining. Top to bottom.'},
+  {type:'arch',typeLabel:'Architecture',q:'Walk me through the POST /scan data flow.',a:'1. Streamlit sends multipart upload to FastAPI\n2. FastAPI validates type, size, sanitises filename\n3. File saved to temp dir in try/finally\n4. Scanner detects .tf or .yaml, routes to correct parser\n5. Parser returns resource dict\n6. Rules engine applies 11 rules, returns Finding list\n7. Risk scorer sums points, caps at 100\n8. ScanResult + Findings saved to SQLite\n9. JSON response: scan_id, risk_score, risk_level, findings\n10. Temp file deleted\n11. Streamlit renders results',tip:'12 steps. Know them in order.'},
+  {type:'arch',typeLabel:'Architecture',q:'What are the 11 security rules and their points?',a:'Critical 40pts: PUBLIC_S3_BUCKET, OPEN_ALL_PORTS\nHigh 25pts: OPEN_SSH, OPEN_RDP, UNENCRYPTED_EBS, UNENCRYPTED_RDS, HARDCODED_SECRET\nMedium 20pts: NO_MFA, WEAK_IAM_POLICY, HTTP_LISTENER, UNRESTRICTED_OUTBOUND',tip:'Critical and High rules are the ones interviewers care about most.'},
+  {type:'arch',typeLabel:'Architecture',q:'What are the PII and security controls?',a:'Input: file type whitelist (.tf .yaml .yml), 10MB limit, filename sanitisation, temp file try/finally cleanup, rate limiting 10/min\nData: secrets never stored (value redacted), secrets never logged, no raw file content in DB, no client IP stored\nAPI: security headers (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection), clean error messages only',tip:'HARDCODED_SECRET is your strongest PII story — detect but never store.'},
+  {type:'demo',typeLabel:'Demo',q:'What are the 3 sample file risk scores?',a:'clean_infra.tf → Score 0 — Clean (no violations)\nvulnerable_infra.tf → Score 100 — Critical (6 violations: PUBLIC_S3, SSH, RDP, NO_MFA, EBS, HTTP)\nmixed_infra.yaml → Score 45 — Medium (2 violations: OPEN_SSH + HTTP_LISTENER)',tip:'Know these numbers cold. She will ask.'},
+  {type:'demo',typeLabel:'Demo',q:'What is the 9-step demo flow and timing?',a:'1. Problem statement — 1 min\n2. Scan clean file → score 0 — 1 min\n3. Scan vulnerable file → score 100, walk 6 findings — 3 min\n4. Scan mixed YAML → score 45 — 1 min\n5. Show scan history — 30 sec\n6. Show API docs at /docs — 2 min\n7. Show security controls (SECURITY_AND_PII.md) — 1 min\n8. Show prompts.md audit trail — 1 min\n9. Close strong — 30 sec\nTotal: 10-12 min',tip:'Practise the full demo at least twice before the interview.'},
+  {type:'demo',typeLabel:'Demo',q:'What is your closing statement?',a:'"29 tests passing, green CI, 11 security rules, full PII controls, complete documentation — built in 1 hour 55 minutes. The architecture is designed to extend: swap SQLite for PostgreSQL, add JWT auth, add Azure and GCP rules. Happy to go deeper on any component."',tip:'End on the word component — then stop talking. Do not fill the silence.'},
+  {type:'warn',typeLabel:'Watch out',q:'She goes silent after your answer. What do you do?',a:'Nothing. Stop talking. Silence in a technical interview is a test — interviewers go silent to see if you fill the gap with filler or hold your ground. When you have answered, you are done. Wait for the next question. If it goes beyond 10 seconds, you can say "I am happy to go deeper on any part of that."',tip:'This is the hardest thing to train. Practise stopping mid-sentence.'},
+  {type:'warn',typeLabel:'Watch out',q:'She pushes back on something you said. What do you do?',a:'Pause. Do not backpedal. Restate your position more clearly — not differently. If she is right, acknowledge it directly: "That is a fair point — let me revise that." If she is testing you, hold your ground with evidence. Never apologise for a correct answer. Never change your answer just because she challenged it.',tip:'Pushback is a test of conviction. Backpedalling signals you don\'t believe your own answers.'},
+];
+
+let filtered=[...allCards];
+let current=0;
+let known=new Set();
+let seen=new Set();
+
+function updateCard(){
+  if(!filtered.length)return;
+  const c=filtered[current];
+  seen.add(filtered[current]);
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('card-type-front').textContent=c.typeLabel;
+  document.getElementById('card-type-front').className='card-type '+c.type;
+  document.getElementById('card-q').textContent=c.q;
+  document.getElementById('card-hint').textContent='Tap to reveal answer';
+  document.getElementById('card-type-back').textContent='Answer';
+  document.getElementById('card-a').textContent=c.a;
+  const tipEl=document.getElementById('card-tip');
+  if(c.tip){tipEl.textContent='Tip: '+c.tip;tipEl.style.display='block';}
+  else tipEl.style.display='none';
+  document.getElementById('card-counter').textContent=(current+1)+' / '+filtered.length;
+  document.getElementById('prev-btn').disabled=current===0;
+  document.getElementById('next-btn').disabled=current===filtered.length-1;
+  const pct=Math.round((seen.size/allCards.length)*100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=seen.size+' / '+allCards.length;
+  document.getElementById('seen-count').textContent=seen.size;
+  document.getElementById('known-count').textContent=known.size;
+}
+
+function flipCard(){document.getElementById('flashcard').classList.toggle('flipped');}
+function nextCard(){if(current<filtered.length-1){current++;updateCard();}}
+function prevCard(){if(current>0){current--;updateCard();}}
+function markKnown(){known.add(filtered[current]);document.getElementById('known-count').textContent=known.size;if(current<filtered.length-1)nextCard();}
+function shuffle(){filtered.sort(()=>Math.random()-0.5);current=0;updateCard();}
+
+function filterCards(cat,btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filtered=cat==='all'?[...allCards]:allCards.filter(c=>c.type===cat);
+  current=0;
+  document.getElementById('total-cards').textContent=filtered.length;
+  updateCard();
+}
+
+function showSection(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function activateStep(el){
+  document.querySelectorAll('.step-num').forEach(n=>n.classList.remove('active-step'));
+  el.querySelector('.step-num').classList.add('active-step');
+}
+
+updateCard();
+</script>
