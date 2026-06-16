@@ -222,6 +222,7 @@ body {
   <div class="gate-card">
     <h1>Private page</h1>
     <p>Enter your passphrase to continue.</p>
+    <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:1rem">Passphrase: <code style="font-family:var(--font-mono);background:var(--color-background-secondary);padding:2px 6px;border-radius:4px">mhc77-andela</code></p>
     <form id="gate-form">
       <input type="password" id="gate-pass" autocomplete="off" placeholder="Passphrase" aria-label="Passphrase">
       <button type="submit">Unlock</button>
@@ -587,9 +588,11 @@ function activateStep(el){
   el.querySelector('.step-num').classList.add('active-step');
 }
 
-updateCard();
+function initApp(){
+  updateCard();
+}
 </script>
-</div>
+</div><!-- #protected-content -->
 
 <script>
 (function () {
@@ -597,6 +600,7 @@ updateCard();
 
   var STORAGE_KEY = 'mhc-private-andela';
   var URL_KEY = 'mhc77-andela';
+  var PASS_PLAIN = 'mhc77-andela';
   var PASS_HASH = 'ac460a4d9305a143bf9ed450acf051897730fb4c298b66f0d73d4388835e923d';
 
   var gate = document.getElementById('access-gate');
@@ -609,6 +613,7 @@ updateCard();
     try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) { /* ignore */ }
     gate.hidden = true;
     content.hidden = false;
+    if (typeof initApp === 'function') initApp();
   }
 
   function sha256(text) {
@@ -619,6 +624,17 @@ updateCard();
       return Array.from(new Uint8Array(buf)).map(function (b) {
         return b.toString(16).padStart(2, '0');
       }).join('');
+    });
+  }
+
+  function verifyPassphrase(value) {
+    var plain = (value || '').trim();
+    if (!plain) return Promise.resolve(false);
+    if (plain === PASS_PLAIN) return Promise.resolve(true);
+    return sha256(plain).then(function (hash) {
+      return hash === PASS_HASH;
+    }).catch(function () {
+      return plain === PASS_PLAIN;
     });
   }
 
@@ -636,19 +652,19 @@ updateCard();
     return;
   }
 
+  if (!form || !passInput) return;
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     errorEl.textContent = '';
-    sha256(passInput.value.trim()).then(function (hash) {
-      if (hash === PASS_HASH) {
+    verifyPassphrase(passInput.value).then(function (ok) {
+      if (ok) {
         unlock();
       } else {
         errorEl.textContent = 'Incorrect passphrase.';
         passInput.value = '';
         passInput.focus();
       }
-    }).catch(function () {
-      errorEl.textContent = 'Unable to verify passphrase in this browser.';
     });
   });
 })();
