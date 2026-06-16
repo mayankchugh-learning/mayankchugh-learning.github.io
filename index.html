@@ -1001,8 +1001,26 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
 </section>
 
 <footer>
-  <p>© 2026 Mayank Chugh · Hong Kong · Enterprise Architect → AI Engineer</p>
+  <p>© 2026 Mayank Chugh · Hong Kong · Enterprise Architect <span id="priv-gate" aria-hidden="true">→</span> AI Engineer</p>
 </footer>
+
+<script>
+(function () {
+  var el = document.getElementById('priv-gate');
+  if (!el) return;
+  var clicks = 0;
+  var timer;
+  el.addEventListener('click', function () {
+    clicks += 1;
+    clearTimeout(timer);
+    timer = setTimeout(function () { clicks = 0; }, 700);
+    if (clicks >= 3) {
+      try { sessionStorage.setItem('mhc-private-andela', '1'); } catch (e) { /* ignore */ }
+      window.location.href = 'pages/migration/andela_interview_prep.html';
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
