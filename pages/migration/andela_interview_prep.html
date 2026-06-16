@@ -131,11 +131,11 @@ body {
 
 .card{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem;box-shadow:0 1px 2px rgba(26,25,22,0.04)}
 
-.flashcard{min-height:220px;cursor:pointer;position:relative;perspective:1000px}
-.flashcard-inner{position:relative;width:100%;min-height:220px;transition:transform 0.5s;transform-style:preserve-3d}
+.flashcard{min-height:280px;cursor:pointer;position:relative;perspective:1000px}
+.flashcard-inner{position:relative;width:100%;min-height:280px;transition:transform 0.5s;transform-style:preserve-3d}
 .flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
-.flashcard-front,.flashcard-back{position:absolute;width:100%;min-height:220px;backface-visibility:hidden;padding:1.5rem;display:flex;flex-direction:column;justify-content:center}
-.flashcard-back{transform:rotateY(180deg);background:var(--color-background-secondary)}
+.flashcard-front,.flashcard-back{position:absolute;width:100%;min-height:280px;backface-visibility:hidden;padding:1.5rem;display:flex;flex-direction:column;justify-content:flex-start}
+.flashcard-back{transform:rotateY(180deg);background:var(--color-background-secondary);overflow-y:auto}
 .card-type{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;color:var(--color-text-secondary)}
 .card-type.qa{color:#185FA5}
 .card-type.arch{color:#0F6E56}
@@ -145,6 +145,15 @@ body {
 .card-hint{font-size:12px;color:var(--color-text-secondary)}
 .card-a{font-size:14px;color:var(--color-text-primary);line-height:1.6}
 .card-tip{margin-top:12px;padding:8px 12px;background:var(--color-background-primary);border-radius:var(--border-radius-md);border-left:2px solid #1D9E75;font-size:12px;color:var(--color-text-secondary)}
+.card-mnemonic{margin-top:10px;padding:8px 12px;background:#faf6ed;border-radius:var(--border-radius-md);border-left:2px solid #854F0B;font-size:12px;color:var(--color-text-primary);line-height:1.55}
+.card-mnemonic strong{color:#854F0B;font-weight:600}
+.mnemonic-cheat{padding:14px 16px}
+.mnemonic-cheat h3{font-size:13px;font-weight:500;margin-bottom:10px;color:var(--color-text-primary)}
+.mnemonic-row{padding:8px 0;border-bottom:1px solid var(--color-border-tertiary);font-size:12px;line-height:1.5}
+.mnemonic-row:last-child{border-bottom:none}
+.mnemonic-row strong{color:#854F0B;font-weight:600}
+.decision-memo{margin-top:6px;font-size:11px;color:#854F0B;line-height:1.45}
+.decision-memo strong{font-weight:600}
 .flip-hint{position:absolute;bottom:12px;right:14px;font-size:11px;color:var(--color-text-secondary)}
 
 .nav-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:1rem}
@@ -262,6 +271,7 @@ body {
       <div class="flashcard-back">
         <div class="card-type" id="card-type-back">Answer</div>
         <div class="card-a" id="card-a"></div>
+        <div class="card-mnemonic" id="card-mnemonic" style="display:none"></div>
         <div class="card-tip" id="card-tip" style="display:none"></div>
         <div class="flip-hint">tap to flip back</div>
       </div>
@@ -280,6 +290,19 @@ body {
 
 <!-- ARCHITECTURE -->
 <div id="architecture" class="section">
+  <div class="card">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--color-border-tertiary);font-size:13px;font-weight:500;color:var(--color-text-primary)">Mnemonics cheat sheet — acronym memory aids</div>
+    <div class="mnemonic-cheat">
+      <div class="mnemonic-row"><strong>SFPRSS</strong> — 7 layers: Streamlit · FastAPI · Parsers · Rules · Risk scorer · SQLite · Security</div>
+      <div class="mnemonic-row"><strong>VT PRS DJR</strong> — POST /scan flow: Validate · Temp · Parse · Rules · Risk · SQLite · Delete · JSON · Render</div>
+      <div class="mnemonic-row"><strong>POP + SOREH + NWHA</strong> — 11 rules (40/25/20 pts): Public S3+Open ports · SSH/RDP/EBS/RDS/Hardcoded · No MFA/Weak IAM/HTTP/Any outbound</div>
+      <div class="mnemonic-row"><strong>WASH · SLNI · HCE</strong> — PII controls: input whitelist/size/sanitise/rate · secrets never stored/logged/no raw/no IP · headers/clean errors</div>
+      <div class="mnemonic-row"><strong>0 · 100 · 45</strong> — Demo scores: clean_infra.tf · vulnerable_infra.tf · mixed_infra.yaml</div>
+      <div class="mnemonic-row"><strong>PCVM-HAPIC</strong> — 9 demo steps: Problem · Clean · Vuln · Mixed · History · API · PII · prompts · Close (~11.5 min)</div>
+      <div class="mnemonic-row"><strong>CTF</strong> — Why Project 2: Certified Terraform · Tight scope · Fit JD</div>
+      <div class="mnemonic-row"><strong>6 Ps</strong> — Production: Postgres · JWT Permission · Pipeline async · Password scan · Pods (K8s) · Performance eval</div>
+    </div>
+  </div>
   <div class="card">
     <div style="padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;font-weight:500;color:var(--color-text-primary)">System architecture — know this cold</div>
     <div style="padding:14px 16px">
@@ -423,48 +446,56 @@ body {
       <div class="decision-q">Why FastAPI over Flask?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">FastAPI</span><span class="decision-badge badge-alt">Flask</span><span class="decision-badge badge-alt">Django REST</span></div>
       <div class="decision-a">Auto OpenAPI docs at /docs with zero extra work — critical for demo. Pydantic v2 validation built in. Async-native for scaling. The JD mentioned FastAPI in examples.</div>
+      <div class="decision-memo"><strong>OAP</strong> — OpenAPI auto · Async-native · Pydantic built-in</div>
       <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: more initial complexity than Flask</div>
     </div>
     <div class="decision-row">
       <div class="decision-q">Why SQLite over PostgreSQL?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">SQLite</span><span class="decision-badge badge-alt">PostgreSQL</span><span class="decision-badge badge-alt">MongoDB</span></div>
       <div class="decision-a">Zero setup — no database server needed. SQLAlchemy abstracts the DB entirely — swap to PostgreSQL with one config line. Challenge required free-tier local deployment.</div>
+      <div class="decision-memo"><strong>ZOL</strong> — Zero setup · One-line Postgres swap · Local challenge fit</div>
       <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: no concurrent writes. PostgreSQL swap = one line when needed.</div>
     </div>
     <div class="decision-row">
       <div class="decision-q">Why Streamlit over React?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">Streamlit</span><span class="decision-badge badge-alt">React</span><span class="decision-badge badge-alt">Jinja2 HTML</span></div>
       <div class="decision-a">Professional dashboard from a single Python file. No frontend build tooling. React would take 45+ minutes just on scaffolding. FDE means shipping working solutions fast.</div>
+      <div class="decision-memo"><strong>SFF</strong> — Single Python file · Fast to ship · FDE speed wins</div>
       <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: less customisable. No real-time updates without polling.</div>
     </div>
     <div class="decision-row">
       <div class="decision-q">Why python-hcl2 for Terraform?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">python-hcl2</span><span class="decision-badge badge-alt">regex parsing</span><span class="decision-badge badge-alt">pyhcl (unmaintained)</span></div>
       <div class="decision-a">Most actively maintained HCL2 parser in Python. Handles nested blocks, for_each, dynamic blocks. Alternatives are unmaintained or require shelling out.</div>
+      <div class="decision-memo"><strong>MND</strong> — Maintained · Nested blocks · Dynamic blocks</div>
       <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: v8 quoting behaviour needed custom _unquote() helper.</div>
     </div>
     <div class="decision-row">
       <div class="decision-q">Why risk score capped at 100?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">0-100 capped</span><span class="decision-badge badge-alt">unbounded points</span><span class="decision-badge badge-alt">CVSS style</span></div>
       <div class="decision-a">0-100 is intuitive and universally understood. Capping at 100 means the display is always meaningful — 100 always means "critical, act now" regardless of violation count.</div>
+      <div class="decision-memo"><strong>IMA</strong> — Intuitive scale · Meaningful at 100 · Action trigger clear</div>
       <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: can't distinguish 3 vs 10 critical findings from score alone. Findings table provides that detail.</div>
     </div>
     <div class="decision-row">
       <div class="decision-q">Why redact secret values?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">Value redacted</span><span class="decision-badge badge-alt">store for debugging</span><span class="decision-badge badge-alt">hash the value</span></div>
       <div class="decision-a">A security tool that stores the secrets it finds would itself be a security risk. Resource name + attribute is sufficient for remediation. Value adds no value, adds significant risk.</div>
+      <div class="decision-memo"><strong>DRR</strong> — Detect only · Remediate by resource name · Risk if we store secrets</div>
       <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: engineers must check original file. This is intentional, not a limitation.</div>
     </div>
     <div class="decision-row">
       <div class="decision-q">Why local deployment only?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">Local</span><span class="decision-badge badge-alt">HuggingFace Spaces</span><span class="decision-badge badge-alt">Render free tier</span></div>
       <div class="decision-a">Challenge warned about cloud costs — zero risk by staying local. Also appropriate for a security tool — you wouldn't send client infrastructure files to a third-party service.</div>
+      <div class="decision-memo"><strong>CLO</strong> — Cost zero · Local files stay local · Offline demo safe</div>
       <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: not publicly accessible without a tunnel. For demo, screen share is sufficient.</div>
     </div>
     <div class="decision-row">
       <div class="decision-q">Why Claude Code over Cursor?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">Claude Code</span><span class="decision-badge badge-alt">Cursor</span><span class="decision-badge badge-alt">GitHub Copilot</span></div>
       <div class="decision-a">Terminal access — can run tests and fix failures autonomously. Maintains file context across a full session. The challenge accepted all three; Claude Code gives the most end-to-end autonomy.</div>
+      <div class="decision-memo"><strong>TAF</strong> — Terminal runs tests · Autonomous fixes · Full session context</div>
       <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: more tokens per turn than inline Copilot suggestions.</div>
     </div>
   </div>
