@@ -14,10 +14,17 @@
   --color-background-secondary: #f3f2ee;
   --color-text-primary: #1a1916;
   --color-text-secondary: #6b6760;
-  --color-border-tertiary: #e0ddd5;
-  --color-border-secondary: #c8c4bb;
+  --color-border-tertiary: #ebe8e1;
+  --color-border-secondary: #d9d4ca;
   --border-radius-lg: 12px;
   --border-radius-md: 8px;
+  --accent: #185FA5;
+  --accent-hover: #144a85;
+  --accent-soft: #e8f2fb;
+  --accent-border: #b8d4ef;
+  --success: #0F6E56;
+  --success-soft: #e8f5ee;
+  --success-border: #9fd4b8;
 }
 body {
   font-family: var(--font-sans);
@@ -48,12 +55,13 @@ body {
 #protected-content[hidden] { display: none !important; }
 .gate-card {
   background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
+  border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-lg);
   padding: 2rem;
   max-width: 360px;
   width: 100%;
   text-align: center;
+  box-shadow: 0 1px 3px rgba(26, 25, 22, 0.06);
 }
 .gate-card h1 {
   font-size: 1.1rem;
@@ -68,24 +76,39 @@ body {
 .gate-card input {
   width: 100%;
   padding: 10px 12px;
-  border: 0.5px solid var(--color-border-secondary);
+  border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-md);
   font-family: var(--font-sans);
   font-size: 14px;
   margin-bottom: 0.75rem;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.gate-card input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+  background: var(--color-background-primary);
+  box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.12);
 }
 .gate-card button {
   width: 100%;
   padding: 10px;
-  background: #0f1e36;
+  background: var(--accent);
   color: #fff;
   border: none;
   border-radius: var(--border-radius-md);
   font-family: var(--font-sans);
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.15s;
 }
-.gate-card button:hover { background: #1a2f4e; }
+.gate-card button:hover { background: var(--accent-hover); }
+.gate-card button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .gate-error {
   font-size: 12px;
   color: #993C1D;
@@ -95,9 +118,10 @@ body {
 #protected-content { padding: 1.5rem; max-width: 900px; margin: 0 auto; }
 *{box-sizing:border-box;margin:0;padding:0}
 .app{padding:1rem 0;font-family:var(--font-sans)}
-.tabs{display:flex;gap:4px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:4px;margin-bottom:1.5rem}
+.tabs{display:flex;gap:4px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:4px;margin-bottom:1.5rem;border:1px solid var(--color-border-tertiary)}
 .tab{flex:1;background:transparent;border:none;padding:8px 4px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-radius:var(--border-radius-md);font-family:var(--font-sans);transition:all 0.15s;font-weight:400}
-.tab.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border:0.5px solid var(--color-border-tertiary)}
+.tab:hover{color:var(--color-text-primary);background:rgba(255,255,255,0.6)}
+.tab.active{background:var(--accent-soft);color:var(--accent);font-weight:500;border:none;box-shadow:inset 0 0 0 1px var(--accent-border)}
 .section{display:none}.section.active{display:block}
 
 .progress-bar{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem}
@@ -105,7 +129,7 @@ body {
 .progress-fill{height:100%;background:#1D9E75;border-radius:2px;transition:width 0.3s}
 .progress-label{font-size:12px;color:var(--color-text-secondary);white-space:nowrap}
 
-.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem}
+.card{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem;box-shadow:0 1px 2px rgba(26,25,22,0.04)}
 
 .flashcard{min-height:220px;cursor:pointer;position:relative;perspective:1000px}
 .flashcard-inner{position:relative;width:100%;min-height:220px;transition:transform 0.5s;transform-style:preserve-3d}
@@ -124,14 +148,22 @@ body {
 .flip-hint{position:absolute;bottom:12px;right:14px;font-size:11px;color:var(--color-text-secondary)}
 
 .nav-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:1rem}
-.nav-btn{background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:7px 16px;font-size:13px;color:var(--color-text-primary);cursor:pointer;font-family:var(--font-sans);transition:background 0.1s}
-.nav-btn:hover{background:var(--color-background-secondary)}
-.nav-btn:disabled{opacity:0.35;cursor:not-allowed}
+.nav-btn{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:7px 16px;font-size:13px;color:var(--color-text-primary);cursor:pointer;font-family:var(--font-sans);transition:background 0.15s,border-color 0.15s,color 0.15s}
+.nav-btn:hover{background:var(--color-background-secondary);border-color:var(--color-border-secondary)}
+.nav-btn:focus-visible{outline:2px solid var(--accent-border);outline-offset:2px}
+.nav-btn:disabled{opacity:0.4;cursor:not-allowed;background:var(--color-background-secondary)}
+.nav-btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.nav-btn-primary:hover:not(:disabled){background:var(--accent-hover);border-color:var(--accent-hover)}
+.nav-btn-primary:disabled{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent);opacity:0.55}
+.nav-btn-known{background:var(--success-soft);border-color:var(--success-border);color:var(--success);font-size:11px;padding:4px 10px}
+.nav-btn-known:hover{background:#d8efe3;border-color:var(--success)}
 .card-counter{font-size:13px;color:var(--color-text-secondary)}
 
 .category-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
-.cat-btn{background:transparent;border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all 0.1s}
-.cat-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-secondary)}
+.cat-btn{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all 0.15s}
+.cat-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+.cat-btn.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-border);font-weight:500}
+.cat-btn:focus-visible,.shuffle-btn:focus-visible{outline:2px solid var(--accent-border);outline-offset:2px}
 
 .arch-box{padding:1rem 1.25rem;margin-bottom:8px;border-radius:var(--border-radius-md);border-left:3px solid}
 .arch-box.blue{background:#E6F1FB;border-color:#185FA5}
@@ -143,7 +175,7 @@ body {
 .arch-detail{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
 .arch-code{font-size:11px;font-family:var(--font-mono);background:var(--color-background-secondary);padding:2px 6px;border-radius:4px;color:var(--color-text-primary)}
 
-.demo-step{display:flex;gap:12px;padding:12px 14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.demo-step{display:flex;gap:12px;padding:12px 14px;border-bottom:1px solid var(--color-border-tertiary)}
 .demo-step:last-child{border-bottom:none}
 .step-num{width:24px;height:24px;border-radius:50%;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--color-text-primary);flex-shrink:0;margin-top:1px}
 .step-num.active-step{background:#1D9E75;color:white}
@@ -153,7 +185,7 @@ body {
 .step-do{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
 .step-time{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
 
-.decision-row{padding:12px 14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.decision-row{padding:12px 14px;border-bottom:1px solid var(--color-border-tertiary)}
 .decision-row:last-child{border-bottom:none}
 .decision-q{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
 .decision-a{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
@@ -167,8 +199,8 @@ body {
 .metric-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
 .metric-label{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
 
-.shuffle-btn{background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
-.shuffle-btn:hover{background:var(--color-background-secondary)}
+.shuffle-btn{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all 0.15s}
+.shuffle-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-soft)}
 </style>
 </head>
 <body>
@@ -240,9 +272,9 @@ body {
     <button class="nav-btn" id="prev-btn" onclick="prevCard()" disabled>← Previous</button>
     <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
       <span class="card-counter" id="card-counter">1 / 15</span>
-      <button class="nav-btn" onclick="markKnown()" style="font-size:11px;padding:4px 10px;color:#0F6E56;border-color:#0F6E56">Mark known ✓</button>
+      <button class="nav-btn nav-btn-known" onclick="markKnown()">Mark known ✓</button>
     </div>
-    <button class="nav-btn" id="next-btn" onclick="nextCard()">Next →</button>
+    <button class="nav-btn nav-btn-primary" id="next-btn" onclick="nextCard()">Next →</button>
   </div>
 </div>
 
