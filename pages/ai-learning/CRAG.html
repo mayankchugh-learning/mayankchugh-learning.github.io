@@ -1,0 +1,1246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRAG Interactive Explainer</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --ink: #18202f;
+      --muted: #637083;
+      --line: #d9dee8;
+      --teal: #0f766e;
+      --teal-soft: #d9f4ef;
+      --indigo: #4f46e5;
+      --indigo-soft: #e8e7ff;
+      --amber: #b45309;
+      --amber-soft: #fff1d6;
+      --rose: #be123c;
+      --rose-soft: #ffe3ea;
+      --green: #15803d;
+      --green-soft: #e1f6e8;
+      --shadow: 0 14px 35px rgba(22, 30, 46, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1360px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 12px 0 0;
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .summary {
+      min-height: 92px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .summary b {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .summary span {
+      color: var(--muted);
+    }
+
+    .nav {
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .tab-btn.active {
+      background: var(--indigo);
+      color: #ffffff;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-header h2,
+    .panel-header h3 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: 0;
+    }
+
+    .panel-header p {
+      margin: 5px 0 0;
+      color: var(--muted);
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    .control-group {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      font-weight: 750;
+    }
+
+    .field select,
+    .field input[type="range"] {
+      width: 100%;
+    }
+
+    select {
+      min-height: 40px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .switch-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .switch-row span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+    }
+
+    .track {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #cbd5e1;
+      transition: background .18s ease;
+    }
+
+    .track::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, .22);
+      transition: transform .18s ease;
+    }
+
+    .switch input:checked + .track {
+      background: var(--teal);
+    }
+
+    .switch input:checked + .track::after {
+      transform: translateX(22px);
+    }
+
+    .decision {
+      display: grid;
+      gap: 14px;
+    }
+
+    .score-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .meter {
+      overflow: hidden;
+      height: 12px;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+
+    .meter-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--teal);
+      transition: width .22s ease, background .22s ease;
+    }
+
+    .verdict {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--green-soft);
+    }
+
+    .verdict-icon {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--green);
+    }
+
+    .verdict h3 {
+      margin: 0 0 4px;
+      font-size: 20px;
+    }
+
+    .verdict p {
+      margin: 0;
+      color: #334155;
+    }
+
+    .reason-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .reason-list li {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      gap: 8px;
+      color: var(--muted);
+    }
+
+    .reason-list svg {
+      width: 18px;
+      height: 18px;
+      color: var(--teal);
+      margin-top: 2px;
+    }
+
+    .flow-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .flow-canvas {
+      min-height: 620px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(79, 70, 229, .06) 1px, transparent 1px),
+        linear-gradient(rgba(15, 118, 110, .06) 1px, transparent 1px),
+        #fff;
+      background-size: 32px 32px;
+    }
+
+    .flow-svg {
+      width: 100%;
+      height: auto;
+      min-height: 560px;
+      display: block;
+    }
+
+    .flow-node {
+      cursor: pointer;
+    }
+
+    .flow-node rect,
+    .flow-node path {
+      transition: fill .18s ease, stroke .18s ease, filter .18s ease;
+    }
+
+    .flow-node.active rect,
+    .flow-node.active path {
+      stroke: var(--indigo);
+      filter: drop-shadow(0 10px 16px rgba(79, 70, 229, .2));
+    }
+
+    .flow-node text {
+      pointer-events: none;
+      font-size: 14px;
+      font-weight: 760;
+      fill: var(--ink);
+    }
+
+    .flow-label {
+      fill: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .step-detail {
+      min-height: 620px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .step-nav {
+      display: grid;
+      grid-template-columns: 40px 40px minmax(0, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--indigo);
+      color: var(--indigo);
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .step-count {
+      color: var(--muted);
+      text-align: right;
+      font-size: 13px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .case-card {
+      min-height: 230px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .case-card .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--teal);
+      background: var(--teal-soft);
+      margin-bottom: 12px;
+    }
+
+    .case-card.warn .tag {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .case-card.stop .tag {
+      color: var(--rose);
+      background: var(--rose-soft);
+    }
+
+    .case-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .case-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .compare h3 {
+      margin: 0 0 10px;
+    }
+
+    .mini-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr);
+      gap: 12px;
+      padding: 9px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .mini-row b {
+      font-size: 13px;
+    }
+
+    .mini-row span {
+      color: var(--muted);
+    }
+
+    .quiz {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .scenario-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .scenario-btn {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 70px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .scenario-btn.active {
+      border-color: var(--indigo);
+      background: var(--indigo-soft);
+    }
+
+    .scenario-btn span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .scenario-result {
+      position: sticky;
+      top: 20px;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+      .topbar,
+      .grid-2,
+      .flow-layout,
+      .quiz {
+        grid-template-columns: 1fr;
+      }
+
+      .nav {
+        overflow-x: auto;
+      }
+
+      .summary-strip,
+      .cards,
+      .compare {
+        grid-template-columns: 1fr;
+      }
+
+      .step-detail,
+      .flow-canvas {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .app {
+        width: min(100vw - 20px, 1360px);
+        padding-top: 16px;
+      }
+
+      .panel-body,
+      .panel-header {
+        padding: 14px;
+      }
+
+      .summary {
+        min-height: auto;
+      }
+
+      .mini-row {
+        grid-template-columns: 1fr;
+        gap: 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Corrective Retrieval-Augmented Generation</p>
+        <h1>CRAG decision guide</h1>
+        <p class="subtitle">
+          CRAG adds a retrieval quality gate before answer generation. It is useful when retrieved
+          context may be incomplete, stale, or irrelevant, and the system needs a controlled correction path.
+        </p>
+      </div>
+      <nav class="nav" aria-label="Sections">
+        <button class="tab-btn active" data-tab="decision">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h10" fill="none" stroke="currentColor" stroke-width="2"/><path d="m11 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Decision
+        </button>
+        <button class="tab-btn" data-tab="architecture">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h6v6H4zM14 6h6v6h-6zM9 12v6h6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Flow
+        </button>
+        <button class="tab-btn" data-tab="cases">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Use Cases
+        </button>
+        <button class="tab-btn" data-tab="practice">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 8h14M7 16h10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Scenarios
+        </button>
+      </nav>
+    </header>
+
+    <section class="summary-strip" aria-label="Quick answers">
+      <div class="summary">
+        <b>When to use CRAG</b>
+        <span>Use it when retrieval can be wrong and the answer matters enough to verify or correct context.</span>
+      </div>
+      <div class="summary">
+        <b>Architecture flow</b>
+        <span>Retrieve -> grade retrieval -> refine if good, search/rewrite if weak -> generate from corrected context.</span>
+      </div>
+      <div class="summary">
+        <b>When not to use it</b>
+        <span>Avoid it for simple static KBs, strict low-latency flows, or cases where web search is disallowed.</span>
+      </div>
+    </section>
+
+    <section class="tab-panel active" id="decision" aria-label="CRAG decision simulator">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Do we need CRAG?</h2>
+            <p>Adjust the system conditions and watch the recommendation change.</p>
+          </div>
+          <div class="panel-body">
+            <div class="control-group">
+              <div class="field">
+                <label for="freshness">Knowledge freshness</label>
+                <select id="freshness">
+                  <option value="0">Stable facts, rarely changing</option>
+                  <option value="18">Changes monthly or weekly</option>
+                  <option value="28">Changes daily or in real time</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="retrieval">Retriever confidence</label>
+                <select id="retrieval">
+                  <option value="26">Often low or noisy</option>
+                  <option value="14" selected>Mixed quality</option>
+                  <option value="0">High precision and well tested</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="risk">Answer risk</label>
+                <select id="risk">
+                  <option value="0">Low stakes</option>
+                  <option value="18" selected>Customer or operational impact</option>
+                  <option value="28">Compliance, finance, security, or medical impact</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="latency">Latency budget</label>
+                <select id="latency">
+                  <option value="-22">Must answer immediately</option>
+                  <option value="-8">Moderate latency budget</option>
+                  <option value="8" selected>Can spend extra seconds to improve grounding</option>
+                </select>
+              </div>
+
+              <label class="switch-row">
+                <span>
+                  External correction source allowed
+                  <br>
+                  <span>For example web search, internal search, or specialist tools.</span>
+                </span>
+                <span class="switch">
+                  <input id="externalAllowed" type="checkbox" checked>
+                  <span class="track"></span>
+                </span>
+              </label>
+
+              <label class="switch-row">
+                <span>
+                  Retrieval failures are visible in logs or evals
+                  <br>
+                  <span>CRAG works best when weak retrieval can be detected and improved.</span>
+                </span>
+                <span class="switch">
+                  <input id="observable" type="checkbox" checked>
+                  <span class="track"></span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Recommendation</h2>
+            <p>The score reflects need for a correction loop, not whether your current implementation is ready.</p>
+          </div>
+          <div class="panel-body decision">
+            <div class="score-card">
+              <div>
+                <b id="scoreLabel">CRAG fit: 0</b>
+                <p class="small-note" id="scoreText">Adjust the controls to calculate a recommendation.</p>
+              </div>
+              <div class="meter" aria-hidden="true"><div class="meter-fill" id="meterFill"></div></div>
+            </div>
+
+            <div class="verdict" id="verdictBox">
+              <div class="verdict-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+              </div>
+              <div>
+                <h3 id="verdictTitle">Use CRAG selectively</h3>
+                <p id="verdictBody"></p>
+              </div>
+            </div>
+
+            <div>
+              <h3>What drove the recommendation</h3>
+              <ul class="reason-list" id="reasonList"></ul>
+            </div>
+
+            <div class="compare">
+              <div class="panel">
+                <div class="panel-body">
+                  <h3>Plain RAG</h3>
+                  <div class="mini-table">
+                    <div class="mini-row"><b>Control point</b><span>Usually after retrieval, at generation time.</span></div>
+                    <div class="mini-row"><b>Failure mode</b><span>Bad context can still be used confidently.</span></div>
+                    <div class="mini-row"><b>Cost</b><span>Lower latency and fewer model/tool calls.</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-body">
+                  <h3>CRAG</h3>
+                  <div class="mini-table">
+                    <div class="mini-row"><b>Control point</b><span>Before generation, using a retrieval evaluator.</span></div>
+                    <div class="mini-row"><b>Failure mode</b><span>Weak context routes to rewrite, search, or abstention.</span></div>
+                    <div class="mini-row"><b>Cost</b><span>More latency, orchestration, and observability needs.</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="architecture" aria-label="CRAG architecture flow">
+      <div class="flow-layout">
+        <div class="flow-canvas">
+          <svg class="flow-svg" viewBox="0 0 980 650" role="img" aria-label="Corrective RAG architecture flow">
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#667085"></path>
+              </marker>
+            </defs>
+
+            <path d="M165 95 H330" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M490 95 H655" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M745 145 V228" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M745 352 V430" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M745 540 H835" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M410 145 V235" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M410 355 V430 H690" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M575 295 H655" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M575 95 C615 95, 615 295, 655 295" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+
+            <g class="flow-node active" data-step="0" tabindex="0">
+              <rect x="30" y="55" width="135" height="80" rx="8" fill="#e8e7ff" stroke="#b8b5ff" stroke-width="2"></rect>
+              <text x="97" y="88" text-anchor="middle">User</text>
+              <text x="97" y="110" text-anchor="middle">question</text>
+            </g>
+            <g class="flow-node" data-step="1" tabindex="0">
+              <rect x="330" y="55" width="160" height="80" rx="8" fill="#d9f4ef" stroke="#95d8ce" stroke-width="2"></rect>
+              <text x="410" y="88" text-anchor="middle">Retrieve</text>
+              <text x="410" y="110" text-anchor="middle">top-k docs</text>
+            </g>
+            <g class="flow-node" data-step="2" tabindex="0">
+              <path d="M745 45 L835 95 L745 145 L655 95 Z" fill="#fff1d6" stroke="#e6bd73" stroke-width="2"></path>
+              <text x="745" y="89" text-anchor="middle">Grade</text>
+              <text x="745" y="111" text-anchor="middle">retrieval</text>
+            </g>
+            <text class="flow-label" x="594" y="78">Correct</text>
+            <text class="flow-label" x="613" y="278">Ambiguous</text>
+            <text class="flow-label" x="760" y="197">Incorrect</text>
+
+            <g class="flow-node" data-step="3" tabindex="0">
+              <rect x="330" y="235" width="160" height="120" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"></rect>
+              <text x="410" y="282" text-anchor="middle">Knowledge</text>
+              <text x="410" y="304" text-anchor="middle">refine</text>
+              <text x="410" y="326" text-anchor="middle">internal docs</text>
+            </g>
+            <g class="flow-node" data-step="4" tabindex="0">
+              <rect x="665" y="228" width="160" height="80" rx="8" fill="#ffe3ea" stroke="#f4a7ba" stroke-width="2"></rect>
+              <text x="745" y="260" text-anchor="middle">Transform</text>
+              <text x="745" y="282" text-anchor="middle">query</text>
+            </g>
+            <g class="flow-node" data-step="5" tabindex="0">
+              <rect x="665" y="330" width="160" height="80" rx="8" fill="#ffe3ea" stroke="#f4a7ba" stroke-width="2"></rect>
+              <text x="745" y="362" text-anchor="middle">Search</text>
+              <text x="745" y="384" text-anchor="middle">external source</text>
+            </g>
+            <g class="flow-node" data-step="6" tabindex="0">
+              <rect x="665" y="430" width="160" height="80" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"></rect>
+              <text x="745" y="462" text-anchor="middle">Refine</text>
+              <text x="745" y="484" text-anchor="middle">new context</text>
+            </g>
+            <g class="flow-node" data-step="7" tabindex="0">
+              <rect x="665" y="520" width="160" height="80" rx="8" fill="#e1f6e8" stroke="#98d9ab" stroke-width="2"></rect>
+              <text x="745" y="552" text-anchor="middle">Generate</text>
+              <text x="745" y="574" text-anchor="middle">grounded answer</text>
+            </g>
+            <g class="flow-node" data-step="8" tabindex="0">
+              <rect x="835" y="520" width="115" height="80" rx="8" fill="#e8e7ff" stroke="#b8b5ff" stroke-width="2"></rect>
+              <text x="892" y="552" text-anchor="middle">Answer</text>
+              <text x="892" y="574" text-anchor="middle">or abstain</text>
+            </g>
+          </svg>
+        </div>
+
+        <aside class="panel step-detail">
+          <div class="panel-header">
+            <h2 id="stepTitle">User question</h2>
+            <p id="stepSubtitle">The request enters the RAG system.</p>
+          </div>
+          <div class="panel-body">
+            <p id="stepBody"></p>
+            <div class="pill-row" id="stepTags"></div>
+            <div class="step-nav">
+              <button class="icon-btn" id="prevStep" aria-label="Previous step">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              </button>
+              <button class="icon-btn" id="nextStep" aria-label="Next step">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              </button>
+              <div class="step-count" id="stepCount"></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="cases" aria-label="CRAG use cases and non-use cases">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>When to use CRAG</h2>
+          <p>Use CRAG when the retrieval layer needs a quality control loop before generation.</p>
+        </div>
+        <div class="panel-body">
+          <div class="cards">
+            <article class="case-card">
+              <div class="tag">Use</div>
+              <h3>Open-domain or changing facts</h3>
+              <p>Market data, policy pages, product docs, incidents, pricing, rules, and facts that drift outside a static vector store.</p>
+            </article>
+            <article class="case-card">
+              <div class="tag">Use</div>
+              <h3>Low recall retrieval</h3>
+              <p>When the retriever often returns adjacent but insufficient chunks, CRAG can detect weak context and route to correction.</p>
+            </article>
+            <article class="case-card">
+              <div class="tag">Use</div>
+              <h3>High cost of hallucination</h3>
+              <p>Customer support, compliance, finance, healthcare, security, or internal ops where a confident wrong answer is expensive.</p>
+            </article>
+            <article class="case-card">
+              <div class="tag">Use</div>
+              <h3>Mixed internal and external knowledge</h3>
+              <p>Questions may need internal policy plus fresh external facts. CRAG can merge and refine both sources before answering.</p>
+            </article>
+            <article class="case-card">
+              <div class="tag">Use</div>
+              <h3>You can observe retrieval failures</h3>
+              <p>If evals show poor context recall, irrelevant passages, or weak faithfulness, CRAG gives a targeted place to intervene.</p>
+            </article>
+            <article class="case-card">
+              <div class="tag">Use</div>
+              <h3>Abstention is acceptable</h3>
+              <p>CRAG is strongest when the system may say "not enough evidence" instead of forcing an answer from weak context.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 18px"></div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>When not to use CRAG</h2>
+          <p>CRAG is a control loop. Do not add it when the simpler system already satisfies the product constraints.</p>
+        </div>
+        <div class="panel-body">
+          <div class="cards">
+            <article class="case-card stop">
+              <div class="tag">Avoid</div>
+              <h3>Very low latency interactions</h3>
+              <p>If the answer must arrive in a tight real-time budget, extra evaluator, rewrite, and search calls may be too slow.</p>
+            </article>
+            <article class="case-card stop">
+              <div class="tag">Avoid</div>
+              <h3>External sources are not allowed</h3>
+              <p>If policy forbids web or tool calls, use stronger internal retrieval, curated fallback docs, or abstention instead.</p>
+            </article>
+            <article class="case-card stop">
+              <div class="tag">Avoid</div>
+              <h3>Small, stable, well-covered KB</h3>
+              <p>If your domain is narrow and evals already show strong recall and faithfulness, CRAG may add complexity without benefit.</p>
+            </article>
+            <article class="case-card warn">
+              <div class="tag">Careful</div>
+              <h3>No trusted correction source</h3>
+              <p>CRAG can make answers worse if the web search or fallback corpus is noisier than the original retrieval.</p>
+            </article>
+            <article class="case-card warn">
+              <div class="tag">Careful</div>
+              <h3>No monitoring or eval loop</h3>
+              <p>Without logs, metrics, and failure review, the evaluator route can silently become another untested model decision.</p>
+            </article>
+            <article class="case-card warn">
+              <div class="tag">Careful</div>
+              <h3>Simple routing is enough</h3>
+              <p>Sometimes a confidence threshold, better chunking, metadata filters, or query expansion fixes the issue more cheaply.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="practice" aria-label="CRAG scenario practice">
+      <div class="quiz">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Scenario practice</h2>
+            <p>Pick a product situation and classify whether CRAG is a good fit.</p>
+          </div>
+          <div class="panel-body">
+            <div class="scenario-list" id="scenarioList"></div>
+          </div>
+        </div>
+
+        <aside class="panel scenario-result">
+          <div class="panel-header">
+            <h2 id="scenarioTitle">Select a scenario</h2>
+            <p id="scenarioVerdict">The recommendation will appear here.</p>
+          </div>
+          <div class="panel-body">
+            <p id="scenarioWhy">Choose one of the scenarios to see the reasoning.</p>
+            <div class="pill-row" id="scenarioTags"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+    const stepData = [
+      {
+        title: "User question",
+        subtitle: "The request enters the RAG system.",
+        body: "CRAG starts like ordinary RAG. A user asks a question, and the system must decide what evidence is needed before answering.",
+        tags: ["input", "intent"]
+      },
+      {
+        title: "Retrieve top-k docs",
+        subtitle: "Initial retrieval from the internal knowledge base.",
+        body: "The retriever pulls candidate chunks using embeddings, keyword search, hybrid search, or metadata filters. At this point the context may be correct, partial, noisy, or completely wrong.",
+        tags: ["vector search", "hybrid search", "top-k"]
+      },
+      {
+        title: "Grade retrieval",
+        subtitle: "A retrieval evaluator judges whether the context can answer the question.",
+        body: "This is the CRAG control point. The evaluator routes the request as Correct, Ambiguous, or Incorrect based on relevance and answer coverage.",
+        tags: ["quality gate", "routing", "confidence"]
+      },
+      {
+        title: "Refine internal docs",
+        subtitle: "If retrieval is good, keep only useful evidence.",
+        body: "Correct retrieval still benefits from cleanup. The system can remove irrelevant sentences, merge evidence, and pass a tighter context to the generator.",
+        tags: ["compression", "grounding", "noise removal"]
+      },
+      {
+        title: "Transform query",
+        subtitle: "If retrieval is weak, rewrite the question for correction.",
+        body: "The original user question may be too conversational for search. CRAG rewrites it into a more targeted query for a fallback retriever or web search.",
+        tags: ["query rewrite", "fallback"]
+      },
+      {
+        title: "Search external source",
+        subtitle: "Use a correction source when internal evidence is missing.",
+        body: "This can be web search, a second internal index, SQL, an API, a policy service, or another trusted tool. The correction source should be auditable and relevant.",
+        tags: ["web search", "tools", "fresh evidence"]
+      },
+      {
+        title: "Refine new context",
+        subtitle: "Filter and combine evidence before generation.",
+        body: "The new evidence may contain noise. CRAG should strip unsupported text and, for ambiguous cases, merge useful internal and external context.",
+        tags: ["merge", "filter", "support"]
+      },
+      {
+        title: "Generate grounded answer",
+        subtitle: "The LLM answers using the corrected context.",
+        body: "The generator should be instructed to use only supplied evidence. If the corrected context still cannot support an answer, the safer behavior is to abstain.",
+        tags: ["answer", "cite", "abstain"]
+      },
+      {
+        title: "Answer or abstain",
+        subtitle: "The final output is grounded or explicitly limited.",
+        body: "The outcome should be a concise grounded answer, a request for clarification, or a refusal to answer due to insufficient evidence.",
+        tags: ["final response", "safety"]
+      }
+    ];
+
+    const scenarios = [
+      {
+        title: "Fintech support asks about a new RBI circular",
+        detail: "Internal docs may lag behind regulatory changes. Wrong answers can create compliance risk.",
+        verdict: "Use CRAG",
+        why: "The question depends on fresh external facts and the risk of a hallucinated answer is high. Retrieval should be graded and corrected before generation.",
+        tags: ["fresh facts", "high risk", "external source"]
+      },
+      {
+        title: "Employee asks for the office Wi-Fi password policy",
+        detail: "The answer lives in a short, stable internal handbook.",
+        verdict: "Plain RAG is enough",
+        why: "The knowledge base is narrow, stable, and internally authoritative. Strong metadata filtering or direct lookup is likely simpler than CRAG.",
+        tags: ["stable KB", "low drift"]
+      },
+      {
+        title: "Research assistant summarizes breaking AI security news",
+        detail: "The vector store contains old papers, but the user wants recent incidents.",
+        verdict: "Use CRAG",
+        why: "Internal retrieval may be stale. CRAG can detect that the retrieved papers do not answer the current-events question and route to search.",
+        tags: ["stale index", "current events"]
+      },
+      {
+        title: "Mobile checkout assistant must answer under 400 ms",
+        detail: "Users ask simple shipping questions during payment.",
+        verdict: "Avoid CRAG",
+        why: "The latency budget is too tight for evaluator and correction calls. Precomputed FAQs, caching, or deterministic lookup may fit better.",
+        tags: ["low latency", "simple answers"]
+      },
+      {
+        title: "Healthcare chatbot answers from clinician-approved content only",
+        detail: "Web search is forbidden. The approved corpus is limited.",
+        verdict: "Use a constrained variant",
+        why: "Do not use open web correction. A CRAG-style evaluator can still route to abstention, clarification, or a second approved internal source.",
+        tags: ["no web", "abstention", "approved corpus"]
+      }
+    ];
+
+    function setActiveTab(tabId) {
+      $$(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tabId));
+      $$(".tab-panel").forEach(panel => panel.classList.toggle("active", panel.id === tabId));
+    }
+
+    function iconCheck() {
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6" fill="none" stroke="currentColor" stroke-width="2.3"/></svg>';
+    }
+
+    function updateDecision() {
+      const score =
+        Number($("#freshness").value) +
+        Number($("#retrieval").value) +
+        Number($("#risk").value) +
+        Number($("#latency").value) +
+        ($("#externalAllowed").checked ? 12 : -24) +
+        ($("#observable").checked ? 8 : -12);
+
+      const bounded = Math.max(0, Math.min(100, score + 18));
+      const meter = $("#meterFill");
+      meter.style.width = bounded + "%";
+
+      let color = "var(--rose)";
+      let verdictBg = "var(--rose-soft)";
+      let title = "Avoid CRAG for now";
+      let body = "The added latency or lack of correction source makes CRAG a poor fit. Improve retrieval or add abstention first.";
+
+      if (bounded >= 68) {
+        color = "var(--teal)";
+        verdictBg = "var(--green-soft)";
+        title = "Use CRAG";
+        body = "The system has enough retrieval uncertainty, freshness pressure, or answer risk to justify a correction loop.";
+      } else if (bounded >= 42) {
+        color = "var(--amber)";
+        verdictBg = "var(--amber-soft)";
+        title = "Use CRAG selectively";
+        body = "Use it only on uncertain or high-risk queries. Keep plain RAG for easy, high-confidence requests.";
+      }
+
+      meter.style.background = color;
+      $("#scoreLabel").textContent = "CRAG fit: " + Math.round(bounded);
+      $("#scoreText").textContent = bounded >= 68 ? "Strong fit" : bounded >= 42 ? "Conditional fit" : "Weak fit";
+      $("#verdictBox").style.background = verdictBg;
+      $("#verdictTitle").textContent = title;
+      $("#verdictBody").textContent = body;
+
+      const reasons = [];
+      const freshnessText = $("#freshness").selectedOptions[0].textContent;
+      const retrievalText = $("#retrieval").selectedOptions[0].textContent;
+      const riskText = $("#risk").selectedOptions[0].textContent;
+      const latencyText = $("#latency").selectedOptions[0].textContent;
+      reasons.push("Knowledge freshness: " + freshnessText + ".");
+      reasons.push("Retriever confidence: " + retrievalText + ".");
+      reasons.push("Answer risk: " + riskText + ".");
+      reasons.push("Latency budget: " + latencyText + ".");
+      reasons.push($("#externalAllowed").checked ? "A correction source is available." : "No correction source is allowed.");
+      reasons.push($("#observable").checked ? "Retrieval failures can be observed." : "Retrieval failures are not observable yet.");
+
+      $("#reasonList").innerHTML = reasons.map(reason => `<li>${iconCheck()}<span>${reason}</span></li>`).join("");
+    }
+
+    let currentStep = 0;
+
+    function setStep(index) {
+      currentStep = (index + stepData.length) % stepData.length;
+      const step = stepData[currentStep];
+      $("#stepTitle").textContent = step.title;
+      $("#stepSubtitle").textContent = step.subtitle;
+      $("#stepBody").textContent = step.body;
+      $("#stepTags").innerHTML = step.tags.map(tag => `<span class="pill">${tag}</span>`).join("");
+      $("#stepCount").textContent = `${currentStep + 1} of ${stepData.length}`;
+      $$(".flow-node").forEach(node => node.classList.toggle("active", Number(node.dataset.step) === currentStep));
+    }
+
+    function renderScenarios() {
+      $("#scenarioList").innerHTML = scenarios.map((scenario, index) => `
+        <button class="scenario-btn ${index === 0 ? "active" : ""}" data-scenario="${index}">
+          <div>
+            <b>${scenario.title}</b>
+            <br>
+            <span>${scenario.detail}</span>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"></path>
+          </svg>
+        </button>
+      `).join("");
+      setScenario(0);
+    }
+
+    function setScenario(index) {
+      const scenario = scenarios[index];
+      $$(".scenario-btn").forEach(btn => btn.classList.toggle("active", Number(btn.dataset.scenario) === index));
+      $("#scenarioTitle").textContent = scenario.title;
+      $("#scenarioVerdict").textContent = scenario.verdict;
+      $("#scenarioWhy").textContent = scenario.why;
+      $("#scenarioTags").innerHTML = scenario.tags.map(tag => `<span class="pill">${tag}</span>`).join("");
+    }
+
+    $$(".tab-btn").forEach(btn => btn.addEventListener("click", () => setActiveTab(btn.dataset.tab)));
+    ["freshness", "retrieval", "risk", "latency", "externalAllowed", "observable"].forEach(id => {
+      $("#" + id).addEventListener("input", updateDecision);
+      $("#" + id).addEventListener("change", updateDecision);
+    });
+    $$(".flow-node").forEach(node => {
+      node.addEventListener("click", () => setStep(Number(node.dataset.step)));
+      node.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setStep(Number(node.dataset.step));
+        }
+      });
+    });
+    $("#prevStep").addEventListener("click", () => setStep(currentStep - 1));
+    $("#nextStep").addEventListener("click", () => setStep(currentStep + 1));
+    $("#scenarioList").addEventListener("click", event => {
+      const btn = event.target.closest(".scenario-btn");
+      if (btn) setScenario(Number(btn.dataset.scenario));
+    });
+
+    updateDecision();
+    setStep(0);
+    renderScenarios();
+  </script>
+</body>
+</html>

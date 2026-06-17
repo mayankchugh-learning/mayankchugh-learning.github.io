@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="CRAG Interactive Explainer">
+  <defs>
+    <linearGradient id="crag-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f7f8fb"/>
+      <stop offset="100%" stop-color="#e8e7ff"/>
+    </linearGradient>
+    <linearGradient id="crag-accent" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="225" fill="url(#crag-bg)"/>
+  <ellipse cx="340" cy="36" rx="90" ry="50" fill="#0f766e" opacity="0.1"/>
+  <ellipse cx="60" cy="190" rx="80" ry="45" fill="#4f46e5" opacity="0.08"/>
+  <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="600" fill="#0f766e" letter-spacing="2">CORRECTIVE RAG</text>
+  <text x="200" y="92" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#18202f">CRAG</text>
+  <text x="200" y="118" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="600" fill="#637083">Decision Guide</text>
+  <rect x="70" y="138" width="90" height="34" rx="8" fill="#d9f4ef" stroke="#0f766e" stroke-opacity="0.4"/>
+  <text x="115" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#0f766e">Retrieve</text>
+  <line x1="168" y1="155" x2="192" y2="155" stroke="#4f46e5" stroke-width="2"/>
+  <rect x="198" y="138" width="90" height="34" rx="8" fill="#e8e7ff" stroke="#4f46e5" stroke-opacity="0.4"/>
+  <text x="243" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#4f46e5">Evaluate</text>
+  <path d="M296 155h24" stroke="#0f766e" stroke-width="2"/>
+  <rect x="326" y="138" width="34" height="34" rx="8" fill="url(#crag-accent)"/>
+  <text x="343" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#ffffff">Fix</text>
+  <rect x="0" y="223" width="400" height="2" fill="url(#crag-accent)"/>
+</svg>
