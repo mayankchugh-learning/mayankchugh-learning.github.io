@@ -295,6 +295,117 @@
 [data-page="finetuning"] .muted,
 [data-page="finetuning"] .footer-note { color: var(--muted) !important; }
 
+/* ─── CRAG page ───────────────────────────────────────────── */
+[data-page="crag"] .site-chrome {
+  left: auto !important;
+  right: 20px;
+  bottom: 20px;
+}
+[data-page="crag"][data-theme="dark"] {
+  --bg: #0f1419;
+  --panel: #1a2332;
+  --ink: #e8edf5;
+  --muted: #94a3b8;
+  --line: #2d3a4d;
+  --teal: #2dd4bf;
+  --teal-soft: rgba(45, 212, 191, 0.12);
+  --indigo: #818cf8;
+  --indigo-soft: rgba(129, 140, 248, 0.15);
+  --amber: #fbbf24;
+  --amber-soft: rgba(251, 191, 36, 0.12);
+  --rose: #fb7185;
+  --rose-soft: rgba(251, 113, 133, 0.12);
+  --green: #4ade80;
+  --green-soft: rgba(74, 222, 128, 0.12);
+  --shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
+  --raised: #151e2b;
+  --input-bg: #1a2332;
+  --meter-bg: #2d3a4d;
+  --track-bg: #475569;
+  --track-knob: #e8edf5;
+  --verdict-text: #cbd5e1;
+  --flow-canvas-bg: #151e2b;
+}
+[data-page="crag"][data-theme="light"] {
+  --bg: #f7f8fb;
+  --panel: #ffffff;
+  --ink: #18202f;
+  --muted: #637083;
+  --line: #d9dee8;
+  --teal: #0f766e;
+  --teal-soft: #d9f4ef;
+  --indigo: #4f46e5;
+  --indigo-soft: #e8e7ff;
+  --amber: #b45309;
+  --amber-soft: #fff1d6;
+  --rose: #be123c;
+  --rose-soft: #ffe3ea;
+  --green: #15803d;
+  --green-soft: #e1f6e8;
+  --shadow: 0 14px 35px rgba(22, 30, 46, 0.08);
+  --raised: #fbfcfe;
+  --input-bg: #ffffff;
+  --meter-bg: #e5e7eb;
+  --track-bg: #cbd5e1;
+  --track-knob: #ffffff;
+  --verdict-text: #334155;
+  --flow-canvas-bg: #ffffff;
+}
+[data-page="crag"][data-theme="midnight"] {
+  --bg: #080809;
+  --panel: #10141c;
+  --ink: #e8e6f0;
+  --muted: #9895a8;
+  --line: #1e2430;
+  --teal: #5eead4;
+  --teal-soft: rgba(94, 234, 212, 0.1);
+  --indigo: #a5b4fc;
+  --indigo-soft: rgba(165, 180, 252, 0.12);
+  --amber: #fcd34d;
+  --amber-soft: rgba(252, 211, 77, 0.1);
+  --rose: #fda4af;
+  --rose-soft: rgba(253, 164, 175, 0.1);
+  --green: #86efac;
+  --green-soft: rgba(134, 239, 172, 0.1);
+  --shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
+  --raised: #0c1018;
+  --input-bg: #10141c;
+  --meter-bg: #1e2430;
+  --track-bg: #3f4658;
+  --track-knob: #e8e6f0;
+  --verdict-text: #c8c4d8;
+  --flow-canvas-bg: #0c1018;
+}
+[data-page="crag"][data-theme="contrast"] {
+  --bg: #000000;
+  --panel: #0a0a0a;
+  --ink: #ffffff;
+  --muted: #dddddd;
+  --line: #ffffff;
+  --teal: #00ffcc;
+  --teal-soft: rgba(0, 255, 204, 0.12);
+  --indigo: #ccccff;
+  --indigo-soft: rgba(204, 204, 255, 0.12);
+  --amber: #ffcc00;
+  --amber-soft: rgba(255, 204, 0, 0.12);
+  --rose: #ff6666;
+  --rose-soft: rgba(255, 102, 102, 0.12);
+  --green: #00ff88;
+  --green-soft: rgba(0, 255, 136, 0.12);
+  --shadow: 0 14px 35px rgba(255, 255, 255, 0.08);
+  --raised: #111111;
+  --input-bg: #0a0a0a;
+  --meter-bg: #333333;
+  --track-bg: #666666;
+  --track-knob: #ffffff;
+  --verdict-text: #eeeeee;
+  --flow-canvas-bg: #111111;
+}
+[data-page="crag"] body {
+  background: var(--bg) !important;
+  color: var(--ink);
+}
+
 /* ─── Positional encoding page ────────────────────────────── */
 [data-page="encoding"][data-theme="dark"] {
   --bg: #0f1117; --bg2: #1a1d27; --bg3: #22263a;
