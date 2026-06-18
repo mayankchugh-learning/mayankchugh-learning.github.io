@@ -236,7 +236,7 @@ body {
 
 <div class="app">
 <div class="metric-row">
-  <div class="metric"><div class="metric-val" id="total-cards">15</div><div class="metric-label">Flashcards</div></div>
+  <div class="metric"><div class="metric-val" id="total-cards">16</div><div class="metric-label">Flashcards</div></div>
   <div class="metric"><div class="metric-val" id="seen-count">0</div><div class="metric-label">Seen</div></div>
   <div class="metric"><div class="metric-val" id="known-count">0</div><div class="metric-label">Known</div></div>
   <div class="metric"><div class="metric-val">4</div><div class="metric-label">Sections</div></div>
@@ -289,7 +289,7 @@ body {
   <div class="nav-row">
     <button class="nav-btn" id="prev-btn" onclick="prevCard()" disabled>← Previous</button>
     <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-      <span class="card-counter" id="card-counter">1 / 15</span>
+      <span class="card-counter" id="card-counter">1 / 16</span>
       <button class="nav-btn nav-btn-known" onclick="markKnown()">Mark known ✓</button>
     </div>
     <button class="nav-btn nav-btn-primary" id="next-btn" onclick="nextCard()">Next →</button>
@@ -309,6 +309,7 @@ body {
       <div class="mnemonic-row"><strong>PCVM-HAPIC</strong> — 9 demo steps: Problem · Clean · Vuln · Mixed · History · API · PII · prompts · Close (~11.5 min)</div>
       <div class="mnemonic-row"><strong>CTF</strong> — Why Project 2: Certified Terraform · Tight scope · Fit JD</div>
       <div class="mnemonic-row"><strong>6 Ps</strong> — Production: Postgres · JWT Permission · Pipeline async · Password scan · Pods (K8s) · Performance eval</div>
+      <div class="mnemonic-row"><strong>CIS</strong> — Center for Internet Security · Benchmarks = AWS hardening checklist · Static IaC scan (shift-left)</div>
     </div>
   </div>
   <div class="card">
@@ -327,8 +328,8 @@ body {
         <div class="arch-detail"><span class="arch-code">hcl_parser.py</span> — Terraform .tf files via python-hcl2 · Custom <span class="arch-code">_unquote()</span> for v8 quoting behaviour · <span class="arch-code">cf_parser.py</span> — CloudFormation .yaml via pyyaml with custom multi-constructor for !Ref !Sub tags</div>
       </div>
       <div class="arch-box purple">
-        <div class="arch-title">Rules engine — 11 CIS rules</div>
-        <div class="arch-detail">Critical (40pts): PUBLIC_S3_BUCKET, OPEN_ALL_PORTS · High (25pts): OPEN_SSH, OPEN_RDP, UNENCRYPTED_EBS, UNENCRYPTED_RDS, HARDCODED_SECRET · Medium (20pts): NO_MFA, WEAK_IAM_POLICY, HTTP_LISTENER, UNRESTRICTED_OUTBOUND</div>
+        <div class="arch-title">Rules engine — 11 CIS-inspired rules</div>
+        <div class="arch-detail">Critical (40pts): PUBLIC_S3_BUCKET, OPEN_ALL_PORTS · High (25pts): OPEN_SSH, OPEN_RDP, UNENCRYPTED_EBS, UNENCRYPTED_RDS, HARDCODED_SECRET · Medium (20pts): NO_MFA, WEAK_IAM_POLICY, HTTP_LISTENER, UNRESTRICTED_OUTBOUND · Each rule maps to a common control in the <strong>CIS AWS Foundations Benchmark</strong> (see below)</div>
       </div>
       <div class="arch-box red">
         <div class="arch-title">Risk scoring — capped at 100</div>
@@ -341,6 +342,37 @@ body {
       <div class="arch-box green">
         <div class="arch-title">Security controls</div>
         <div class="arch-detail">File type whitelist (.tf .yaml .yml) · 10MB size limit · Filename sanitisation · Temp file try/finally cleanup · Rate limiting 10/min · Security headers (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection) · No secrets in DB or logs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;font-weight:500;color:var(--color-text-primary)">What is CIS?</div>
+    <div style="padding:14px 16px">
+      <div class="arch-box purple">
+        <div class="arch-title">CIS = Center for Internet Security</div>
+        <div class="arch-detail">A non-profit that publishes <strong>CIS Benchmarks</strong> — consensus-based, freely available security configuration guides for AWS, Azure, GCP, Kubernetes, operating systems, and more. Enterprises use them for compliance audits, SOC 2, and cloud posture management. Tools like AWS Security Hub, Prowler, and Checkov evaluate live accounts against CIS controls; this project does the same check <em>before deploy</em> by scanning static IaC files.</div>
+      </div>
+      <div class="arch-box blue">
+        <div class="arch-title">CIS AWS Foundations Benchmark — what this project uses</div>
+        <div class="arch-detail">The <strong>CIS Amazon Web Services Foundations Benchmark</strong> is the industry-standard checklist for AWS account hardening. It covers IAM (MFA, least privilege), S3 public access, encryption (EBS/RDS), load balancer TLS, and security group ingress/egress. Our 11 rules are a <strong>curated subset</strong> of those controls — chosen because they are detectable in Terraform and CloudFormation without calling the AWS API.</div>
+      </div>
+      <div class="arch-box amber">
+        <div class="arch-title">Static IaC vs live CIS scanning</div>
+        <div class="arch-detail"><strong>Live scanners</strong> (Prowler, Security Hub) query AWS APIs on a running account. <strong>This auditor</strong> parses <span class="arch-code">.tf</span> and <span class="arch-code">.yaml</span> files at CI time — shift-left guardrails before anything is applied. Trade-off: catches declared misconfigurations, not drift after deploy. Production would run both.</div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Rule → CIS theme mapping</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">
+        <div class="mnemonic-row"><strong>PUBLIC_S3_BUCKET</strong> — CIS AWS §2.1 S3 Block Public Access / no public ACLs</div>
+        <div class="mnemonic-row"><strong>OPEN_ALL_PORTS · OPEN_SSH · OPEN_RDP · UNRESTRICTED_OUTBOUND</strong> — CIS AWS §5.x security group ingress/egress restrictions</div>
+        <div class="mnemonic-row"><strong>UNENCRYPTED_EBS · UNENCRYPTED_RDS</strong> — CIS AWS §2.2 EBS encryption · §2.3 RDS encryption at rest</div>
+        <div class="mnemonic-row"><strong>NO_MFA · WEAK_IAM_POLICY</strong> — CIS AWS §1.x IAM MFA enforcement · least-privilege policies (no <span class="arch-code">Action: "*"</span>)</div>
+        <div class="mnemonic-row"><strong>HTTP_LISTENER</strong> — CIS AWS §4.x ELB/ALB — encrypt traffic in transit (HTTPS, not plaintext HTTP)</div>
+        <div class="mnemonic-row"><strong>HARDCODED_SECRET</strong> — CIS / OWASP best practice — secrets never in source code; use Secrets Manager or SSM Parameter Store</div>
+      </div>
+      <div class="arch-box green" style="margin-top:12px">
+        <div class="arch-title">30-second interview answer</div>
+        <div class="arch-detail">"CIS is the Center for Internet Security. Their AWS Foundations Benchmark is the standard checklist for cloud hardening — IAM MFA, encrypted storage, no public S3, tight security groups. I implemented 11 rules inspired by that benchmark, applied to Terraform and CloudFormation at scan time, so teams catch misconfigurations in CI before they reach production."</div>
       </div>
     </div>
   </div>
@@ -451,6 +483,13 @@ body {
   <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem">Every "why did you choose X?" question — answered. Structure: chosen → alternatives → rationale → trade-off.</div>
   <div class="card">
     <div class="decision-row">
+      <div class="decision-q">Why CIS Benchmark rules?</div>
+      <div style="margin:4px 0"><span class="decision-badge badge-chosen">CIS-inspired</span><span class="decision-badge badge-alt">custom rules</span><span class="decision-badge badge-alt">OWASP only</span></div>
+      <div class="decision-a">CIS Benchmarks are the industry lingua franca for cloud compliance — auditors, Security Hub, and enterprise buyers all recognise them. The AWS Foundations Benchmark maps directly to the misconfigurations in our sample files (public S3, open SSH, unencrypted EBS). Custom rules would be harder to defend; OWASP alone misses infrastructure-specific controls like security groups and RDS encryption.</div>
+      <div class="decision-memo"><strong>ILD</strong> — Industry standard · IaC-detectable subset · Defensible in compliance conversations</div>
+      <div class="decision-badge badge-tradeoff" style="margin-top:6px">Trade-off: static IaC scan only — does not catch post-deploy drift. Pair with live scanners in production.</div>
+    </div>
+    <div class="decision-row">
       <div class="decision-q">Why FastAPI over Flask?</div>
       <div style="margin:4px 0"><span class="decision-badge badge-chosen">FastAPI</span><span class="decision-badge badge-alt">Flask</span><span class="decision-badge badge-alt">Django REST</span></div>
       <div class="decision-a">Auto OpenAPI docs at /docs with zero extra work — critical for demo. Pydantic v2 validation built in. Async-native for scaling. The JD mentioned FastAPI in examples.</div>
@@ -512,6 +551,7 @@ body {
 
 <script>
 const allCards=[
+  {type:'qa',typeLabel:'Q&A',q:'What is CIS?',a:'CIS stands for Center for Internet Security — a non-profit that publishes CIS Benchmarks, which are consensus-based security configuration guides used worldwide for compliance and cloud hardening.\n\nFor this project, the rules are inspired by the CIS Amazon Web Services Foundations Benchmark: IAM MFA and least privilege, S3 Block Public Access, EBS/RDS encryption at rest, HTTPS on load balancers, and restricted security groups.\n\nUnlike Prowler or AWS Security Hub (which scan live AWS accounts via API), this tool scans Terraform and CloudFormation files statically — shift-left guardrails in CI before deploy. The 11 rules are a curated subset chosen because they are detectable in IaC without an AWS account.',memo:'<strong>CIS</strong> — <strong>C</strong>enter for Internet Security · <strong>I</strong>aC scan (static .tf/.yaml, not live API) · <strong>S</strong>ubset of AWS Foundations Benchmark (11 rules). Contrast: Prowler = live account.',tip:'If they ask "which CIS version?" — say inspired by AWS Foundations Benchmark themes, not a 1:1 control ID mapping. Honest and senior.'},
   {type:'qa',typeLabel:'Q&A',q:'Tell me about this project in 60 seconds.',a:'Enterprise Security Guardrail Auditor — scans Terraform and CloudFormation files for 11 CIS Benchmark violations, calculates a Risk Score 0-100, stores history in SQLite, exposes a FastAPI REST API, and visualises findings in Streamlit. Built in 1h 55min using Vibe Coding — I directed Claude Code as architect. 29 tests passing, green CI, full PII controls. Repo is public — you can clone and run it right now.',memo:'<strong>GUARD-FAST</strong> — <strong>G</strong>uardrail auditor · <strong>U</strong>pload IaC (.tf/.yaml) · <strong>A</strong>udit trail (GitHub+CI) · <strong>R</strong>isk 0–100 · <strong>D</strong>irected by you. <strong>F</strong>astAPI · <strong>A</strong>rchitect-led · <strong>S</strong>treamlit · <strong>T</strong>erraform+CIS (11 rules).',tip:'Lead with the audit trail and GitHub repo — that\'s your strongest credibility signal.'},
   {type:'qa',typeLabel:'Q&A',q:'Under 2 hours? How can the quality be good?',a:'The time reflects the Vibe Coding workflow — I directed an AI that executed. But quality is verifiable: 29 automated tests all passing, green CI on GitHub, ruff and black clean, 11 security rules, full PII controls. The repo is public — clone it and run it right now. Fast execution with verifiable quality is exactly what an FDE needs to deliver.',memo:'<strong>VIBE-PROOF</strong> — <strong>V</strong>erify (29 tests) · <strong>I</strong> directed architecture · <strong>B</strong>uild is public (clone it) · <strong>E</strong>vidence (green CI). <strong>P</strong>roof beats apology · <strong>R</strong>epo is the proof · <strong>O</strong>nly FDEs ship this fast · <strong>O</strong>pen source · <strong>F</strong>DE delivery.',tip:'Hold your ground. Don\'t apologise for the speed.'},
   {type:'qa',typeLabel:'Q&A',q:'Why Project 2 over the other options?',a:'Three reasons. First, I hold HashiCorp Terraform certification — the only project where a certification directly maps to the core technology. Second, tightest scope: static config files I control, no cloud accounts, no synthetic data. Third, JD explicitly lists Terraform and compliance as requirements — choosing Project 2 signals I read the JD carefully. That\'s what a senior FDE does before writing a single line of code.',memo:'<strong>CTF</strong> — <strong>C</strong>ertified (HashiCorp Terraform) · <strong>T</strong>ight scope (static files only) · <strong>F</strong>it JD (Terraform + compliance).',tip:'Mention the Terraform cert specifically — it\'s verifiable.'},
