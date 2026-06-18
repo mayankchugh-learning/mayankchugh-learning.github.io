@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en" data-page="rag-architecture">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAG Architecture — Interactive Guide</title>
+  <script src="/assets/theme-switcher.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-card: #1a2332;
+      --bg-elevated: #243044;
+      --text: #e8edf4;
+      --text-muted: #8b9cb3;
+      --text-dim: #5c6d85;
+      --teal: #2dd4bf;
+      --teal-dim: rgba(45, 212, 191, 0.12);
+      --coral: #fb7185;
+      --coral-dim: rgba(251, 113, 133, 0.12);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251, 191, 36, 0.12);
+      --violet: #a78bfa;
+      --violet-dim: rgba(167, 139, 250, 0.12);
+      --sky: #38bdf8;
+      --sky-dim: rgba(56, 189, 248, 0.12);
+      --lime: #a3e635;
+      --lime-dim: rgba(163, 230, 53, 0.12);
+      --indigo: #818cf8;
+      --indigo-dim: rgba(129, 140, 248, 0.12);
+      --border: rgba(255, 255, 255, 0.08);
+      --radius: 16px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --font: "DM Sans", system-ui, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+      --phase-ingest: var(--sky);
+      --phase-query: var(--teal);
+      --phase-gen: var(--amber);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 45% at 10% 0%, rgba(56, 189, 248, 0.14), transparent),
+        radial-gradient(ellipse 55% 40% at 50% 50%, rgba(45, 212, 191, 0.1), transparent),
+        radial-gradient(ellipse 50% 35% at 95% 20%, rgba(251, 191, 36, 0.1), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.25rem 6rem;
+    }
+
+    .hero {
+      padding: 3rem 0 2rem;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      padding: 0.35rem 0.9rem;
+      background: var(--violet-dim);
+      border: 1px solid rgba(167, 139, 250, 0.35);
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--violet);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 0.85rem;
+      background: linear-gradient(135deg, #fff 25%, var(--sky) 45%, var(--teal) 65%, var(--amber));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      padding: 0.55rem 1.2rem;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal), var(--sky));
+      color: var(--bg);
+      border: none;
+    }
+
+    .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: var(--bg-card);
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover { color: var(--text); background: var(--bg-elevated); }
+
+    .step-indicator {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      padding: 0.4rem 0.8rem;
+      background: var(--bg-card);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .step-indicator strong { color: var(--teal); }
+
+    /* Three-phase layout */
+    .architecture {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      align-items: stretch;
+    }
+
+    @media (max-width: 1050px) {
+      .architecture { grid-template-columns: 1fr; }
+    }
+
+    .phase {
+      border-radius: var(--radius);
+      border: 2px solid;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+
+    .phase.active-phase {
+      box-shadow: var(--shadow);
+      transform: scale(1.01);
+    }
+
+    .phase.ingest { border-color: rgba(56, 189, 248, 0.45); background: rgba(56, 189, 248, 0.04); }
+    .phase.query { border-color: rgba(45, 212, 191, 0.45); background: rgba(45, 212, 191, 0.04); }
+    .phase.generate { border-color: rgba(251, 191, 36, 0.45); background: rgba(251, 191, 36, 0.04); }
+
+    .phase-header {
+      padding: 1rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .phase.ingest .phase-header { color: var(--sky); background: var(--sky-dim); }
+    .phase.query .phase-header { color: var(--teal); background: var(--teal-dim); }
+    .phase.generate .phase-header { color: var(--amber); background: var(--amber-dim); }
+
+    .phase-body {
+      padding: 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .flow-step {
+      position: relative;
+      padding: 0.85rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .flow-step:hover { border-color: rgba(255,255,255,0.2); }
+    .flow-step.highlight {
+      border-color: currentColor;
+      box-shadow: 0 0 20px rgba(255,255,255,0.08);
+      animation: glow 1.2s ease infinite alternate;
+    }
+
+    .phase.ingest .flow-step.highlight { color: var(--sky); background: var(--sky-dim); }
+    .phase.query .flow-step.highlight { color: var(--teal); background: var(--teal-dim); }
+    .phase.generate .flow-step.highlight { color: var(--amber); background: var(--amber-dim); }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 8px rgba(255,255,255,0.05); }
+      to { box-shadow: 0 0 24px rgba(255,255,255,0.12); }
+    }
+
+    .flow-step .step-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .flow-step .step-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .flow-step .step-detail {
+      display: none;
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      border-top: 1px dashed var(--border);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .flow-step.expanded .step-detail { display: block; }
+
+    .flow-arrow {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      padding: 0.1rem 0;
+      line-height: 1;
+    }
+
+    .source-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.35rem;
+    }
+
+    .source-tag {
+      padding: 0.25rem 0.55rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .chunk-row {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+    }
+
+    .chunk-pill {
+      padding: 0.25rem 0.5rem;
+      border-radius: 5px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      font-family: var(--mono);
+    }
+
+    .chunk-pill.store {
+      background: var(--coral-dim);
+      border: 1px solid rgba(251, 113, 133, 0.35);
+      color: var(--coral);
+    }
+
+    .chunk-pill.retrieved {
+      background: var(--lime-dim);
+      border: 1px solid rgba(163, 230, 53, 0.35);
+      color: var(--lime);
+    }
+
+    .vector-preview {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--violet);
+      margin-top: 0.35rem;
+      padding: 0.35rem 0.5rem;
+      background: var(--violet-dim);
+      border-radius: 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .db-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      font-size: 0.7rem;
+      color: var(--violet);
+      border: 1px dashed rgba(167, 139, 250, 0.4);
+      border-radius: 8px;
+      background: var(--violet-dim);
+    }
+
+    .db-link .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--violet);
+      animation: pulseDot 1.5s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .db-link.active .pulse-dot { background: var(--lime); }
+
+    /* Query input */
+    .query-input-wrap {
+      margin-top: 0.35rem;
+    }
+
+    .query-input {
+      width: 100%;
+      padding: 0.5rem 0.65rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.8rem;
+    }
+
+    .query-input:focus {
+      outline: none;
+      border-color: var(--teal);
+    }
+
+    .context-box {
+      margin-top: 0.4rem;
+      padding: 0.6rem;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-family: var(--mono);
+      line-height: 1.55;
+      max-height: 90px;
+      overflow-y: auto;
+    }
+
+    .llm-box {
+      text-align: center;
+      padding: 1rem;
+      background: var(--indigo-dim);
+      border: 2px solid rgba(129, 140, 248, 0.4);
+      border-radius: 12px;
+    }
+
+    .llm-box .llm-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--indigo);
+      margin-bottom: 0.25rem;
+    }
+
+    .llm-box .llm-models {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .response-box {
+      padding: 0.85rem;
+      background: var(--bg-card);
+      border: 1px solid rgba(163, 230, 53, 0.35);
+      border-radius: 10px;
+      min-height: 100px;
+    }
+
+    .response-box .resp-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+    }
+
+    .response-box .resp-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .response-box .resp-text.generated {
+      color: var(--text);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .user-node {
+      text-align: center;
+      padding: 0.75rem;
+    }
+
+    .user-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--indigo-dim);
+      border: 2px solid var(--indigo);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 0.35rem;
+    }
+
+    .user-node span {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--indigo);
+    }
+
+    /* Benefits + detail sections */
+    .benefits-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .benefit-card {
+      padding: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .benefit-card .icon { font-size: 1.5rem; margin-bottom: 0.35rem; }
+    .benefit-card h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .benefit-card p { font-size: 0.72rem; color: var(--text-muted); }
+
+    .benefit-card:nth-child(1) { border-top: 3px solid var(--sky); }
+    .benefit-card:nth-child(2) { border-top: 3px solid var(--teal); }
+    .benefit-card:nth-child(3) { border-top: 3px solid var(--lime); }
+    .benefit-card:nth-child(4) { border-top: 3px solid var(--amber); }
+
+    .detail-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      color: var(--violet);
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      max-width: 720px;
+      margin-bottom: 1.25rem;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 700px) {
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+
+    .compare-card {
+      padding: 1.25rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .compare-card h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .compare-card.without { border-top: 3px solid var(--coral); }
+    .compare-card.without h4 { color: var(--coral); }
+    .compare-card.with { border-top: 3px solid var(--teal); }
+    .compare-card.with h4 { color: var(--teal); }
+
+    .compare-card ul {
+      margin-left: 1.1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .compare-card li { margin-bottom: 0.35rem; }
+
+    .stack-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .stack-table th,
+    .stack-table td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stack-table th {
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stack-table td { color: var(--text-muted); }
+    .stack-table tr:last-child td { border-bottom: none; }
+    .stack-table code {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--teal);
+    }
+
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.15rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.7;
+      color: #c9d1d9;
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    .code-block .kw { color: #ff7b72; }
+    .code-block .fn { color: #d2a8ff; }
+    .code-block .str { color: #a5d6ff; }
+    .code-block .cmt { color: #6e7681; }
+
+    footer {
+      text-align: center;
+      padding: 2rem 0 1rem;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-badge">Data Ingestion &amp; Parsing · Week 05</div>
+      <h1>RAG Architecture</h1>
+      <p class="subtitle">
+        <strong>Retrieval-Augmented Generation</strong> grounds LLM answers in your own data.
+        The system has two distinct paths: an <em>offline indexing pipeline</em> (ingest once)
+        and an <em>online query pipeline</em> (run per user question).
+        <strong style="color:var(--sky)">Week 05 notebooks cover the ingestion phase</strong> — loaders, Documents, and splitters — with no API keys required.
+      </p>
+
+      <div class="controls-bar">
+        <button class="btn btn-primary" id="play-btn">▶ Walk Through Pipeline</button>
+        <button class="btn btn-ghost" id="reset-btn">Reset</button>
+        <span class="step-indicator">Step: <strong id="current-step">—</strong> / 12</span>
+      </div>
+    </header>
+
+    <!-- Main 3-phase diagram -->
+    <div class="architecture">
+      <!-- Phase 1: Ingestion -->
+      <div class="phase ingest" id="phase-ingest">
+        <div class="phase-header">1 · Document Ingestion Phase</div>
+        <div class="phase-body">
+          <div class="flow-step" data-step="1" data-phase="ingest">
+            <div class="step-title">📂 Raw Data Sources</div>
+            <div class="step-desc">Files and structured records from this week's six notebooks.</div>
+            <div class="source-tags">
+              <span class="source-tag">.txt</span>
+              <span class="source-tag">PDF</span>
+              <span class="source-tag">Word</span>
+              <span class="source-tag">CSV / Excel</span>
+              <span class="source-tag">JSON</span>
+              <span class="source-tag">SQLite</span>
+            </div>
+            <div class="step-detail">
+              LangChain loaders in <code style="font-family:var(--mono);font-size:0.68rem">langchain_community.document_loaders</code>
+              — e.g. <code style="font-family:var(--mono);font-size:0.68rem">TextLoader</code>,
+              <code style="font-family:var(--mono);font-size:0.68rem">PyPDFLoader</code>,
+              <code style="font-family:var(--mono);font-size:0.68rem">Docx2txtLoader</code>,
+              <code style="font-family:var(--mono);font-size:0.68rem">CSVLoader</code>,
+              <code style="font-family:var(--mono);font-size:0.68rem">JSONLoader</code>,
+              <code style="font-family:var(--mono);font-size:0.68rem">SQLDatabase</code>
+              — each returns <code style="font-family:var(--mono);font-size:0.68rem">Document</code> objects with metadata.
+            </div>
+          </div>
+
+          <div class="flow-arrow">↓</div>
+
+          <div class="flow-step" data-step="2" data-phase="ingest">
+            <div class="step-title">✂️ Document Splitter</div>
+            <div class="step-desc">Large documents are broken into smaller, embeddable chunks.</div>
+            <div class="chunk-row">
+              <span class="chunk-pill store">Chunk 1</span>
+              <span class="chunk-pill store">Chunk 2</span>
+              <span class="chunk-pill store">Chunk 3</span>
+            </div>
+            <div class="step-detail">
+              <code style="font-family:var(--mono);font-size:0.68rem">from langchain_text_splitters import RecursiveCharacterTextSplitter</code> —
+              chunk_size≈200–1000 and overlap≈10–20% (see notebook 1). Metadata (source, page) is copied to every child chunk.
+            </div>
+          </div>
+
+          <div class="flow-arrow">↓</div>
+
+          <div class="flow-step" data-step="3" data-phase="ingest">
+            <div class="step-title">🧮 Embedding Model</div>
+            <div class="step-desc">Each chunk's text is converted to a dense vector.</div>
+            <div class="vector-preview" id="ingest-vector">[0.23, -0.45, 0.67, 0.12, -0.89, …]</div>
+            <div class="step-detail">
+              Models like <code style="font-family:var(--mono);font-size:0.68rem">text-embedding-3-small</code>,
+              <code style="font-family:var(--mono);font-size:0.68rem">nomic-embed-text</code>, or
+              <code style="font-family:var(--mono);font-size:0.68rem">BGE</code> map semantically similar text to nearby points in vector space.
+            </div>
+          </div>
+
+          <div class="flow-arrow">↓</div>
+
+          <div class="flow-step" data-step="4" data-phase="ingest">
+            <div class="step-title">🗄️ Vector Database</div>
+            <div class="step-desc">Vectors + metadata stored for fast similarity lookup.</div>
+            <div class="source-tags">
+              <span class="source-tag">FAISS</span>
+              <span class="source-tag">Pinecone</span>
+              <span class="source-tag">Chroma</span>
+              <span class="source-tag">pgvector</span>
+            </div>
+            <div class="step-detail">
+              Indexed offline. At query time the DB returns top-k nearest neighbors without re-reading original files.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2: Query -->
+      <div class="phase query" id="phase-query">
+        <div class="phase-header">2 · Query Processing Phase</div>
+        <div class="phase-body">
+          <div class="flow-step" data-step="5" data-phase="query">
+            <div class="step-title">💬 User Query</div>
+            <div class="step-desc">A natural-language question triggers the retrieval path.</div>
+            <div class="query-input-wrap">
+              <input type="text" class="query-input" id="user-query" value="What is RAG?" aria-label="User query" />
+            </div>
+            <div class="step-detail">
+              Unlike fine-tuning, no model weights change — the query is processed at runtime against the indexed knowledge base.
+            </div>
+          </div>
+
+          <div class="flow-arrow">↓</div>
+
+          <div class="flow-step" data-step="6" data-phase="query">
+            <div class="step-title">🔢 Query → Embedding</div>
+            <div class="step-desc">The same embedding model encodes the question into a vector.</div>
+            <div class="vector-preview" id="query-vector">[0.31, -0.22, 0.85, 0.44, -0.15, …]</div>
+            <div class="step-detail">
+              Critical: use the <em>same</em> embedding model for indexing and querying, or similarity scores are meaningless.
+            </div>
+          </div>
+
+          <div class="flow-arrow">↓</div>
+
+          <div class="db-link" id="db-link">
+            <span class="pulse-dot"></span>
+            <span>↔ Similarity search against Vector DB</span>
+          </div>
+
+          <div class="flow-step" data-step="7" data-phase="query">
+            <div class="step-title">🔍 Similarity Search</div>
+            <div class="step-desc">Find the k most relevant chunks via cosine similarity or approximate nearest neighbors.</div>
+            <div class="step-detail">
+              Optional metadata filters narrow results (e.g. <code style="font-family:var(--mono);font-size:0.68rem">doc_type == "policy"</code>).
+              Typical k = 3–8 chunks.
+            </div>
+          </div>
+
+          <div class="flow-arrow">↓</div>
+
+          <div class="flow-step" data-step="8" data-phase="query">
+            <div class="step-title">📋 Retrieved Chunks</div>
+            <div class="step-desc">Top-k chunks ranked by relevance score.</div>
+            <div class="chunk-row" id="retrieved-chunks">
+              <span class="chunk-pill retrieved">Chunk A · 0.92</span>
+              <span class="chunk-pill retrieved">Chunk B · 0.87</span>
+              <span class="chunk-pill retrieved">Chunk C · 0.81</span>
+            </div>
+          </div>
+
+          <div class="flow-arrow">↓</div>
+
+          <div class="flow-step" data-step="9" data-phase="query">
+            <div class="step-title">📎 Augmented Context</div>
+            <div class="step-desc">Query + retrieved chunks are assembled into a single prompt.</div>
+            <div class="context-box" id="context-box">
+              Given the following context:
+              [Chunk A: "RAG retrieves relevant docs…"]
+              [Chunk B: "Embeddings enable semantic search…"]
+              Answer: What is RAG?
+            </div>
+            <div class="step-detail">
+              Prompt engineering here matters — cite sources, set tone, and instruct the model to say "I don't know" when context is insufficient.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3: Generation -->
+      <div class="phase generate" id="phase-generate">
+        <div class="phase-header">3 · Generation Phase</div>
+        <div class="phase-body">
+          <div class="user-node">
+            <div class="user-avatar">👤</div>
+            <span>End User</span>
+          </div>
+
+          <div class="flow-arrow">↑</div>
+
+          <div class="flow-step" data-step="11" data-phase="generate">
+            <div class="step-title">✅ Generated Response</div>
+            <div class="response-box">
+              <div class="resp-label">LLM Output</div>
+              <div class="resp-text" id="generated-response">
+                Click "Walk Through Pipeline" or type a query to see a simulated answer…
+              </div>
+            </div>
+            <div class="step-detail">
+              Responses should include citations from metadata (source file, page) for trust and auditability in production systems.
+            </div>
+          </div>
+
+          <div class="flow-arrow">↑</div>
+
+          <div class="flow-step" data-step="10" data-phase="generate">
+            <div class="llm-box">
+              <div class="llm-name">Large Language Model</div>
+              <div class="llm-models">GPT-4o · Claude · Llama 3 · Gemini</div>
+            </div>
+            <div class="step-desc" style="margin-top:0.5rem;text-align:center">
+              Processes augmented context — does <em>not</em> search the vector DB itself; it only reads what retrieval provides.
+            </div>
+            <div class="step-detail">
+              Temperature, max tokens, and system prompts control creativity vs. faithfulness to retrieved context.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits -->
+    <div class="benefits-bar">
+      <div class="benefit-card">
+        <div class="icon">🔄</div>
+        <h4>Current Information</h4>
+        <p>Update the knowledge base without retraining the model — just re-index new documents.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="icon">🎯</div>
+        <h4>Reduced Hallucinations</h4>
+        <p>Answers are grounded in retrieved evidence instead of parametric memory alone.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="icon">🏢</div>
+        <h4>Domain Knowledge</h4>
+        <p>Private docs, policies, and proprietary data become queryable via natural language.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="icon">📎</div>
+        <h4>Traceable Citations</h4>
+        <p>Metadata enables source attribution — critical for legal, medical, and enterprise use cases.</p>
+      </div>
+    </div>
+
+    <!-- RAG vs non-RAG -->
+    <section class="detail-section">
+      <p class="section-label">Deep Dive</p>
+      <h2 class="section-title">Why RAG vs. Fine-Tuning Alone?</h2>
+      <p class="section-desc">
+        RAG is not a replacement for fine-tuning — they solve different problems. Most production systems combine both.
+      </p>
+      <div class="compare-grid">
+        <div class="compare-card without">
+          <h4>❌ LLM without retrieval</h4>
+          <ul>
+            <li>Knowledge frozen at training cutoff date</li>
+            <li>No access to private or internal documents</li>
+            <li>Higher risk of confident but wrong answers</li>
+            <li>Cannot cite specific source documents</li>
+          </ul>
+        </div>
+        <div class="compare-card with">
+          <h4>✓ LLM + RAG</h4>
+          <ul>
+            <li>Fresh data by re-indexing documents</li>
+            <li>Queryable private knowledge bases</li>
+            <li>Context injected at inference time</li>
+            <li>Source metadata for citations and filtering</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech stack -->
+    <section class="detail-section">
+      <p class="section-label">Implementation</p>
+      <h2 class="section-title">Typical RAG Stack (LangChain)</h2>
+      <p class="section-desc">Each architecture component maps to a concrete library in a modern Python RAG app.</p>
+
+      <table class="stack-table">
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Component</th>
+            <th>LangChain / Ecosystem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ingestion</td>
+            <td>Load &amp; parse files</td>
+            <td><code>langchain_community.document_loaders</code> · notebooks 1–6</td>
+          </tr>
+          <tr>
+            <td>Ingestion</td>
+            <td>Split into chunks</td>
+            <td><code>langchain_text_splitters</code> · notebooks 1–2</td>
+          </tr>
+          <tr>
+            <td>Ingestion</td>
+            <td>Embed text</td>
+            <td><code>langchain_openai.OpenAIEmbeddings</code> <em>(next module)</em></td>
+          </tr>
+          <tr>
+            <td>Ingestion</td>
+            <td>Store vectors</td>
+            <td><code>Chroma</code>, <code>PineconeVectorStore</code>, <code>PGVector</code></td>
+          </tr>
+          <tr>
+            <td>Query</td>
+            <td>Retrieve top-k</td>
+            <td><code>vectorstore.as_retriever(search_kwargs={"k": 4})</code></td>
+          </tr>
+          <tr>
+            <td>Query</td>
+            <td>Build prompt</td>
+            <td><code>ChatPromptTemplate</code> + context injection</td>
+          </tr>
+          <tr>
+            <td>Generation</td>
+            <td>Generate answer</td>
+            <td><code>ChatOpenAI</code>, <code>ChatAnthropic</code>, etc.</td>
+          </tr>
+          <tr>
+            <td>All-in-one</td>
+            <td>Chain orchestration</td>
+            <td><code>create_retrieval_chain()</code> or LCEL <code>|</code> pipe syntax</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <span class="cmt"># Minimal RAG chain (LangChain LCEL) — covered in a later module</span><br>
+        <span class="cmt"># Week 05 stops at: loaders → Documents → splitters → chunks</span><br>
+        <span class="kw">from</span> langchain.chains <span class="kw">import</span> create_retrieval_chain<br>
+        <span class="kw">from</span> langchain.chains.combine_documents <span class="kw">import</span> create_stuff_documents_chain<br><br>
+        <span class="kw">retrieval_chain</span> = <span class="fn">create_retrieval_chain</span>(retriever, document_chain)<br>
+        <span class="kw">result</span> = retrieval_chain.invoke({<span class="str">"input"</span>: <span class="str">"What is RAG?"</span>})<br>
+        <span class="fn">print</span>(result[<span class="str">"answer"</span>])  <span class="cmt"># grounded in retrieved chunks</span>
+      </div>
+    </section>
+
+    <!-- Week 05 notebook map -->
+    <section class="detail-section">
+      <p class="section-label">Week 05 Lab</p>
+      <h2 class="section-title">What This Module Implements</h2>
+      <p class="section-desc">
+        The interactive diagram above shows the full RAG system. Your notebooks implement
+        <strong>steps 1–2</strong> (load + split). Steps 3–12 (embed, store, retrieve, generate) come in later weeks.
+        Each notebook includes a Google Colab <code style="font-family:var(--mono)">%pip install</code> cell — no <code style="font-family:var(--mono)">.env</code> file needed.
+      </p>
+      <table class="stack-table">
+        <thead>
+          <tr><th>Step in diagram</th><th>Notebook</th><th>Output</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Raw Data → Loaders</td><td><code>1-dataingestion</code> … <code>6-databaseparsing</code></td><td><code>List[Document]</code></td></tr>
+          <tr><td>Document Splitter</td><td><code>1-dataingestion</code>, <code>2-dataparsingpdf</code></td><td>Chunked Documents with metadata</td></tr>
+          <tr><td>Embedding → Vector DB</td><td><em>future module</em></td><td>Requires API key / local embed model</td></tr>
+          <tr><td>Query → LLM</td><td><em>future module</em></td><td><code>create_retrieval_chain</code></td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:1rem;font-size:0.85rem;color:var(--text-muted)">
+        Deep dive on the Document model:
+        <a href="langchain-document-components.html" style="color:var(--teal)">LangChain Document Components →</a>
+      </p>
+    </section>
+
+    <footer>
+      RAG Architecture · Interactive Study Guide · Data Ingestion &amp; Parsing ·
+      <a href="langchain-document-components.html" style="color:var(--teal)">Document Model →</a>
+    </footer>
+  </div>
+
+  <script>
+    const steps = [
+      { id: 1, phase: "ingest", label: "Raw Data Sources" },
+      { id: 2, phase: "ingest", label: "Document Splitter" },
+      { id: 3, phase: "ingest", label: "Embedding Model" },
+      { id: 4, phase: "ingest", label: "Vector Database" },
+      { id: 5, phase: "query", label: "User Query" },
+      { id: 6, phase: "query", label: "Query Embedding" },
+      { id: 7, phase: "query", label: "Similarity Search" },
+      { id: 8, phase: "query", label: "Retrieved Chunks" },
+      { id: 9, phase: "query", label: "Augmented Context" },
+      { id: 10, phase: "generate", label: "LLM Processing" },
+      { id: 11, phase: "generate", label: "Generated Response" },
+      { id: 12, phase: "generate", label: "Response to User" }
+    ];
+
+    const responses = {
+      "what is rag": "RAG (Retrieval-Augmented Generation) is a technique that enhances AI responses by retrieving relevant information from a knowledge base before generating an answer. Instead of relying solely on the model's training data, it embeds your documents, searches for chunks semantically similar to the user's question, and injects those chunks into the LLM prompt — producing grounded, citeable answers.",
+      "how does embedding work": "Embedding models convert text into high-dimensional vectors where semantically similar content sits close together. During ingestion, each document chunk is embedded and stored. At query time, the user's question is embedded with the same model, and cosine similarity finds the nearest chunk vectors in the database.",
+      "what is a vector database": "A vector database stores embedding vectors alongside metadata for fast similarity search. Unlike traditional SQL queries, it finds the k nearest neighbors to a query vector in milliseconds — even across millions of chunks. Popular options include FAISS (local), Pinecone, Chroma, and pgvector.",
+      default: "Based on the retrieved context from your knowledge base, I can provide an answer grounded in your indexed documents. RAG works by retrieving the most relevant chunks for your question and passing them to the LLM as context — reducing hallucinations and enabling answers over private data."
+    };
+
+    const chunkLibrary = [
+      { text: "RAG retrieves relevant document chunks at query time and injects them into the LLM prompt.", score: 0.92 },
+      { text: "Embeddings map text to vectors — similar meaning produces similar vectors in high-dimensional space.", score: 0.87 },
+      { text: "Vector databases enable fast k-NN search across millions of embedded chunks with metadata filtering.", score: 0.81 }
+    ];
+
+    let currentStepIndex = -1;
+    let playInterval = null;
+
+    const playBtn = document.getElementById("play-btn");
+    const resetBtn = document.getElementById("reset-btn");
+    const currentStepEl = document.getElementById("current-step");
+    const userQuery = document.getElementById("user-query");
+    const contextBox = document.getElementById("context-box");
+    const generatedResponse = document.getElementById("generated-response");
+    const dbLink = document.getElementById("db-link");
+    const retrievedChunks = document.getElementById("retrieved-chunks");
+
+    function clearHighlights() {
+      document.querySelectorAll(".flow-step").forEach((el) => {
+        el.classList.remove("highlight", "expanded");
+      });
+      document.querySelectorAll(".phase").forEach((el) => el.classList.remove("active-phase"));
+      dbLink.classList.remove("active");
+    }
+
+    function highlightStep(stepNum) {
+      clearHighlights();
+      const stepEl = document.querySelector(`[data-step="${stepNum}"]`);
+      if (stepEl) {
+        stepEl.classList.add("highlight", "expanded");
+        const phase = stepEl.closest(".phase");
+        if (phase) phase.classList.add("active-phase");
+      }
+      if (stepNum === 7) dbLink.classList.add("active");
+      const stepInfo = steps.find((s) => s.id === stepNum);
+      currentStepEl.textContent = stepInfo ? stepInfo.label : "—";
+    }
+
+    function updateContext() {
+      const q = userQuery.value.trim();
+      const chunks = chunkLibrary.map((c) => `[${c.text}]`).join("\n");
+      contextBox.textContent = `Given the following context:\n${chunks}\n\nAnswer: ${q}`;
+    }
+
+    function updateResponse() {
+      const q = userQuery.value.trim().toLowerCase();
+      let resp = responses.default;
+      for (const [key, val] of Object.entries(responses)) {
+        if (key !== "default" && q.includes(key.replace(/\?/g, ""))) {
+          resp = val;
+          break;
+        }
+      }
+      if (q.includes("what is rag") || q === "what is rag?") resp = responses["what is rag"];
+      generatedResponse.textContent = resp;
+      generatedResponse.classList.add("generated");
+    }
+
+    function animateVectors() {
+      const rand = () => (Math.random() * 2 - 1).toFixed(2);
+      const vec = Array.from({ length: 6 }, rand).join(", ");
+      document.getElementById("ingest-vector").textContent = `[${vec}, …]`;
+      document.getElementById("query-vector").textContent = `[${rand()}, ${rand()}, ${rand()}, …]`;
+    }
+
+    function runStep(index) {
+      if (index >= steps.length) {
+        clearInterval(playInterval);
+        playInterval = null;
+        playBtn.textContent = "▶ Walk Through Pipeline";
+        highlightStep(11);
+        updateResponse();
+        return;
+      }
+      currentStepIndex = index;
+      const step = steps[index];
+      highlightStep(step.id);
+      if (step.id === 3 || step.id === 6) animateVectors();
+      if (step.id >= 8) updateContext();
+      if (step.id >= 9) {
+        retrievedChunks.innerHTML = chunkLibrary
+          .map((c) => `<span class="chunk-pill retrieved">Chunk · ${c.score}</span>`)
+          .join("");
+      }
+      if (step.id >= 11) updateResponse();
+    }
+
+    playBtn.addEventListener("click", () => {
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+        playBtn.textContent = "▶ Walk Through Pipeline";
+        return;
+      }
+      reset();
+      playBtn.textContent = "⏸ Pause";
+      let i = 0;
+      runStep(i);
+      playInterval = setInterval(() => {
+        i++;
+        runStep(i);
+      }, 1400);
+    });
+
+    function reset() {
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+      }
+      playBtn.textContent = "▶ Walk Through Pipeline";
+      clearHighlights();
+      currentStepIndex = -1;
+      currentStepEl.textContent = "—";
+      generatedResponse.textContent = 'Click "Walk Through Pipeline" or type a query to see a simulated answer…';
+      generatedResponse.classList.remove("generated");
+      userQuery.value = "What is RAG?";
+      updateContext();
+    }
+
+    resetBtn.addEventListener("click", reset);
+
+    document.querySelectorAll(".flow-step").forEach((el) => {
+      el.addEventListener("click", () => {
+        const stepNum = parseInt(el.dataset.step, 10);
+        highlightStep(stepNum);
+        if (stepNum >= 8) updateContext();
+        if (stepNum >= 11) updateResponse();
+        if (stepNum === 7) dbLink.classList.add("active");
+      });
+    });
+
+    userQuery.addEventListener("input", () => {
+      updateContext();
+      if (currentStepIndex >= 10 || !playInterval) updateResponse();
+    });
+
+    updateContext();
+  </script>
+</body>
+</html>

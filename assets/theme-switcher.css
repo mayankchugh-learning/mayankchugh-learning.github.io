@@ -406,6 +406,119 @@
   color: var(--ink);
 }
 
+/* ─── RAG architecture & LangChain docs pages ─────────────── */
+[data-page="rag-architecture"] .site-chrome,
+[data-page="langchain-docs"] .site-chrome {
+  left: auto !important;
+  right: 20px;
+  bottom: 20px;
+}
+[data-page="rag-architecture"][data-theme="dark"],
+[data-page="langchain-docs"][data-theme="dark"] {
+  --bg: #0f1419;
+  --bg-card: #1a2332;
+  --bg-elevated: #243044;
+  --text: #e8edf4;
+  --text-muted: #8b9cb3;
+  --text-dim: #5c6d85;
+  --teal: #2dd4bf;
+  --teal-dim: rgba(45, 212, 191, 0.12);
+  --coral: #fb7185;
+  --coral-dim: rgba(251, 113, 133, 0.12);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251, 191, 36, 0.12);
+  --violet: #a78bfa;
+  --violet-dim: rgba(167, 139, 250, 0.12);
+  --sky: #38bdf8;
+  --sky-dim: rgba(56, 189, 248, 0.12);
+  --lime: #a3e635;
+  --lime-dim: rgba(163, 230, 53, 0.12);
+  --indigo: #818cf8;
+  --indigo-dim: rgba(129, 140, 248, 0.12);
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+[data-page="rag-architecture"][data-theme="light"],
+[data-page="langchain-docs"][data-theme="light"] {
+  --bg: #f4f6f9;
+  --bg-card: #ffffff;
+  --bg-elevated: #eef1f6;
+  --text: #1a2332;
+  --text-muted: #5c6d85;
+  --text-dim: #8b9cb3;
+  --teal: #0d9488;
+  --teal-dim: rgba(13, 148, 136, 0.1);
+  --coral: #e11d48;
+  --coral-dim: rgba(225, 29, 72, 0.08);
+  --amber: #d97706;
+  --amber-dim: rgba(217, 119, 6, 0.1);
+  --violet: #7c3aed;
+  --violet-dim: rgba(124, 58, 237, 0.1);
+  --sky: #0284c7;
+  --sky-dim: rgba(2, 132, 199, 0.1);
+  --lime: #65a30d;
+  --lime-dim: rgba(101, 163, 13, 0.1);
+  --indigo: #4f46e5;
+  --indigo-dim: rgba(79, 70, 229, 0.1);
+  --border: rgba(0, 0, 0, 0.08);
+  --shadow: 0 8px 32px rgba(22, 30, 46, 0.08);
+}
+[data-page="rag-architecture"][data-theme="midnight"],
+[data-page="langchain-docs"][data-theme="midnight"] {
+  --bg: #080809;
+  --bg-card: #10141c;
+  --bg-elevated: #161b27;
+  --text: #e8e6f0;
+  --text-muted: #9895a8;
+  --text-dim: #6b6778;
+  --teal: #5eead4;
+  --teal-dim: rgba(94, 234, 212, 0.1);
+  --coral: #fda4af;
+  --coral-dim: rgba(253, 164, 175, 0.1);
+  --amber: #fcd34d;
+  --amber-dim: rgba(252, 211, 77, 0.1);
+  --violet: #c4b5fd;
+  --violet-dim: rgba(196, 181, 253, 0.1);
+  --sky: #7dd3fc;
+  --sky-dim: rgba(125, 211, 252, 0.1);
+  --lime: #bef264;
+  --lime-dim: rgba(190, 242, 100, 0.1);
+  --indigo: #a5b4fc;
+  --indigo-dim: rgba(165, 180, 252, 0.1);
+  --border: rgba(255, 255, 255, 0.07);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+[data-page="rag-architecture"][data-theme="contrast"],
+[data-page="langchain-docs"][data-theme="contrast"] {
+  --bg: #000000;
+  --bg-card: #0a0a0a;
+  --bg-elevated: #111111;
+  --text: #ffffff;
+  --text-muted: #dddddd;
+  --text-dim: #aaaaaa;
+  --teal: #00ffcc;
+  --teal-dim: rgba(0, 255, 204, 0.12);
+  --coral: #ff6666;
+  --coral-dim: rgba(255, 102, 102, 0.12);
+  --amber: #ffcc00;
+  --amber-dim: rgba(255, 204, 0, 0.12);
+  --violet: #ccccff;
+  --violet-dim: rgba(204, 204, 255, 0.12);
+  --sky: #66ccff;
+  --sky-dim: rgba(102, 204, 255, 0.12);
+  --lime: #ccff00;
+  --lime-dim: rgba(204, 255, 0, 0.12);
+  --indigo: #9999ff;
+  --indigo-dim: rgba(153, 153, 255, 0.12);
+  --border: #ffffff;
+  --shadow: 0 8px 32px rgba(255, 255, 255, 0.08);
+}
+[data-page="rag-architecture"] body,
+[data-page="langchain-docs"] body {
+  background: var(--bg) !important;
+  color: var(--text);
+}
+
 /* ─── Positional encoding page ────────────────────────────── */
 [data-page="encoding"][data-theme="dark"] {
   --bg: #0f1117; --bg2: #1a1d27; --bg3: #22263a;

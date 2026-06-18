@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en" data-page="langchain-docs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LangChain Documents — Interactive Guide</title>
+  <script src="/assets/theme-switcher.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-card: #1a2332;
+      --bg-elevated: #243044;
+      --text: #e8edf4;
+      --text-muted: #8b9cb3;
+      --text-dim: #5c6d85;
+      --teal: #2dd4bf;
+      --teal-dim: rgba(45, 212, 191, 0.12);
+      --coral: #fb7185;
+      --coral-dim: rgba(251, 113, 133, 0.12);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251, 191, 36, 0.12);
+      --violet: #a78bfa;
+      --violet-dim: rgba(167, 139, 250, 0.12);
+      --sky: #38bdf8;
+      --sky-dim: rgba(56, 189, 248, 0.12);
+      --lime: #a3e635;
+      --lime-dim: rgba(163, 230, 53, 0.12);
+      --border: rgba(255, 255, 255, 0.08);
+      --radius: 16px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --font: "DM Sans", system-ui, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    /* Ambient background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(45, 212, 191, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 90% 10%, rgba(167, 139, 250, 0.12), transparent),
+        radial-gradient(ellipse 50% 30% at 50% 100%, rgba(251, 113, 133, 0.08), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem 6rem;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 3.5rem 0 2.5rem;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.9rem;
+      background: var(--teal-dim);
+      border: 1px solid rgba(45, 212, 191, 0.3);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--teal);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff 30%, var(--teal) 70%, var(--violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .subtitle {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 2rem;
+    }
+
+    /* Pipeline strip */
+    .pipeline {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .pipeline-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .pipeline-step .num {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--bg);
+    }
+
+    .pipeline-step:nth-child(1) .num { background: var(--coral); }
+    .pipeline-step:nth-child(2) .num { background: var(--amber); }
+    .pipeline-step:nth-child(3) .num { background: var(--teal); }
+    .pipeline-step:nth-child(4) .num { background: var(--violet); }
+    .pipeline-step:nth-child(5) .num { background: var(--sky); }
+
+    .pipeline-arrow {
+      color: var(--text-dim);
+      font-size: 1rem;
+      align-self: center;
+    }
+
+    @media (max-width: 700px) {
+      .pipeline-arrow { display: none; }
+    }
+
+    /* Nav */
+    .nav-bar {
+      position: sticky;
+      top: 0.75rem;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      justify-content: center;
+      padding: 0.5rem;
+      margin-bottom: 2.5rem;
+      background: rgba(15, 20, 25, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .nav-btn {
+      padding: 0.5rem 1.1rem;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { color: var(--text); background: var(--bg-elevated); }
+    .nav-btn.active { color: var(--bg); }
+    .nav-btn[data-target="overview"].active { background: var(--teal); }
+    .nav-btn[data-target="components"].active { background: var(--coral); }
+    .nav-btn[data-target="pipeline"].active { background: var(--amber); color: #1a1200; }
+    .nav-btn[data-target="loaders"].active { background: var(--violet); }
+    .nav-btn[data-target="transformers"].active { background: var(--sky); color: #0a1628; }
+    .nav-btn[data-target="notebooks"].active { background: var(--lime); color: #1a1200; }
+
+    section {
+      margin-bottom: 3rem;
+      scroll-margin-top: 5.5rem;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 720px;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* Overview */
+    #overview .overview-card {
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: auto 1fr 1.1fr;
+      gap: 2rem;
+      align-items: start;
+      border-top: 3px solid var(--teal);
+    }
+
+    @media (max-width: 1000px) {
+      #overview .overview-card { grid-template-columns: 1fr; }
+    }
+
+    .doc-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--teal-dim), var(--violet-dim));
+      border: 1px solid rgba(45, 212, 191, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.75rem;
+    }
+
+    .import-box {
+      display: inline-block;
+      padding: 0.45rem 0.85rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--teal);
+      margin: 0.75rem 0;
+    }
+
+    .why-box {
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-left: 3px solid var(--amber);
+    }
+
+    .component-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+
+    .pill {
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px solid;
+      transition: all 0.2s;
+    }
+
+    .pill.teal { color: var(--teal); border-color: rgba(45, 212, 191, 0.4); background: var(--teal-dim); }
+    .pill.coral { color: var(--coral); border-color: rgba(251, 113, 133, 0.4); background: var(--coral-dim); }
+    .pill.lime { color: var(--lime); border-color: rgba(163, 230, 53, 0.4); background: var(--lime-dim); }
+    .pill:hover, .pill.highlighted { transform: translateY(-2px); filter: brightness(1.15); }
+
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      line-height: 1.75;
+      color: #c9d1d9;
+      position: relative;
+      overflow-x: auto;
+    }
+
+    .code-block .kw { color: #ff7b72; }
+    .code-block .fn { color: #d2a8ff; }
+    .code-block .str { color: #a5d6ff; }
+    .code-block .num { color: #ffa657; }
+    .code-block .cmt { color: #6e7681; }
+    .code-block .mod { color: #79c0ff; }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      padding: 0.3rem 0.65rem;
+      font-family: var(--font);
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .code-block:hover .copy-btn { opacity: 1; }
+    .copy-btn.copied { background: var(--teal); color: var(--bg); border-color: var(--teal); }
+
+    /* Stat row */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-card {
+      padding: 1.1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .stat-card .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .stat-card:nth-child(1) { background: var(--coral-dim); }
+    .stat-card:nth-child(1) .value { color: var(--coral); }
+    .stat-card:nth-child(2) { background: var(--teal-dim); }
+    .stat-card:nth-child(2) .value { color: var(--teal); }
+    .stat-card:nth-child(3) { background: var(--violet-dim); }
+    .stat-card:nth-child(3) .value { color: var(--violet); }
+    .stat-card:nth-child(4) { background: var(--amber-dim); }
+    .stat-card:nth-child(4) .value { color: var(--amber); }
+
+    /* Components */
+    .components-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 860px) {
+      .components-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .panel:hover { box-shadow: var(--shadow); }
+    .panel.highlighted { transform: scale(1.01); box-shadow: 0 0 0 2px currentColor, var(--shadow); }
+
+    .panel-header {
+      padding: 1rem 1.25rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .panel-header .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .panel.page-content { color: var(--coral); }
+    .panel.page-content .panel-header { background: linear-gradient(90deg, rgba(251,113,133,0.2), transparent); }
+    .panel.page-content .panel-header .icon { background: var(--coral-dim); }
+
+    .panel.metadata { color: var(--teal); }
+    .panel.metadata .panel-header { background: linear-gradient(90deg, rgba(45,212,191,0.2), transparent); }
+    .panel.metadata .panel-header .icon { background: var(--teal-dim); }
+
+    .panel.id-field { color: var(--lime); grid-column: 1 / -1; }
+    .panel.id-field .panel-header { background: linear-gradient(90deg, rgba(163,230,53,0.15), transparent); }
+    .panel.id-field .panel-header .icon { background: var(--lime-dim); }
+
+    .panel-body { padding: 1.25rem; }
+
+    .info-box {
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    .info-box.coral { background: var(--coral-dim); border: 1px solid rgba(251, 113, 133, 0.25); color: #fecdd3; }
+    .info-box.teal { background: var(--teal-dim); border: 1px solid rgba(45, 212, 191, 0.25); color: #99f6e4; }
+    .info-box.lime { background: var(--lime-dim); border: 1px solid rgba(163, 230, 53, 0.25); color: #d9f99d; }
+
+    .example-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .example-card:hover, .example-card.selected {
+      border-color: var(--coral);
+      background: var(--coral-dim);
+      color: var(--text);
+    }
+
+    .example-card strong {
+      display: block;
+      margin-bottom: 0.3rem;
+      color: var(--text);
+      font-size: 0.8rem;
+    }
+
+    .example-card .tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+    }
+
+    .callout {
+      border-radius: 10px;
+      padding: 1rem;
+      font-size: 0.82rem;
+      margin-top: 0.75rem;
+    }
+
+    .callout.warn {
+      background: var(--amber-dim);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      color: #fde68a;
+    }
+
+    .callout.good {
+      background: var(--teal-dim);
+      border: 1px solid rgba(45, 212, 191, 0.3);
+      color: #99f6e4;
+    }
+
+    .callout strong { display: block; margin-bottom: 0.4rem; color: var(--text); }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 500px) { .meta-grid { grid-template-columns: 1fr; } }
+
+    .meta-field {
+      padding: 0.75rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--bg-elevated);
+    }
+
+    .meta-field:hover, .meta-field.active {
+      transform: translateY(-2px);
+      border-color: var(--teal);
+      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.15);
+    }
+
+    .meta-field.active { background: var(--teal-dim); }
+
+    .meta-field .field-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--teal);
+      font-family: var(--mono);
+    }
+
+    .meta-field .desc { font-size: 0.72rem; color: var(--text-dim); margin: 0.15rem 0 0.35rem; }
+    .meta-field .use-case { font-size: 0.7rem; color: var(--text-muted); font-style: italic; }
+
+    .meta-field.coral .field-name { color: var(--coral); }
+    .meta-field.coral.active { border-color: var(--coral); background: var(--coral-dim); box-shadow: 0 4px 16px rgba(251, 113, 133, 0.15); }
+
+    .meta-field.violet .field-name { color: var(--violet); }
+    .meta-field.violet.active { border-color: var(--violet); background: var(--violet-dim); }
+
+    /* Live preview */
+    .live-preview {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: linear-gradient(145deg, var(--bg-elevated), var(--bg-card));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      border-top: 3px solid var(--sky);
+    }
+
+    .live-preview h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-live {
+      font-size: 0.6rem;
+      background: var(--sky);
+      color: var(--bg);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.65; }
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) { .preview-grid { grid-template-columns: 1fr; } }
+
+    .preview-box {
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 130px;
+      border: 1px solid var(--border);
+    }
+
+    .preview-box.content { background: var(--coral-dim); border-color: rgba(251, 113, 133, 0.3); }
+    .preview-box.meta { background: var(--teal-dim); border-color: rgba(45, 212, 191, 0.3); }
+
+    .preview-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      font-family: var(--mono);
+    }
+
+    .preview-box.content .preview-label { color: var(--coral); }
+    .preview-box.meta .preview-label { color: var(--teal); }
+
+    #preview-content { font-size: 0.85rem; color: var(--text); }
+
+    #preview-metadata {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: #99f6e4;
+      white-space: pre-wrap;
+    }
+
+    textarea.meta-editor {
+      width: 100%;
+      min-height: 90px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem;
+      resize: vertical;
+      margin-top: 0.5rem;
+    }
+
+    /* RAG pipeline section */
+    .flow-diagram {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .flow-diagram { grid-template-columns: 1fr; }
+    }
+
+    .flow-node {
+      padding: 1.25rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+      position: relative;
+    }
+
+    .flow-node .emoji { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .flow-node h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .flow-node p { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; }
+
+    .flow-node:nth-child(1) { background: var(--coral-dim); border-color: rgba(251,113,133,0.3); }
+    .flow-node:nth-child(1) h4 { color: var(--coral); }
+    .flow-node:nth-child(3) { background: var(--amber-dim); border-color: rgba(251,191,36,0.3); }
+    .flow-node:nth-child(3) h4 { color: var(--amber); }
+    .flow-node:nth-child(5) { background: var(--teal-dim); border-color: rgba(45,212,191,0.3); }
+    .flow-node:nth-child(5) h4 { color: var(--teal); }
+    .flow-node:nth-child(7) { background: var(--violet-dim); border-color: rgba(167,139,250,0.3); }
+    .flow-node:nth-child(7) h4 { color: var(--violet); }
+    .flow-node:nth-child(9) { background: var(--sky-dim); border-color: rgba(56,189,248,0.3); }
+    .flow-node:nth-child(9) h4 { color: var(--sky); }
+
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-size: 1.25rem;
+    }
+
+    @media (max-width: 900px) { .flow-arrow { transform: rotate(90deg); padding: 0.25rem; } }
+
+    /* Loaders & transformers */
+    .section-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .section-card .section-header {
+      padding: 1.1rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .section-card.loaders .section-header {
+      background: linear-gradient(90deg, rgba(167,139,250,0.25), transparent);
+      color: var(--violet);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-card.transformers .section-header {
+      background: linear-gradient(90deg, rgba(56,189,248,0.25), transparent);
+      color: var(--sky);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-body { padding: 1.5rem; }
+
+    .intro-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      border-left: 3px solid var(--violet);
+    }
+
+    .intro-text.transformers-intro { border-left-color: var(--sky); }
+
+    .loader-grid, .splitter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .loader-card, .splitter-card {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg-elevated);
+    }
+
+    .loader-card:hover, .splitter-card:hover,
+    .loader-card.expanded, .splitter-card.selected {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+
+    .loader-card h3, .splitter-card h3 {
+      padding: 0.85rem 1rem 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .loader-card .when {
+      padding: 0 1rem;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .loader-card .code-inner, .splitter-card .code-inner {
+      padding: 0.75rem 1rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+      background: #0d1117;
+      margin: 0 0.75rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    .loader-card.coral h3 { color: var(--coral); }
+    .loader-card.coral.expanded { border-color: var(--coral); }
+    .loader-card.amber h3 { color: var(--amber); }
+    .loader-card.amber.expanded { border-color: var(--amber); }
+    .loader-card.sky h3 { color: var(--sky); }
+    .loader-card.sky.expanded { border-color: var(--sky); }
+    .loader-card.teal h3 { color: var(--teal); }
+    .loader-card.teal.expanded { border-color: var(--teal); }
+
+    .loader-detail {
+      display: none;
+      padding: 0 1rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .loader-card.expanded .loader-detail { display: block; }
+
+    .loader-detail ul {
+      margin: 0.5rem 0 0 1.1rem;
+      font-size: 0.75rem;
+    }
+
+    .splitter-card.coral h3 { color: var(--coral); }
+    .splitter-card.amber h3 { color: var(--amber); }
+    .splitter-card.teal h3 { color: var(--teal); }
+    .splitter-card.violet h3 { color: var(--violet); }
+    .splitter-card.selected { border-color: var(--sky); }
+
+    .splitter-card .recommend {
+      padding: 0 1rem 0.5rem;
+      font-size: 0.7rem;
+      color: var(--lime);
+      font-weight: 600;
+    }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag-cloud span {
+      padding: 0.3rem 0.65rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .tag-cloud span:hover {
+      border-color: var(--violet);
+      color: var(--violet);
+      background: var(--violet-dim);
+    }
+
+    .chunk-output {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .chunk-chip {
+      background: var(--sky-dim);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.72rem;
+      max-width: 260px;
+      color: var(--text-muted);
+    }
+
+    .chunk-chip strong { color: var(--sky); display: block; margin-bottom: 0.25rem; font-size: 0.68rem; }
+
+    footer {
+      text-align: center;
+      padding: 2rem 0 1rem;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+
+    .fade-in { animation: fadeIn 0.35s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-badge">Data Ingestion &amp; Parsing · Week 05</div>
+      <h1>LangChain Document Model</h1>
+      <p class="subtitle">
+        The <strong>Document</strong> is the universal container in LangChain's RAG pipeline — it carries raw text
+        (<code style="color:var(--coral);font-family:var(--mono);font-size:0.9em">page_content</code>) and
+        traceability data (<code style="color:var(--teal);font-family:var(--mono);font-size:0.9em">metadata</code>)
+        from ingestion all the way to retrieval.
+      </p>
+
+      <div class="pipeline" aria-label="RAG data flow">
+        <div class="pipeline-step"><span class="num">1</span> Load files</div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-step"><span class="num">2</span> Split into chunks</div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-step"><span class="num">3</span> Embed vectors</div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-step"><span class="num">4</span> Store in DB</div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-step"><span class="num">5</span> Retrieve &amp; generate</div>
+      </div>
+    </header>
+
+    <nav class="nav-bar" aria-label="Section navigation">
+      <button class="nav-btn active" data-target="overview">Overview</button>
+      <button class="nav-btn" data-target="components">Components</button>
+      <button class="nav-btn" data-target="pipeline">RAG Pipeline</button>
+      <button class="nav-btn" data-target="loaders">Loaders</button>
+      <button class="nav-btn" data-target="transformers">Splitters</button>
+      <button class="nav-btn" data-target="notebooks">Notebooks</button>
+    </nav>
+
+    <!-- Overview -->
+    <section id="overview">
+      <p class="section-label" style="color:var(--teal)">01 · Foundation</p>
+      <h2 class="section-title">What is a LangChain Document?</h2>
+      <p class="section-desc">
+        Every file you ingest — PDF, webpage, CSV row, or API response — becomes one or more
+        <code style="font-family:var(--mono);color:var(--teal)">Document</code> objects. These are the atomic units
+        passed to embedders, vector stores, and retrievers. LangChain v0.3+ splits packages: core types live in
+        <code style="font-family:var(--mono);color:var(--violet)">langchain_core</code>, loaders in
+        <code style="font-family:var(--mono);color:var(--violet)">langchain_community</code>, splitters in
+        <code style="font-family:var(--mono);color:var(--violet)">langchain_text_splitters</code>.
+      </p>
+
+      <div class="card overview-card">
+        <div class="doc-icon" aria-hidden="true">📄</div>
+        <div>
+          <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:0.25rem;">Document</h3>
+          <div class="import-box">from langchain_core.documents import Document</div>
+          <p style="color:var(--text-muted);font-size:0.88rem;">
+            A lightweight dataclass with three fields. You rarely subclass it — instead, loaders and splitters
+            produce Documents automatically.
+          </p>
+          <div class="component-pills">
+            <span class="pill coral" data-highlight="page-content" role="button" tabindex="0">page_content · str</span>
+            <span class="pill teal" data-highlight="metadata" role="button" tabindex="0">metadata · dict</span>
+            <span class="pill lime" data-highlight="id-field" role="button" tabindex="0">id · str (optional)</span>
+          </div>
+          <div class="why-box">
+            <strong style="color:var(--amber)">Why it matters for RAG:</strong>
+            Embeddings are computed from <em>page_content</em>, but when a user asks a question, the LLM needs
+            <em>metadata</em> (source file, page number) to cite answers and filter results by date, department, or access level.
+          </div>
+        </div>
+        <div class="code-block" id="create-doc-code">
+          <button class="copy-btn" data-copy="create-doc-code">Copy</button>
+          <span class="cmt"># Modern LangChain (v0.3+) — see notebook 1-dataingestion.ipynb</span><br>
+          <span class="kw">from</span> <span class="mod">langchain_core.documents</span> <span class="kw">import</span> <span class="fn">Document</span><br><br>
+          <span class="cmt"># Manual creation (loaders do this for you)</span><br>
+          <span class="kw">doc</span> = <span class="fn">Document</span>(<br>
+          &nbsp;&nbsp;page_content=<span class="str">"RAG grounds LLM answers in your private data."</span>,<br>
+          &nbsp;&nbsp;metadata={<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"source"</span>: <span class="str">"policies/handbook.pdf"</span>,<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"page"</span>: <span class="num">12</span>,<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"doc_type"</span>: <span class="str">"policy"</span>,<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"last_updated"</span>: <span class="str">"2025-11-03"</span><br>
+          &nbsp;&nbsp;},<br>
+          &nbsp;&nbsp;id=<span class="str">"handbook-p12-chunk-0"</span>  <span class="cmt"># optional, for dedup in vector DB</span><br>
+          )
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="value">page_content</div>
+          <div class="label">Gets embedded &amp; semantically searched</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">metadata</div>
+          <div class="label">Enables filtering, citations &amp; audit trails</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">1 → N</div>
+          <div class="label">One file often becomes many chunk Documents</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">500–2k</div>
+          <div class="label">Typical chunk size in tokens</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Components -->
+    <section id="components">
+      <p class="section-label" style="color:var(--coral)">02 · Anatomy</p>
+      <h2 class="section-title">Document Components in Detail</h2>
+      <p class="section-desc">
+        Click any example or metadata field below to see how a real Document object is assembled.
+        Good metadata design is often more important than chunk size for production RAG quality.
+      </p>
+
+      <div class="components-grid">
+        <article class="panel page-content" id="page-content-panel">
+          <div class="panel-header">
+            <span class="icon">📝</span>
+            page_content — the searchable text
+          </div>
+          <div class="panel-body">
+            <div class="info-box coral">
+              The raw string that gets tokenized, embedded, and compared against user queries.
+              Vector similarity search operates <em>only</em> on this field — not on metadata.
+            </div>
+            <p style="font-weight:600;font-size:0.85rem;margin-bottom:0.6rem;">Real-world examples — click to preview:</p>
+
+            <div class="example-card selected"
+              data-content="Retrieval-Augmented Generation (RAG) retrieves relevant document chunks at query time and injects them into the LLM prompt, reducing hallucinations and enabling answers over proprietary data without fine-tuning.">
+              <strong>Internal knowledge base</strong>
+              Policy or wiki excerpt that employees query via a chatbot.
+              <span class="tag">~180 tokens · single topic</span>
+            </div>
+
+            <div class="example-card"
+              data-content="Section 4.2 — Data Retention: Customer transaction logs are retained for 7 years per regulatory requirement FIN-2024-11. PII fields (name, email) are masked after 90 days in cold storage.">
+              <strong>Compliance / legal document</strong>
+              Specific clause the system must cite with exact source reference.
+              <span class="tag">precise citation needed</span>
+            </div>
+
+            <div class="example-card"
+              data-content="Q: How do I reset my VPN password? A: Open the IT portal at helpdesk.company.com, click 'Forgot Password', and authenticate via MFA. Passwords expire every 90 days.">
+              <strong>FAQ pair (support ticket bot)</strong>
+              Question-answer format works well for helpdesk RAG.
+              <span class="tag">Q&A structure</span>
+            </div>
+
+            <div class="callout warn">
+              <strong>⚠️ Common mistakes</strong>
+              Dumping HTML tags, headers/footers, or table-of-contents noise into page_content degrades retrieval.
+              Clean text <em>before</em> embedding. Very long pages should be split — not stored as one giant chunk.
+            </div>
+
+            <div class="callout good">
+              <strong>✓ Best practices</strong>
+              One coherent idea per chunk · strip boilerplate · match chunk size to your embedding model's context window ·
+              include section headings in the text for context
+            </div>
+          </div>
+        </article>
+
+        <article class="panel metadata" id="metadata-panel">
+          <div class="panel-header">
+            <span class="icon">🏷️</span>
+            metadata — context &amp; filtering
+          </div>
+          <div class="panel-body">
+            <div class="info-box teal">
+              A plain Python dict attached to every chunk. Vector stores (Chroma, Pinecone, pgvector) index
+              metadata for <strong>pre-filtering</strong> — e.g. "only search docs from 2025 in the legal department."
+              Metadata is copied to child chunks when you split a Document.
+            </div>
+            <p style="font-weight:600;font-size:0.85rem;margin-bottom:0.6rem;">Click fields to toggle in live preview:</p>
+
+            <div class="meta-grid">
+              <div class="meta-field teal active" data-key="source" data-value="policies/handbook.pdf">
+                <div class="field-name">source</div>
+                <div class="desc">Original file path or URL</div>
+                <div class="use-case">→ Powers "according to handbook.pdf, page 12" citations</div>
+              </div>
+              <div class="meta-field teal active" data-key="page" data-value="12">
+                <div class="field-name">page</div>
+                <div class="desc">Page number within source</div>
+                <div class="use-case">→ PyPDFLoader sets this automatically per page</div>
+              </div>
+              <div class="meta-field coral active" data-key="doc_type" data-value="policy">
+                <div class="field-name">doc_type</div>
+                <div class="desc">Category: policy, faq, contract…</div>
+                <div class="use-case">→ Filter: only search doc_type == "policy"</div>
+              </div>
+              <div class="meta-field coral" data-key="department" data-value="legal">
+                <div class="field-name">department</div>
+                <div class="desc">Owning team or business unit</div>
+                <div class="use-case">→ Multi-tenant access control</div>
+              </div>
+              <div class="meta-field violet active" data-key="last_updated" data-value="2025-11-03">
+                <div class="field-name">last_updated</div>
+                <div class="desc">Freshness timestamp</div>
+                <div class="use-case">→ Exclude stale docs from retrieval</div>
+              </div>
+              <div class="meta-field violet" data-key="access_level" data-value="internal">
+                <div class="field-name">access_level</div>
+                <div class="desc">public · internal · confidential</div>
+                <div class="use-case">→ Security filtering before LLM sees content</div>
+              </div>
+            </div>
+
+            <div class="callout good">
+              <strong>💡 Pro tip</strong>
+              Add <code style="font-family:var(--mono)">chunk_index</code> and <code style="font-family:var(--mono)">parent_id</code>
+              when splitting — helps reconstruct full sections and debug retrieval gaps.
+            </div>
+          </div>
+        </article>
+
+        <article class="panel id-field" id="id-field-panel" style="grid-column:1/-1">
+          <div class="panel-header">
+            <span class="icon">🔑</span>
+            id — optional unique identifier
+          </div>
+          <div class="panel-body">
+            <div class="info-box lime">
+              An optional string for deduplication and upserts in vector databases. If you re-ingest the same document,
+              a stable <code style="font-family:var(--mono)">id</code> prevents duplicate vectors.
+              Convention: <code style="font-family:var(--mono)">{source}-p{page}-chunk{index}</code>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="live-preview fade-in">
+        <h3>Live Document Builder <span class="badge-live">INTERACTIVE</span></h3>
+        <p style="font-size:0.85rem;color:var(--text-muted)">
+          This is the exact object shape your vector store receives after loading and splitting.
+        </p>
+        <div class="preview-grid">
+          <div class="preview-box content">
+            <div class="preview-label">page_content</div>
+            <div id="preview-content">Retrieval-Augmented Generation (RAG) retrieves relevant document chunks at query time and injects them into the LLM prompt, reducing hallucinations and enabling answers over proprietary data without fine-tuning.</div>
+          </div>
+          <div class="preview-box meta">
+            <div class="preview-label">metadata (+ optional id)</div>
+            <pre id="preview-metadata"></pre>
+            <label for="meta-editor" style="font-size:0.72rem;color:var(--text-dim)">Edit JSON directly:</label>
+            <textarea id="meta-editor" class="meta-editor" aria-label="Edit metadata JSON"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RAG Pipeline -->
+    <section id="pipeline">
+      <p class="section-label" style="color:var(--amber)">03 · Context</p>
+      <h2 class="section-title">Where Documents Fit in the RAG Pipeline</h2>
+      <p class="section-desc">
+        Documents are the handoff format between every stage. Understanding this flow clarifies
+        why loaders, splitters, and metadata design all matter.
+      </p>
+
+      <div class="card" style="padding:1.5rem">
+        <div class="flow-diagram">
+          <div class="flow-node">
+            <div class="emoji">📂</div>
+            <h4>Document Loaders</h4>
+            <p>Read raw files (PDF, HTML, CSV) and output <code style="font-family:var(--mono);font-size:0.65rem">List[Document]</code></p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <div class="emoji">✂️</div>
+            <h4>Text Splitters</h4>
+            <p>Break large docs into chunk-sized Documents. Metadata is inherited + enriched.</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <div class="emoji">🧮</div>
+            <h4>Embeddings</h4>
+            <p><code style="font-family:var(--mono);font-size:0.65rem">embeddings.embed_documents([d.page_content])</code></p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <div class="emoji">🗄️</div>
+            <h4>Vector Store</h4>
+            <p>Stores vectors + metadata. Chroma, Pinecone, FAISS, pgvector.</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <div class="emoji">💬</div>
+            <h4>Retriever → LLM</h4>
+            <p>Top-k chunks injected into prompt. Metadata shown as citations.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loaders -->
+    <section id="loaders">
+      <p class="section-label" style="color:var(--violet)">04 · Ingestion</p>
+      <h2 class="section-title">Document Loaders</h2>
+      <p class="section-desc">
+        Loaders handle the "messy" part — parsing binary formats, fetching URLs, walking directories.
+        They all return the same <code style="font-family:var(--mono);color:var(--teal)">Document</code> type.
+      </p>
+
+      <div class="section-card loaders">
+        <div class="section-header">langchain_community.document_loaders</div>
+        <div class="section-body">
+          <div class="intro-text">
+            Install (local or Colab): <code style="font-family:var(--mono)">pip install langchain langchain-community langchain-core langchain-text-splitters pypdf pymupdf docx2txt jq tiktoken unstructured networkx msoffcrypto-tool</code>.
+            Each loader implements <code style="font-family:var(--mono)">.load()</code> → list of Documents
+            or <code style="font-family:var(--mono)">.lazy_load()</code> for memory-efficient streaming on large corpora.
+            Click a card for details. Cards below map to this week's notebooks.
+          </div>
+
+          <div class="loader-grid">
+            <div class="loader-card teal" data-loader="text">
+              <h3>TextLoader</h3>
+              <div class="when">Notebook 1 · single .txt files</div>
+              <div class="code-inner">
+from langchain_community.document_loaders import TextLoader<br>
+loader = TextLoader("data/text_files/python_intro.txt",<br>
+&nbsp;&nbsp;encoding="utf-8")<br>
+docs = loader.load()  # 1 file = 1 Document
+              </div>
+              <div class="loader-detail">
+                Simplest loader. Pair with <strong>DirectoryLoader</strong> and <code>glob="**/*.txt"</code> to batch-load a folder.
+                Always set <code>encoding="utf-8"</code> on Windows.
+              </div>
+            </div>
+
+            <div class="loader-card coral" data-loader="pdf">
+              <h3>PyPDFLoader / PyMuPDFLoader</h3>
+              <div class="when">Notebook 2 · PDF reports &amp; papers</div>
+              <div class="code-inner">
+from langchain_community.document_loaders import (<br>
+&nbsp;&nbsp;PyPDFLoader, PyMuPDFLoader<br>
+)<br>
+docs = PyPDFLoader("data/pdf/attention.pdf").load()
+              </div>
+              <div class="loader-detail">
+                Automatically sets <code>metadata["source"]</code> and <code>metadata["page"]</code>.
+                <strong>PyMuPDFLoader</strong> is faster with richer metadata. Clean ligatures/whitespace before chunking
+                (see <code>SmartPDFProcessor</code> in notebook 2).
+                <ul>
+                  <li>Sample file: <code>data/pdf/attention.pdf</code></li>
+                  <li>Password-protected PDFs: pass <code>password=</code></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="loader-card sky" data-loader="docx">
+              <h3>Docx2txtLoader</h3>
+              <div class="when">Notebook 3 · Word .docx proposals</div>
+              <div class="code-inner">
+from langchain_community.document_loaders import Docx2txtLoader<br>
+docs = Docx2txtLoader("data/word_files/proposal.docx").load()
+              </div>
+              <div class="loader-detail">
+                One plain-text Document per file. For element-level structure (Title, NarrativeText),
+                use <strong>UnstructuredWordDocumentLoader</strong> with <code>mode="elements"</code>.
+              </div>
+            </div>
+
+            <div class="loader-card amber" data-loader="csv">
+              <h3>CSVLoader</h3>
+              <div class="when">Notebook 4 · product catalogs, tabular rows</div>
+              <div class="code-inner">
+from langchain_community.document_loaders import CSVLoader<br>
+loader = CSVLoader("data/structured_files/products.csv",<br>
+&nbsp;&nbsp;encoding="utf-8")<br>
+docs = loader.load()  # 1 row = 1 Document
+              </div>
+              <div class="loader-detail">
+                Each row becomes one Document with <code>metadata["row"]</code>.
+                For Excel, use pandas per-sheet docs or <strong>UnstructuredExcelLoader</strong>.
+                Custom processing adds rich metadata (<code>category</code>, <code>price</code>) for filtering.
+              </div>
+            </div>
+
+            <div class="loader-card violet" data-loader="json">
+              <h3>JSONLoader</h3>
+              <div class="when">Notebook 5 · nested JSON with jq</div>
+              <div class="code-inner">
+from langchain_community.document_loaders import JSONLoader<br>
+loader = JSONLoader(<br>
+&nbsp;&nbsp;"data/json_files/company_data.json",<br>
+&nbsp;&nbsp;jq_schema=".employees[]",<br>
+&nbsp;&nbsp;text_content=False<br>
+)
+              </div>
+              <div class="loader-detail">
+                Requires <code>pip install jq</code>. The <code>jq_schema</code> extracts subtrees (e.g. each employee).
+                For complex nesting, flatten to natural-language profiles with custom Python (see notebook 5).
+              </div>
+            </div>
+
+            <div class="loader-card lime" data-loader="sql" style="border-color:rgba(163,230,53,0.35)">
+              <h3>SQLDatabase + custom SQL→Document</h3>
+              <div class="when">Notebook 6 · SQLite relational data</div>
+              <div class="code-inner">
+from langchain_community.utilities import SQLDatabase<br>
+db = SQLDatabase.from_uri("sqlite:///data/databases/company.db")<br>
+db.get_table_info()  # schema + sample rows
+              </div>
+              <div class="loader-detail">
+                <code>SQLDatabase</code> exposes schema for Text-to-SQL agents. For RAG ingestion, convert tables
+                and <strong>JOIN results</strong> into readable Documents (employee–project relationships).
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size:0.85rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;">Also in the ecosystem (not covered this week):</p>
+          <div class="tag-cloud">
+            <span>DirectoryLoader</span>
+            <span>UnstructuredWordDocumentLoader</span>
+            <span>UnstructuredExcelLoader</span>
+            <span>WebBaseLoader</span>
+            <span>NotionLoader</span>
+            <span>S3FileLoader</span>
+            <span>YoutubeLoader</span>
+            <span>WikipediaLoader</span>
+            <span>ArxivLoader</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Transformers -->
+    <section id="transformers">
+      <p class="section-label" style="color:var(--sky)">05 · Chunking</p>
+      <h2 class="section-title">Text Splitters</h2>
+      <p class="section-desc">
+        Embedding models have token limits. Splitters convert one large Document into many smaller ones
+        while preserving metadata — each child chunk knows its source file and page.
+      </p>
+
+      <div class="section-card transformers">
+        <div class="section-header">langchain_text_splitters</div>
+        <div class="section-body">
+          <div class="intro-text transformers-intro">
+            Install: <code style="font-family:var(--mono)">pip install langchain-text-splitters tiktoken</code>.
+            Import from <code style="font-family:var(--mono)">langchain_text_splitters</code> (not deprecated <code style="font-family:var(--mono)">langchain.text_splitter</code>).
+            <strong>RecursiveCharacterTextSplitter</strong> is the default choice for most RAG apps.
+            Click a splitter to simulate chunking on your preview text above.
+          </div>
+
+          <div class="splitter-grid">
+            <div class="splitter-card coral" data-splitter="character">
+              <h3>CharacterTextSplitter</h3>
+              <div class="recommend">Simple fixed-size splits</div>
+              <div class="code-inner">
+from langchain_text_splitters import CharacterTextSplitter<br>
+splitter = CharacterTextSplitter(<br>
+&nbsp;&nbsp;separator="\n",<br>
+&nbsp;&nbsp;chunk_size=200,<br>
+&nbsp;&nbsp;chunk_overlap=20<br>
+)
+              </div>
+            </div>
+            <div class="splitter-card amber" data-splitter="recursive">
+              <h3>RecursiveCharacterTextSplitter</h3>
+              <div class="recommend">★ Recommended default</div>
+              <div class="code-inner">
+from langchain_text_splitters import RecursiveCharacterTextSplitter<br>
+splitter = RecursiveCharacterTextSplitter(<br>
+&nbsp;&nbsp;chunk_size=200,<br>
+&nbsp;&nbsp;chunk_overlap=20,<br>
+&nbsp;&nbsp;separators=["\n\n","\n"," ",""]<br>
+)
+              </div>
+            </div>
+            <div class="splitter-card teal" data-splitter="token">
+              <h3>TokenTextSplitter</h3>
+              <div class="recommend">Token-accurate for OpenAI models</div>
+              <div class="code-inner">
+from langchain_text_splitters import TokenTextSplitter<br>
+splitter = TokenTextSplitter(<br>
+&nbsp;&nbsp;chunk_size=50,<br>
+&nbsp;&nbsp;chunk_overlap=10<br>
+)
+              </div>
+            </div>
+            <div class="splitter-card violet" data-splitter="semantic">
+              <h3>SemanticChunker</h3>
+              <div class="recommend">Embedding-based boundaries</div>
+              <div class="code-inner">
+splitter = SemanticChunker(<br>
+&nbsp;&nbsp;embeddings,<br>
+&nbsp;&nbsp;breakpoint_threshold_type="percentile"<br>
+)
+              </div>
+            </div>
+          </div>
+
+          <div class="code-block" id="split-code">
+            <button class="copy-btn" data-copy="split-code">Copy</button>
+            <span class="cmt"># After loading documents from any loader</span><br>
+            <span class="kw">from</span> <span class="mod">langchain_text_splitters</span> <span class="kw">import</span> <span class="fn">RecursiveCharacterTextSplitter</span><br><br>
+            <span class="kw">splitter</span> = <span class="fn">RecursiveCharacterTextSplitter</span>(chunk_size=1000, chunk_overlap=100)<br>
+            <span class="kw">chunks</span> = splitter.split_documents(docs)<br>
+            <span class="cmt"># Each chunk is a new Document — metadata copied from parent</span><br>
+            <span class="cmt"># Add chunk-specific metadata:</span><br>
+            <span class="kw">for</span> i, chunk <span class="kw">in</span> <span class="fn">enumerate</span>(chunks):<br>
+            &nbsp;&nbsp;chunk.metadata[<span class="str">"chunk_index"</span>] = i
+          </div>
+
+          <div id="chunk-demo" style="margin-top:1.25rem;display:none" class="fade-in">
+            <p style="font-weight:600;font-size:0.9rem;color:var(--sky);margin-bottom:0.25rem">
+              Simulated output — <span id="splitter-name">RecursiveCharacterTextSplitter</span>
+            </p>
+            <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">
+              Based on the page_content in the live preview above
+            </p>
+            <div id="chunk-output" class="chunk-output"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Course notebooks -->
+    <section id="notebooks" style="margin-bottom:3rem">
+      <p class="section-label" style="color:var(--lime)">06 · Lab</p>
+      <h2 class="section-title">Notebook Map (Week 05)</h2>
+      <p class="section-desc">
+        Each Jupyter notebook installs dependencies via a Colab-ready <code style="font-family:var(--mono)">%pip install</code> cell,
+        then walks through one data format. No <code style="font-family:var(--mono)">.env</code> or API keys required — ingestion is fully local.
+      </p>
+      <div class="card" style="padding:1.25rem;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);text-align:left">
+              <th style="padding:0.6rem;color:var(--text-muted)">#</th>
+              <th style="padding:0.6rem;color:var(--text-muted)">Notebook</th>
+              <th style="padding:0.6rem;color:var(--text-muted)">Focus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.55rem">1</td><td style="padding:0.55rem;font-family:var(--mono);color:var(--teal)">1-dataingestion.ipynb</td><td style="padding:0.55rem">Document model, TextLoader, DirectoryLoader, splitters</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.55rem">2</td><td style="padding:0.55rem;font-family:var(--mono);color:var(--teal)">2-dataparsingpdf.ipynb</td><td style="padding:0.55rem">PyPDFLoader, PyMuPDFLoader, SmartPDFProcessor</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.55rem">3</td><td style="padding:0.55rem;font-family:var(--mono);color:var(--teal)">3-dataparsingdoc.ipynb</td><td style="padding:0.55rem">Docx2txtLoader, UnstructuredWordDocumentLoader</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.55rem">4</td><td style="padding:0.55rem;font-family:var(--mono);color:var(--teal)">4-csvexcelparsing.ipynb</td><td style="padding:0.55rem">CSVLoader, pandas/Excel, UnstructuredExcelLoader</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.55rem">5</td><td style="padding:0.55rem;font-family:var(--mono);color:var(--teal)">5-jsonparsing.ipynb</td><td style="padding:0.55rem">JSONLoader + jq_schema, custom flattening</td></tr>
+            <tr><td style="padding:0.55rem">6</td><td style="padding:0.55rem;font-family:var(--mono);color:var(--teal)">6-databaseparsing.ipynb</td><td style="padding:0.55rem">SQLDatabase, sql_to_documents() with JOINs</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:1rem;font-size:0.85rem;color:var(--text-muted)">
+        See also: <a href="rag-architecture.html" style="color:var(--sky)">RAG Architecture</a> ·
+        Run all locally: <code style="font-family:var(--mono)">python scripts/run_notebooks.py</code>
+      </p>
+    </section>
+
+    <footer>
+      LangChain Document Model · Interactive Study Guide · Data Ingestion &amp; Parsing ·
+      <a href="rag-architecture.html" style="color:var(--teal)">RAG Architecture →</a>
+    </footer>
+  </div>
+
+  <script>
+    const previewContent = document.getElementById("preview-content");
+    const previewMetadata = document.getElementById("preview-metadata");
+    const metaEditor = document.getElementById("meta-editor");
+    const chunkDemo = document.getElementById("chunk-demo");
+    const chunkOutput = document.getElementById("chunk-output");
+    const splitterName = document.getElementById("splitter-name");
+
+    let activeMetadata = {
+      source: "policies/handbook.pdf",
+      page: 12,
+      doc_type: "policy",
+      last_updated: "2025-11-03"
+    };
+
+    function updateMetadataPreview() {
+      const display = { ...activeMetadata, id: "handbook-p12-chunk-0" };
+      const json = JSON.stringify(display, null, 2);
+      previewMetadata.textContent = json;
+      metaEditor.value = JSON.stringify(activeMetadata, null, 2);
+    }
+
+    document.querySelectorAll(".nav-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+
+    const sectionIds = ["overview", "components", "pipeline", "loaders", "transformers", "notebooks"];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            document.querySelectorAll(".nav-btn").forEach((btn) => {
+              btn.classList.toggle("active", btn.dataset.target === entry.target.id);
+            });
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: 0 }
+    );
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    document.querySelectorAll(".pill").forEach((pill) => {
+      const go = () => {
+        const target = pill.dataset.highlight;
+        const panel = document.getElementById(target + "-panel");
+        document.querySelectorAll(".pill").forEach((p) => p.classList.remove("highlighted"));
+        pill.classList.add("highlighted");
+        document.querySelectorAll(".panel").forEach((p) => p.classList.remove("highlighted"));
+        if (panel) {
+          panel.classList.add("highlighted");
+          panel.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => panel.classList.remove("highlighted"), 2200);
+        }
+      };
+      pill.addEventListener("click", go);
+      pill.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+      });
+    });
+
+    document.querySelectorAll(".example-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".example-card").forEach((c) => c.classList.remove("selected"));
+        card.classList.add("selected");
+        previewContent.textContent = card.dataset.content;
+        previewContent.parentElement.classList.add("fade-in");
+      });
+    });
+
+    document.querySelectorAll(".meta-field").forEach((field) => {
+      field.addEventListener("click", () => {
+        const key = field.dataset.key;
+        const value = field.dataset.value;
+        field.classList.toggle("active");
+        if (field.classList.contains("active")) {
+          activeMetadata[key] = isNaN(Number(value)) ? value : Number(value);
+        } else {
+          delete activeMetadata[key];
+        }
+        updateMetadataPreview();
+      });
+    });
+
+    metaEditor.addEventListener("input", () => {
+      try {
+        activeMetadata = JSON.parse(metaEditor.value);
+        const display = { ...activeMetadata, id: "handbook-p12-chunk-0" };
+        previewMetadata.textContent = JSON.stringify(display, null, 2);
+        previewMetadata.style.color = "";
+      } catch {
+        previewMetadata.textContent = "⚠ Invalid JSON";
+        previewMetadata.style.color = "#fb7185";
+      }
+    });
+
+    document.querySelectorAll(".loader-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        const was = card.classList.contains("expanded");
+        document.querySelectorAll(".loader-card").forEach((c) => c.classList.remove("expanded"));
+        if (!was) card.classList.add("expanded");
+      });
+    });
+
+    function simulateChunks(text, type) {
+      const sizes = { character: 90, recursive: 110, token: 70, semantic: 130 };
+      const size = sizes[type] || 100;
+      const chunks = [];
+      if (type === "recursive" || type === "semantic") {
+        const parts = text.split(/(?<=[.!?])\s+/);
+        let current = "";
+        parts.forEach((part) => {
+          if ((current + " " + part).length > size && current) {
+            chunks.push(current.trim());
+            current = part;
+          } else {
+            current += (current ? " " : "") + part;
+          }
+        });
+        if (current) chunks.push(current.trim());
+      } else {
+        for (let i = 0; i < text.length; i += size - 25) {
+          chunks.push(text.slice(i, i + size).trim());
+        }
+      }
+      return chunks.filter(Boolean);
+    }
+
+    const splitterLabels = {
+      character: "CharacterTextSplitter",
+      recursive: "RecursiveCharacterTextSplitter",
+      token: "TokenTextSplitter",
+      semantic: "SemanticChunker"
+    };
+
+    document.querySelectorAll(".splitter-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".splitter-card").forEach((c) => c.classList.remove("selected"));
+        card.classList.add("selected");
+        const type = card.dataset.splitter;
+        splitterName.textContent = splitterLabels[type];
+        const chunks = simulateChunks(previewContent.textContent, type);
+        chunkOutput.innerHTML = chunks.map((chunk, i) =>
+          `<div class="chunk-chip"><strong>Chunk ${i + 1}</strong>${chunk}${chunk.length > 80 ? "…" : ""}</div>`
+        ).join("");
+        chunkDemo.style.display = "block";
+      });
+    });
+
+    document.querySelectorAll(".copy-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const block = document.getElementById(btn.dataset.copy);
+        const text = block.innerText.replace(/Copy|Copied!/g, "").trim();
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = "Copied!";
+          btn.classList.add("copied");
+          setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 1500);
+        });
+      });
+    });
+
+    updateMetadataPreview();
+  </script>
+</body>
+</html>

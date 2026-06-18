@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="LangChain Documents preview">
+  <defs>
+    <linearGradient id="lc-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f1419"/>
+      <stop offset="100%" stop-color="#1a2332"/>
+    </linearGradient>
+    <linearGradient id="lc-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="225" fill="url(#lc-bg)"/>
+  <ellipse cx="320" cy="36" rx="90" ry="50" fill="#a78bfa" opacity="0.12"/>
+  <text x="200" y="52" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">LANGCHAIN · WEEK 05</text>
+  <text x="200" y="86" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">Document Model</text>
+  <rect x="55" y="108" width="130" height="56" rx="8" fill="#243044" stroke="#fb7185" stroke-opacity="0.45"/>
+  <text x="120" y="132" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fb7185">page_content</text>
+  <text x="120" y="150" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb3">raw text body</text>
+  <rect x="215" y="108" width="130" height="56" rx="8" fill="#243044" stroke="#2dd4bf" stroke-opacity="0.45"/>
+  <text x="280" y="132" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#2dd4bf">metadata</text>
+  <text x="280" y="150" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb3">source · page · id</text>
+  <text x="200" y="192" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb3">Loaders · splitters · transformers</text>
+  <rect x="0" y="223" width="400" height="2" fill="url(#lc-bar)"/>
+</svg>
