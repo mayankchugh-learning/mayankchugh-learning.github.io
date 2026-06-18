@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Agent Architectures — Interactive Guide</title>
+  <style>
+    :root {
+      --bg: #0c1222;
+      --surface: #141d33;
+      --panel: #1a2744;
+      --ink: #eef2ff;
+      --muted: #94a3c4;
+      --line: #2a3a5c;
+      --violet: #8b5cf6;
+      --violet-soft: rgba(139, 92, 246, 0.15);
+      --teal: #2dd4bf;
+      --teal-soft: rgba(45, 212, 191, 0.12);
+      --amber: #fbbf24;
+      --amber-soft: rgba(251, 191, 36, 0.12);
+      --rose: #fb7185;
+      --rose-soft: rgba(251, 113, 133, 0.12);
+      --sky: #38bdf8;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      --glow: 0 0 40px rgba(139, 92, 246, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(139, 92, 246, 0.18), transparent),
+        radial-gradient(ellipse 60% 40% at 90% 10%, rgba(45, 212, 191, 0.12), transparent);
+      color: var(--ink);
+      font: 15px/1.55 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    .app {
+      width: min(1400px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.05;
+      background: linear-gradient(135deg, #fff 30%, var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle { margin: 12px 0 0; max-width: 720px; color: var(--muted); font-size: 16px; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .search {
+      flex: 1 1 260px;
+      min-height: 44px;
+      padding: 0 14px 0 40px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%2394a3c4' stroke-width='2'%3E%3Ccircle cx='8' cy='8' r='5'/%3E%3Cpath d='m13 13 4 4'/%3E%3C/svg%3E") 12px center no-repeat;
+      color: var(--ink);
+    }
+
+    .search:focus { outline: 2px solid var(--violet); border-color: var(--violet); }
+
+    .filter-btn {
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      border-color: var(--violet);
+      color: var(--ink);
+      background: var(--violet-soft);
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      animation: fadeUp 0.6s 0.15s ease both;
+    }
+
+    .stat {
+      padding: 10px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .stat b { color: var(--teal); font-size: 18px; margin-right: 6px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      position: relative;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--violet);
+      box-shadow: var(--glow);
+    }
+
+    .card.active {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 1px var(--teal), var(--glow);
+    }
+
+    .card-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .card h3 { margin: 0 0 8px; font-size: 17px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .flow-mini {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .node {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .detail {
+      position: sticky;
+      top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .detail-header {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--violet-soft), transparent);
+    }
+
+    .detail-header h2 { margin: 0 0 6px; font-size: 22px; }
+    .detail-header p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .detail-body { padding: 18px; }
+
+    .step-list {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 18px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .step-list li {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--panel);
+      opacity: 0.4;
+      transform: translateX(-8px);
+      transition: all 0.35s ease;
+    }
+
+    .step-list li.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .step-num {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--violet-soft);
+      color: var(--violet);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .step-list b { display: block; margin-bottom: 2px; }
+    .step-list span { color: var(--muted); font-size: 13px; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover { border-color: var(--teal); color: var(--teal); }
+    .btn.primary { background: var(--violet); border-color: var(--violet); color: #fff; }
+    .btn.primary:hover { filter: brightness(1.1); }
+
+    .use-when {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--teal-soft);
+      border: 1px solid rgba(45, 212, 191, 0.25);
+      font-size: 13px;
+    }
+
+    .use-when b { color: var(--teal); }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 24px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .nav-link:hover { color: var(--teal); }
+
+    @media (max-width: 1000px) {
+      .layout { grid-template-columns: 1fr; }
+      .detail { position: static; }
+      .hero { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Agentic Systems</p>
+        <h1>AI Agent Architectures</h1>
+        <p class="subtitle">
+          Seventeen workflow patterns for building autonomous agents — from ReAct loops to blackboard
+          coordination. Click a pattern to animate its control flow and see when to use it.
+        </p>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <input class="search" id="search" type="search" placeholder="Search patterns (e.g. ReAct, planning, memory)…" aria-label="Search patterns">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="loop">Loops</button>
+      <button class="filter-btn" data-filter="multi">Multi-agent</button>
+      <button class="filter-btn" data-filter="memory">Memory</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="visibleCount">17</b>patterns shown</div>
+      <div class="stat">Click <b>Play flow</b> to step through the architecture</div>
+    </div>
+
+    <div class="layout">
+      <div class="grid" id="grid" aria-live="polite"></div>
+
+      <aside class="detail" id="detail">
+        <div class="detail-header">
+          <h2 id="detailTitle">Select a pattern</h2>
+          <p id="detailSubtitle">Choose any card to explore its steps and best-fit scenarios.</p>
+        </div>
+        <div class="detail-body">
+          <ol class="step-list" id="stepList"></ol>
+          <div class="controls">
+            <button class="btn primary" id="playBtn" disabled>Play flow</button>
+            <button class="btn" id="resetBtn" disabled>Reset</button>
+          </div>
+          <div class="use-when" id="useWhen" hidden>
+            <b>Best for:</b> <span id="useWhenText"></span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <a class="nav-link" href="index.html">← Back to all guides</a>
+  </main>
+
+  <script>
+    const patterns = [
+      {
+        id: "pev",
+        name: "PEV (Plan–Execute–Verify)",
+        category: "loop",
+        tag: "Quality gate",
+        tagColor: "var(--teal-soft); color: var(--teal)",
+        summary: "Plan work, execute, critique failures, and verify before shipping.",
+        nodes: ["Plan", "Execute", "Critique", "Verify"],
+        steps: [
+          { title: "Plan", desc: "Decompose the goal into actionable steps." },
+          { title: "Execute", desc: "Run tools or generate intermediate outputs." },
+          { title: "Critique", desc: "On failure, loop back to execute with corrections." },
+          { title: "Verify", desc: "Validate the answer; on success, return or replan." }
+        ],
+        useWhen: "Tasks that need explicit verification before release (code, compliance, math)."
+      },
+      {
+        id: "multi",
+        name: "Multi-Agent Systems",
+        category: "multi",
+        tag: "Specialists",
+        tagColor: "var(--amber-soft); color: var(--amber)",
+        summary: "Decompose a task and route subtasks to specialist agents.",
+        nodes: ["Decompose", "Think", "Agent A", "Agent B", "Agent C"],
+        steps: [
+          { title: "Decompose task", desc: "Break the user goal into parallel or serial subtasks." },
+          { title: "Generate thoughts", desc: "Reason about which specialist should handle each part." },
+          { title: "Specialist execution", desc: "Agents work independently on assigned slices." },
+          { title: "Observe & merge", desc: "Collect outputs and synthesize a unified response." }
+        ],
+        useWhen: "Complex domains where no single prompt covers all expertise."
+      },
+      {
+        id: "tot",
+        name: "Tree-of-Thoughts",
+        category: "loop",
+        tag: "Search",
+        tagColor: "var(--violet-soft); color: var(--violet)",
+        summary: "Branch reasoning paths, evaluate candidates, then synthesize.",
+        nodes: ["Decision", "Evaluate", "Solution"],
+        steps: [
+          { title: "Decision", desc: "Generate multiple candidate reasoning branches." },
+          { title: "Evaluate", desc: "Score each branch against constraints or heuristics." },
+          { title: "Synthesize", desc: "Combine the best paths into a final solution." },
+          { title: "Answer", desc: "Return result or loop for another decision round." }
+        ],
+        useWhen: "Puzzles, planning, or problems with many plausible approaches."
+      },
+      {
+        id: "reflexive",
+        name: "Reflexive",
+        category: "loop",
+        tag: "Fast path",
+        tagColor: "var(--sky); background: rgba(56,189,248,0.12)",
+        summary: "Perceive, reason directly, use tools, or escalate when unsafe.",
+        nodes: ["Perceive", "Reason", "Tool", "Result"],
+        steps: [
+          { title: "Perceive task", desc: "Parse user intent and available context." },
+          { title: "Reason directly", desc: "Answer immediately when confidence is high." },
+          { title: "Use tool", desc: "Invoke APIs when external data or actions are needed." },
+          { title: "Escalate / refuse", desc: "Reject or hand off when policy or safety blocks action." }
+        ],
+        useWhen: "Low-latency assistants with clear guardrails and tool access."
+      },
+      {
+        id: "reflection",
+        name: "Reflection",
+        category: "loop",
+        tag: "Self-critique",
+        tagColor: "var(--rose-soft); color: var(--rose)",
+        summary: "Generate, critique, refine — repeat until quality threshold is met.",
+        nodes: ["Generate", "Critique", "Refine"],
+        steps: [
+          { title: "Generate", desc: "Produce an initial draft or answer." },
+          { title: "Critique", desc: "A critic model flags errors, gaps, or style issues." },
+          { title: "Refine", desc: "Revise the output based on critique." },
+          { title: "Output", desc: "Emit when critique passes or max iterations reached." }
+        ],
+        useWhen: "Writing, code generation, or any task where a second pass helps."
+      },
+      {
+        id: "react",
+        name: "ReAct (Reason + Act)",
+        category: "loop",
+        tag: "Classic",
+        tagColor: "var(--teal-soft); color: var(--teal)",
+        summary: "Alternate thinking steps with tool actions until the goal is satisfied.",
+        nodes: ["Goal", "Think", "Act", "Observe"],
+        steps: [
+          { title: "Receive goal", desc: "User query becomes the objective." },
+          { title: "Think (reason)", desc: "Decide the next action without executing yet." },
+          { title: "Act (tool use)", desc: "Call search, calculator, or other tools." },
+          { title: "Observe", desc: "Feed tool results back into the reasoning loop." }
+        ],
+        useWhen: "Tool-augmented Q&A where each step depends on prior observations."
+      },
+      {
+        id: "ensemble",
+        name: "Ensemble Decision-Making",
+        category: "multi",
+        tag: "Parallel",
+        tagColor: "var(--amber-soft); color: var(--amber)",
+        summary: "Fan out to diverse agents, then aggregate into one decision.",
+        nodes: ["Fan-out", "Researchers", "Fan-in", "Synthesize"],
+        steps: [
+          { title: "Fan-out", desc: "Send the same problem to multiple perspectives in parallel." },
+          { title: "Independent processing", desc: "Researcher, analyst, innovator roles explore separately." },
+          { title: "Fan-in", desc: "Collect all partial answers." },
+          { title: "Synthesize", desc: "Merge into a single ensemble decision." }
+        ],
+        useWhen: "High-stakes choices where diversity reduces blind spots."
+      },
+      {
+        id: "tool",
+        name: "Tool Using",
+        category: "loop",
+        tag: "Router",
+        tagColor: "var(--violet-soft); color: var(--violet)",
+        summary: "Route each query through a decide → act loop until answered.",
+        nodes: ["Query", "Decision", "Action"],
+        steps: [
+          { title: "Receive query", desc: "Classify whether tools are needed." },
+          { title: "Decision", desc: "Pick the right tool and parameters." },
+          { title: "Action", desc: "Execute and inspect the result." },
+          { title: "Answer", desc: "Return when sufficient evidence is gathered." }
+        ],
+        useWhen: "Agents with a fixed toolbox and straightforward routing logic."
+      },
+      {
+        id: "semantic-mem",
+        name: "Semantic Memory",
+        category: "memory",
+        tag: "RAG + graph",
+        tagColor: "var(--teal-soft); color: var(--teal)",
+        summary: "Encode interactions into episodic and semantic stores for retrieval.",
+        nodes: ["Interact", "Encode", "Retrieve", "Respond"],
+        steps: [
+          { title: "User interaction", desc: "Capture turns, entities, and outcomes." },
+          { title: "Encode & store", desc: "Write to vector DB (episodic) and graph DB (semantic)." },
+          { title: "Retrieve & reason", desc: "Pull relevant memories before answering." },
+          { title: "Generate response", desc: "Ground the reply in stored knowledge." }
+        ],
+        useWhen: "Personalized assistants that must remember users across sessions."
+      },
+      {
+        id: "rlhf",
+        name: "Self-Improvement Loop",
+        category: "loop",
+        tag: "RLHF-style",
+        tagColor: "var(--rose-soft); color: var(--rose)",
+        summary: "Generate, score, refine — analogous to human feedback training.",
+        nodes: ["Generate", "Critique", "Decision", "Approved"],
+        steps: [
+          { title: "Generate", desc: "Produce candidate outputs." },
+          { title: "Critique & score", desc: "Rate quality against rubrics or preferences." },
+          { title: "Refine loop", desc: "Low scores trigger another generation pass." },
+          { title: "Final approved output", desc: "Ship when score crosses threshold." }
+        ],
+        useWhen: "Offline improvement pipelines or runtime quality filters."
+      },
+      {
+        id: "dryrun",
+        name: "Dry-Run Harness",
+        category: "loop",
+        tag: "Safety",
+        tagColor: "var(--amber-soft); color: var(--amber)",
+        summary: "Simulate execution, review, then approve or reject before going live.",
+        nodes: ["Dry run", "Review", "Go/No-go"],
+        steps: [
+          { title: "Dry-run execution", desc: "Run the agent against fixtures without side effects." },
+          { title: "Human / automated review", desc: "Inspect traces, costs, and policy violations." },
+          { title: "Go / no-go decision", desc: "Approve for production or reject with feedback." }
+        ],
+        useWhen: "Deployments where mistakes are costly (finance, infra, healthcare)."
+      },
+      {
+        id: "planning",
+        name: "Planning",
+        category: "loop",
+        tag: "Hierarchical",
+        tagColor: "var(--violet-soft); color: var(--violet)",
+        summary: "Plan, execute sub-tasks, synthesize — loop until the goal is complete.",
+        nodes: ["Goal", "Plan", "Execute", "Synthesize"],
+        steps: [
+          { title: "Receive goal", desc: "Define success criteria." },
+          { title: "Plan", desc: "Break into ordered or hierarchical sub-tasks." },
+          { title: "Execute", desc: "Run each sub-task; loop back on new dependencies." },
+          { title: "Synthesize", desc: "Combine results into the final answer." }
+        ],
+        useWhen: "Multi-step projects (research reports, migrations, trip planning)."
+      },
+      {
+        id: "graph-mem",
+        name: "Graph (World-Model) Memory",
+        category: "memory",
+        tag: "Knowledge graph",
+        tagColor: "var(--teal-soft); color: var(--teal)",
+        summary: "Ingest unstructured text into a graph DB for structured reasoning.",
+        nodes: ["Ingest", "Extract", "Graph DB", "Query"],
+        steps: [
+          { title: "Information ingestion", desc: "Load documents, logs, or feeds." },
+          { title: "Knowledge extraction", desc: "Extract entities and relationships." },
+          { title: "Graph database", desc: "Persist as queryable triples (e.g. Neo4j)." },
+          { title: "Synthesize result", desc: "Traverse the graph to answer user queries." }
+        ],
+        useWhen: "Domains rich in relationships (org charts, supply chain, biology)."
+      },
+      {
+        id: "mental-model",
+        name: "Mental-Model-in-the-Loop",
+        category: "loop",
+        tag: "Simulation",
+        tagColor: "var(--sky); background: rgba(56,189,248,0.12)",
+        summary: "Simulate proposed actions before live execution.",
+        nodes: ["Propose", "Simulate", "Assess", "Execute"],
+        steps: [
+          { title: "Propose action", desc: "Draft the next real-world step." },
+          { title: "Simulate", desc: "Run against an internal world model." },
+          { title: "Assess & refine", desc: "Adjust until simulation looks safe." },
+          { title: "Live execution", desc: "Apply the vetted action and return results." }
+        ],
+        useWhen: "Robotics, trading, or any environment where mistakes are irreversible."
+      },
+      {
+        id: "meta",
+        name: "Meta-Controller",
+        category: "multi",
+        tag: "Orchestrator",
+        tagColor: "var(--amber-soft); color: var(--amber)",
+        summary: "A controller analyzes requests and dispatches to the right sub-agent.",
+        nodes: ["Request", "Analyze", "Agents", "Result"],
+        steps: [
+          { title: "Receive request", desc: "Incoming user or system task." },
+          { title: "Meta-controller analyze", desc: "Classify intent and pick agent topology." },
+          { title: "Dispatch to agents", desc: "Route to Agent A, B, or C as needed." },
+          { title: "Return result", desc: "Aggregate sub-agent outputs into one reply." }
+        ],
+        useWhen: "Platforms hosting many specialized agents behind one API."
+      },
+      {
+        id: "cellular",
+        name: "Cellular Automata",
+        category: "loop",
+        tag: "Emergence",
+        tagColor: "var(--violet-soft); color: var(--violet)",
+        summary: "Grid cells evolve each tick until a stable emergent solution appears.",
+        nodes: ["Init", "Sync tick", "Evolve", "Readout"],
+        steps: [
+          { title: "Grid initialization", desc: "Set boundary conditions and cell states." },
+          { title: "Sync tick", desc: "Advance all cells one generation." },
+          { title: "Repeat until stable", desc: "Loop until convergence or max ticks." },
+          { title: "Readout", desc: "Extract the final pattern as the solution." }
+        ],
+        useWhen: "Optimization via local rules (layout, scheduling, game AI)."
+      },
+      {
+        id: "blackboard",
+        name: "Blackboard",
+        category: "multi",
+        tag: "Shared state",
+        tagColor: "var(--teal-soft); color: var(--teal)",
+        summary: "Specialists read and write findings on a shared workspace.",
+        nodes: ["Controller", "Blackboard", "Specialists", "Solution"],
+        steps: [
+          { title: "Controller", desc: "Schedules which specialist runs next." },
+          { title: "Shared memory", desc: "Central blackboard holds hypotheses and facts." },
+          { title: "Read / write findings", desc: "Researchers post evidence; others react." },
+          { title: "Final solution", desc: "Controller declares completion when board is sufficient." }
+        ],
+        useWhen: "Diagnostic systems, collaborative research, or incremental puzzle solving."
+      }
+    ];
+
+    const grid = document.getElementById("grid");
+    const search = document.getElementById("search");
+    const stepList = document.getElementById("stepList");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailSubtitle = document.getElementById("detailSubtitle");
+    const playBtn = document.getElementById("playBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const useWhen = document.getElementById("useWhen");
+    const useWhenText = document.getElementById("useWhenText");
+    const visibleCount = document.getElementById("visibleCount");
+
+    let activeId = null;
+    let playTimer = null;
+    let currentFilter = "all";
+
+    function renderCards() {
+      const q = search.value.trim().toLowerCase();
+      grid.innerHTML = "";
+      let count = 0;
+
+      patterns.forEach((p, i) => {
+        const matchFilter = currentFilter === "all" || p.category === currentFilter;
+        const matchSearch = !q || p.name.toLowerCase().includes(q) ||
+          p.summary.toLowerCase().includes(q) ||
+          p.nodes.some((n) => n.toLowerCase().includes(q));
+        if (!matchFilter || !matchSearch) return;
+
+        count++;
+        const card = document.createElement("article");
+        card.className = "card" + (activeId === p.id ? " active" : "");
+        card.style.animationDelay = `${Math.min(i * 0.03, 0.4)}s`;
+        card.dataset.id = p.id;
+        card.innerHTML = `
+          <span class="card-tag" style="background:${p.tagColor.split(";")[0]};color:${p.tagColor.split("color:")[1] || "inherit"}">${p.tag}</span>
+          <h3>${p.name}</h3>
+          <p>${p.summary}</p>
+          <div class="flow-mini">${p.nodes.map((n) => `<span class="node" style="background:var(--panel);border:1px solid var(--line)">${n}</span>`).join("")}</div>
+        `;
+        card.addEventListener("click", () => selectPattern(p.id));
+        grid.appendChild(card);
+      });
+
+      visibleCount.textContent = String(count);
+    }
+
+    function selectPattern(id) {
+      activeId = id;
+      const p = patterns.find((x) => x.id === id);
+      if (!p) return;
+
+      detailTitle.textContent = p.name;
+      detailSubtitle.textContent = p.summary;
+      useWhen.hidden = false;
+      useWhenText.textContent = p.useWhen;
+      playBtn.disabled = false;
+      resetBtn.disabled = false;
+
+      stepList.innerHTML = p.steps.map((s, i) => `
+        <li data-step="${i}">
+          <span class="step-num">${i + 1}</span>
+          <div><b>${s.title}</b><span>${s.desc}</span></div>
+        </li>
+      `).join("");
+
+      resetSteps();
+      renderCards();
+    }
+
+    function resetSteps() {
+      clearInterval(playTimer);
+      playTimer = null;
+      stepList.querySelectorAll("li").forEach((li) => li.classList.remove("visible"));
+    }
+
+    function playFlow() {
+      if (!activeId) return;
+      resetSteps();
+      const items = [...stepList.querySelectorAll("li")];
+      let i = 0;
+      playTimer = setInterval(() => {
+        if (i < items.length) {
+          items[i].classList.add("visible");
+          i++;
+        } else {
+          clearInterval(playTimer);
+          playTimer = null;
+        }
+      }, 650);
+    }
+
+    search.addEventListener("input", renderCards);
+    playBtn.addEventListener("click", playFlow);
+    resetBtn.addEventListener("click", resetSteps);
+
+    document.querySelectorAll(".filter-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.dataset.filter;
+        renderCards();
+      });
+    });
+
+    renderCards();
+    selectPattern("react");
+  </script>
+</body>
+</html>

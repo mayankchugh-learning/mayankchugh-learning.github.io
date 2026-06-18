@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Event-Driven Architectural Patterns — Interactive Guide</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --panel: #21262d;
+      --ink: #e6edf3;
+      --muted: #8b949e;
+      --line: #30363d;
+      --pink: #f778ba;
+      --purple: #a371f7;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --cyan: #39c5cf;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 60% 40% at 80% 0%, rgba(163, 113, 247, 0.12), transparent);
+      color: var(--ink);
+      font: 15px/1.55 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    .app { width: min(1280px, calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 48px; }
+
+    .hero { margin-bottom: 20px; animation: fade 0.5s ease both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    .eyebrow { margin: 0 0 6px; color: var(--purple); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 4vw, 42px); }
+    .subtitle { margin: 12px 0 0; max-width: 720px; color: var(--muted); }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      min-height: 42px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+
+    .tab:hover, .tab.active { border-color: var(--purple); color: var(--ink); background: rgba(163, 113, 247, 0.12); }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .diagram {
+      min-height: 420px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .component {
+      position: absolute;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 2px solid var(--line);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      z-index: 2;
+    }
+
+    .component.active { transform: scale(1.05); box-shadow: 0 0 20px rgba(163, 113, 247, 0.4); }
+
+    .msg {
+      position: absolute;
+      width: 28px;
+      height: 20px;
+      background: var(--yellow);
+      border-radius: 4px;
+      z-index: 5;
+      opacity: 0;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+    }
+
+    .msg.flying { opacity: 1; }
+
+    .sidebar {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      padding: 18px;
+      position: sticky;
+      top: 20px;
+    }
+
+    .sidebar h2 { margin: 0 0 8px; font-size: 20px; }
+    .sidebar p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+
+    .step-feed {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .step-item {
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--panel);
+      font-size: 13px;
+      opacity: 0.35;
+      transition: opacity 0.3s ease;
+    }
+
+    .step-item.done { opacity: 1; border-left: 3px solid var(--green); }
+
+    .controls { display: flex; gap: 8px; }
+
+    .btn {
+      flex: 1;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .btn.primary { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+    .legend { margin-top: 16px; font-size: 12px; color: var(--muted); }
+    .legend span { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+
+    .nav-link { display: inline-block; margin-top: 24px; color: var(--muted); text-decoration: none; font-size: 14px; }
+    .nav-link:hover { color: var(--cyan); }
+
+    @media (max-width: 900px) { .stage { grid-template-columns: 1fr; } .sidebar { position: static; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <p class="eyebrow">ByteByteGo · Event-Driven Architecture</p>
+      <h1>Top Event-Driven Patterns</h1>
+      <p class="subtitle">
+        Six foundational patterns for asynchronous, decoupled systems. Select a pattern and press
+        <strong>Animate flow</strong> to watch messages move through the architecture.
+      </p>
+    </header>
+
+    <nav class="tabs" id="tabs" aria-label="Pattern selection"></nav>
+
+    <div class="stage">
+      <div class="diagram" id="diagram" aria-live="polite">
+        <div class="msg" id="msg">✉</div>
+      </div>
+
+      <aside class="sidebar">
+        <h2 id="patTitle">Competing Consumer</h2>
+        <p id="patDesc">Multiple workers pull from one queue — load is distributed automatically.</p>
+        <div class="step-feed" id="stepFeed"></div>
+        <div class="controls">
+          <button class="btn primary" id="animateBtn">Animate flow</button>
+          <button class="btn" id="resetBtn">Reset</button>
+        </div>
+        <div class="legend">
+          <div><span style="background:var(--pink)"></span> Service</div>
+          <div><span style="background:var(--purple)"></span> Queue / store</div>
+          <div><span style="background:var(--green)"></span> Database / view</div>
+        </div>
+      </aside>
+    </div>
+
+    <a class="nav-link" href="index.html">← Back to all guides</a>
+  </main>
+
+  <script>
+    const patterns = [
+      {
+        id: "competing",
+        title: "Competing Consumer",
+        desc: "Producers enqueue tasks; multiple consumers compete to process them — classic load balancing.",
+        steps: [
+          "User submits Task 1, 2, 3",
+          "Tasks enter the message queue",
+          "Consumer A picks Task 1",
+          "Consumer B picks Task 2",
+          "Consumer C picks Task 3"
+        ],
+        layout: [
+          { id: "users", label: "Users", x: 8, y: 20, color: "var(--cyan)" },
+          { id: "queue", label: "Message Queue", x: 38, y: 38, color: "var(--purple)", w: 120 },
+          { id: "ca", label: "Consumer A", x: 72, y: 12, color: "var(--pink)" },
+          { id: "cb", label: "Consumer B", x: 72, y: 38, color: "var(--pink)" },
+          { id: "cc", label: "Consumer C", x: 72, y: 64, color: "var(--pink)" }
+        ],
+        path: [
+          { from: "users", to: "queue" },
+          { from: "queue", to: "ca" },
+          { from: "queue", to: "cb" },
+          { from: "queue", to: "cc" }
+        ]
+      },
+      {
+        id: "project",
+        title: "Consume and Project",
+        desc: "A projection service builds a read-optimized view by consuming events and enriching from other services.",
+        steps: [
+          "Order Service publishes OrderCreated",
+          "Event lands in message queue",
+          "Projection service consumes event",
+          "Enriches with Customer Service data",
+          "Updates materialized Customer-Order view"
+        ],
+        layout: [
+          { id: "order", label: "Order Service", x: 8, y: 30, color: "var(--pink)" },
+          { id: "queue", label: "Message Queue", x: 35, y: 38, color: "var(--purple)", w: 110 },
+          { id: "proj", label: "Order Projection", x: 58, y: 20, color: "var(--purple)" },
+          { id: "cust", label: "Customer Service", x: 58, y: 55, color: "var(--pink)" },
+          { id: "view", label: "Materialized View", x: 78, y: 38, color: "var(--green)" }
+        ],
+        path: [
+          { from: "order", to: "queue" },
+          { from: "queue", to: "proj" },
+          { from: "proj", to: "cust" },
+          { from: "proj", to: "view" }
+        ]
+      },
+      {
+        id: "sourcing",
+        title: "Event Sourcing",
+        desc: "State is stored as an append-only sequence of events; read models are built asynchronously.",
+        steps: [
+          "Order Created event recorded",
+          "Order Shipped event appended",
+          "Order Cancelled event appended",
+          "Event store is source of truth",
+          "Read DB updated via eventual consistency"
+        ],
+        layout: [
+          { id: "api", label: "API", x: 10, y: 15, color: "var(--cyan)" },
+          { id: "events", label: "Event Stream", x: 30, y: 15, color: "var(--green)" },
+          { id: "store", label: "Event Store", x: 55, y: 15, color: "var(--purple)" },
+          { id: "queue", label: "Async projection", x: 40, y: 55, color: "var(--purple)" },
+          { id: "read", label: "Read Database", x: 70, y: 55, color: "var(--green)" }
+        ],
+        path: [
+          { from: "api", to: "events" },
+          { from: "events", to: "store" },
+          { from: "store", to: "queue" },
+          { from: "queue", to: "read" }
+        ]
+      },
+      {
+        id: "async-task",
+        title: "Async Task Execution",
+        desc: "Separate priority queues feed a pool of workers — urgent jobs jump the line.",
+        steps: [
+          "Default queue receives T1, T2, T3",
+          "Urgent queue receives T4, T5",
+          "Worker pool polls both queues",
+          "Urgent tasks processed first",
+          "Workers scale horizontally"
+        ],
+        layout: [
+          { id: "client", label: "Client", x: 8, y: 38, color: "var(--cyan)" },
+          { id: "def", label: "Default Queue", x: 28, y: 20, color: "var(--green)" },
+          { id: "urg", label: "Urgent Queue", x: 28, y: 58, color: "var(--yellow)" },
+          { id: "w1", label: "Worker 1", x: 62, y: 15, color: "var(--pink)" },
+          { id: "w2", label: "Worker 2", x: 62, y: 42, color: "var(--pink)" },
+          { id: "w3", label: "Worker 3", x: 62, y: 69, color: "var(--pink)" }
+        ],
+        path: [
+          { from: "client", to: "urg" },
+          { from: "client", to: "def" },
+          { from: "urg", to: "w1" },
+          { from: "def", to: "w2" },
+          { from: "def", to: "w3" }
+        ]
+      },
+      {
+        id: "outbox",
+        title: "Transactional Outbox",
+        desc: "Database write and outbox insert happen in one transaction; a relay publishes to the broker.",
+        steps: [
+          "Order Service starts transaction",
+          "Writes Order table + Outbox table",
+          "Transaction commits atomically",
+          "Outbox relay reads pending rows",
+          "Message broker delivers to consumers"
+        ],
+        layout: [
+          { id: "svc", label: "Order Service", x: 10, y: 20, color: "var(--pink)" },
+          { id: "db", label: "DB (Order + Outbox)", x: 35, y: 38, color: "var(--purple)", w: 130 },
+          { id: "relay", label: "Outbox Relay", x: 58, y: 20, color: "var(--cyan)" },
+          { id: "broker", label: "Message Broker", x: 72, y: 50, color: "var(--purple)" }
+        ],
+        path: [
+          { from: "svc", to: "db" },
+          { from: "db", to: "relay" },
+          { from: "relay", to: "broker" }
+        ]
+      },
+      {
+        id: "saga",
+        title: "Saga (Orchestration)",
+        desc: "An orchestrator coordinates distributed steps with compensating actions on failure.",
+        steps: [
+          "Create order in Order Service",
+          "Orchestrator triggers saga",
+          "Send ProcessPayment command",
+          "PaymentCompleted event received",
+          "InitiateShipping → Order Shipped → status updated"
+        ],
+        layout: [
+          { id: "order", label: "Order DB", x: 8, y: 38, color: "var(--yellow)" },
+          { id: "orch", label: "Saga Orchestrator", x: 32, y: 38, color: "var(--green)" },
+          { id: "pay", label: "Payment Service", x: 58, y: 15, color: "var(--purple)" },
+          { id: "ship", label: "Shipping Service", x: 58, y: 62, color: "var(--cyan)" }
+        ],
+        path: [
+          { from: "order", to: "orch" },
+          { from: "orch", to: "pay" },
+          { from: "pay", to: "orch" },
+          { from: "orch", to: "ship" },
+          { from: "ship", to: "order" }
+        ]
+      }
+    ];
+
+    let active = patterns[0];
+    let animating = false;
+
+    const tabs = document.getElementById("tabs");
+    const diagram = document.getElementById("diagram");
+    const msg = document.getElementById("msg");
+    const patTitle = document.getElementById("patTitle");
+    const patDesc = document.getElementById("patDesc");
+    const stepFeed = document.getElementById("stepFeed");
+
+    function renderTabs() {
+      tabs.innerHTML = patterns.map((p, i) =>
+        `<button class="tab${p.id === active.id ? " active" : ""}" data-i="${i}">${i + 1}. ${p.title}</button>`
+      ).join("");
+      tabs.querySelectorAll(".tab").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          active = patterns[+btn.dataset.i];
+          renderTabs();
+          renderDiagram();
+          renderSteps();
+        });
+      });
+    }
+
+    function renderDiagram() {
+      diagram.querySelectorAll(".component").forEach((el) => el.remove());
+      patTitle.textContent = active.title;
+      patDesc.textContent = active.desc;
+
+      active.layout.forEach((c) => {
+        const el = document.createElement("div");
+        el.className = "component";
+        el.id = "comp-" + c.id;
+        el.textContent = c.label;
+        el.style.left = c.x + "%";
+        el.style.top = c.y + "%";
+        el.style.background = c.color + "33";
+        el.style.borderColor = c.color;
+        if (c.w) el.style.minWidth = c.w + "px";
+        diagram.appendChild(el);
+      });
+    }
+
+    function renderSteps() {
+      stepFeed.innerHTML = active.steps.map((s) => `<div class="step-item">${s}</div>`).join("");
+    }
+
+    function getCenter(id) {
+      const el = document.getElementById("comp-" + id);
+      const dr = diagram.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      return { x: r.left - dr.left + r.width / 2 - 14, y: r.top - dr.top + r.height / 2 - 10 };
+    }
+
+    async function animateFlow() {
+      if (animating) return;
+      animating = true;
+      const items = stepFeed.querySelectorAll(".step-item");
+      items.forEach((i) => i.classList.remove("done"));
+
+      for (let i = 0; i < active.path.length; i++) {
+        const seg = active.path[i];
+        const from = getCenter(seg.from);
+        const to = getCenter(seg.to);
+        document.getElementById("comp-" + seg.from)?.classList.add("active");
+        msg.style.left = from.x + "px";
+        msg.style.top = from.y + "px";
+        msg.classList.add("flying");
+        await new Promise((r) => requestAnimationFrame(r));
+        msg.style.left = to.x + "px";
+        msg.style.top = to.y + "px";
+        if (items[i]) items[i].classList.add("done");
+        document.getElementById("comp-" + seg.to)?.classList.add("active");
+        await new Promise((r) setTimeout(r, 700));
+        document.querySelectorAll(".component").forEach((c) => c.classList.remove("active"));
+      }
+
+      msg.classList.remove("flying");
+      animating = false;
+    }
+
+    document.getElementById("animateBtn").addEventListener("click", animateFlow);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      stepFeed.querySelectorAll(".step-item").forEach((i) => i.classList.remove("done"));
+      msg.classList.remove("flying");
+    });
+
+    renderTabs();
+    renderDiagram();
+    renderSteps();
+  </script>
+</body>
+</html>

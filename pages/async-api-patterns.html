@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Async API Patterns — Interactive Guide</title>
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --surface: #121a2b;
+      --panel: #1a2438;
+      --ink: #edf2ff;
+      --muted: #8da2c0;
+      --line: #2a3854;
+      --client: #f472b6;
+      --server: #34d399;
+      --hold: #fbbf24;
+      --empty: #64748b;
+      --accent: #38bdf8;
+      --shadow: 0 16px 45px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 50% 40% at 10% 0%, rgba(56, 189, 248, 0.12), transparent);
+      color: var(--ink);
+      font: 15px/1.55 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    .app { width: min(1200px, calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 48px; }
+
+    .hero { margin-bottom: 22px; animation: rise 0.5s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+    .eyebrow { margin: 0 0 6px; color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 4vw, 42px); }
+    .subtitle { margin: 12px 0 0; max-width: 700px; color: var(--muted); }
+
+    .picker {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .pick {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      text-align: left;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+
+    .pick b { display: block; color: var(--ink); margin-bottom: 4px; font-size: 14px; }
+    .pick span { font-size: 12px; }
+    .pick:hover, .pick.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.1); color: var(--ink); }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 18px;
+    }
+
+    .seq-panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      min-height: 480px;
+    }
+
+    .lifelines {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      position: relative;
+      min-height: 400px;
+      padding-top: 40px;
+    }
+
+    .actor {
+      text-align: center;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    .actor.client { background: rgba(244, 114, 182, 0.2); color: var(--client); }
+    .actor.server { background: rgba(52, 211, 153, 0.2); color: var(--server); }
+
+    .line {
+      position: absolute;
+      top: 70px;
+      bottom: 20px;
+      width: 2px;
+      background: repeating-linear-gradient(180deg, var(--line) 0 6px, transparent 6px 12px);
+    }
+
+    .line.client-line { left: 25%; }
+    .line.server-line { left: 75%; }
+
+    .arrow {
+      position: absolute;
+      left: 25%;
+      width: 50%;
+      height: 2px;
+      opacity: 0;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: all 0.4s ease;
+    }
+
+    .arrow.visible { opacity: 1; transform: scaleX(1); }
+    .arrow.reverse { transform-origin: right center; left: 25%; }
+
+    .arrow::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: -4px;
+      border: 5px solid transparent;
+      border-left-color: inherit;
+    }
+
+    .arrow.reverse::after { right: auto; left: -1px; border-left-color: transparent; border-right-color: inherit; }
+
+    .arrow-label {
+      position: absolute;
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      white-space: nowrap;
+      color: var(--muted);
+      transform: translateY(-18px);
+    }
+
+    .hold-bar {
+      position: absolute;
+      left: 74%;
+      width: 8px;
+      background: var(--hold);
+      border-radius: 4px;
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+
+    .hold-bar.visible { opacity: 1; }
+
+    .sidebar {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      padding: 18px;
+    }
+
+    .sidebar h2 { margin: 0 0 8px; font-size: 19px; }
+    .sidebar p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+
+    .pros-cons { display: grid; gap: 10px; margin-bottom: 16px; font-size: 13px; }
+    .pros-cons div { padding: 10px; border-radius: 8px; background: var(--panel); }
+    .pros-cons b { color: var(--server); }
+    .pros-cons .con b { color: var(--client); }
+
+    .controls { display: flex; gap: 8px; }
+    .btn { flex: 1; min-height: 40px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #0a0f1a; font-weight: 700; }
+
+    .timeline { margin-top: 14px; font-size: 12px; color: var(--muted); }
+
+    .nav-link { display: inline-block; margin-top: 24px; color: var(--muted); text-decoration: none; font-size: 14px; }
+    .nav-link:hover { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .picker { grid-template-columns: 1fr 1fr; }
+      .stage { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 520px) { .picker { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <p class="eyebrow">ByteByteGo · API Design</p>
+      <h1>Top Async Patterns in API Design</h1>
+      <p class="subtitle">
+        Six ways clients and servers coordinate without blocking. Pick a pattern and play the
+        sequence diagram step by step.
+      </p>
+    </header>
+
+    <div class="picker" id="picker"></div>
+
+    <div class="stage">
+      <div class="seq-panel">
+        <div class="lifelines" id="lifelines">
+          <div class="actor client" id="clientLabel">Client</div>
+          <div class="actor server" id="serverLabel">Server</div>
+          <div class="line client-line"></div>
+          <div class="line server-line"></div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <h2 id="patName">Short Polling</h2>
+        <p id="patSummary">Client repeatedly asks for updates at fixed intervals.</p>
+        <div class="pros-cons">
+          <div class="pro"><b>Pros</b><br><span id="prosText">Simple to implement; works everywhere.</span></div>
+          <div class="con"><b>Cons</b><br><span id="consText">Wastes bandwidth; higher latency between polls.</span></div>
+        </div>
+        <div class="controls">
+          <button class="btn primary" id="playBtn">Play sequence</button>
+          <button class="btn" id="stepBtn">Next step</button>
+        </div>
+        <div class="timeline" id="timeline">Step 0 / 0</div>
+      </aside>
+    </div>
+
+    <a class="nav-link" href="index.html">← Back to all guides</a>
+  </main>
+
+  <script>
+    const patterns = [
+      {
+        id: "short",
+        name: "Short Polling",
+        client: "Client",
+        server: "Server",
+        summary: "Client sends GET /events every few seconds until data arrives.",
+        pros: "Simple; no special server features.",
+        cons: "Many empty responses; latency bounded by poll interval.",
+        steps: [
+          { label: "GET /events", dir: "req", y: 90, color: "var(--empty)", style: "dashed" },
+          { label: "[] empty", dir: "res", y: 120, color: "var(--empty)", style: "dashed" },
+          { label: "~3s wait", dir: "wait", y: 150 },
+          { label: "GET /events", dir: "req", y: 180, color: "var(--empty)", style: "dashed" },
+          { label: '[{ event: "new" }]', dir: "res", y: 220, color: "var(--server)" }
+        ]
+      },
+      {
+        id: "long",
+        name: "Long Polling",
+        client: "Client",
+        server: "Server",
+        summary: "Server holds the request open until an event exists or timeout.",
+        pros: "Near real-time without constant polling.",
+        cons: "Ties up connections; needs timeout handling.",
+        steps: [
+          { label: "GET /events", dir: "req", y: 90 },
+          { label: "hold request open…", dir: "hold", y: 90, h: 80 },
+          { label: '[{ event: "new" }]', dir: "res", y: 180, color: "var(--server)" },
+          { label: "immediately re-issue GET", dir: "req", y: 220 },
+          { label: "held again…", dir: "hold", y: 220, h: 60 }
+        ]
+      },
+      {
+        id: "sse",
+        name: "Server-Sent Events",
+        client: "Client",
+        server: "Server",
+        summary: "One long-lived HTTP stream; server pushes events to the client.",
+        pros: "Efficient one-way push; auto-reconnect built in.",
+        cons: "Unidirectional only; limited browser connection pool.",
+        steps: [
+          { label: "GET /stream (text/event-stream)", dir: "req", y: 90 },
+          { label: "connection stays open", dir: "hold", y: 90, h: 120 },
+          { label: 'data: {"id":1}', dir: "res", y: 150, color: "var(--server)" },
+          { label: 'data: {"id":2}', dir: "res", y: 190, color: "var(--server)" },
+          { label: 'data: {"id":3}', dir: "res", y: 230, color: "var(--server)" }
+        ]
+      },
+      {
+        id: "webhook",
+        name: "Webhooks",
+        client: "Consumer",
+        server: "Provider",
+        summary: "Consumer registers a callback URL; provider POSTs when events occur.",
+        pros: "No polling; provider drives delivery.",
+        cons: "Consumer must expose a secure endpoint; retry logic needed.",
+        steps: [
+          { label: "register webhook URL", dir: "req", y: 90 },
+          { label: "200 OK", dir: "res", y: 120, color: "var(--server)", style: "dashed" },
+          { label: "(later) POST /hook { event }", dir: "req-rev", y: 180 },
+          { label: "200 OK", dir: "res-rev", y: 210, color: "var(--server)", style: "dashed" }
+        ]
+      },
+      {
+        id: "ws",
+        name: "WebSockets",
+        client: "Client",
+        server: "Server",
+        summary: "Full-duplex channel after an HTTP upgrade handshake.",
+        pros: "Bi-directional; low overhead per message.",
+        cons: "Stateful connections; harder to scale and load-balance.",
+        steps: [
+          { label: "GET /ws (Upgrade)", dir: "req", y: 80 },
+          { label: "101 Switching Protocols", dir: "res", y: 110, color: "var(--server)", style: "dashed" },
+          { label: '"hello"', dir: "req", y: 160 },
+          { label: '"hi back"', dir: "res", y: 190, color: "var(--server)" },
+          { label: '"update"', dir: "res", y: 230, color: "var(--server)" },
+          { label: '"action"', dir: "req", y: 270 }
+        ]
+      },
+      {
+        id: "async",
+        name: "Async Job API",
+        client: "Client",
+        server: "Server",
+        summary: "Submit a job, poll status by ID, then fetch the result.",
+        pros: "Clean separation for long-running work.",
+        cons: "Client must implement poll/backoff; result retention policy needed.",
+        steps: [
+          { label: "POST /jobs { input }", dir: "req", y: 80 },
+          { label: '202 { jobId: "abc" }', dir: "res", y: 110, color: "var(--server)", style: "dashed" },
+          { label: "slow work (out of band)", dir: "hold", y: 110, h: 50 },
+          { label: "GET /jobs/abc", dir: "req", y: 180 },
+          { label: '{ status: "processing" }', dir: "res", y: 210, color: "var(--empty)", style: "dashed" },
+          { label: "GET /jobs/abc", dir: "req", y: 250 },
+          { label: '{ status: "done", result }', dir: "res", y: 290, color: "var(--server)" }
+        ]
+      }
+    ];
+
+    let active = patterns[0];
+    let stepIdx = 0;
+    let playing = false;
+
+    const picker = document.getElementById("picker");
+    const lifelines = document.getElementById("lifelines");
+    const patName = document.getElementById("patName");
+    const patSummary = document.getElementById("patSummary");
+    const timeline = document.getElementById("timeline");
+    const clientLabel = document.getElementById("clientLabel");
+    const serverLabel = document.getElementById("serverLabel");
+
+    function renderPicker() {
+      picker.innerHTML = patterns.map((p) =>
+        `<button class="pick${p.id === active.id ? " active" : ""}" data-id="${p.id}"><b>${p.name}</b><span>${p.summary.slice(0, 50)}…</span></button>`
+      ).join("");
+      picker.querySelectorAll(".pick").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          active = patterns.find((p) => p.id === btn.dataset.id);
+          stepIdx = 0;
+          renderPicker();
+          renderMeta();
+          clearDiagram();
+        });
+      });
+    }
+
+    function renderMeta() {
+      patName.textContent = active.name;
+      patSummary.textContent = active.summary;
+      clientLabel.textContent = active.client;
+      serverLabel.textContent = active.server;
+      document.getElementById("prosText").textContent = active.pros;
+      document.getElementById("consText").textContent = active.cons;
+      timeline.textContent = `Step ${stepIdx} / ${active.steps.length}`;
+    }
+
+    function clearDiagram() {
+      lifelines.querySelectorAll(".arrow, .arrow-label, .hold-bar").forEach((el) => el.remove());
+    }
+
+    function showStep(i) {
+      const s = active.steps[i];
+      if (!s) return;
+
+      if (s.dir === "wait") {
+        const note = document.createElement("div");
+        note.className = "arrow-label";
+        note.style.left = "42%";
+        note.style.top = s.y + "px";
+        note.textContent = s.label;
+        lifelines.appendChild(note);
+        return;
+      }
+
+      if (s.dir === "hold") {
+        const bar = document.createElement("div");
+        bar.className = "hold-bar visible";
+        bar.style.top = s.y + "px";
+        bar.style.height = (s.h || 60) + "px";
+        lifelines.appendChild(bar);
+        const note = document.createElement("div");
+        note.className = "arrow-label";
+        note.style.left = "78%";
+        note.style.top = (s.y + 10) + "px";
+        note.textContent = s.label;
+        lifelines.appendChild(note);
+        return;
+      }
+
+      const arrow = document.createElement("div");
+      arrow.className = "arrow visible" + (s.dir.includes("res") && !s.dir.includes("rev") ? " reverse" : "");
+      if (s.dir === "req-rev") { arrow.style.left = "75%"; arrow.style.width = "50%"; arrow.classList.add("reverse"); }
+      arrow.style.top = s.y + "px";
+      arrow.style.background = s.color || "var(--accent)";
+      arrow.style.borderColor = s.color || "var(--accent)";
+      if (s.style === "dashed") arrow.style.background = `repeating-linear-gradient(90deg, ${s.color || "var(--accent)"} 0 8px, transparent 8px 14px)`;
+
+      const label = document.createElement("div");
+      label.className = "arrow-label";
+      label.style.left = "30%";
+      label.style.top = (s.y - 4) + "px";
+      label.textContent = s.label;
+
+      lifelines.appendChild(arrow);
+      lifelines.appendChild(label);
+    }
+
+    async function playAll() {
+      if (playing) return;
+      playing = true;
+      clearDiagram();
+      stepIdx = 0;
+      for (let i = 0; i < active.steps.length; i++) {
+        showStep(i);
+        stepIdx = i + 1;
+        timeline.textContent = `Step ${stepIdx} / ${active.steps.length}`;
+        await new Promise((r) => setTimeout(r, 750));
+      }
+      playing = false;
+    }
+
+    document.getElementById("playBtn").addEventListener("click", playAll);
+    document.getElementById("stepBtn").addEventListener("click", () => {
+      if (stepIdx >= active.steps.length) { clearDiagram(); stepIdx = 0; }
+      showStep(stepIdx);
+      stepIdx++;
+      timeline.textContent = `Step ${stepIdx} / ${active.steps.length}`;
+    });
+
+    renderPicker();
+    renderMeta();
+  </script>
+</body>
+</html>

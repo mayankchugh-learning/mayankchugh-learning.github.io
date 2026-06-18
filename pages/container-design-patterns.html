@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Container Design Patterns — Interactive Guide</title>
+  <style>
+    :root {
+      --bg: #0e1018;
+      --surface: #171b28;
+      --panel: #1f2535;
+      --ink: #f0f4fc;
+      --muted: #93a0b8;
+      --line: #2f3a50;
+      --main: #a78bfa;
+      --helper: #fb923c;
+      --framework: #f472b6;
+      --external: #38bdf8;
+      --shared: #4ade80;
+      --pod-border: #facc15;
+      --shadow: 0 16px 42px rgba(0, 0, 0, 0.38);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 55% 45% at 70% -10%, rgba(167, 139, 250, 0.14), transparent);
+      color: var(--ink);
+      font: 15px/1.55 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    .app { width: min(1280px, calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 48px; }
+
+    .hero { margin-bottom: 22px; animation: fade 0.5s ease both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    .eyebrow { margin: 0 0 6px; color: var(--helper); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 4vw, 42px); }
+    .subtitle { margin: 12px 0 0; max-width: 720px; color: var(--muted); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .nav-list { display: grid; gap: 8px; position: sticky; top: 20px; }
+
+    .nav-item {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      text-align: left;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+
+    .nav-item b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 2px; }
+    .nav-item span { font-size: 12px; }
+    .nav-item:hover, .nav-item.active { border-color: var(--main); background: rgba(167, 139, 250, 0.1); }
+
+    .canvas-wrap {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .canvas-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(167, 139, 250, 0.08), transparent);
+    }
+
+    .canvas-head h2 { margin: 0 0 6px; font-size: 22px; }
+    .canvas-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .canvas {
+      min-height: 420px;
+      padding: 28px;
+      position: relative;
+    }
+
+    .pod {
+      border: 2px dashed var(--pod-border);
+      border-radius: 14px;
+      padding: 20px;
+      background: rgba(250, 204, 21, 0.04);
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .pod.multi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 0;
+    }
+
+    .pod-unit {
+      border: 2px dashed var(--pod-border);
+      border-radius: 14px;
+      padding: 16px;
+      background: rgba(250, 204, 21, 0.04);
+      text-align: center;
+    }
+
+    .pod-label { width: 100%; text-align: center; font-size: 12px; color: var(--pod-border); font-weight: 800; margin-bottom: 8px; }
+
+    .container-box {
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: 2px solid;
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 110px;
+      text-align: center;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .container-box.pulse { transform: scale(1.06); box-shadow: 0 0 24px currentColor; }
+
+    .main { border-color: var(--main); color: var(--main); background: rgba(167, 139, 250, 0.12); }
+    .helper { border-color: var(--helper); color: var(--helper); background: rgba(251, 146, 60, 0.12); }
+    .framework { border-color: var(--framework); color: var(--framework); background: rgba(244, 114, 182, 0.12); }
+    .external { border-color: var(--external); color: var(--external); background: rgba(56, 189, 248, 0.1); }
+    .shared { border-color: var(--shared); color: var(--shared); background: rgba(74, 222, 128, 0.1); }
+
+    .arrow-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .arrow-flow .flow-step {
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--panel);
+      opacity: 0.35;
+      transition: opacity 0.35s ease;
+    }
+
+    .arrow-flow .flow-step.on { opacity: 1; border: 1px solid var(--main); }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .btn {
+      min-height: 40px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .btn.primary { background: var(--main); border-color: var(--main); color: #0e1018; font-weight: 700; }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 0 20px 16px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; }
+
+    .nav-link { display: inline-block; margin-top: 24px; color: var(--muted); text-decoration: none; font-size: 14px; }
+    .nav-link:hover { color: var(--main); }
+
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .nav-list { position: static; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <p class="eyebrow">ByteByteGo · Kubernetes</p>
+      <h1>Top Container Design Patterns</h1>
+      <p class="subtitle">
+        Six patterns for composing pods and multi-container workloads. Select a pattern and animate
+        how data flows between main apps, helpers, and frameworks.
+      </p>
+    </header>
+
+    <div class="layout">
+      <nav class="nav-list" id="navList" aria-label="Pattern list"></nav>
+
+      <div class="canvas-wrap">
+        <div class="canvas-head">
+          <h2 id="title">Sidecar Pattern</h2>
+          <p id="desc">Extend the main app with a helper container in the same pod — no code changes required.</p>
+        </div>
+        <div class="canvas" id="canvas"></div>
+        <div class="arrow-flow" id="flowBar"></div>
+        <div class="legend">
+          <span><i style="background:var(--main)"></i>Main app</span>
+          <span><i style="background:var(--helper)"></i>Helper / adapter</span>
+          <span><i style="background:var(--framework)"></i>Framework</span>
+          <span><i style="background:var(--external)"></i>External system</span>
+          <span><i style="background:var(--shared)"></i>Shared volume</span>
+        </div>
+        <div class="controls">
+          <button class="btn primary" id="animateBtn">Animate data flow</button>
+          <button class="btn" id="resetBtn">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <a class="nav-link" href="index.html">← Back to all guides</a>
+  </main>
+
+  <script>
+    const patterns = [
+      {
+        id: "sidecar",
+        title: "Sidecar Pattern",
+        desc: "A helper container shares a volume with the main app — classic for log shipping or config sync.",
+        flow: ["Main app writes logs", "Shared volume", "Sidecar reads & ships", "Central logging"],
+        html: `
+          <div class="pod">
+            <div class="pod-label">Pod (single host)</div>
+            <div class="container-box main" data-step="0">Main App<br><small>web server</small></div>
+            <div class="container-box shared" data-step="1">Shared Volume</div>
+            <div class="container-box helper" data-step="2">Log Sidecar</div>
+            <div class="container-box external" data-step="3">Central Logging</div>
+          </div>`
+      },
+      {
+        id: "adapter",
+        title: "Adapter Pattern",
+        desc: "Normalizes the app's native output into a standard format external systems can consume.",
+        flow: ["Main app emits metrics", "Adapter transforms", "Standard format", "Monitoring system"],
+        html: `
+          <div class="pod">
+            <div class="pod-label">Pod</div>
+            <div class="container-box main" data-step="0">Main App<br><small>native metrics</small></div>
+            <div class="container-box helper" data-step="1">Adapter</div>
+            <div class="container-box external" data-step="2">Monitoring<br><small>Prometheus</small></div>
+          </div>`
+      },
+      {
+        id: "ambassador",
+        title: "Ambassador Pattern",
+        desc: "Proxy on localhost hides sharded remote services — the app thinks it talks to one endpoint.",
+        flow: ["App calls localhost", "Ambassador routes", "Shard 1", "Shard 2 / 3"],
+        html: `
+          <div class="pod">
+            <div class="pod-label">Pod</div>
+            <div class="container-box main" data-step="0">Main App</div>
+            <div class="container-box helper" data-step="1">Ambassador<br><small>localhost proxy</small></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;justify-content:center;flex-wrap:wrap">
+            <div class="container-box external" data-step="2">Cache Shard 1</div>
+            <div class="container-box external" data-step="3">Cache Shard 2</div>
+            <div class="container-box external" data-step="3">Cache Shard 3</div>
+          </div>`
+      },
+      {
+        id: "leader",
+        title: "Leader Election",
+        desc: "Each replica runs an election sidecar; only one pod becomes leader at a time.",
+        flow: ["Replica calls localhost", "Election sidecar", "Cross-node vote", "Leader crowned"],
+        html: `
+          <div class="pod multi">
+            <div class="pod-unit"><div class="pod-label">Pod 1 ★ LEADER</div>
+              <div class="container-box main" data-step="0">Main App</div>
+              <div class="container-box framework" data-step="1">Election</div></div>
+            <div class="pod-unit"><div class="pod-label">Pod 2 follower</div>
+              <div class="container-box main">Main App</div>
+              <div class="container-box framework" data-step="2">Election</div></div>
+            <div class="pod-unit"><div class="pod-label">Pod 3 follower</div>
+              <div class="container-box main">Main App</div>
+              <div class="container-box framework" data-step="2">Election</div></div>
+          </div>`
+      },
+      {
+        id: "workqueue",
+        title: "Work Queue Pattern",
+        desc: "Framework handles queuing and distribution; you supply only the processing container.",
+        flow: ["Coordinator enqueues", "Work queue", "Framework dispatches", "User container runs"],
+        html: `
+          <div class="container-box framework" data-step="0" style="margin:0 auto 16px;display:block;width:fit-content">Coordinator Framework</div>
+          <div class="container-box shared" data-step="1" style="margin:0 auto 16px;display:block;width:fit-content">Work Queue</div>
+          <div class="pod multi">
+            <div class="pod-unit"><div class="container-box framework" data-step="2">Worker Framework</div><div class="container-box main" data-step="3">User Stage</div></div>
+            <div class="pod-unit"><div class="container-box framework" data-step="2">Worker Framework</div><div class="container-box main" data-step="3">User Stage</div></div>
+            <div class="pod-unit"><div class="container-box framework" data-step="2">Worker Framework</div><div class="container-box main" data-step="3">User Stage</div></div>
+          </div>`
+      },
+      {
+        id: "scatter",
+        title: "Scatter / Gather",
+        desc: "Root fans out to leaf shards, then a merge container aggregates results for the client.",
+        flow: ["Client query", "Root scatters", "Leaf shards compute", "Merge gathers response"],
+        html: `
+          <div class="container-box external" data-step="0" style="margin:0 auto 12px;display:block;width:fit-content">Client</div>
+          <div class="container-box framework" data-step="1" style="margin:0 auto 16px;display:block;width:fit-content">Root Framework</div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+            <div class="container-box main" data-step="2">Leaf Shard A</div>
+            <div class="container-box main" data-step="2">Leaf Shard B</div>
+            <div class="container-box main" data-step="2">Leaf Shard C</div>
+          </div>
+          <div class="container-box helper" data-step="3" style="margin:0 auto;display:block;width:fit-content">Merge Container</div>`
+      }
+    ];
+
+    let active = patterns[0];
+    let timer = null;
+
+    const navList = document.getElementById("navList");
+    const canvas = document.getElementById("canvas");
+    const flowBar = document.getElementById("flowBar");
+    const title = document.getElementById("title");
+    const desc = document.getElementById("desc");
+
+    function renderNav() {
+      navList.innerHTML = patterns.map((p) =>
+        `<button class="nav-item${p.id === active.id ? " active" : ""}" data-id="${p.id}">
+          <b>${p.title}</b><span>${p.desc.slice(0, 55)}…</span>
+        </button>`
+      ).join("");
+      navList.querySelectorAll(".nav-item").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          active = patterns.find((p) => p.id === btn.dataset.id);
+          renderNav();
+          renderCanvas();
+        });
+      });
+    }
+
+    function renderCanvas() {
+      clearInterval(timer);
+      title.textContent = active.title;
+      desc.textContent = active.desc;
+      canvas.innerHTML = active.html;
+      flowBar.innerHTML = active.flow.map((f, i) =>
+        `<span class="flow-step" data-f="${i}">${i + 1}. ${f}</span>${i < active.flow.length - 1 ? "→" : ""}`
+      ).join("");
+      canvas.querySelectorAll(".container-box").forEach((b) => b.classList.remove("pulse"));
+      flowBar.querySelectorAll(".flow-step").forEach((s) => s.classList.remove("on"));
+    }
+
+    function animate() {
+      clearInterval(timer);
+      const boxes = [...canvas.querySelectorAll("[data-step]")];
+      const steps = [...flowBar.querySelectorAll(".flow-step")];
+      let i = 0;
+      boxes.forEach((b) => b.classList.remove("pulse"));
+      steps.forEach((s) => s.classList.remove("on"));
+
+      timer = setInterval(() => {
+        boxes.forEach((b) => b.classList.remove("pulse"));
+        steps.forEach((s) => s.classList.remove("on"));
+        const current = boxes.filter((b) => +b.dataset.step === i);
+        current.forEach((b) => b.classList.add("pulse"));
+        if (steps[i]) steps[i].classList.add("on");
+        i++;
+        if (i > Math.max(...boxes.map((b) => +b.dataset.step), steps.length - 1)) {
+          clearInterval(timer);
+        }
+      }, 800);
+    }
+
+    document.getElementById("animateBtn").addEventListener("click", animate);
+    document.getElementById("resetBtn").addEventListener("click", renderCanvas);
+
+    renderNav();
+    renderCanvas();
+  </script>
+</body>
+</html>

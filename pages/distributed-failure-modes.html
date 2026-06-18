@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distributed Systems Failure Modes — Interactive Guide</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a222d;
+      --panel: #232d3b;
+      --ink: #f1f5f9;
+      --muted: #8fa3b8;
+      --line: #334155;
+      --healthy: #34d399;
+      --healthy-soft: rgba(52, 211, 153, 0.15);
+      --warn: #fbbf24;
+      --warn-soft: rgba(251, 191, 36, 0.15);
+      --danger: #f87171;
+      --danger-soft: rgba(248, 113, 113, 0.18);
+      --accent: #60a5fa;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 70% 50% at 50% -20%, rgba(248, 113, 113, 0.1), transparent);
+      color: var(--ink);
+      font: 15px/1.55 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    .app { width: min(1280px, calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 48px; }
+
+    .hero { margin-bottom: 24px; animation: rise 0.5s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+    .eyebrow { margin: 0 0 6px; color: var(--danger); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 4vw, 44px); line-height: 1.08; }
+    .subtitle { margin: 12px 0 0; max-width: 760px; color: var(--muted); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color 0.25s ease, transform 0.25s ease;
+      animation: rise 0.5s ease both;
+    }
+
+    .panel:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .panel.active { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger), var(--shadow); }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head h2 { margin: 0; font-size: 17px; }
+    .num { width: 28px; height: 28px; border-radius: 8px; background: var(--danger-soft); color: var(--danger); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+
+    .panel-body { padding: 16px; }
+
+    .viz {
+      min-height: 180px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--panel);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cluster-row { display: flex; gap: 20px; justify-content: center; align-items: stretch; }
+    .cluster {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px dashed var(--line);
+      text-align: center;
+      transition: all 0.4s ease;
+    }
+
+    .cluster.partitioned { border-color: var(--danger); background: var(--danger-soft); }
+    .node-dot {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      margin: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      line-height: 36px;
+      font-size: 11px;
+      font-weight: 700;
+      transition: background 0.3s ease;
+    }
+
+    .node-dot.leader { background: var(--healthy); box-shadow: 0 0 12px var(--healthy); }
+
+    .balance {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--surface);
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+    }
+
+    .desc { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+
+    .outcomes { display: grid; gap: 6px; margin-bottom: 12px; }
+    .outcome {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      opacity: 0.5;
+      transition: all 0.35s ease;
+    }
+
+    .outcome.highlight { opacity: 1; border-color: var(--warn); background: var(--warn-soft); }
+
+    .sim-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover { border-color: var(--accent); }
+    .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .btn.success:hover { border-color: var(--healthy); color: var(--healthy); }
+
+    .capacity-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--line);
+      margin: 8px 0;
+      overflow: hidden;
+    }
+
+    .capacity-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--healthy);
+      transition: width 0.5s ease, background 0.5s ease;
+    }
+
+    .capacity-fill.overload { background: var(--danger); }
+    .capacity-fill.stressed { background: var(--warn); }
+
+    .node-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .node-card {
+      flex: 1;
+      min-width: 90px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      text-align: center;
+      font-size: 12px;
+      transition: all 0.4s ease;
+    }
+
+    .node-card.failed { border-color: var(--danger); background: var(--danger-soft); }
+    .node-card.overload { border-color: var(--warn); background: var(--warn-soft); }
+
+    .loop-ring {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loop-step {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.4;
+      transform: scale(0.95);
+      transition: all 0.4s ease;
+    }
+
+    .loop-step.active { opacity: 1; transform: scale(1); border-color: var(--danger); background: var(--danger-soft); }
+
+    .health-dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    .metric b { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .light { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--healthy); margin-right: 6px; animation: blink 1.5s ease infinite; }
+    .light.bad { background: var(--danger); }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .nav-link { display: inline-block; margin-top: 24px; color: var(--muted); text-decoration: none; font-size: 14px; }
+    .nav-link:hover { color: var(--accent); }
+
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <p class="eyebrow">ByteByteGo · Distributed Systems</p>
+      <h1>Must-Know Failure Modes</h1>
+      <p class="subtitle">
+        Six failure patterns every distributed system engineer should recognize. Run each simulation
+        to see how partitions, ambiguity, gray failures, and cascades behave in practice.
+      </p>
+    </header>
+
+    <div class="grid">
+      <article class="panel" id="p1">
+        <div class="panel-head"><h2>Network Partition</h2><span class="num">1</span></div>
+        <div class="panel-body">
+          <div class="viz">
+            <div class="cluster-row">
+              <div class="cluster" id="clusterA">
+                <div>Cluster A</div>
+                <span class="node-dot">A1</span><span class="node-dot">A2</span><span class="node-dot">A3</span>
+              </div>
+              <div class="cluster" id="clusterB">
+                <div>Cluster B</div>
+                <span class="node-dot">B1</span><span class="node-dot">B2</span><span class="node-dot">B3</span>
+              </div>
+            </div>
+          </div>
+          <p class="desc">Each side stays internally consistent but cannot see the other half of the cluster.</p>
+          <div class="sim-controls">
+            <button class="btn danger" data-sim="partition">Simulate partition</button>
+            <button class="btn" data-sim="heal-partition">Heal network</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel" id="p2">
+        <div class="panel-head"><h2>Split-Brain</h2><span class="num">2</span></div>
+        <div class="panel-body">
+          <div class="viz">
+            <div class="cluster-row">
+              <div class="cluster">
+                <div>Leader A <span style="color:var(--healthy)">PRIMARY</span></div>
+                <div class="balance" id="balA">user.balance = $100</div>
+              </div>
+              <div class="cluster partitioned">
+                <div>Leader B <span style="color:var(--healthy)">PRIMARY</span></div>
+                <div class="balance" id="balB">user.balance = $50</div>
+              </div>
+            </div>
+          </div>
+          <p class="desc">When the partition heals, which value wins? Two valid histories cannot always be merged cleanly.</p>
+          <div class="sim-controls">
+            <button class="btn danger" data-sim="split">Both sides accept writes</button>
+            <button class="btn success" data-sim="merge">Attempt merge</button>
+          </div>
+          <p class="desc" id="mergeResult" style="margin-top:10px;color:var(--danger)"></p>
+        </div>
+      </article>
+
+      <article class="panel" id="p3">
+        <div class="panel-head"><h2>Partial Failures</h2><span class="num">3</span></div>
+        <div class="panel-body">
+          <p class="desc">From the client's view, four outcomes look identical — the request may or may not have succeeded.</p>
+          <div class="outcomes" id="outcomes">
+            <div class="outcome" data-o="0"><b>Lost in transit</b> — request never arrived.</div>
+            <div class="outcome" data-o="1"><b>Crashed before processing</b> — server died first.</div>
+            <div class="outcome" data-o="2"><b>Reply lost</b> — work succeeded, response dropped.</div>
+            <div class="outcome" data-o="3"><b>Still processing</b> — server will reply later.</div>
+          </div>
+          <div class="sim-controls">
+            <button class="btn" data-sim="cycle-partial">Cycle scenarios</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel" id="p4">
+        <div class="panel-head"><h2>Gray Failures</h2><span class="num">4</span></div>
+        <div class="panel-body">
+          <div class="viz">
+            <div class="health-dashboard">
+              <div class="metric"><b>Self health check</b><span class="light" id="healthLight"></span> Healthy</div>
+              <div class="metric"><b>User-facing latency</b><span id="latencyVal" style="color:var(--healthy)">45 ms</span></div>
+            </div>
+          </div>
+          <p class="desc">Alive by every internal check, yet failing real workloads (slow disk, GC pause, broken NIC).</p>
+          <div class="sim-controls">
+            <button class="btn danger" data-sim="gray">Degrade internally</button>
+            <button class="btn" data-sim="gray-reset">Reset</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel" id="p5">
+        <div class="panel-head"><h2>Amplification Loop</h2><span class="num">5</span></div>
+        <div class="panel-body">
+          <div class="viz">
+            <div class="loop-ring" id="ampLoop">
+              <span class="loop-step" data-s="0">1. Trigger</span>
+              <span>→</span>
+              <span class="loop-step" data-s="1">2. Degraded state</span>
+              <span>→</span>
+              <span class="loop-step" data-s="2">3. System responds</span>
+              <span>→</span>
+              <span class="loop-step" data-s="3">4. Amplifies problem</span>
+            </div>
+          </div>
+          <p class="desc">Retries, failover, and autoscale can make an incident worse instead of better.</p>
+          <div class="sim-controls">
+            <button class="btn danger" data-sim="amplify">Run loop</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel" id="p6">
+        <div class="panel-head"><h2>Cascading Failures</h2><span class="num">6</span></div>
+        <div class="panel-body">
+          <div class="viz">
+            <div class="node-row" id="cascadeNodes"></div>
+          </div>
+          <p class="desc">Load shifts from failed nodes to survivors until they overload too. Adding nodes mid-cascade can spread failure further.</p>
+          <div class="sim-controls">
+            <button class="btn danger" data-sim="kill-node">Kill node 1</button>
+            <button class="btn" data-sim="cascade-reset">Reset cluster</button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <a class="nav-link" href="index.html">← Back to all guides</a>
+  </main>
+
+  <script>
+    const mergeResult = document.getElementById("mergeResult");
+    const outcomes = document.querySelectorAll(".outcome");
+    let partialIdx = 0;
+    let ampTimer = null;
+
+    const cascadeState = [
+      { name: "Node 1", cap: 60, status: "ok" },
+      { name: "Node 2", cap: 55, status: "ok" },
+      { name: "Node 3", cap: 50, status: "ok" },
+      { name: "Node 4", cap: 45, status: "ok" },
+      { name: "Node 5", cap: 40, status: "ok" }
+    ];
+
+    function renderCascade() {
+      const el = document.getElementById("cascadeNodes");
+      el.innerHTML = cascadeState.map((n) => {
+        let cls = "";
+        let fillCls = "";
+        if (n.status === "failed") cls = "failed";
+        else if (n.cap > 100) { cls = "overload"; fillCls = "overload"; }
+        else if (n.cap > 85) { cls = "overload"; fillCls = "stressed"; }
+        return `<div class="node-card ${cls}">
+          <b>${n.name}</b>
+          <div class="capacity-bar"><div class="capacity-fill ${fillCls}" style="width:${Math.min(n.cap, 100)}%"></div></div>
+          <span>${n.status === "failed" ? "DOWN" : n.cap + "% load"}</span>
+        </div>`;
+      }).join("");
+    }
+
+    renderCascade();
+
+    document.querySelectorAll("[data-sim]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const sim = btn.dataset.sim;
+
+        if (sim === "partition") {
+          document.getElementById("clusterA").classList.add("partitioned");
+          document.getElementById("clusterB").classList.add("partitioned");
+        }
+        if (sim === "heal-partition") {
+          document.getElementById("clusterA").classList.remove("partitioned");
+          document.getElementById("clusterB").classList.remove("partitioned");
+        }
+        if (sim === "split") {
+          document.getElementById("balA").textContent = "user.balance = $120";
+          document.getElementById("balB").textContent = "user.balance = $75";
+          mergeResult.textContent = "";
+        }
+        if (sim === "merge") {
+          mergeResult.textContent = "Conflict: cannot merge $120 and $75 without losing one write. Use CRDTs, versioning, or a single leader.";
+        }
+        if (sim === "cycle-partial") {
+          outcomes.forEach((o) => o.classList.remove("highlight"));
+          outcomes[partialIdx].classList.add("highlight");
+          partialIdx = (partialIdx + 1) % outcomes.length;
+        }
+        if (sim === "gray") {
+          document.getElementById("healthLight").classList.remove("bad");
+          document.getElementById("latencyVal").textContent = "8,400 ms";
+          document.getElementById("latencyVal").style.color = "var(--danger)";
+        }
+        if (sim === "gray-reset") {
+          document.getElementById("latencyVal").textContent = "45 ms";
+          document.getElementById("latencyVal").style.color = "var(--healthy)";
+        }
+        if (sim === "amplify") {
+          clearInterval(ampTimer);
+          const steps = document.querySelectorAll("#ampLoop .loop-step");
+          let i = 0;
+          steps.forEach((s) => s.classList.remove("active"));
+          ampTimer = setInterval(() => {
+            steps.forEach((s) => s.classList.remove("active"));
+            steps[i].classList.add("active");
+            i = (i + 1) % steps.length;
+          }, 700);
+        }
+        if (sim === "kill-node") {
+          cascadeState[0].status = "failed";
+          cascadeState[0].cap = 0;
+          for (let j = 1; j < cascadeState.length; j++) {
+            cascadeState[j].cap = Math.min(140, cascadeState[j].cap + 28);
+            if (cascadeState[j].cap > 110) cascadeState[j].status = "failed";
+          }
+          renderCascade();
+        }
+        if (sim === "cascade-reset") {
+          cascadeState.forEach((n, i) => {
+            n.status = "ok";
+            n.cap = 60 - i * 5;
+          });
+          renderCascade();
+        }
+      });
+    });
+
+    document.querySelectorAll(".panel").forEach((p) => {
+      p.addEventListener("mouseenter", () => {
+        document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
+        p.classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>
