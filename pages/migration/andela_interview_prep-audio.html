@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Private — Interview Prep (Study)</title>
+<title>Private — Interview Prep (Audio)</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -217,6 +217,42 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
 
 .shuffle-btn{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all 0.15s}
 .shuffle-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-soft)}
+
+.listen-hero{text-align:center;padding:1.25rem 1rem 0.5rem}
+.listen-hero h3{font-size:1rem;font-weight:500;margin-bottom:4px}
+.listen-hero p{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.audio-player{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 2px rgba(26,25,22,0.04)}
+.audio-visual{display:flex;align-items:center;justify-content:center;gap:3px;height:48px;margin-bottom:1rem}
+.audio-bar{width:4px;height:12px;background:var(--accent-border);border-radius:2px;transition:height 0.15s}
+.audio-player.playing .audio-bar{animation:audioPulse 0.8s ease-in-out infinite}
+.audio-bar:nth-child(2){animation-delay:0.1s}
+.audio-bar:nth-child(3){animation-delay:0.2s}
+.audio-bar:nth-child(4){animation-delay:0.3s}
+.audio-bar:nth-child(5){animation-delay:0.4s}
+.audio-bar:nth-child(6){animation-delay:0.5s}
+.audio-bar:nth-child(7){animation-delay:0.6s}
+@keyframes audioPulse{0%,100%{height:12px;background:var(--accent-border)}50%{height:36px;background:var(--accent)}}
+.audio-segment-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-secondary);margin-bottom:6px}
+.audio-segment-title{font-size:15px;font-weight:500;color:var(--color-text-primary);line-height:1.45;margin-bottom:8px;min-height:2.2em}
+.audio-segment-body{font-size:13px;color:var(--color-text-secondary);line-height:1.6;max-height:140px;overflow-y:auto;padding-right:4px}
+.audio-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin:1.25rem 0 1rem}
+.audio-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all 0.15s;font-family:var(--font-sans)}
+.audio-btn:hover{border-color:var(--accent-border);background:var(--accent-soft);color:var(--accent)}
+.audio-btn:focus-visible{outline:2px solid var(--accent-border);outline-offset:2px}
+.audio-btn-play{width:56px;height:56px;background:var(--accent);border-color:var(--accent);color:#fff;font-size:22px}
+.audio-btn-play:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:#fff}
+.audio-btn-play.playing{background:var(--success);border-color:var(--success)}
+.audio-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1rem}
+.audio-option label{display:block;font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.audio-option select,.audio-option input[type=range]{width:100%;padding:6px 8px;border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-family:var(--font-sans);font-size:12px;background:var(--color-background-secondary);color:var(--color-text-primary)}
+.audio-option input[type=range]{padding:0;height:28px;background:transparent;border:none}
+.audio-progress-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--color-text-secondary)}
+.audio-progress-row .progress-track{flex:1}
+.audio-status{font-size:11px;color:var(--color-text-secondary);text-align:center;margin-top:8px;min-height:1.2em}
+.audio-toggles{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
+.audio-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;user-select:none}
+.audio-toggle input{accent-color:var(--accent)}
+.listen-tip{font-size:11px;color:var(--color-text-secondary);padding:10px 12px;background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:var(--border-radius-md);line-height:1.5;margin-bottom:1rem}
 </style>
 </head>
 <body>
@@ -242,21 +278,96 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
   <div class="metric"><div class="metric-val" id="total-cards">16</div><div class="metric-label">Flashcards</div></div>
   <div class="metric"><div class="metric-val" id="seen-count">0</div><div class="metric-label">Seen</div></div>
   <div class="metric"><div class="metric-val" id="known-count">0</div><div class="metric-label">Known</div></div>
-  <div class="metric"><div class="metric-val">4</div><div class="metric-label">Sections</div></div>
+  <div class="metric"><div class="metric-val">5</div><div class="metric-label">Sections</div></div>
 </div>
 <div class="repo-link-row">
   <a class="repo-link" href="https://github.com/mayankchugh-learning/andela-security-auditor.git" target="_blank" rel="noopener noreferrer">Open GitHub repo</a>
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showSection('flashcards',this)">Flashcards</button>
+  <button class="tab active" onclick="showSection('listen',this)">Listen</button>
+  <button class="tab" onclick="showSection('flashcards',this)">Flashcards</button>
   <button class="tab" onclick="showSection('architecture',this)">Architecture</button>
   <button class="tab" onclick="showSection('demo',this)">Demo script</button>
   <button class="tab" onclick="showSection('decisions',this)">Why X?</button>
 </div>
 
+<!-- AUDIO LISTEN MODE -->
+<div id="listen" class="section active">
+  <div class="listen-hero">
+    <h3>Audio interview prep</h3>
+    <p>Press play and listen on repeat — walking, commuting, or before bed. Uses your browser voice (no download needed).</p>
+  </div>
+  <div class="listen-tip">Tip: use <strong>Flashcards Q then A</strong> with a 5–8 second think pause to practise answering out loud before the answer plays.</div>
+  <div class="audio-player" id="audio-player">
+    <div class="audio-visual" aria-hidden="true">
+      <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+      <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+    </div>
+    <div class="audio-segment-label" id="audio-label">Ready</div>
+    <div class="audio-segment-title" id="audio-title">Choose a playlist and press play</div>
+    <div class="audio-segment-body" id="audio-body"></div>
+    <div class="audio-progress-row">
+      <span id="audio-segment-idx">0 / 0</span>
+      <div class="progress-track"><div class="progress-fill" id="audio-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="audio-options">
+      <div class="audio-option">
+        <label for="audio-playlist">Playlist</label>
+        <select id="audio-playlist" onchange="audioPlayer.onPlaylistChange()">
+          <option value="flashcards-qa">Flashcards — Q then A (best for practice)</option>
+          <option value="flashcards-full">Flashcards — full answers only</option>
+          <option value="demo">Demo script (10 min flow)</option>
+          <option value="architecture">Architecture + mnemonics</option>
+          <option value="decisions">Why X? decisions</option>
+          <option value="full">Full run — everything (~45 min)</option>
+        </select>
+      </div>
+      <div class="audio-option">
+        <label for="audio-speed">Speed</label>
+        <select id="audio-speed">
+          <option value="0.85">0.85× — slow</option>
+          <option value="1" selected>1× — normal</option>
+          <option value="1.15">1.15× — brisk</option>
+          <option value="1.3">1.3× — fast review</option>
+        </select>
+      </div>
+      <div class="audio-option">
+        <label for="audio-think-pause">Think pause (after Q)</label>
+        <select id="audio-think-pause">
+          <option value="0">Off</option>
+          <option value="3">3 sec</option>
+          <option value="5" selected>5 sec</option>
+          <option value="8">8 sec</option>
+          <option value="12">12 sec</option>
+        </select>
+      </div>
+      <div class="audio-option">
+        <label for="audio-gap">Gap between segments</label>
+        <select id="audio-gap">
+          <option value="0.3">Short</option>
+          <option value="0.8" selected>Normal</option>
+          <option value="1.5">Long</option>
+        </select>
+      </div>
+    </div>
+    <div class="audio-toggles">
+      <label class="audio-toggle"><input type="checkbox" id="audio-loop" checked> Loop playlist</label>
+      <label class="audio-toggle"><input type="checkbox" id="audio-speak-mnemonic" checked> Include mnemonics</label>
+      <label class="audio-toggle"><input type="checkbox" id="audio-speak-tips" checked> Include tips</label>
+    </div>
+    <div class="audio-controls">
+      <button class="audio-btn" type="button" id="audio-prev" onclick="audioPlayer.prev()" title="Previous" aria-label="Previous segment">⏮</button>
+      <button class="audio-btn audio-btn-play" type="button" id="audio-play" onclick="audioPlayer.toggle()" title="Play / Pause" aria-label="Play or pause">▶</button>
+      <button class="audio-btn" type="button" id="audio-next" onclick="audioPlayer.next()" title="Next" aria-label="Next segment">⏭</button>
+      <button class="audio-btn" type="button" id="audio-stop" onclick="audioPlayer.stop()" title="Stop" aria-label="Stop">⏹</button>
+    </div>
+    <div class="audio-status" id="audio-status" aria-live="polite"></div>
+  </div>
+</div>
+
 <!-- FLASHCARDS -->
-<div id="flashcards" class="section active">
+<div id="flashcards" class="section">
   <div class="category-row">
     <button class="cat-btn active" onclick="filterCards('all',this)">All</button>
     <button class="cat-btn" onclick="filterCards('qa',this)">Q&A</button>
@@ -633,7 +744,347 @@ function activateStep(el){
 
 function initApp(){
   updateCard();
+  if(typeof audioPlayer!=='undefined') audioPlayer.init();
 }
+
+function stripHtml(html){
+  const d=document.createElement('div');
+  d.innerHTML=html||'';
+  return (d.textContent||'').replace(/\s+/g,' ').trim();
+}
+
+const demoAudioSteps=[
+  {title:'Step 1 — Open with the problem',text:'Cloud misconfigurations are the number one cause of enterprise breaches. Teams review Terraform files manually — slow and error-prone. I built something that automates this in under 3 seconds. Show GitHub repo with green CI badge.'},
+  {title:'Step 2 — Scan the clean file',text:'Let me start with a clean file to show the baseline. Upload clean_infra.tf. Risk Score zero — Clean.'},
+  {title:'Step 3 — Scan the vulnerable file',text:'Now a misconfigured file. Upload vulnerable_infra.tf. Risk Score 100 Critical. Walk through six findings: PUBLIC_S3, SSH, RDP, NO_MFA, EBS, HTTP.'},
+  {title:'Step 4 — Scan mixed CloudFormation',text:'CloudFormation template — Medium Risk, score 45. Two violations in an otherwise clean stack. Upload mixed_infra.yaml.'},
+  {title:'Step 5 — Scan history',text:'Every scan is persisted. Complete audit trail of how infrastructure posture changes over time. Point to scan history — three past scans.'},
+  {title:'Step 6 — Show the API',text:'The dashboard calls a FastAPI REST API. Any CI/CD pipeline can call POST slash scan and gate a deployment if risk score exceeds a threshold. Open localhost 8000 slash docs. Execute GET slash scans live.'},
+  {title:'Step 7 — Security controls',text:'Hardcoded secrets are detected but never stored. The finding says value redacted. Built to enterprise standards. Open SECURITY_AND_PII.md.'},
+  {title:'Step 8 — Vibe coding audit trail',text:'Every prompt I gave Claude Code is logged with elapsed time and files changed. The architecture is made visible. Open prompts.md.'},
+  {title:'Step 9 — Close strong',text:'29 tests, green CI, 11 security rules, full PII controls, complete docs — built in 1 hour 55 minutes. Happy to go deeper on any component. Leave risk score 100 visible as final image.'},
+];
+
+const architectureAudio=[
+  {title:'Seven layers — SFPRSS',text:'Streamlit presentation. FastAPI API. Parsers python-hcl2 and pyyaml. Rules engine eleven CIS rules. Risk scorer capped at 100. SQLite persistence. Security middleware rate limiting and headers.'},
+  {title:'POST slash scan flow — VT PRS DJR',text:'Validate file type and size. Temp save. Parse route by extension. Rules engine eleven checks. Risk cap at 100. SQLite save. Delete temp file. JSON response. Render in Streamlit.'},
+  {title:'Eleven rules — POP SOREH NWHA',text:'Critical 40 points: PUBLIC_S3_BUCKET, OPEN_ALL_PORTS. High 25 points: OPEN_SSH, OPEN_RDP, UNENCRYPTED_EBS, UNENCRYPTED_RDS, HARDCODED_SECRET. Medium 20 points: NO_MFA, WEAK_IAM_POLICY, HTTP_LISTENER, UNRESTRICTED_OUTBOUND.'},
+  {title:'PII controls — WASH SLNI HCE',text:'Input: whitelist file types, 10 megabyte limit, sanitise filename, rate limit 10 per minute. Data: secrets never stored or logged, no raw file in database, no client IP. API: security headers and clean error messages only.'},
+  {title:'Demo scores — 0 100 45',text:'clean_infra.tf score zero Clean. vulnerable_infra.tf score 100 Critical with six violations. mixed_infra.yaml score 45 Medium with two violations.'},
+  {title:'What is CIS — 30 second answer',text:'CIS is the Center for Internet Security. Their AWS Foundations Benchmark is the standard checklist for cloud hardening — IAM MFA, encrypted storage, no public S3, tight security groups. I implemented 11 rules inspired by that benchmark, applied to Terraform and CloudFormation at scan time, so teams catch misconfigurations in CI before they reach production.'},
+  {title:'Numbers to know',text:'Build time 1 hour 55 minutes. 29 of 29 tests passing. 11 security rules. Risk scores 0 clean to 100 critical. 13 years client-embedded at Cathay. 55 plus RFPs won.'},
+];
+
+const decisionsAudio=[
+  {title:'Why CIS Benchmark rules?',text:'CIS Benchmarks are industry lingua franca for cloud compliance. AWS Foundations maps to our sample misconfigurations. Custom rules harder to defend. OWASP alone misses infrastructure controls. Trade-off: static IaC only, pair with live scanners in production.'},
+  {title:'Why FastAPI over Flask?',text:'Auto OpenAPI at slash docs. Pydantic validation built in. Async-native. JD mentioned FastAPI. Trade-off: more initial complexity than Flask.'},
+  {title:'Why SQLite over PostgreSQL?',text:'Zero setup for challenge. SQLAlchemy abstracts — swap to Postgres in one config line. Trade-off: no concurrent writes.'},
+  {title:'Why Streamlit over React?',text:'Professional dashboard from one Python file. No frontend build. React would take 45 plus minutes on scaffolding. FDE means shipping fast. Trade-off: less customisable.'},
+  {title:'Why python-hcl2?',text:'Most actively maintained HCL2 parser. Handles nested and dynamic blocks. Trade-off: v8 quoting needed custom unquote helper.'},
+  {title:'Why risk score capped at 100?',text:'Zero to 100 is intuitive. 100 always means critical act now. Findings table gives detail beyond score. Trade-off: cannot distinguish three versus ten criticals from score alone.'},
+  {title:'Why redact secret values?',text:'A security tool storing secrets would itself be a risk. Resource name sufficient for remediation. Trade-off: engineers check original file — intentional.'},
+  {title:'Why local deployment only?',text:'Challenge warned about cloud costs. Client infra files stay local. Trade-off: not public without tunnel; screen share suffices for demo.'},
+  {title:'Why Claude Code over Cursor?',text:'Terminal access runs tests autonomously. Full session file context. Challenge accepted all three tools. Trade-off: more tokens per turn than Copilot.'},
+];
+
+const audioPlayer=(function(){
+  let segments=[];
+  let index=0;
+  let playing=false;
+  let paused=false;
+  let pauseTimer=null;
+  let utterance=null;
+  const STORAGE_KEY='mhc-andela-audio-state';
+
+  function el(id){return document.getElementById(id);}
+
+  function getOptions(){
+    return{
+      speed:parseFloat(el('audio-speed').value)||1,
+      thinkPause:parseInt(el('audio-think-pause').value,10)||0,
+      gap:parseFloat(el('audio-gap').value)||0.8,
+      loop:el('audio-loop').checked,
+      mnemonics:el('audio-speak-mnemonic').checked,
+      tips:el('audio-speak-tips').checked,
+    };
+  }
+
+  function cardSegments(mode){
+    const opts=getOptions();
+    const out=[];
+    allCards.forEach(function(c,i){
+      const memo=opts.mnemonics&&c.memo?' Mnemonic. '+stripHtml(c.memo):'';
+      const tip=opts.tips&&c.tip?' Tip. '+c.tip:'';
+      if(mode==='flashcards-qa'){
+        out.push({label:'Question '+(i+1),title:c.q,text:'Question. '+c.q,type:'question',cardIndex:i});
+        out.push({label:'Answer '+(i+1),title:c.q,text:c.a+memo+tip,type:'answer',thinkBefore:opts.thinkPause,cardIndex:i});
+      }else{
+        out.push({label:c.typeLabel+' '+(i+1),title:c.q,text:c.q+'. '+c.a+memo+tip,type:'full',cardIndex:i});
+      }
+    });
+    return out;
+  }
+
+  function buildSegments(playlistId){
+    if(playlistId==='flashcards-qa') return cardSegments('flashcards-qa');
+    if(playlistId==='flashcards-full') return cardSegments('flashcards-full');
+    if(playlistId==='demo') return demoAudioSteps.map(function(s,i){return{label:'Demo '+(i+1),title:s.title,text:s.text,type:'demo'};});
+    if(playlistId==='architecture') return architectureAudio.map(function(s,i){return{label:'Arch '+(i+1),title:s.title,text:s.text,type:'arch'};});
+    if(playlistId==='decisions') return decisionsAudio.map(function(s,i){return{label:'Decision '+(i+1),title:s.title,text:s.text,type:'decision'};});
+    if(playlistId==='full'){
+      return[].concat(
+        [{label:'Intro',title:'Full interview prep',text:'Starting full Andela interview preparation. Flashcards, architecture, demo script, and decision rationale.',type:'intro'}],
+        cardSegments('flashcards-qa'),
+        [{label:'Break',title:'Architecture section',text:'Next: architecture and mnemonics.',type:'break'}].concat(architectureAudio.map(function(s,i){return{label:'Arch '+(i+1),title:s.title,text:s.text,type:'arch'};})),
+        [{label:'Break',title:'Demo script',text:'Next: ten minute demo flow. Mnemonic PCVM HAPIC.',type:'break'}].concat(demoAudioSteps.map(function(s,i){return{label:'Demo '+(i+1),title:s.title,text:s.text,type:'demo'};})),
+        [{label:'Break',title:'Why X decisions',text:'Next: architecture decision rationale.',type:'break'}].concat(decisionsAudio.map(function(s,i){return{label:'Decision '+(i+1),title:s.title,text:s.text,type:'decision'};})),
+        [{label:'Outro',title:'End of full run',text:'Full prep complete. Loop will restart if enabled. Good luck.',type:'outro'}]
+      );
+    }
+    return [];
+  }
+
+  function pickVoice(){
+    const voices=speechSynthesis.getVoices();
+    const preferred=['Microsoft Aria Online','Microsoft Guy Online','Google US English','Samantha','Daniel','Karen','Microsoft Zira','Microsoft David'];
+    for(let i=0;i<preferred.length;i++){
+      const v=voices.find(function(voice){return voice.name.indexOf(preferred[i])!==-1;});
+      if(v) return v;
+    }
+    return voices.find(function(v){return v.lang&&v.lang.indexOf('en')===0;})||voices[0]||null;
+  }
+
+  function updateUI(){
+    const seg=segments[index];
+    if(!seg){
+      el('audio-label').textContent='Ready';
+      el('audio-title').textContent='Choose a playlist and press play';
+      el('audio-body').textContent='';
+      el('audio-segment-idx').textContent='0 / '+segments.length;
+      el('audio-progress-fill').style.width='0%';
+      return;
+    }
+    el('audio-label').textContent=seg.label||'Segment';
+    el('audio-title').textContent=seg.title||'';
+    el('audio-body').textContent=seg.text||'';
+    el('audio-segment-idx').textContent=(index+1)+' / '+segments.length;
+    el('audio-progress-fill').style.width=segments.length?Math.round(((index+1)/segments.length)*100)+'%':'0%';
+  }
+
+  function setPlayingState(isPlaying){
+    playing=isPlaying;
+    const player=el('audio-player');
+    const btn=el('audio-play');
+    if(isPlaying){
+      player.classList.add('playing');
+      btn.classList.add('playing');
+      btn.textContent='⏸';
+      btn.setAttribute('aria-label','Pause');
+    }else{
+      player.classList.remove('playing');
+      btn.classList.remove('playing');
+      btn.textContent='▶';
+      btn.setAttribute('aria-label','Play');
+    }
+  }
+
+  function clearTimers(){
+    if(pauseTimer){clearTimeout(pauseTimer);pauseTimer=null;}
+    if(utterance){speechSynthesis.cancel();utterance=null;}
+  }
+
+  function saveState(){
+    try{
+      sessionStorage.setItem(STORAGE_KEY,JSON.stringify({
+        playlist:el('audio-playlist').value,
+        index:index,
+      }));
+    }catch(e){/* ignore */}
+  }
+
+  function speakSegment(){
+    if(!playing||paused) return;
+    const seg=segments[index];
+    if(!seg){
+      setPlayingState(false);
+      el('audio-status').textContent='Playlist finished.';
+      return;
+    }
+    updateUI();
+    saveState();
+    el('audio-status').textContent=seg.type==='question'?'Answer out loud, then wait…':'Speaking…';
+
+    const delay=seg.thinkBefore?seg.thinkBefore*1000:0;
+    pauseTimer=setTimeout(function(){
+      if(!playing||paused) return;
+      const opts=getOptions();
+      utterance=new SpeechSynthesisUtterance(seg.text);
+      utterance.rate=opts.speed;
+      utterance.pitch=1;
+      const voice=pickVoice();
+      if(voice) utterance.voice=voice;
+
+      utterance.onend=function(){
+        utterance=null;
+        if(!playing||paused) return;
+        const gapMs=opts.gap*1000;
+        pauseTimer=setTimeout(function(){
+          if(!playing||paused) return;
+          if(index<segments.length-1){
+            index++;
+            speakSegment();
+          }else if(opts.loop){
+            index=0;
+            el('audio-status').textContent='Looping playlist…';
+            speakSegment();
+          }else{
+            setPlayingState(false);
+            el('audio-status').textContent='Finished. Press play to restart.';
+          }
+        },gapMs);
+      };
+
+      utterance.onerror=function(){
+        utterance=null;
+        el('audio-status').textContent='Speech error — try Chrome or Edge, or press play again.';
+        setPlayingState(false);
+      };
+
+      speechSynthesis.speak(utterance);
+    },delay);
+  }
+
+  function play(){
+    if(!window.speechSynthesis){
+      el('audio-status').textContent='Speech not supported in this browser. Use Chrome or Edge.';
+      return;
+    }
+    if(!segments.length) rebuildPlaylist();
+    if(!segments.length) return;
+    paused=false;
+    setPlayingState(true);
+    if(speechSynthesis.paused) speechSynthesis.resume();
+    if(!utterance && !pauseTimer) speakSegment();
+  }
+
+  function pause(){
+    paused=true;
+    setPlayingState(false);
+    speechSynthesis.pause();
+    el('audio-status').textContent='Paused.';
+  }
+
+  function resume(){
+    if(!segments.length) return;
+    paused=false;
+    setPlayingState(true);
+    if(speechSynthesis.paused){
+      speechSynthesis.resume();
+      el('audio-status').textContent='Resumed.';
+    }else if(!utterance && !pauseTimer){
+      speakSegment();
+    }
+  }
+
+  function toggle(){
+    if(playing) pause();
+    else if(paused) resume();
+    else play();
+  }
+
+  function stop(){
+    clearTimers();
+    paused=false;
+    setPlayingState(false);
+    speechSynthesis.cancel();
+    el('audio-status').textContent='Stopped.';
+  }
+
+  function next(){
+    if(!segments.length) return;
+    clearTimers();
+    index=Math.min(index+1,segments.length-1);
+    updateUI();
+    saveState();
+    if(playing){paused=false;setPlayingState(true);speakSegment();}
+  }
+
+  function prev(){
+    if(!segments.length) return;
+    clearTimers();
+    index=Math.max(index-1,0);
+    updateUI();
+    saveState();
+    if(playing){paused=false;setPlayingState(true);speakSegment();}
+  }
+
+  function rebuildPlaylist(){
+    stop();
+    const id=el('audio-playlist').value;
+    segments=buildSegments(id);
+    index=0;
+    updateUI();
+    el('audio-status').textContent=segments.length+' segments loaded.';
+  }
+
+  function onPlaylistChange(){
+    rebuildPlaylist();
+  }
+
+  function restoreState(){
+    try{
+      const raw=sessionStorage.getItem(STORAGE_KEY);
+      if(!raw) return;
+      const st=JSON.parse(raw);
+      if(st.playlist&&el('audio-playlist').querySelector('option[value="'+st.playlist+'"]')){
+        el('audio-playlist').value=st.playlist;
+      }
+      segments=buildSegments(el('audio-playlist').value);
+      index=Math.min(st.index||0,Math.max(segments.length-1,0));
+      updateUI();
+    }catch(e){rebuildPlaylist();}
+  }
+
+  function init(){
+    if(!el('audio-playlist')) return;
+    restoreState();
+    if(!segments.length) rebuildPlaylist();
+
+    speechSynthesis.onvoiceschanged=function(){
+      /* voices loaded */
+    };
+    if(speechSynthesis.getVoices().length) speechSynthesis.getVoices();
+
+    document.addEventListener('keydown',function(e){
+      if(el('protected-content').hidden) return;
+      if(!document.getElementById('listen').classList.contains('active')) return;
+      if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA') return;
+      if(e.code==='Space'){e.preventDefault();toggle();}
+      if(e.code==='ArrowRight'){e.preventDefault();next();}
+      if(e.code==='ArrowLeft'){e.preventDefault();prev();}
+    });
+
+    ['audio-speed','audio-think-pause','audio-gap','audio-loop','audio-speak-mnemonic','audio-speak-tips'].forEach(function(id){
+      el(id).addEventListener('change',function(){
+        if(id==='audio-speak-mnemonic'||id==='audio-speak-tips'){
+          const wasPlaying=playing;
+          const idx=index;
+          rebuildPlaylist();
+          index=Math.min(idx,segments.length-1);
+          updateUI();
+          if(wasPlaying) play();
+        }
+      });
+    });
+  }
+
+  return{init:init,play:play,pause:pause,stop:stop,toggle:toggle,next:next,prev:prev,onPlaylistChange:onPlaylistChange};
+})();
+
+window.addEventListener('message',function(e){
+  if(e.origin!==window.location.origin) return;
+  if(e.data&&e.data.type==='hub-pause'&&typeof audioPlayer!=='undefined') audioPlayer.stop();
+});
 </script>
 </div><!-- #protected-content -->
 

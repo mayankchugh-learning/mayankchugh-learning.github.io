@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Private — Andela Interview Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f3f2ee;
+  --color-text-primary: #1a1916;
+  --color-text-secondary: #6b6760;
+  --color-border-tertiary: #ebe8e1;
+  --color-border-secondary: #d9d4ca;
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --accent: #185FA5;
+  --accent-hover: #144a85;
+  --accent-soft: #e8f2fb;
+  --accent-border: #b8d4ef;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  margin: 0;
+  min-height: 100vh;
+}
+#access-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+#access-gate[hidden],
+#protected-content[hidden] { display: none !important; }
+.gate-card {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(26, 25, 22, 0.06);
+}
+.gate-card h1 { font-size: 1.1rem; font-weight: 500; margin: 0 0 0.5rem; }
+.gate-card p { font-size: 13px; color: var(--color-text-secondary); margin: 0 0 1.25rem; }
+.gate-card input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  margin-bottom: 0.75rem;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+}
+.gate-card input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+  background: var(--color-background-primary);
+  box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.12);
+}
+.gate-card button {
+  width: 100%;
+  padding: 10px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.gate-card button:hover { background: var(--accent-hover); }
+.gate-error { font-size: 12px; color: #993C1D; margin-top: 0.75rem; min-height: 1.2em; }
+
+#protected-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.hub-header {
+  background: var(--color-background-primary);
+  border-bottom: 1px solid var(--color-border-tertiary);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.hub-title { font-size: 14px; font-weight: 500; }
+.hub-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: 4px;
+  border: 1px solid var(--color-border-tertiary);
+}
+.hub-tab {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-tertiary);
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-sans);
+  transition: all 0.15s;
+}
+.hub-tab:hover { color: var(--color-text-primary); border-color: var(--color-border-secondary); }
+.hub-tab.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 500;
+  border-color: var(--accent-border);
+}
+.hub-repo-link {
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 5px 10px;
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  white-space: nowrap;
+}
+.hub-repo-link:hover { text-decoration: underline; }
+.hub-panels { flex: 1; position: relative; min-height: 0; }
+.hub-panel {
+  display: none;
+  height: calc(100vh - 57px);
+}
+.hub-panel.active { display: block; }
+.hub-panel iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: var(--color-background-secondary);
+}
+</style>
+</head>
+<body>
+
+<div id="access-gate">
+  <div class="gate-card">
+    <h1>Andela interview prep</h1>
+    <p>Enter your passphrase to continue.</p>
+    <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:1rem">Passphrase: <code style="font-family:var(--font-mono);background:var(--color-background-secondary);padding:2px 6px;border-radius:4px">mhc77-andela</code></p>
+    <form id="gate-form">
+      <input type="password" id="gate-pass" autocomplete="off" placeholder="Passphrase" aria-label="Passphrase">
+      <button type="submit">Unlock</button>
+    </form>
+    <div class="gate-error" id="gate-error" aria-live="polite"></div>
+  </div>
+</div>
+
+<div id="protected-content" hidden>
+  <header class="hub-header">
+    <div class="hub-title">Andela interview prep</div>
+    <div class="hub-tabs" role="tablist" aria-label="Prep modes">
+      <button type="button" class="hub-tab active" role="tab" aria-selected="true" aria-controls="panel-study" id="tab-study" data-tab="study">Study — flashcards</button>
+      <button type="button" class="hub-tab" role="tab" aria-selected="false" aria-controls="panel-audio" id="tab-audio" data-tab="audio">Listen — audio prep</button>
+    </div>
+    <a class="hub-repo-link" href="https://github.com/mayankchugh-learning/andela-security-auditor.git" target="_blank" rel="noopener noreferrer">GitHub repo</a>
+  </header>
+  <div class="hub-panels">
+    <div id="panel-study" class="hub-panel active" role="tabpanel" aria-labelledby="tab-study">
+      <iframe id="frame-study" title="Study mode — flashcards and reference" loading="lazy"></iframe>
+    </div>
+    <div id="panel-audio" class="hub-panel" role="tabpanel" aria-labelledby="tab-audio" hidden>
+      <iframe id="frame-audio" title="Audio prep — listen and repeat" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'mhc-private-andela';
+  var URL_KEY = 'mhc77-andela';
+  var PASS_PLAIN = 'mhc77-andela';
+  var PASS_HASH = 'ac460a4d9305a143bf9ed450acf051897730fb4c298b66f0d73d4388835e923d';
+  var EMBED_QUERY = '?k=' + encodeURIComponent(URL_KEY) + '&embedded=1';
+
+  var gate = document.getElementById('access-gate');
+  var content = document.getElementById('protected-content');
+  var form = document.getElementById('gate-form');
+  var passInput = document.getElementById('gate-pass');
+  var errorEl = document.getElementById('gate-error');
+  var frameStudy = document.getElementById('frame-study');
+  var frameAudio = document.getElementById('frame-audio');
+  var activeTab = 'study';
+  var framesLoaded = { study: false, audio: false };
+
+  function sha256(text) {
+    if (!window.crypto || !crypto.subtle) {
+      return Promise.reject(new Error('crypto unavailable'));
+    }
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+      return Array.from(new Uint8Array(buf)).map(function (b) {
+        return b.toString(16).padStart(2, '0');
+      }).join('');
+    });
+  }
+
+  function verifyPassphrase(value) {
+    var plain = (value || '').trim();
+    if (!plain) return Promise.resolve(false);
+    if (plain === PASS_PLAIN) return Promise.resolve(true);
+    return sha256(plain).then(function (hash) {
+      return hash === PASS_HASH;
+    }).catch(function () {
+      return plain === PASS_PLAIN;
+    });
+  }
+
+  function isUnlocked() {
+    try {
+      if (sessionStorage.getItem(STORAGE_KEY) === '1') return true;
+    } catch (e) { /* ignore */ }
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('k') === URL_KEY) return true;
+    return false;
+  }
+
+  function loadFrame(name) {
+    if (framesLoaded[name]) return;
+    var frame = name === 'study' ? frameStudy : frameAudio;
+    var src = name === 'study'
+      ? 'andela_interview_prep-study.html'
+      : 'andela_interview_prep-audio.html';
+    frame.src = src + EMBED_QUERY;
+    framesLoaded[name] = true;
+  }
+
+  function pauseAudioFrame() {
+    if (!framesLoaded.audio || !frameAudio.contentWindow) return;
+    try {
+      frameAudio.contentWindow.postMessage({ type: 'hub-pause' }, window.location.origin);
+    } catch (e) { /* ignore */ }
+  }
+
+  function showTab(name) {
+    if (activeTab === 'audio' && name !== 'audio') pauseAudioFrame();
+
+    activeTab = name;
+    document.querySelectorAll('.hub-tab').forEach(function (btn) {
+      var on = btn.getAttribute('data-tab') === name;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.hub-panel').forEach(function (panel) {
+      var on = panel.id === 'panel-' + name;
+      panel.classList.toggle('active', on);
+      panel.hidden = !on;
+    });
+    loadFrame(name);
+  }
+
+  function unlock() {
+    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) { /* ignore */ }
+    gate.hidden = true;
+    content.hidden = false;
+    loadFrame('study');
+  }
+
+  document.querySelectorAll('.hub-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      showTab(btn.getAttribute('data-tab'));
+    });
+  });
+
+  if (isUnlocked()) {
+    unlock();
+    return;
+  }
+
+  if (!form || !passInput) return;
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    errorEl.textContent = '';
+    verifyPassphrase(passInput.value).then(function (ok) {
+      if (ok) {
+        unlock();
+      } else {
+        errorEl.textContent = 'Incorrect passphrase.';
+        passInput.value = '';
+        passInput.focus();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
