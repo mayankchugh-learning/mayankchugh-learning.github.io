@@ -171,8 +171,9 @@ body {
   <header class="hub-header">
     <div class="hub-title">Andela interview prep</div>
     <div class="hub-tabs" role="tablist" aria-label="Prep modes">
-      <button type="button" class="hub-tab active" role="tab" aria-selected="true" aria-controls="panel-study" id="tab-study" data-tab="study">Study — flashcards</button>
-      <button type="button" class="hub-tab" role="tab" aria-selected="false" aria-controls="panel-audio" id="tab-audio" data-tab="audio">Listen — audio prep</button>
+      <button type="button" class="hub-tab active" role="tab" aria-selected="true" aria-controls="panel-study" id="tab-study" data-tab="study">1 · Study</button>
+      <button type="button" class="hub-tab" role="tab" aria-selected="false" aria-controls="panel-audio" id="tab-audio" data-tab="audio">2 · Listen</button>
+      <button type="button" class="hub-tab" role="tab" aria-selected="false" aria-controls="panel-code" id="tab-code" data-tab="code">3 · Code</button>
     </div>
     <a class="hub-repo-link" href="https://github.com/mayankchugh-learning/andela-security-auditor.git" target="_blank" rel="noopener noreferrer">GitHub repo</a>
   </header>
@@ -182,6 +183,9 @@ body {
     </div>
     <div id="panel-audio" class="hub-panel" role="tabpanel" aria-labelledby="tab-audio" hidden>
       <iframe id="frame-audio" title="Audio prep — listen and repeat" loading="lazy"></iframe>
+    </div>
+    <div id="panel-code" class="hub-panel" role="tabpanel" aria-labelledby="tab-code" hidden>
+      <iframe id="frame-code" title="Code walkthrough — understand the repo" loading="lazy"></iframe>
     </div>
   </div>
 </div>
@@ -203,8 +207,9 @@ body {
   var errorEl = document.getElementById('gate-error');
   var frameStudy = document.getElementById('frame-study');
   var frameAudio = document.getElementById('frame-audio');
+  var frameCode = document.getElementById('frame-code');
   var activeTab = 'study';
-  var framesLoaded = { study: false, audio: false };
+  var framesLoaded = { study: false, audio: false, code: false };
 
   function sha256(text) {
     if (!window.crypto || !crypto.subtle) {
@@ -239,10 +244,15 @@ body {
 
   function loadFrame(name) {
     if (framesLoaded[name]) return;
-    var frame = name === 'study' ? frameStudy : frameAudio;
-    var src = name === 'study'
-      ? 'andela_interview_prep-study.html'
-      : 'andela_interview_prep-audio.html';
+    var frame = frameStudy;
+    var src = 'andela_interview_prep-study.html';
+    if (name === 'audio') {
+      frame = frameAudio;
+      src = 'andela_interview_prep-audio.html';
+    } else if (name === 'code') {
+      frame = frameCode;
+      src = 'andela_interview_prep-code.html';
+    }
     frame.src = src + EMBED_QUERY;
     framesLoaded[name] = true;
   }

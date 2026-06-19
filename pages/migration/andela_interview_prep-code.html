@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Private — Interview Prep (Code)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --bg: #f3f2ee; --surface: #fff; --text: #1a1916; --muted: #6b6760;
+  --border: #ebe8e1; --accent: #185FA5; --accent-soft: #e8f2fb; --accent-border: #b8d4ef;
+  --green: #0F6E56; --green-soft: #e8f5ee; --amber: #854F0B; --amber-soft: #faf6ed;
+  --radius: 12px; --radius-sm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh}
+body.embedded{min-height:auto}
+#access-gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+#access-gate[hidden],#protected-content[hidden]{display:none!important}
+.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:360px;width:100%;text-align:center}
+.gate-card h1{font-size:1.1rem;font-weight:500;margin-bottom:.5rem}
+.gate-card p{font-size:13px;color:var(--muted);margin-bottom:1rem}
+.gate-card input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:.75rem;font-family:var(--font-sans)}
+.gate-card button{width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-sans)}
+.gate-error{font-size:12px;color:#993C1D;margin-top:.75rem;min-height:1.2em}
+body.embedded #access-gate{display:none!important}
+body.embedded #protected-content{padding:0;max-width:none}
+
+.app{padding:1rem;max-width:1100px;margin:0 auto}
+.hero{margin-bottom:1rem}
+.hero h2{font-size:1rem;font-weight:500;margin-bottom:4px}
+.hero p{font-size:12px;color:var(--muted);line-height:1.5}
+.tabs{display:flex;gap:4px;background:var(--bg);border-radius:var(--radius);padding:4px;margin-bottom:1rem;border:1px solid var(--border);flex-wrap:wrap}
+.tab{flex:1;min-width:100px;background:var(--surface);border:1px solid var(--border);padding:8px 10px;font-size:12px;color:var(--muted);cursor:pointer;border-radius:var(--radius-sm);font-family:var(--font-sans);transition:.15s}
+.tab:hover{color:var(--text)}
+.tab.active{background:var(--accent-soft);color:var(--accent);font-weight:500;border-color:var(--accent-border)}
+.section{display:none}.section.active{display:block}
+
+.layout{display:grid;grid-template-columns:220px 1fr;gap:12px;align-items:start}
+@media(max-width:720px){.layout{grid-template-columns:1fr}}
+.file-tree{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px;position:sticky;top:8px}
+.file-tree h3{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:6px 8px}
+.file-btn{display:block;width:100%;text-align:left;padding:6px 8px;border:none;background:transparent;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:11px;color:var(--muted);cursor:pointer}
+.file-btn:hover{background:var(--bg);color:var(--text)}
+.file-btn.active{background:var(--accent-soft);color:var(--accent);font-weight:500}
+.file-btn.layer{font-family:var(--font-sans);font-size:12px}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.panel-head{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500}
+.panel-body{padding:14px}
+.lead{font-size:13px;line-height:1.6;color:var(--text);margin-bottom:12px}
+.interview{margin-top:12px;padding:10px 12px;background:var(--green-soft);border-left:3px solid var(--green);border-radius:var(--radius-sm);font-size:12px;line-height:1.55}
+.interview strong{color:var(--green)}
+.fn-list{margin:10px 0;font-size:12px;color:var(--muted)}
+.fn-list li{margin:4px 0 4px 18px}
+pre.code{background:#1a1916;color:#e8e6e1;padding:12px 14px;border-radius:var(--radius-sm);overflow-x:auto;font-family:var(--font-mono);font-size:11px;line-height:1.55;margin:10px 0}
+pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin:0 -14px;padding:0 14px}
+
+.flow-list{counter-reset:step}
+.flow-step{display:flex;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.flow-step:last-child{border-bottom:none}
+.flow-step:hover{background:var(--bg)}
+.flow-step.active{background:var(--accent-soft)}
+.flow-num{width:26px;height:26px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.flow-step.active .flow-num{background:var(--accent);color:#fff}
+.flow-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.flow-file{font-family:var(--font-mono);font-size:10px;color:var(--accent);margin-bottom:3px}
+.flow-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+.trace-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:800px){.trace-grid{grid-template-columns:1fr}}
+.trace-box{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.trace-box h4{font-size:12px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border)}
+.rule-hit{padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;line-height:1.45;cursor:pointer;transition:background .15s}
+.rule-hit:hover,.rule-hit.active{background:var(--amber-soft)}
+.rule-hit strong{color:var(--amber);font-family:var(--font-mono);font-size:11px}
+.badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:999px;font-weight:500;margin-right:4px}
+.badge-crit{background:#FAECE7;color:#993C1D}
+.badge-high{background:#FAEEDA;color:#854F0B}
+.badge-med{background:#E6F1FB;color:#185FA5}
+.repo-note{font-size:11px;color:var(--muted);margin-top:1rem;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm)}
+</style>
+</head>
+<body>
+
+<div id="access-gate">
+  <div class="gate-card">
+    <h1>Private page</h1>
+    <p>Enter your passphrase to continue.</p>
+    <form id="gate-form">
+      <input type="password" id="gate-pass" autocomplete="off" placeholder="Passphrase">
+      <button type="submit">Unlock</button>
+    </form>
+    <div class="gate-error" id="gate-error"></div>
+  </div>
+</div>
+
+<div id="protected-content" hidden>
+<div class="app">
+  <div class="hero">
+    <h2>Code walkthrough — andela-security-auditor</h2>
+    <p>Built from your local repo copy. Click files, trace POST /scan, and see which rules fire on <code style="font-family:var(--font-mono);font-size:11px">vulnerable_infra.tf</code>.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-section="modules">Modules & files</button>
+    <button class="tab" data-section="flow">POST /scan flow</button>
+    <button class="tab" data-section="trace">Rule trace (vuln file)</button>
+  </div>
+
+  <!-- MODULES -->
+  <div id="modules" class="section active">
+    <div class="layout">
+      <nav class="file-tree" id="file-tree"></nav>
+      <div class="panel">
+        <div class="panel-head" id="mod-title">Pick a file</div>
+        <div class="panel-body" id="mod-body">
+          <p class="lead">Start with <strong>app/api/routes.py</strong> — that is where the interview demo lives.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div id="flow" class="section">
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-head">VT PRS DJR — 11 steps in code</div>
+        <div class="flow-list" id="flow-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head" id="flow-code-title">Select a step</div>
+        <div class="panel-body" id="flow-code-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACE -->
+  <div id="trace" class="section">
+    <div class="trace-grid">
+      <div class="trace-box">
+        <h4>sample_configs/vulnerable_infra.tf</h4>
+        <pre class="code" id="trace-tf" style="margin:0;border-radius:0"></pre>
+      </div>
+      <div class="trace-box">
+        <h4>Rules that fire → score 100 Critical</h4>
+        <div id="trace-rules"></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:12px">
+      <div class="panel-head" id="trace-detail-title">Click a rule</div>
+      <div class="panel-body" id="trace-detail-body"></div>
+    </div>
+  </div>
+
+  <p class="repo-note">Source: <code style="font-family:var(--font-mono)">/andela-security-auditor/</code> in this repo (temporary copy). Match paths when explaining on GitHub: <code style="font-family:var(--font-mono)">mayankchugh-learning/andela-security-auditor</code>.</p>
+</div>
+</div>
+
+<script>
+const MODULES={
+  'dashboard/app.py':{
+    layer:'Streamlit UI',what:'Single-file dashboard. Uploads a config via HTTP to FastAPI — never imports app modules directly.',
+    fns:['file_uploader + POST /scan','metrics + findings table','GET /scans history'],
+    code:`uploaded = st.sidebar.file_uploader(...)
+resp = requests.post(f"{API_BASE}/scan",
+    files={"file": (uploaded.name, uploaded.getvalue(), "text/plain")})`,
+    say:'The UI is deliberately thin — all logic lives in the API so CI pipelines can call the same POST /scan endpoint.'
+  },
+  'app/main.py':{
+    layer:'FastAPI entry',what:'Creates the app, SQLite tables, rate-limit handler, security headers middleware.',
+    fns:['Base.metadata.create_all','include_router(routes)','add_security_headers middleware'],
+    code:`@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    ...
+    return response`,
+    say:'main.py wires infrastructure concerns — DB bootstrap, CORS/rate limits via router, and response headers. Business logic stays in routes + engine.'
+  },
+  'app/api/routes.py':{
+    layer:'REST API',what:'POST /scan orchestrates validate → parse → rules → score → SQLite → JSON. GET /scans for history.',
+    fns:['_sanitise_filename','scan_file (10/min limit)','list_scans','get_scan'],
+    code:`findings = apply_rules(resources)
+score, level = calculate_risk_score(findings)
+scan = Scan(filename=safe_name, risk_score=score, ...)
+db.add(scan); db.flush()
+for f in findings: db.add(Finding(scan_id=scan.id, **f))
+db.commit()`,
+    say:'Walk interviewers through scan_file: whitelist extension, 10MB cap, temp file in try/finally, parse by .tf vs yaml, then rules and persist. Secrets never stored — only rule metadata.'
+  },
+  'app/scanner/hcl_parser.py':{
+    layer:'Terraform parser',what:'Uses python-hcl2 to flatten resources into {type, name, config} dicts the rules engine expects.',
+    fns:['parse_terraform','_unquote (hcl2 v8 quote fix)'],
+    code:`for resource_block in data.get("resource", []):
+    for rtype, instances in resource_block.items():
+        resources.append({"type": rtype, "name": rname, "config": _unquote(cfg)})`,
+    say:'hcl2 returns nested structures; _unquote strips extra quotes from v8. Output is a flat list — same shape as CloudFormation parser.'
+  },
+  'app/scanner/cf_parser.py':{
+    layer:'CloudFormation parser',what:'pyyaml with custom loader that ignores !Ref / !Sub tags — returns same resource list shape as HCL parser.',
+    fns:['parse_cloudformation','_cf_loader multi-constructor'],
+    code:`for logical_id, resource in (data.get("Resources") or {}).items():
+    resources.append({"type": rtype, "name": logical_id, "config": props})`,
+    say:'One rules engine, two parsers. CF uses AWS::Type names; Terraform uses aws_* — engine branches on type string.'
+  },
+  'app/rules/definitions.py':{
+    layer:'Rule catalog',what:'11 Rule dataclass entries: id, severity, points, description. Single source of truth for scoring weights.',
+    fns:['RULES dict','Rule dataclass'],
+    code:`"PUBLIC_S3_BUCKET": Rule(severity="Critical", points=40, ...)
+"OPEN_SSH": Rule(severity="High", points=25, ...)
+... 11 rules total, max raw sum can exceed 100`,
+    say:'Definitions separate from detection logic — easy to add rule #12 or map to CIS control IDs in description text.'
+  },
+  'app/rules/engine.py':{
+    layer:'Rules engine',what:'apply_rules loops every resource, pattern-matches Terraform + CloudFormation types, emits finding dicts.',
+    fns:['apply_rules','_check_open_port','_scan_for_secrets','_finding'],
+    code:`if rtype == "aws_s3_bucket":
+    if acl in ("public-read", "public-read-write"): ...
+if rtype == "aws_security_group":
+    ... OPEN_SSH, OPEN_RDP, OPEN_ALL_PORTS ...
+findings.extend(_scan_for_secrets(cfg, rname))  # skips var. and data.`,
+    say:'HARDCODED_SECRET skips var./data./local. prefixes — only literal strings flagged. Secret values never appear in findings.'
+  },
+  'app/scoring/risk_score.py':{
+    layer:'Risk scorer',what:'Sum finding points, cap at 100, map to Clean / Low / Medium / High / Critical.',
+    fns:['calculate_risk_score'],
+    code:`total = sum(f["points"] for f in findings)
+score = min(total, 100)
+if score == 0: level = "Clean"
+elif score <= 25: level = "Low Risk" ...`,
+    say:'Capping at 100 keeps the dashboard simple — 100 always means act now. Detail lives in the findings table.'
+  },
+  'app/database/models.py':{
+    layer:'SQLite models',what:'Scan (parent) + Finding (child FK). Stores rule_id, severity, points, description, resource — never secret values.',
+    fns:['Scan','Finding','relationship cascade'],
+    code:`class Finding(Base):
+    scan_id: Mapped[int] = mapped_column(ForeignKey("scans.id"))
+    rule_id: Mapped[str] ...
+    resource: Mapped[str]  # no secret column`,
+    say:'SQLAlchemy models mirror API response. Postgres swap is changing DATABASE_URL in session.py — schema stays the same.'
+  }
+};
+
+const FLOW=[
+  {n:1,t:'Validate upload',f:'app/api/routes.py',d:'Check extension (.tf/.yaml/.yml/.json) and size ≤ 10MB. Sanitise filename.',
+   c:`ext = os.path.splitext(safe_name)[1].lower()
+if ext not in ALLOWED_EXTENSIONS: raise HTTPException(400, ...)
+if len(content_bytes) > MAX_FILE_SIZE: raise HTTPException(413, ...)`},
+  {n:2,t:'Temp file (try/finally)',f:'app/api/routes.py',d:'Write bytes to NamedTemporaryFile; always unlink in finally — PII cleanup.',
+   c:`with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+    tmp.write(content_bytes)
+    tmp_path = tmp.name
+...
+finally:
+    if tmp_path and os.path.exists(tmp_path): os.unlink(tmp_path)`},
+  {n:3,t:'Parse route',f:'hcl_parser / cf_parser',d:'.tf → parse_terraform. Else → parse_cloudformation. Both return list[dict].',
+   c:`if ext == ".tf":
+    resources = parse_terraform(content)
+else:
+    resources = parse_cloudformation(content)`},
+  {n:4,t:'Rules engine',f:'app/rules/engine.py',d:'apply_rules(resources) — 11 checks per resource, TF + CF types.',
+   c:`findings = apply_rules(resources)`},
+  {n:5,t:'Risk score',f:'app/scoring/risk_score.py',d:'Sum points, min(score, 100), assign risk level label.',
+   c:`score, level = calculate_risk_score(findings)`},
+  {n:6,t:'SQLite persist',f:'app/database/models.py',d:'Insert Scan row, flush for id, insert Finding rows, commit.',
+   c:`db.add(scan); db.flush()
+for f in findings: db.add(Finding(scan_id=scan.id, **f))
+db.commit()`},
+  {n:7,t:'Delete temp',f:'app/api/routes.py',d:'finally block removes temp file from disk.',
+   c:`os.unlink(tmp_path)  # in finally`},
+  {n:8,t:'JSON response',f:'app/api/routes.py',d:'Return scan_id, risk_score, risk_level, findings list to client.',
+   c:`return {"scan_id": scan.id, "risk_score": score, "risk_level": level, "findings": findings}`},
+  {n:9,t:'Streamlit render',f:'dashboard/app.py',d:'Dashboard displays metrics + colour-coded findings table.',
+   c:`col1.metric("Risk Score", data["risk_score"])
+st.dataframe(df.style.applymap(colour_severity, ...))`}
+];
+
+const VULN_TF=`resource "aws_s3_bucket" "public_bucket" {
+  acl = "public-read"          # → PUBLIC_S3_BUCKET (40)
+}
+resource "aws_security_group" "open_sg" {
+  ingress { port 22 + 0.0.0.0/0 }   # → OPEN_SSH (25)
+  ingress { port 3389 ... }         # → OPEN_RDP (25)
+  ingress { protocol "-1" ... }     # → OPEN_ALL_PORTS (40)
+}
+resource "aws_ebs_volume" "unencrypted_vol" {
+  encrypted = false                 # → UNENCRYPTED_EBS (25)
+}
+resource "aws_lb_listener" "http_listener" {
+  protocol = "HTTP"                 # → HTTP_LISTENER (20)
+}`;
+
+const TRACE_RULES=[
+  {id:'PUBLIC_S3_BUCKET',pts:40,sev:'Critical',res:'public_bucket',why:'acl = "public-read" on aws_s3_bucket',code:'if acl in ("public-read", "public-read-write", "public"): findings.append(...)',say:'Maps to CIS AWS S3 public access themes.'},
+  {id:'OPEN_SSH',pts:25,sev:'High',res:'open_sg',why:'Port 22 open to 0.0.0.0/0',code:'if _check_open_port(ingress, 22): findings.append(...)',say:'_check_open_port handles protocol and CIDR range.'},
+  {id:'OPEN_RDP',pts:25,sev:'High',res:'open_sg',why:'Port 3389 open to world',code:'if _check_open_port(ingress, 3389): ...',say:'Same helper as SSH — reusable for any port.'},
+  {id:'OPEN_ALL_PORTS',pts:40,sev:'Critical',res:'open_sg',why:'protocol "-1" + 0.0.0.0/0',code:'if protocol in ("-1", "all") and open_to_world: ...',say:'Worst-case SG — all traffic from internet.'},
+  {id:'UNENCRYPTED_EBS',pts:25,sev:'High',res:'unencrypted_vol',why:'encrypted = false',code:'if not cfg.get("encrypted", False): ...',say:'Default false in AWS — must explicitly enable encryption.'},
+  {id:'HTTP_LISTENER',pts:20,sev:'Medium',res:'http_listener',why:'protocol = "HTTP"',code:'if str(cfg.get("protocol")).upper() == "HTTP": ...',say:'TLS termination should use HTTPS listener.'},
+  {id:'SCORE',pts:100,sev:'Critical',res:'—',why:'40+25+25+40+25+20 = 175 → capped at 100',code:'score = min(sum(points), 100)',say:'Six distinct rules in demo file. Score caps at 100 — say findings table shows each one.'}
+];
+
+const LAYERS=[
+  {k:'dashboard/app.py',l:'1 · Streamlit'},
+  {k:'app/main.py',l:'2 · FastAPI boot'},
+  {k:'app/api/routes.py',l:'3 · API routes'},
+  {k:'app/scanner/hcl_parser.py',l:'4 · Parsers'},
+  {k:'app/scanner/cf_parser.py',l:'4 · Parsers'},
+  {k:'app/rules/engine.py',l:'5 · Rules'},
+  {k:'app/rules/definitions.py',l:'5 · Rules'},
+  {k:'app/scoring/risk_score.py',l:'6 · Scoring'},
+  {k:'app/database/models.py',l:'7 · SQLite'}
+];
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderModules(){
+  const tree=document.getElementById('file-tree');
+  tree.innerHTML='<h3>SFPRSS layers</h3>';
+  LAYERS.forEach(function(x){
+    const b=document.createElement('button');
+    b.type='button';b.className='file-btn layer';b.textContent=x.l;
+    b.dataset.path=x.k;
+    b.addEventListener('click',function(){selectModule(x.k,b);});
+    tree.appendChild(b);
+  });
+  tree.innerHTML+='<h3 style="margin-top:10px">All files</h3>';
+  Object.keys(MODULES).forEach(function(path){
+    const b=document.createElement('button');
+    b.type='button';b.className='file-btn';b.textContent=path;
+    b.dataset.path=path;
+    b.addEventListener('click',function(){selectModule(path,b);});
+    tree.appendChild(b);
+  });
+  selectModule('app/api/routes.py',tree.querySelector('[data-path="app/api/routes.py"]'));
+}
+
+function selectModule(path,btn){
+  document.querySelectorAll('.file-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  const m=MODULES[path];
+  if(!m) return;
+  document.getElementById('mod-title').textContent=path+' — '+m.layer;
+  document.getElementById('mod-body').innerHTML=
+    '<p class="lead">'+esc(m.what)+'</p>'+
+    '<ul class="fn-list">'+m.fns.map(function(f){return '<li>'+esc(f)+'</li>';}).join('')+'</ul>'+
+    '<pre class="code">'+esc(m.code)+'</pre>'+
+    '<div class="interview"><strong>Say in interview:</strong> '+esc(m.say)+'</div>';
+}
+
+function renderFlow(){
+  const list=document.getElementById('flow-list');
+  list.innerHTML='';
+  FLOW.forEach(function(s,i){
+    const el=document.createElement('div');
+    el.className='flow-step'+(i===0?' active':'');
+    el.innerHTML='<div class="flow-num">'+s.n+'</div><div><div class="flow-title">'+esc(s.t)+'</div><div class="flow-file">'+esc(s.f)+'</div><div class="flow-desc">'+esc(s.d)+'</div></div>';
+    el.addEventListener('click',function(){
+      document.querySelectorAll('.flow-step').forEach(function(x){x.classList.remove('active');});
+      el.classList.add('active');
+      document.getElementById('flow-code-title').textContent='Step '+s.n+' — '+s.t;
+      document.getElementById('flow-code-body').innerHTML=
+        '<p class="lead">'+esc(s.d)+'</p><pre class="code">'+esc(s.c)+'</pre>'+
+        '<div class="interview"><strong>File:</strong> '+esc(s.f)+'</div>';
+    });
+    list.appendChild(el);
+  });
+  list.querySelector('.flow-step').click();
+}
+
+function renderTrace(){
+  document.getElementById('trace-tf').textContent=VULN_TF;
+  const box=document.getElementById('trace-rules');
+  box.innerHTML='';
+  TRACE_RULES.forEach(function(r,i){
+    const d=document.createElement('div');
+    d.className='rule-hit'+(i===0?' active':'');
+    const bc=r.sev==='Critical'?'badge-crit':r.sev==='High'?'badge-high':'badge-med';
+    d.innerHTML='<span class="badge '+bc+'">'+esc(r.sev)+' '+r.pts+'pts</span><strong>'+esc(r.id)+'</strong> · '+esc(r.res)+'<br><span style="color:var(--muted)">'+esc(r.why)+'</span>';
+    d.addEventListener('click',function(){
+      document.querySelectorAll('.rule-hit').forEach(function(x){x.classList.remove('active');});
+      d.classList.add('active');
+      document.getElementById('trace-detail-title').textContent=r.id+' on '+r.res;
+      document.getElementById('trace-detail-body').innerHTML=
+        '<p class="lead">'+esc(r.why)+'</p><pre class="code">'+esc(r.code)+'</pre>'+
+        '<div class="interview"><strong>Say in interview:</strong> '+esc(r.say)+'</div>';
+    });
+    box.appendChild(d);
+  });
+  box.querySelector('.rule-hit').click();
+}
+
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.section).classList.add('active');
+  });
+});
+
+function initApp(){
+  renderModules();
+  renderFlow();
+  renderTrace();
+}
+</script>
+
+<script>
+(function(){
+  'use strict';
+  var STORAGE_KEY='mhc-private-andela';
+  var URL_KEY='mhc77-andela';
+  var PASS_PLAIN='mhc77-andela';
+  var PASS_HASH='ac460a4d9305a143bf9ed450acf051897730fb4c298b66f0d73d4388835e923d';
+  var gate=document.getElementById('access-gate');
+  var content=document.getElementById('protected-content');
+  var form=document.getElementById('gate-form');
+  var passInput=document.getElementById('gate-pass');
+  var errorEl=document.getElementById('gate-error');
+
+  function isEmbedded(){return new URLSearchParams(window.location.search).get('embedded')==='1';}
+
+  function unlock(){
+    try{sessionStorage.setItem(STORAGE_KEY,'1');}catch(e){}
+    if(isEmbedded()) document.body.classList.add('embedded');
+    gate.hidden=true;content.hidden=false;
+    if(typeof initApp==='function') initApp();
+  }
+
+  function sha256(text){
+    return crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)).then(function(buf){
+      return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+    });
+  }
+
+  function isUnlocked(){
+    try{if(sessionStorage.getItem(STORAGE_KEY)==='1') return true;}catch(e){}
+    if(new URLSearchParams(window.location.search).get('k')===URL_KEY) return true;
+    return false;
+  }
+
+  if(isUnlocked()){unlock();return;}
+  if(!form) return;
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=(passInput.value||'').trim();
+    if(v===PASS_PLAIN){unlock();return;}
+    sha256(v).then(function(h){
+      if(h===PASS_HASH) unlock();
+      else{errorEl.textContent='Incorrect passphrase.';passInput.value='';}
+    }).catch(function(){if(v===PASS_PLAIN) unlock();});
+  });
+})();
+</script>
+</body>
+</html>
