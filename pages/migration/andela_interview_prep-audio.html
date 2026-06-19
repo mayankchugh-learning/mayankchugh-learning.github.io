@@ -253,6 +253,75 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
 .audio-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;user-select:none}
 .audio-toggle input{accent-color:var(--accent)}
 .listen-tip{font-size:11px;color:var(--color-text-secondary);padding:10px 12px;background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:var(--border-radius-md);line-height:1.5;margin-bottom:1rem}
+
+.audio-stage-wrap{position:relative;margin-bottom:1rem}
+.think-ring-wrap{
+  position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.92);border-radius:var(--border-radius-lg);backdrop-filter:blur(4px);
+  animation:thinkFadeIn 0.35s ease;
+}
+.think-ring-wrap[hidden]{display:none!important}
+@keyframes thinkFadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+.think-ring-svg{width:88px;height:88px;display:block}
+.think-ring-bg{fill:none;stroke:var(--color-border-tertiary);stroke-width:6}
+.think-ring-fill{
+  fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;
+  stroke-dasharray:283;stroke-dashoffset:0;
+  transform:rotate(-90deg);transform-origin:50% 50%;
+  transition:stroke-dashoffset 0.95s linear, stroke 0.3s;
+}
+.audio-player.thinking .think-ring-fill{stroke:#854F0B}
+.think-ring-num{font-size:28px;font-weight:600;color:var(--accent);margin-top:-62px;line-height:1;pointer-events:none}
+.audio-player.thinking .think-ring-num{color:#854F0B;animation:thinkNumPulse 1s ease-in-out infinite}
+@keyframes thinkNumPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.think-ring-label{font-size:12px;font-weight:500;color:#854F0B;margin-top:14px;letter-spacing:0.04em;text-transform:uppercase}
+
+.audio-card{
+  position:relative;border-radius:var(--border-radius-lg);padding:1.25rem 1.25rem 1rem;
+  border:2px solid var(--color-border-tertiary);background:linear-gradient(180deg,#fff 0%,var(--color-background-secondary) 100%);
+  min-height:220px;transition:border-color 0.4s,box-shadow 0.4s;
+  perspective:900px;
+}
+.audio-card.segment-animate{animation:cardEnter 0.45s cubic-bezier(0.22,1,0.36,1)}
+@keyframes cardEnter{from{opacity:0;transform:translateY(12px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.audio-card.mode-question{border-color:#185FA5;box-shadow:0 0 0 4px rgba(24,95,165,0.12),0 4px 20px rgba(24,95,165,0.08)}
+.audio-card.mode-think{border-color:#854F0B;box-shadow:0 0 0 4px rgba(133,79,11,0.12)}
+.audio-card.mode-answer{border-color:#0F6E56;box-shadow:0 0 0 4px rgba(15,110,86,0.12),0 4px 20px rgba(15,110,86,0.08)}
+.audio-card.mode-speaking::after{
+  content:'';position:absolute;inset:-2px;border-radius:var(--border-radius-lg);pointer-events:none;
+  border:2px solid transparent;animation:speakRipple 1.6s ease-out infinite;
+}
+@keyframes speakRipple{0%{box-shadow:0 0 0 0 rgba(24,95,165,0.35)}100%{box-shadow:0 0 0 14px rgba(24,95,165,0)}}
+.audio-card.mode-answer.mode-speaking::after{animation-name:speakRippleGreen}
+@keyframes speakRippleGreen{0%{box-shadow:0 0 0 0 rgba(15,110,86,0.35)}100%{box-shadow:0 0 0 14px rgba(15,110,86,0)}}
+
+.audio-mode-badge{
+  display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;
+  padding:3px 10px;border-radius:999px;margin-bottom:10px;
+  background:var(--color-background-secondary);color:var(--color-text-secondary);
+  transition:background 0.3s,color 0.3s;
+}
+.mode-question .audio-mode-badge{background:#E6F1FB;color:#185FA5}
+.mode-think .audio-mode-badge{background:#FAEEDA;color:#854F0B}
+.mode-answer .audio-mode-badge{background:#E2EFDA;color:#0F6E56}
+
+.audio-flip-scene{position:relative;min-height:140px}
+.audio-flip-inner{
+  position:relative;width:100%;min-height:140px;transition:transform 0.65s cubic-bezier(0.4,0,0.2,1);
+  transform-style:preserve-3d;
+}
+.audio-flip-inner.flipped{transform:rotateY(180deg)}
+.audio-flip-face{
+  position:absolute;width:100%;min-height:140px;backface-visibility:hidden;
+  display:flex;flex-direction:column;justify-content:flex-start;
+}
+.audio-flip-back{transform:rotateY(180deg)}
+.audio-flip-front .audio-segment-body{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.audio-segment-body.reveal-lines{animation:bodyReveal 0.5s ease forwards}
+@keyframes bodyReveal{from{opacity:0.3;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.audio-visual{margin-bottom:0.75rem}
+.audio-player:not(.playing) .audio-bar{animation:none!important;height:12px!important}
 </style>
 </head>
 <body>
@@ -298,15 +367,39 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
     <h3>Audio interview prep</h3>
     <p>Press play and listen on repeat — walking, commuting, or before bed. Default voice: <strong>Indian English male</strong> (Microsoft Ravi on Windows).</p>
   </div>
-  <div class="listen-tip">Tip: use <strong>Flashcards Q then A</strong> with a 5–8 second think pause to practise answering out loud before the answer plays.</div>
+  <div class="listen-tip">Tip: use <strong>Flashcards Q then A</strong> — the card flips from question to answer, with an animated countdown while you answer out loud.</div>
   <div class="audio-player" id="audio-player">
-    <div class="audio-visual" aria-hidden="true">
-      <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
-      <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+    <div class="audio-stage-wrap">
+      <div class="think-ring-wrap" id="think-ring" hidden>
+        <svg class="think-ring-svg" viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="think-ring-bg" cx="50" cy="50" r="45"/>
+          <circle class="think-ring-fill" id="think-ring-fill" cx="50" cy="50" r="45"/>
+        </svg>
+        <span class="think-ring-num" id="think-count">5</span>
+        <span class="think-ring-label">Your turn — answer out loud</span>
+      </div>
+      <div class="audio-card" id="audio-card">
+        <div class="audio-mode-badge" id="audio-mode-badge">Ready</div>
+        <div class="audio-visual" aria-hidden="true">
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+        </div>
+        <div class="audio-flip-scene">
+          <div class="audio-flip-inner" id="audio-flip-inner">
+            <div class="audio-flip-face audio-flip-front">
+              <div class="audio-segment-label" id="audio-label">Ready</div>
+              <div class="audio-segment-title" id="audio-title">Choose a playlist and press play</div>
+              <div class="audio-segment-body" id="audio-body-q"></div>
+            </div>
+            <div class="audio-flip-face audio-flip-back">
+              <div class="audio-segment-label">Answer</div>
+              <div class="audio-segment-title" id="audio-title-back"></div>
+              <div class="audio-segment-body" id="audio-body"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="audio-segment-label" id="audio-label">Ready</div>
-    <div class="audio-segment-title" id="audio-title">Choose a playlist and press play</div>
-    <div class="audio-segment-body" id="audio-body"></div>
     <div class="audio-progress-row">
       <span id="audio-segment-idx">0 / 0</span>
       <div class="progress-track"><div class="progress-fill" id="audio-progress-fill" style="width:0%"></div></div>
@@ -806,7 +899,9 @@ const audioPlayer=(function(){
   let playing=false;
   let paused=false;
   let pauseTimer=null;
+  let thinkInterval=null;
   let utterance=null;
+  const RING_C=283;
   const STORAGE_KEY='mhc-andela-audio-state';
 
   function el(id){return document.getElementById(id);}
@@ -933,21 +1028,123 @@ const audioPlayer=(function(){
     updateVoiceHint();
   }
 
-  function updateUI(){
+  function clearThinkCountdown(){
+    if(thinkInterval){clearInterval(thinkInterval);thinkInterval=null;}
+    const ring=el('think-ring');
+    if(ring) ring.hidden=true;
+    el('audio-player').classList.remove('thinking');
+  }
+
+  function setRingProgress(remaining,total){
+    const fill=el('think-ring-fill');
+    if(!fill||!total) return;
+    fill.style.strokeDashoffset=String(RING_C*(1-remaining/total));
+  }
+
+  function startThinkCountdown(seconds){
+    clearThinkCountdown();
+    if(!seconds||seconds<=0) return;
+    const ring=el('think-ring');
+    const countEl=el('think-count');
+    el('audio-player').classList.add('thinking');
+    ring.hidden=false;
+    let remaining=seconds;
+    countEl.textContent=remaining;
+    setRingProgress(remaining,seconds);
+    thinkInterval=setInterval(function(){
+      remaining-=1;
+      if(remaining<=0){
+        clearThinkCountdown();
+        return;
+      }
+      countEl.textContent=remaining;
+      setRingProgress(remaining,seconds);
+    },1000);
+  }
+
+  function setCardMode(mode,speaking){
+    const card=el('audio-card');
+    if(!card) return;
+    card.classList.remove('mode-question','mode-think','mode-answer','mode-speaking');
+    if(mode) card.classList.add('mode-'+mode);
+    if(speaking) card.classList.add('mode-speaking');
+    const badge=el('audio-mode-badge');
+    if(!badge) return;
+    if(mode==='question') badge.textContent='Question';
+    else if(mode==='think') badge.textContent='Your turn';
+    else if(mode==='answer') badge.textContent='Answer';
+    else if(speaking) badge.textContent='Speaking';
+    else badge.textContent='Ready';
+  }
+
+  function pulseCard(){
+    const card=el('audio-card');
+    if(!card) return;
+    card.classList.remove('segment-animate');
+    void card.offsetWidth;
+    card.classList.add('segment-animate');
+  }
+
+  function updateUI(opts){
+    opts=opts||{};
     const seg=segments[index];
+    const flipInner=el('audio-flip-inner');
+    const bodyQ=el('audio-body-q');
+    const bodyA=el('audio-body');
+    const titleBack=el('audio-title-back');
     if(!seg){
       el('audio-label').textContent='Ready';
       el('audio-title').textContent='Choose a playlist and press play';
-      el('audio-body').textContent='';
+      if(bodyQ) bodyQ.textContent='';
+      if(bodyA) bodyA.textContent='';
+      if(titleBack) titleBack.textContent='';
+      if(flipInner) flipInner.classList.remove('flipped');
       el('audio-segment-idx').textContent='0 / '+segments.length;
       el('audio-progress-fill').style.width='0%';
+      setCardMode(null,false);
       return;
     }
+    const isQ=seg.type==='question';
+    const isA=seg.type==='answer';
+    const useFlip=isQ||isA;
+
     el('audio-label').textContent=seg.label||'Segment';
     el('audio-title').textContent=seg.title||'';
-    el('audio-body').textContent=seg.text||'';
+    if(titleBack) titleBack.textContent=seg.title||'';
+
+    if(flipInner){
+      if(useFlip&&(isA||opts.showAnswer)) flipInner.classList.add('flipped');
+      else flipInner.classList.remove('flipped');
+    }
+
+    if(bodyQ){
+      if(isQ) bodyQ.textContent=seg.text||'';
+      else if(isA&&!opts.showAnswer) bodyQ.textContent=seg.title||'';
+      else if(!useFlip) bodyQ.textContent=seg.text||'';
+      else bodyQ.textContent='';
+      bodyQ.classList.remove('reveal-lines');
+      void bodyQ.offsetWidth;
+      bodyQ.classList.add('reveal-lines');
+    }
+    if(bodyA){
+      if(useFlip&&(isA||opts.showAnswer)) bodyA.textContent=seg.text||'';
+      else bodyA.textContent='';
+      if(useFlip&&(isA||opts.showAnswer)){
+        bodyA.classList.remove('reveal-lines');
+        void bodyA.offsetWidth;
+        bodyA.classList.add('reveal-lines');
+      }
+    }
+
     el('audio-segment-idx').textContent=(index+1)+' / '+segments.length;
     el('audio-progress-fill').style.width=segments.length?Math.round(((index+1)/segments.length)*100)+'%':'0%';
+
+    if(opts.thinking) setCardMode('think',false);
+    else if(isQ) setCardMode('question',!!opts.speaking);
+    else if(isA) setCardMode('answer',!!opts.speaking);
+    else setCardMode(null,!!opts.speaking);
+
+    if(!opts.skipPulse) pulseCard();
   }
 
   function setPlayingState(isPlaying){
@@ -969,7 +1166,9 @@ const audioPlayer=(function(){
 
   function clearTimers(){
     if(pauseTimer){clearTimeout(pauseTimer);pauseTimer=null;}
+    clearThinkCountdown();
     if(utterance){speechSynthesis.cancel();utterance=null;}
+    setCardMode(null,false);
   }
 
   function saveState(){
@@ -989,13 +1188,27 @@ const audioPlayer=(function(){
       el('audio-status').textContent='Playlist finished.';
       return;
     }
-    updateUI();
-    saveState();
-    el('audio-status').textContent=seg.type==='question'?'Answer out loud, then wait…':'Speaking…';
+    const isQ=seg.type==='question';
+    const isA=seg.type==='answer';
+    const thinkSec=seg.thinkBefore||0;
 
-    const delay=seg.thinkBefore?seg.thinkBefore*1000:0;
+    if(isA&&thinkSec>0){
+      updateUI({thinking:true,showAnswer:false,skipPulse:false});
+      startThinkCountdown(thinkSec);
+      el('audio-status').textContent='Your turn — answer out loud ('+thinkSec+'s)…';
+    }else{
+      clearThinkCountdown();
+      updateUI({speaking:false,showAnswer:false,skipPulse:false});
+      if(isQ) el('audio-status').textContent='Question playing…';
+      else el('audio-status').textContent='Speaking…';
+    }
+    saveState();
+
+    const delay=thinkSec*1000;
     pauseTimer=setTimeout(function(){
       if(!playing||paused) return;
+      clearThinkCountdown();
+      updateUI({speaking:true,showAnswer:isA,skipPulse:true});
       const opts=getOptions();
       utterance=new SpeechSynthesisUtterance(normalizeForSpeech(seg.text));
       utterance.rate=opts.speed;
@@ -1008,8 +1221,13 @@ const audioPlayer=(function(){
         utterance.lang='en-IN';
       }
 
+      utterance.onstart=function(){
+        updateUI({speaking:true,showAnswer:isA,skipPulse:true});
+      };
+
       utterance.onend=function(){
         utterance=null;
+        updateUI({speaking:false,showAnswer:isA,skipPulse:true});
         if(!playing||paused) return;
         const gapMs=opts.gap*1000;
         pauseTimer=setTimeout(function(){
@@ -1030,6 +1248,7 @@ const audioPlayer=(function(){
 
       utterance.onerror=function(){
         utterance=null;
+        updateUI({speaking:false,skipPulse:true});
         el('audio-status').textContent='Speech error — try Chrome or Edge, or press play again.';
         setPlayingState(false);
       };
@@ -1055,6 +1274,8 @@ const audioPlayer=(function(){
     paused=true;
     setPlayingState(false);
     speechSynthesis.pause();
+    clearThinkCountdown();
+    setCardMode(null,false);
     el('audio-status').textContent='Paused.';
   }
 
