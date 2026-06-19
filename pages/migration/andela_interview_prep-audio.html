@@ -296,7 +296,7 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
 <div id="listen" class="section active">
   <div class="listen-hero">
     <h3>Audio interview prep</h3>
-    <p>Press play and listen on repeat — walking, commuting, or before bed. Uses your browser voice (no download needed).</p>
+    <p>Press play and listen on repeat — walking, commuting, or before bed. Default voice: <strong>Indian English male</strong> (Microsoft Ravi on Windows).</p>
   </div>
   <div class="listen-tip">Tip: use <strong>Flashcards Q then A</strong> with a 5–8 second think pause to practise answering out loud before the answer plays.</div>
   <div class="audio-player" id="audio-player">
@@ -321,6 +321,12 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
           <option value="architecture">Architecture + mnemonics</option>
           <option value="decisions">Why X? decisions</option>
           <option value="full">Full run — everything (~45 min)</option>
+        </select>
+      </div>
+      <div class="audio-option" style="grid-column:1/-1">
+        <label for="audio-voice">Voice</label>
+        <select id="audio-voice">
+          <option value="auto">Auto — Indian English male (Ravi)</option>
         </select>
       </div>
       <div class="audio-option">
@@ -362,6 +368,7 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
       <button class="audio-btn" type="button" id="audio-next" onclick="audioPlayer.next()" title="Next" aria-label="Next segment">⏭</button>
       <button class="audio-btn" type="button" id="audio-stop" onclick="audioPlayer.stop()" title="Stop" aria-label="Stop">⏹</button>
     </div>
+    <div class="audio-status" id="audio-voice-hint" style="margin-top:0;margin-bottom:4px;font-size:11px;color:var(--color-text-secondary)"></div>
     <div class="audio-status" id="audio-status" aria-live="polite"></div>
   </div>
 </div>
@@ -844,14 +851,80 @@ const audioPlayer=(function(){
     return [];
   }
 
+  const FEMALE_NAME_HINTS=['aria','zira','samantha','karen','neerja','heera','kalpana','priya','jenny','hazel','susan','emma','amy','joanna','salli','ivy','kendra','sonia','veena','swara','female'];
+
+  function isFemaleVoice(voice){
+    const n=(voice.name||'').toLowerCase();
+    return FEMALE_NAME_HINTS.some(function(h){return n.indexOf(h)!==-1;});
+  }
+
+  function isIndianEnglish(voice){
+    const lang=(voice.lang||'').toLowerCase().replace('_','-');
+    return lang==='en-in'||lang.indexOf('en-in')===0;
+  }
+
   function pickVoice(){
+    const select=el('audio-voice');
+    if(select&&select.value&&select.value!=='auto'){
+      const chosen=speechSynthesis.getVoices().find(function(v){return v.name===select.value;});
+      if(chosen) return chosen;
+    }
+
     const voices=speechSynthesis.getVoices();
-    const preferred=['Microsoft Aria Online','Microsoft Guy Online','Google US English','Samantha','Daniel','Karen','Microsoft Zira','Microsoft David'];
-    for(let i=0;i<preferred.length;i++){
-      const v=voices.find(function(voice){return voice.name.indexOf(preferred[i])!==-1;});
+    const indiaMaleNames=['Microsoft Ravi','Ravi','Prabhat','Raj'];
+    for(let i=0;i<indiaMaleNames.length;i++){
+      const v=voices.find(function(voice){return voice.name.indexOf(indiaMaleNames[i])!==-1&&!isFemaleVoice(voice);});
       if(v) return v;
     }
-    return voices.find(function(v){return v.lang&&v.lang.indexOf('en')===0;})||voices[0]||null;
+
+    const enINMale=voices.find(function(v){return isIndianEnglish(v)&&!isFemaleVoice(v);});
+    if(enINMale) return enINMale;
+
+    const enMale=voices.find(function(v){
+      const lang=(v.lang||'').toLowerCase();
+      return lang.indexOf('en')===0&&!isFemaleVoice(v);
+    });
+    if(enMale) return enMale;
+
+    return voices.find(function(v){return isIndianEnglish(v);})||voices[0]||null;
+  }
+
+  function updateVoiceHint(){
+    const v=pickVoice();
+    const hint=el('audio-voice-hint');
+    if(!hint) return;
+    if(!v){
+      hint.textContent='No English voice found — install “Microsoft Ravi” (Settings → Time & language → Speech).';
+      return;
+    }
+    hint.textContent='Speaking as: '+v.name+' ('+(v.lang||'en-IN')+')';
+  }
+
+  function populateVoiceSelect(){
+    const select=el('audio-voice');
+    if(!select) return;
+    const saved=select.value;
+    const voices=speechSynthesis.getVoices().filter(function(v){
+      return (v.lang||'').toLowerCase().indexOf('en')===0;
+    });
+    voices.sort(function(a,b){
+      const aIN=isIndianEnglish(a)?0:1;
+      const bIN=isIndianEnglish(b)?0:1;
+      if(aIN!==bIN) return aIN-bIN;
+      return (isFemaleVoice(a)?1:0)-(isFemaleVoice(b)?1:0);
+    });
+    select.innerHTML='<option value="auto">Auto — Indian English male (Ravi)</option>';
+    voices.forEach(function(v){
+      const opt=document.createElement('option');
+      opt.value=v.name;
+      const tag=isIndianEnglish(v)?'India':v.lang;
+      opt.textContent=v.name+' ('+tag+')';
+      select.appendChild(opt);
+    });
+    if(saved&&Array.from(select.options).some(function(o){return o.value===saved;})){
+      select.value=saved;
+    }
+    updateVoiceHint();
   }
 
   function updateUI(){
@@ -922,7 +995,12 @@ const audioPlayer=(function(){
       utterance.rate=opts.speed;
       utterance.pitch=1;
       const voice=pickVoice();
-      if(voice) utterance.voice=voice;
+      if(voice){
+        utterance.voice=voice;
+        utterance.lang=voice.lang||'en-IN';
+      }else{
+        utterance.lang='en-IN';
+      }
 
       utterance.onend=function(){
         utterance=null;
@@ -1051,9 +1129,11 @@ const audioPlayer=(function(){
     if(!segments.length) rebuildPlaylist();
 
     speechSynthesis.onvoiceschanged=function(){
-      /* voices loaded */
+      populateVoiceSelect();
     };
-    if(speechSynthesis.getVoices().length) speechSynthesis.getVoices();
+    populateVoiceSelect();
+
+    el('audio-voice').addEventListener('change',updateVoiceHint);
 
     document.addEventListener('keydown',function(e){
       if(el('protected-content').hidden) return;
