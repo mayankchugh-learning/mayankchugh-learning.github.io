@@ -164,7 +164,23 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
           Architecture — SFPRSS (7 layers)
           <div class="diagram-panel-sub">Mnemonic: Streamlit · FastAPI · Parsers · Rules · Risk scorer · SQLite · Security</div>
         </div>
-        <div class="diagram-wrap" id="diagram-arch"></div>
+        <div class="diagram-wrap" id="diagram-arch">
+          <div class="arch-stack">
+            <div class="arch-layer n1"><strong>1 · Streamlit</strong><span>dashboard/app.py</span></div>
+            <div class="arch-arrow">HTTP multipart upload</div>
+            <div class="arch-layer n2"><strong>2 · FastAPI</strong><span>app/api/routes.py</span></div>
+            <div class="arch-arrow"></div>
+            <div class="arch-layer n3"><strong>3 · Parsers</strong><span>hcl_parser.py + cf_parser.py</span></div>
+            <div class="arch-arrow"></div>
+            <div class="arch-layer n4"><strong>4 · Rules engine</strong><span>definitions.py + engine.py</span></div>
+            <div class="arch-arrow"></div>
+            <div class="arch-layer n5"><strong>5 · Risk scorer</strong><span>risk_score.py — cap 100</span></div>
+            <div class="arch-arrow"></div>
+            <div class="arch-layer n6"><strong>6 · SQLite</strong><span>Scan + Finding tables</span></div>
+            <div class="arch-arrow">JSON response to UI</div>
+            <div class="arch-layer n7" style="margin-top:10px;width:85%"><strong>7 · Security middleware</strong><span>app/main.py — rate limit · headers · wraps API</span></div>
+          </div>
+        </div>
         <div class="diagram-tip"><strong>Interview:</strong> Draw top-to-bottom. Emphasise Streamlit never imports app code — only HTTP. Rules + parsers share one flat resource list shape.</div>
       </div>
 
@@ -173,7 +189,25 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
           Sequence — POST /scan (VT PRS DJR)
           <div class="diagram-panel-sub">Validate · Temp · Parse · Rules · Risk · SQLite · Delete · JSON · Render</div>
         </div>
-        <div class="diagram-wrap" id="diagram-seq"></div>
+        <div class="diagram-wrap" id="diagram-seq">
+          <div class="seq-timeline">
+            <div class="seq-step"><div class="seq-n">1</div><div class="seq-who">User</div><div class="seq-msg">Upload vulnerable_infra.tf</div></div>
+            <div class="seq-step"><div class="seq-n">2</div><div class="seq-who">Streamlit</div><div class="seq-msg">POST /scan — multipart file to FastAPI</div></div>
+            <div class="seq-step"><div class="seq-n">3</div><div class="seq-who">FastAPI</div><div class="seq-msg">Validate extension whitelist + 10 MB max</div></div>
+            <div class="seq-step"><div class="seq-n">4</div><div class="seq-who">Validate</div><div class="seq-msg">sanitise_filename()</div></div>
+            <div class="seq-step"><div class="seq-n">5</div><div class="seq-who">FastAPI</div><div class="seq-msg">Write temp file (try/finally)</div></div>
+            <div class="seq-step"><div class="seq-n">6</div><div class="seq-who">Parser</div><div class="seq-msg">parse_terraform() or parse_cloudformation()</div></div>
+            <div class="seq-step"><div class="seq-n">7</div><div class="seq-who">Parser</div><div class="seq-msg">Return resources[] list</div></div>
+            <div class="seq-step"><div class="seq-n">8</div><div class="seq-who">Rules</div><div class="seq-msg">apply_rules(resources) → findings[]</div></div>
+            <div class="seq-step"><div class="seq-n">9</div><div class="seq-who">Scorer</div><div class="seq-msg">calculate_risk_score() → 100 Critical</div></div>
+            <div class="seq-step"><div class="seq-n">10</div><div class="seq-who">SQLite</div><div class="seq-msg">INSERT Scan + Finding rows</div></div>
+            <div class="seq-note">Secrets never stored — value redacted only</div>
+            <div class="seq-step"><div class="seq-n">11</div><div class="seq-who">FastAPI</div><div class="seq-msg">os.unlink temp file in finally</div></div>
+            <div class="seq-step"><div class="seq-n">12</div><div class="seq-who">FastAPI</div><div class="seq-msg">JSON: scan_id, score, findings</div></div>
+            <div class="seq-step"><div class="seq-n">13</div><div class="seq-who">Streamlit</div><div class="seq-msg">Show metrics + colour-coded table</div></div>
+            <div class="seq-step"><div class="seq-n">14</div><div class="seq-who">User</div><div class="seq-msg">See Risk Score 100 — Critical</div></div>
+          </div>
+        </div>
         <div class="diagram-tip"><strong>Interview:</strong> Walk 11 steps in order. Highlight try/finally temp delete, cap at 100, and value redacted for HARDCODED_SECRET.</div>
       </div>
 
@@ -182,7 +216,23 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
           Rules engine — inside apply_rules
           <div class="diagram-panel-sub">One loop over resources · Terraform aws_* + CloudFormation AWS::* types</div>
         </div>
-        <div class="diagram-wrap" id="diagram-rules"></div>
+        <div class="diagram-wrap" id="diagram-rules">
+          <div class="rules-flow">
+            <div class="rules-node">Parser output — resources[]</div>
+            <div class="rules-arrow">for each resource ↓</div>
+            <div class="rules-node diamond">Check resource type</div>
+            <div class="rules-row">
+              <div class="rules-node">PUBLIC_S3</div>
+              <div class="rules-node">OPEN_SSH/RDP</div>
+              <div class="rules-node">UNENCRYPTED_EBS</div>
+              <div class="rules-node">HTTP_LISTENER</div>
+              <div class="rules-node">HARDCODED_SECRET</div>
+              <div class="rules-node">CF rules</div>
+            </div>
+            <div class="rules-arrow">append finding dicts ↓</div>
+            <div class="rules-node out">findings[] → sum points → min(score, 100)</div>
+          </div>
+        </div>
         <div class="diagram-tip"><strong>Interview:</strong> Same engine, two parsers. HARDCODED_SECRET skips var. and data. prefixes — only literal strings flagged.</div>
       </div>
     </div>
@@ -478,101 +528,14 @@ document.querySelectorAll('.tab').forEach(function(tab){
     document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
     tab.classList.add('active');
     document.getElementById(tab.dataset.section).classList.add('active');
-    if(tab.dataset.section==='diagrams') renderDiagrams();
+    if(tab.dataset.section==='diagrams'){/* static HTML — no JS render needed */}
   });
 });
-
-const ARCH_LAYERS=[
-  {n:1,t:'Streamlit',f:'dashboard/app.py',arrow:'HTTP multipart upload'},
-  {n:2,t:'FastAPI',f:'app/api/routes.py',arrow:''},
-  {n:3,t:'Parsers',f:'hcl_parser.py + cf_parser.py',arrow:''},
-  {n:4,t:'Rules engine',f:'definitions.py + engine.py',arrow:''},
-  {n:5,t:'Risk scorer',f:'risk_score.py — cap 100',arrow:''},
-  {n:6,t:'SQLite',f:'Scan + Finding tables',arrow:'JSON response to UI'}
-];
-
-const SEQ_STEPS=[
-  {who:'User',msg:'Upload vulnerable_infra.tf'},
-  {who:'Streamlit',msg:'POST /scan — multipart file to FastAPI'},
-  {who:'FastAPI',msg:'Validate extension whitelist + 10 MB max'},
-  {who:'Validate',msg:'sanitise_filename()'},
-  {who:'FastAPI',msg:'Write temp file (try/finally)'},
-  {who:'Parser',msg:'parse_terraform() or parse_cloudformation()'},
-  {who:'Parser',msg:'Return resources[] list'},
-  {who:'Rules',msg:'apply_rules(resources) → findings[]'},
-  {who:'Scorer',msg:'calculate_risk_score() → 100 Critical'},
-  {who:'SQLite',msg:'INSERT Scan + Finding rows'},
-  {who:'note',msg:'Secrets never stored — value redacted only'},
-  {who:'FastAPI',msg:'os.unlink temp file in finally'},
-  {who:'FastAPI',msg:'JSON: scan_id, score, findings'},
-  {who:'Streamlit',msg:'Show metrics + colour-coded table'},
-  {who:'User',msg:'See Risk Score 100 — Critical'}
-];
-
-const RULES_FLOW=[
-  {type:'node',text:'Parser output — resources[]'},
-  {type:'arrow',text:'for each resource'},
-  {type:'diamond',text:'Check resource type'},
-  {type:'row',items:['PUBLIC_S3','OPEN_SSH/RDP','UNENCRYPTED_EBS','HTTP_LISTENER','HARDCODED_SECRET','CF rules']},
-  {type:'arrow',text:'append finding dicts'},
-  {type:'out',text:'findings[] → sum points → min(score, 100)'}
-];
-
-function renderDiagrams(){
-  var archEl=document.getElementById('diagram-arch');
-  if(archEl&&!archEl.dataset.done){
-    var ah='<div class="arch-stack">';
-    ARCH_LAYERS.forEach(function(L,i){
-      ah+='<div class="arch-layer n'+L.n+'"><strong>'+L.n+' · '+esc(L.t)+'</strong><span>'+esc(L.f)+'</span></div>';
-      if(L.arrow) ah+='<div class="arch-arrow">'+esc(L.arrow)+'</div>';
-      else if(i<ARCH_LAYERS.length-1) ah+='<div class="arch-arrow"></div>';
-    });
-    ah+='<div class="arch-layer n7" style="margin-top:10px;width:85%"><strong>7 · Security middleware</strong><span>app/main.py — rate limit · headers · wraps API</span></div>';
-    ah+='</div>';
-    archEl.innerHTML=ah;
-    archEl.dataset.done='1';
-  }
-  var seqEl=document.getElementById('diagram-seq');
-  if(seqEl&&!seqEl.dataset.done){
-    var sh='<div class="seq-timeline">';
-    var num=0;
-    SEQ_STEPS.forEach(function(s){
-      if(s.who==='note'){
-        sh+='<div class="seq-note">'+esc(s.msg)+'</div>';
-        return;
-      }
-      num+=1;
-      sh+='<div class="seq-step"><div class="seq-n">'+num+'</div><div class="seq-who">'+esc(s.who)+'</div><div class="seq-msg">'+esc(s.msg)+'</div></div>';
-    });
-    sh+='</div>';
-    seqEl.innerHTML=sh;
-    seqEl.dataset.done='1';
-  }
-  var rulesEl=document.getElementById('diagram-rules');
-  if(rulesEl&&!rulesEl.dataset.done){
-    var rh='<div class="rules-flow">';
-    RULES_FLOW.forEach(function(x){
-      if(x.type==='node') rh+='<div class="rules-node">'+esc(x.text)+'</div>';
-      else if(x.type==='diamond') rh+='<div class="rules-arrow">↓</div><div class="rules-node diamond">'+esc(x.text)+'</div>';
-      else if(x.type==='arrow') rh+='<div class="rules-arrow">'+esc(x.text)+' ↓</div>';
-      else if(x.type==='row'){
-        rh+='<div class="rules-row">';
-        x.items.forEach(function(it){rh+='<div class="rules-node">'+esc(it)+'</div>';});
-        rh+='</div>';
-      }
-      else if(x.type==='out') rh+='<div class="rules-arrow">↓</div><div class="rules-node out">'+esc(x.text)+'</div>';
-    });
-    rh+='</div>';
-    rulesEl.innerHTML=rh;
-    rulesEl.dataset.done='1';
-  }
-}
 
 function initApp(){
   renderModules();
   renderFlow();
   renderTrace();
-  renderDiagrams();
 }
 </script>
 
