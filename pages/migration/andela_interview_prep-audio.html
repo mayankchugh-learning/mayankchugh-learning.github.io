@@ -760,6 +760,12 @@ function stripHtml(html){
   return (d.textContent||'').replace(/\s+/g,' ').trim();
 }
 
+function normalizeForSpeech(text){
+  return (text||'')
+    .replace(/\bCIS\b/g,'C I S')
+    .replace(/\bIaC\b/g,'I A C');
+}
+
 const demoAudioSteps=[
   {title:'Step 1 — Open with the problem',text:'Cloud misconfigurations are the number one cause of enterprise breaches. Teams review Terraform files manually — slow and error-prone. I built something that automates this in under 3 seconds. Show GitHub repo with green CI badge.'},
   {title:'Step 2 — Scan the clean file',text:'Let me start with a clean file to show the baseline. Upload clean_infra.tf. Risk Score zero — Clean.'},
@@ -991,7 +997,7 @@ const audioPlayer=(function(){
     pauseTimer=setTimeout(function(){
       if(!playing||paused) return;
       const opts=getOptions();
-      utterance=new SpeechSynthesisUtterance(seg.text);
+      utterance=new SpeechSynthesisUtterance(normalizeForSpeech(seg.text));
       utterance.rate=opts.speed;
       utterance.pitch=1;
       const voice=pickVoice();
