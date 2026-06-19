@@ -158,10 +158,42 @@
     }
 
     footer a { color: var(--sky); }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .top-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .top-nav a:hover { color: var(--teal); }
+
+    .top-nav-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
   <main class="app">
+    <nav class="top-nav" aria-label="Site">
+      <a href="../index.html">← Portfolio</a>
+      <div class="top-nav-links">
+        <a href="learning/index.html">Learning hub</a>
+        <a href="learning/index.html#learning-pages">All learning pages</a>
+      </div>
+    </nav>
     <header class="hero">
       <p class="eyebrow">Interactive Infographics</p>
       <h1>Architecture Pattern Guides</h1>
@@ -240,7 +272,9 @@
     </div>
 
     <footer>
-      Based on ByteByteGo infographics · Open <code>index.html</code> in a browser or run <code>python -m http.server 8080</code>
+      Based on ByteByteGo infographics ·
+      <a href="learning/index.html">Learning hub</a> ·
+      <a href="../index.html">Portfolio</a>
     </footer>
   </main>
 </body>
