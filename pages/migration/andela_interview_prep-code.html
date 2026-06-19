@@ -87,12 +87,33 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
 .diagram-panel-head{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500}
 .diagram-panel-sub{font-size:11px;color:var(--muted);font-weight:400;margin-top:2px}
 .diagram-wrap{padding:16px 12px;overflow-x:auto;background:#fafaf8}
-.diagram-wrap .mermaid-svg{display:flex;justify-content:center;width:100%}
-.diagram-wrap .mermaid-svg svg{max-width:100%;height:auto}
 .diagram-tip{font-size:12px;color:var(--muted);line-height:1.55;padding:12px 14px;border-top:1px solid var(--border);background:var(--bg)}
 .diagram-tip strong{color:var(--accent)}
+
+.arch-stack{display:flex;flex-direction:column;align-items:center;gap:0;max-width:420px;margin:0 auto}
+.arch-layer{width:100%;border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;background:var(--surface);text-align:center}
+.arch-layer strong{display:block;font-size:13px;color:var(--accent);margin-bottom:2px}
+.arch-layer span{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
+.arch-layer.n1{border-color:#185FA5;background:#E6F1FB}
+.arch-layer.n7{border-color:#534AB7;background:#EEEDFE}
+.arch-arrow{font-size:11px;color:var(--muted);padding:4px 0;text-align:center;line-height:1.3}
+.arch-arrow::before{content:"↓ ";color:var(--accent)}
+
+.seq-timeline{max-width:640px;margin:0 auto}
+.seq-step{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;line-height:1.45}
+.seq-step:last-child{border-bottom:none}
+.seq-n{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.seq-who{font-family:var(--font-mono);font-size:10px;color:var(--accent);min-width:72px;flex-shrink:0}
+.seq-msg{flex:1;color:var(--text)}
+.seq-note{font-size:11px;color:#854F0B;background:#FAEEDA;padding:6px 10px;border-radius:var(--radius-sm);margin:8px 0 8px 32px}
+
+.rules-flow{max-width:520px;margin:0 auto;text-align:center}
+.rules-node{display:inline-block;padding:8px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:12px;margin:4px}
+.rules-node.diamond{border-color:#854F0B;background:#FAEEDA;border-radius:4px;transform:none;font-weight:500}
+.rules-node.out{border-color:var(--green);background:var(--green-soft)}
+.rules-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:6px 0}
+.rules-arrow{color:var(--muted);font-size:11px;padding:2px 0}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 </head>
 <body>
 
@@ -143,23 +164,7 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
           Architecture — SFPRSS (7 layers)
           <div class="diagram-panel-sub">Mnemonic: Streamlit · FastAPI · Parsers · Rules · Risk scorer · SQLite · Security</div>
         </div>
-        <div class="diagram-wrap">
-          <pre class="mermaid" id="diagram-arch">flowchart TB
-  L1["1 Streamlit\n dashboard/app.py"]
-  L2["2 FastAPI\n app/api/routes.py"]
-  L3["3 Parsers\n hcl_parser + cf_parser"]
-  L4["4 Rules engine\n definitions + engine.py"]
-  L5["5 Risk scorer\n sum points cap 100"]
-  L6["6 SQLite\n Scan + Finding tables"]
-  L7["7 Security\n headers rate limit temp cleanup"]
-  L1 -->|"HTTP multipart"| L2
-  L2 --> L3
-  L3 --> L4
-  L4 --> L5
-  L5 --> L6
-  L7 -.-> L2
-  L2 -->|"JSON response"| L1</pre>
-        </div>
+        <div class="diagram-wrap" id="diagram-arch"></div>
         <div class="diagram-tip"><strong>Interview:</strong> Draw top-to-bottom. Emphasise Streamlit never imports app code — only HTTP. Rules + parsers share one flat resource list shape.</div>
       </div>
 
@@ -168,36 +173,7 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
           Sequence — POST /scan (VT PRS DJR)
           <div class="diagram-panel-sub">Validate · Temp · Parse · Rules · Risk · SQLite · Delete · JSON · Render</div>
         </div>
-        <div class="diagram-wrap">
-          <pre class="mermaid" id="diagram-seq">
-sequenceDiagram
-  autonumber
-  actor U as User
-  participant ST as Streamlit
-  participant API as FastAPI scan endpoint
-  participant V as Validate
-  participant P as Parser
-  participant R as Rules engine
-  participant S as Risk scorer
-  participant DB as SQLite
-  U->>ST: Upload vulnerable_infra.tf
-  ST->>API: POST /scan multipart file
-  API->>V: Check ext whitelist + 10MB max
-  V->>V: sanitise_filename
-  API->>API: Write temp file try/finally
-  API->>P: parse_terraform or parse_cloudformation
-  P-->>API: resources list
-  API->>R: apply_rules resources
-  R-->>API: findings list
-  API->>S: calculate_risk_score findings
-  S-->>API: score 100 level Critical
-  API->>DB: INSERT Scan + Finding rows
-  Note over DB: Secrets never stored
-  API->>API: os.unlink temp in finally
-  API-->>ST: JSON scan_id score findings
-  ST-->>U: Show metrics + findings table
-          </pre>
-        </div>
+        <div class="diagram-wrap" id="diagram-seq"></div>
         <div class="diagram-tip"><strong>Interview:</strong> Walk 11 steps in order. Highlight try/finally temp delete, cap at 100, and value redacted for HARDCODED_SECRET.</div>
       </div>
 
@@ -206,24 +182,7 @@ sequenceDiagram
           Rules engine — inside apply_rules
           <div class="diagram-panel-sub">One loop over resources · Terraform aws_* + CloudFormation AWS::* types</div>
         </div>
-        <div class="diagram-wrap">
-          <pre class="mermaid" id="diagram-rules">flowchart TD
-  IN([Parser output]) --> LOOP{Each resource}
-  LOOP --> T{Resource type}
-  T -->|aws_s3_bucket| R1[PUBLIC_S3_BUCKET]
-  T -->|aws_security_group| R2[OPEN SSH RDP ALL PORTS OUTBOUND]
-  T -->|aws_ebs_volume| R3[UNENCRYPTED EBS]
-  T -->|aws_lb_listener| R4[HTTP LISTENER]
-  T -->|any resource| R5[HARDCODED SECRET scan]
-  T -->|CloudFormation| R6[CF rule equivalents]
-  R1 --> OUT[findings list]
-  R2 --> OUT
-  R3 --> OUT
-  R4 --> OUT
-  R5 --> OUT
-  R6 --> OUT
-  OUT --> SCORE[sum points min 100]</pre>
-        </div>
+        <div class="diagram-wrap" id="diagram-rules"></div>
         <div class="diagram-tip"><strong>Interview:</strong> Same engine, two parsers. HARDCODED_SECRET skips var. and data. prefixes — only literal strings flagged.</div>
       </div>
     </div>
@@ -523,41 +482,97 @@ document.querySelectorAll('.tab').forEach(function(tab){
   });
 });
 
-var diagramsDone=false;
+const ARCH_LAYERS=[
+  {n:1,t:'Streamlit',f:'dashboard/app.py',arrow:'HTTP multipart upload'},
+  {n:2,t:'FastAPI',f:'app/api/routes.py',arrow:''},
+  {n:3,t:'Parsers',f:'hcl_parser.py + cf_parser.py',arrow:''},
+  {n:4,t:'Rules engine',f:'definitions.py + engine.py',arrow:''},
+  {n:5,t:'Risk scorer',f:'risk_score.py — cap 100',arrow:''},
+  {n:6,t:'SQLite',f:'Scan + Finding tables',arrow:'JSON response to UI'}
+];
+
+const SEQ_STEPS=[
+  {who:'User',msg:'Upload vulnerable_infra.tf'},
+  {who:'Streamlit',msg:'POST /scan — multipart file to FastAPI'},
+  {who:'FastAPI',msg:'Validate extension whitelist + 10 MB max'},
+  {who:'Validate',msg:'sanitise_filename()'},
+  {who:'FastAPI',msg:'Write temp file (try/finally)'},
+  {who:'Parser',msg:'parse_terraform() or parse_cloudformation()'},
+  {who:'Parser',msg:'Return resources[] list'},
+  {who:'Rules',msg:'apply_rules(resources) → findings[]'},
+  {who:'Scorer',msg:'calculate_risk_score() → 100 Critical'},
+  {who:'SQLite',msg:'INSERT Scan + Finding rows'},
+  {who:'note',msg:'Secrets never stored — value redacted only'},
+  {who:'FastAPI',msg:'os.unlink temp file in finally'},
+  {who:'FastAPI',msg:'JSON: scan_id, score, findings'},
+  {who:'Streamlit',msg:'Show metrics + colour-coded table'},
+  {who:'User',msg:'See Risk Score 100 — Critical'}
+];
+
+const RULES_FLOW=[
+  {type:'node',text:'Parser output — resources[]'},
+  {type:'arrow',text:'for each resource'},
+  {type:'diamond',text:'Check resource type'},
+  {type:'row',items:['PUBLIC_S3','OPEN_SSH/RDP','UNENCRYPTED_EBS','HTTP_LISTENER','HARDCODED_SECRET','CF rules']},
+  {type:'arrow',text:'append finding dicts'},
+  {type:'out',text:'findings[] → sum points → min(score, 100)'}
+];
+
 function renderDiagrams(){
-  if(typeof mermaid==='undefined') return;
-  var nodes=document.querySelectorAll('#diagrams pre.mermaid:not([data-rendered])');
-  if(!nodes.length) return;
-  mermaid.initialize({
-    startOnLoad:false,
-    theme:'neutral',
-    securityLevel:'loose',
-    flowchart:{curve:'basis',padding:16,htmlLabels:true},
-    sequence:{actorMargin:40,messageMargin:35}
-  });
-  nodes.forEach(function(node,idx){
-    var id='mmd-'+idx+'-'+(node.id||'d');
-    var src=node.textContent.trim();
-    mermaid.render(id,src).then(function(res){
-      var box=document.createElement('div');
-      box.className='mermaid-svg';
-      box.innerHTML=res.svg;
-      node.replaceWith(box);
-    }).catch(function(err){
-      node.setAttribute('data-rendered','err');
-      node.style.color='#993C1D';
-      node.style.fontSize='12px';
-      node.style.whiteSpace='pre-wrap';
-      node.textContent='Diagram could not render. '+err.message;
+  var archEl=document.getElementById('diagram-arch');
+  if(archEl&&!archEl.dataset.done){
+    var ah='<div class="arch-stack">';
+    ARCH_LAYERS.forEach(function(L,i){
+      ah+='<div class="arch-layer n'+L.n+'"><strong>'+L.n+' · '+esc(L.t)+'</strong><span>'+esc(L.f)+'</span></div>';
+      if(L.arrow) ah+='<div class="arch-arrow">'+esc(L.arrow)+'</div>';
+      else if(i<ARCH_LAYERS.length-1) ah+='<div class="arch-arrow"></div>';
     });
-  });
-  diagramsDone=true;
+    ah+='<div class="arch-layer n7" style="margin-top:10px;width:85%"><strong>7 · Security middleware</strong><span>app/main.py — rate limit · headers · wraps API</span></div>';
+    ah+='</div>';
+    archEl.innerHTML=ah;
+    archEl.dataset.done='1';
+  }
+  var seqEl=document.getElementById('diagram-seq');
+  if(seqEl&&!seqEl.dataset.done){
+    var sh='<div class="seq-timeline">';
+    var num=0;
+    SEQ_STEPS.forEach(function(s){
+      if(s.who==='note'){
+        sh+='<div class="seq-note">'+esc(s.msg)+'</div>';
+        return;
+      }
+      num+=1;
+      sh+='<div class="seq-step"><div class="seq-n">'+num+'</div><div class="seq-who">'+esc(s.who)+'</div><div class="seq-msg">'+esc(s.msg)+'</div></div>';
+    });
+    sh+='</div>';
+    seqEl.innerHTML=sh;
+    seqEl.dataset.done='1';
+  }
+  var rulesEl=document.getElementById('diagram-rules');
+  if(rulesEl&&!rulesEl.dataset.done){
+    var rh='<div class="rules-flow">';
+    RULES_FLOW.forEach(function(x){
+      if(x.type==='node') rh+='<div class="rules-node">'+esc(x.text)+'</div>';
+      else if(x.type==='diamond') rh+='<div class="rules-arrow">↓</div><div class="rules-node diamond">'+esc(x.text)+'</div>';
+      else if(x.type==='arrow') rh+='<div class="rules-arrow">'+esc(x.text)+' ↓</div>';
+      else if(x.type==='row'){
+        rh+='<div class="rules-row">';
+        x.items.forEach(function(it){rh+='<div class="rules-node">'+esc(it)+'</div>';});
+        rh+='</div>';
+      }
+      else if(x.type==='out') rh+='<div class="rules-arrow">↓</div><div class="rules-node out">'+esc(x.text)+'</div>';
+    });
+    rh+='</div>';
+    rulesEl.innerHTML=rh;
+    rulesEl.dataset.done='1';
+  }
 }
 
 function initApp(){
   renderModules();
   renderFlow();
   renderTrace();
+  renderDiagrams();
 }
 </script>
 
