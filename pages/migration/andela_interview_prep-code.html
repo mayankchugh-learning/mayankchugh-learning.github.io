@@ -87,7 +87,8 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
 .diagram-panel-head{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500}
 .diagram-panel-sub{font-size:11px;color:var(--muted);font-weight:400;margin-top:2px}
 .diagram-wrap{padding:16px 12px;overflow-x:auto;background:#fafaf8}
-.diagram-wrap .mermaid{display:flex;justify-content:center;min-width:min(100%,520px)}
+.diagram-wrap .mermaid-svg{display:flex;justify-content:center;width:100%}
+.diagram-wrap .mermaid-svg svg{max-width:100%;height:auto}
 .diagram-tip{font-size:12px;color:var(--muted);line-height:1.55;padding:12px 14px;border-top:1px solid var(--border);background:var(--bg)}
 .diagram-tip strong{color:var(--accent)}
 </style>
@@ -143,42 +144,21 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
           <div class="diagram-panel-sub">Mnemonic: Streamlit · FastAPI · Parsers · Rules · Risk scorer · SQLite · Security</div>
         </div>
         <div class="diagram-wrap">
-          <pre class="mermaid" id="diagram-arch">
-flowchart TB
-  subgraph L1["1 Streamlit — dashboard/app.py"]
-    ST["File upload · Risk display · Scan history"]
-  end
-  subgraph L2["2 FastAPI — app/api/routes.py"]
-    API["POST /scan · GET /scans · GET /health · OpenAPI /docs"]
-  end
-  subgraph L3["3 Parsers"]
-    HCL["hcl_parser.py · .tf"]
-    CF["cf_parser.py · .yaml"]
-  end
-  subgraph L4["4 Rules engine"]
-    DEF["definitions.py · 11 rules · points"]
-    ENG["engine.py · apply_rules"]
-  end
-  subgraph L5["5 Risk scorer"]
-    RS["risk_score.py · sum · cap 100"]
-  end
-  subgraph L6["6 SQLite"]
-    DB[("Scan + Finding tables")]
-  end
-  subgraph L7["7 Security"]
-    SEC["main.py · rate limit · headers · temp cleanup"]
-  end
-  ST -->|"HTTP multipart"| API
-  API --> HCL
-  API --> CF
-  HCL --> ENG
-  CF --> ENG
-  DEF -.-> ENG
-  ENG --> RS
-  RS --> DB
-  SEC -.-> API
-  API --> ST
-          </pre>
+          <pre class="mermaid" id="diagram-arch">flowchart TB
+  L1["1 Streamlit\n dashboard/app.py"]
+  L2["2 FastAPI\n app/api/routes.py"]
+  L3["3 Parsers\n hcl_parser + cf_parser"]
+  L4["4 Rules engine\n definitions + engine.py"]
+  L5["5 Risk scorer\n sum points cap 100"]
+  L6["6 SQLite\n Scan + Finding tables"]
+  L7["7 Security\n headers rate limit temp cleanup"]
+  L1 -->|"HTTP multipart"| L2
+  L2 --> L3
+  L3 --> L4
+  L4 --> L5
+  L5 --> L6
+  L7 -.-> L2
+  L2 -->|"JSON response"| L1</pre>
         </div>
         <div class="diagram-tip"><strong>Interview:</strong> Draw top-to-bottom. Emphasise Streamlit never imports app code — only HTTP. Rules + parsers share one flat resource list shape.</div>
       </div>
@@ -227,24 +207,22 @@ sequenceDiagram
           <div class="diagram-panel-sub">One loop over resources · Terraform aws_* + CloudFormation AWS::* types</div>
         </div>
         <div class="diagram-wrap">
-          <pre class="mermaid" id="diagram-rules">
-flowchart LR
-  IN["resources[]"] --> LOOP{"For each resource"}
-  LOOP --> T{"type?"}
-  T -->|aws_s3_bucket| R1["PUBLIC_S3_BUCKET"]
-  T -->|aws_security_group| R2["OPEN_SSH / RDP / ALL_PORTS / OUTBOUND"]
-  T -->|aws_ebs_volume| R3["UNENCRYPTED_EBS"]
-  T -->|aws_lb_listener| R4["HTTP_LISTENER"]
-  T -->|any config| R5["HARDCODED_SECRET scan"]
-  T -->|AWS::S3::Bucket| R6["CF equivalents"]
-  R1 --> OUT["findings[]"]
+          <pre class="mermaid" id="diagram-rules">flowchart TD
+  IN([Parser output]) --> LOOP{Each resource}
+  LOOP --> T{Resource type}
+  T -->|aws_s3_bucket| R1[PUBLIC_S3_BUCKET]
+  T -->|aws_security_group| R2[OPEN SSH RDP ALL PORTS OUTBOUND]
+  T -->|aws_ebs_volume| R3[UNENCRYPTED EBS]
+  T -->|aws_lb_listener| R4[HTTP LISTENER]
+  T -->|any resource| R5[HARDCODED SECRET scan]
+  T -->|CloudFormation| R6[CF rule equivalents]
+  R1 --> OUT[findings list]
   R2 --> OUT
   R3 --> OUT
   R4 --> OUT
   R5 --> OUT
   R6 --> OUT
-  OUT --> SCORE["sum points min 100"]
-          </pre>
+  OUT --> SCORE[sum points min 100]</pre>
         </div>
         <div class="diagram-tip"><strong>Interview:</strong> Same engine, two parsers. HARDCODED_SECRET skips var. and data. prefixes — only literal strings flagged.</div>
       </div>
@@ -547,19 +525,33 @@ document.querySelectorAll('.tab').forEach(function(tab){
 
 var diagramsDone=false;
 function renderDiagrams(){
-  if(diagramsDone||typeof mermaid==='undefined') return;
+  if(typeof mermaid==='undefined') return;
+  var nodes=document.querySelectorAll('#diagrams pre.mermaid:not([data-rendered])');
+  if(!nodes.length) return;
   mermaid.initialize({
     startOnLoad:false,
     theme:'neutral',
     securityLevel:'loose',
-    flowchart:{curve:'basis',padding:12},
+    flowchart:{curve:'basis',padding:16,htmlLabels:true},
     sequence:{actorMargin:40,messageMargin:35}
   });
-  var nodes=document.querySelectorAll('#diagrams pre.mermaid');
-  if(!nodes.length) return;
-  mermaid.run({nodes:nodes}).then(function(){diagramsDone=true;}).catch(function(e){
-    console.error('Mermaid render failed',e);
+  nodes.forEach(function(node,idx){
+    var id='mmd-'+idx+'-'+(node.id||'d');
+    var src=node.textContent.trim();
+    mermaid.render(id,src).then(function(res){
+      var box=document.createElement('div');
+      box.className='mermaid-svg';
+      box.innerHTML=res.svg;
+      node.replaceWith(box);
+    }).catch(function(err){
+      node.setAttribute('data-rendered','err');
+      node.style.color='#993C1D';
+      node.style.fontSize='12px';
+      node.style.whiteSpace='pre-wrap';
+      node.textContent='Diagram could not render. '+err.message;
+    });
   });
+  diagramsDone=true;
 }
 
 function initApp(){
