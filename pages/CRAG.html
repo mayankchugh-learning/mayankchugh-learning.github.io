@@ -492,63 +492,115 @@
     }
 
     .flow-canvas {
-      min-height: 620px;
-      padding: 18px;
+      min-height: 680px;
+      padding: 14px 18px 18px;
       border: 1px solid var(--line);
       border-radius: 14px;
       background:
-        linear-gradient(90deg, rgba(139, 92, 246, .08) 1px, transparent 1px),
-        linear-gradient(rgba(45, 212, 191, .06) 1px, transparent 1px),
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(139, 92, 246, 0.08), transparent),
         var(--panel);
-      background-size: 32px 32px;
+      overflow: hidden;
     }
 
     .flow-svg {
       width: 100%;
       height: auto;
-      min-height: 560px;
+      min-height: 640px;
       display: block;
+    }
+
+    .flow-lane {
+      fill: rgba(255, 255, 255, 0.015);
+      stroke: var(--line);
+      stroke-width: 1;
+      stroke-dasharray: 6 8;
+    }
+
+    .flow-lane-label {
+      fill: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
 
     .flow-node {
       cursor: pointer;
     }
 
-    .flow-node rect,
-    .flow-node path {
-      transition: fill .18s ease, stroke .18s ease, filter .18s ease;
+    .flow-node .node-bg {
+      transition: fill .2s ease, stroke .2s ease, filter .2s ease, stroke-width .2s ease;
     }
 
-    .flow-node.active rect,
-    .flow-node.active path {
+    .flow-node.active .node-bg {
       stroke: var(--teal);
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 10px rgba(45, 212, 191, 0.45));
       animation: pulseGlow 2s ease-in-out infinite;
     }
 
+    .flow-node .node-ring {
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+
+    .flow-node.active .node-ring {
+      opacity: 1;
+    }
+
     .flow-path {
-      transition: stroke 0.3s ease, stroke-width 0.3s ease;
+      fill: none;
+      stroke: #3d4f72;
+      stroke-width: 2;
+      stroke-linecap: round;
+      transition: stroke 0.35s ease, stroke-width 0.35s ease, opacity 0.35s ease;
+      opacity: 0.55;
     }
 
     .flow-path.active {
       stroke: var(--teal);
       stroke-width: 3;
+      opacity: 1;
+      filter: drop-shadow(0 0 4px rgba(45, 212, 191, 0.35));
     }
+
+    .flow-path.branch-correct.active { stroke: var(--green); }
+    .flow-path.branch-ambiguous.active { stroke: var(--amber); }
+    .flow-path.branch-incorrect.active { stroke: var(--rose); }
 
     .flow-node text {
       pointer-events: none;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 760;
       fill: var(--ink);
     }
 
+    .flow-node text.sub {
+      font-size: 11px;
+      font-weight: 600;
+      fill: var(--muted);
+    }
+
     .flow-label {
       fill: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .flow-label.correct { fill: var(--green); }
+    .flow-label.ambiguous { fill: var(--amber); }
+    .flow-label.incorrect { fill: var(--rose); }
+
+    .flow-merge {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 1.5;
+      stroke-dasharray: 4 6;
     }
 
     .step-detail {
-      min-height: 620px;
+      min-height: 680px;
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
     }
@@ -1056,75 +1108,139 @@
     </section>
 
     <section class="tab-panel" id="architecture" aria-label="Corrective RAG architecture flow">
+      <div class="panel" style="margin-bottom: 16px;">
+        <div class="panel-header">
+          <h2>Pipeline architecture</h2>
+          <p>Vertical swimlanes show each CRAG stage — click a node or press Play to walk the correction loop.</p>
+        </div>
+      </div>
       <div class="flow-layout">
         <div class="flow-canvas">
-          <svg class="flow-svg" viewBox="0 0 980 650" role="img" aria-label="Corrective RAG architecture flow">
+          <svg class="flow-svg" viewBox="0 0 900 680" role="img" aria-label="Corrective RAG pipeline architecture">
             <defs>
-              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                <path d="M0,0 L0,6 L9,3 z" fill="#5a6a8a"></path>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0,0 L0,8 L8,4 z" fill="#3d4f72"></path>
               </marker>
+              <marker id="arrow-active" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0,0 L0,8 L8,4 z" fill="#2dd4bf"></path>
+              </marker>
+              <linearGradient id="laneGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="rgba(139,92,246,0.06)"/>
+                <stop offset="100%" stop-color="rgba(45,212,191,0.04)"/>
+              </linearGradient>
             </defs>
 
-            <path class="flow-path" data-path="0" d="M165 95 H330" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
-            <path class="flow-path" data-path="1" d="M490 95 H655" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
-            <path class="flow-path" data-path="2" d="M745 145 V228" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
-            <path class="flow-path" data-path="5" d="M745 352 V430" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
-            <path class="flow-path" data-path="8" d="M745 540 H835" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
-            <path class="flow-path" data-path="3" d="M410 145 V235" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
-            <path class="flow-path" data-path="7" d="M410 355 V430 H690" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
-            <path class="flow-path" data-path="4" d="M575 295 H655" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
-            <path class="flow-path" data-path="4b" d="M575 95 C615 95, 615 295, 655 295" stroke="#5a6a8a" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <!-- Swimlanes -->
+            <rect class="flow-lane" x="72" y="28" width="808" height="72" rx="8"/>
+            <rect class="flow-lane" x="72" y="108" width="808" height="72" rx="8"/>
+            <rect class="flow-lane" x="72" y="188" width="808" height="88" rx="8"/>
+            <rect class="flow-lane" x="72" y="284" width="808" height="120" rx="8"/>
+            <rect class="flow-lane" x="72" y="412" width="808" height="72" rx="8"/>
+            <rect class="flow-lane" x="72" y="492" width="808" height="72" rx="8"/>
+            <rect class="flow-lane" x="72" y="572" width="808" height="72" rx="8"/>
 
+            <text class="flow-lane-label" x="14" y="68">Input</text>
+            <text class="flow-lane-label" x="14" y="148">Retrieve</text>
+            <text class="flow-lane-label" x="14" y="236">Evaluate</text>
+            <text class="flow-lane-label" x="14" y="348">Correct</text>
+            <text class="flow-lane-label" x="14" y="448">Merge</text>
+            <text class="flow-lane-label" x="14" y="528">Generate</text>
+            <text class="flow-lane-label" x="14" y="608">Output</text>
+
+            <!-- Main spine -->
+            <path class="flow-path" data-path="spine-0" d="M450 96 V124" marker-end="url(#arrow)"/>
+            <path class="flow-path" data-path="spine-1" d="M450 172 V200" marker-end="url(#arrow)"/>
+
+            <!-- Branch paths from evaluator -->
+            <path class="flow-path branch-correct" data-path="branch-correct" d="M390 300 C300 300, 220 318, 220 344" marker-end="url(#arrow)"/>
+            <path class="flow-path branch-ambiguous" data-path="branch-ambiguous" d="M450 300 V344" marker-end="url(#arrow)"/>
+            <path class="flow-path branch-incorrect" data-path="branch-incorrect" d="M510 300 C600 300, 680 318, 680 344" marker-end="url(#arrow)"/>
+
+            <!-- Correction → merge -->
+            <path class="flow-path branch-correct" data-path="merge-left" d="M220 396 C220 418, 340 438, 450 448" marker-end="url(#arrow)"/>
+            <path class="flow-path branch-ambiguous" data-path="merge-center" d="M450 396 V448" marker-end="url(#arrow)"/>
+            <path class="flow-path branch-incorrect" data-path="merge-right" d="M680 396 C680 418, 560 438, 450 448" marker-end="url(#arrow)"/>
+
+            <!-- Merge → generate → output -->
+            <path class="flow-path" data-path="spine-3" d="M450 472 V504" marker-end="url(#arrow)"/>
+            <path class="flow-path" data-path="spine-4" d="M450 552 V580" marker-end="url(#arrow)"/>
+
+            <path class="flow-merge" d="M180 448 H720"/>
+
+            <text class="flow-label correct" x="248" y="318">✓ Correct</text>
+            <text class="flow-label ambiguous" x="430" y="318">? Ambiguous</text>
+            <text class="flow-label incorrect" x="628" y="318">✕ Incorrect</text>
+
+            <!-- Step 0: User query -->
             <g class="flow-node active" data-step="0" tabindex="0">
-              <rect x="30" y="55" width="135" height="80" rx="10" fill="rgba(139,92,246,0.2)" stroke="#8b5cf6" stroke-width="2"></rect>
-              <text x="97" y="88" text-anchor="middle">User</text>
-              <text x="97" y="110" text-anchor="middle">question</text>
+              <ellipse class="node-bg" cx="450" cy="64" rx="78" ry="32" fill="rgba(139,92,246,0.22)" stroke="#8b5cf6" stroke-width="2"/>
+              <ellipse class="node-ring" cx="450" cy="64" rx="88" ry="40" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <text x="450" y="60" text-anchor="middle">User query</text>
+              <text class="sub" x="450" y="74" text-anchor="middle">intent + question</text>
             </g>
-            <g class="flow-node" data-step="1" tabindex="0">
-              <rect x="330" y="55" width="160" height="80" rx="10" fill="rgba(45,212,191,0.15)" stroke="#2dd4bf" stroke-width="2"></rect>
-              <text x="410" y="88" text-anchor="middle">Retrieve</text>
-              <text x="410" y="110" text-anchor="middle">top-k docs</text>
-            </g>
-            <g class="flow-node" data-step="2" tabindex="0">
-              <path d="M745 45 L835 95 L745 145 L655 95 Z" fill="rgba(251,191,36,0.15)" stroke="#fbbf24" stroke-width="2"></path>
-              <text x="745" y="89" text-anchor="middle">Grade</text>
-              <text x="745" y="111" text-anchor="middle">retrieval</text>
-            </g>
-            <text class="flow-label" x="594" y="78">Correct</text>
-            <text class="flow-label" x="613" y="278">Ambiguous</text>
-            <text class="flow-label" x="760" y="197">Incorrect</text>
 
+            <!-- Step 1: Retriever -->
+            <g class="flow-node" data-step="1" tabindex="0">
+              <rect class="node-bg" x="350" y="124" width="200" height="48" rx="24" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" stroke-width="2"/>
+              <ellipse class="node-ring" cx="450" cy="148" rx="108" ry="30" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <text x="450" y="144" text-anchor="middle">Retriever</text>
+              <text class="sub" x="450" y="158" text-anchor="middle">vector / hybrid top-k</text>
+            </g>
+
+            <!-- Step 2: Evaluator hub -->
+            <g class="flow-node" data-step="2" tabindex="0">
+              <polygon class="node-bg" points="450,200 510,232 510,268 450,300 390,268 390,232" fill="rgba(251,191,36,0.16)" stroke="#fbbf24" stroke-width="2"/>
+              <circle class="node-ring" cx="450" cy="250" r="62" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <text x="450" y="246" text-anchor="middle">Retrieval</text>
+              <text x="450" y="262" text-anchor="middle">evaluator</text>
+            </g>
+
+            <!-- Step 3: Refine internal -->
             <g class="flow-node" data-step="3" tabindex="0">
-              <rect x="330" y="235" width="160" height="120" rx="10" fill="rgba(56,189,248,0.1)" stroke="#38bdf8" stroke-width="2"></rect>
-              <text x="410" y="282" text-anchor="middle">Knowledge</text>
-              <text x="410" y="304" text-anchor="middle">refine</text>
-              <text x="410" y="326" text-anchor="middle">internal docs</text>
+              <rect class="node-bg" x="130" y="344" width="180" height="52" rx="10" fill="rgba(74,222,128,0.12)" stroke="#4ade80" stroke-width="2"/>
+              <text x="220" y="366" text-anchor="middle">Refine docs</text>
+              <text class="sub" x="220" y="382" text-anchor="middle">strip noise, keep evidence</text>
             </g>
+
+            <!-- Step 4: Rewrite query -->
             <g class="flow-node" data-step="4" tabindex="0">
-              <rect x="665" y="228" width="160" height="80" rx="10" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="2"></rect>
-              <text x="745" y="260" text-anchor="middle">Transform</text>
-              <text x="745" y="282" text-anchor="middle">query</text>
+              <rect class="node-bg" x="360" y="344" width="180" height="52" rx="10" fill="rgba(251,191,36,0.14)" stroke="#fbbf24" stroke-width="2"/>
+              <text x="450" y="366" text-anchor="middle">Rewrite query</text>
+              <text class="sub" x="450" y="382" text-anchor="middle">targeted search form</text>
             </g>
+
+            <!-- Step 5: External search -->
             <g class="flow-node" data-step="5" tabindex="0">
-              <rect x="665" y="330" width="160" height="80" rx="10" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="2"></rect>
-              <text x="745" y="362" text-anchor="middle">Search</text>
-              <text x="745" y="384" text-anchor="middle">external source</text>
+              <rect class="node-bg" x="590" y="344" width="180" height="52" rx="10" fill="rgba(251,113,133,0.14)" stroke="#fb7185" stroke-width="2"/>
+              <text x="680" y="366" text-anchor="middle">External search</text>
+              <text class="sub" x="680" y="382" text-anchor="middle">web, API, or tool</text>
             </g>
+
+            <!-- Step 6: Context merge -->
             <g class="flow-node" data-step="6" tabindex="0">
-              <rect x="665" y="430" width="160" height="80" rx="10" fill="rgba(56,189,248,0.1)" stroke="#38bdf8" stroke-width="2"></rect>
-              <text x="745" y="462" text-anchor="middle">Refine</text>
-              <text x="745" y="484" text-anchor="middle">new context</text>
+              <rect class="node-bg" x="340" y="424" width="220" height="48" rx="24" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="2"/>
+              <text x="450" y="444" text-anchor="middle">Context refinement</text>
+              <text class="sub" x="450" y="458" text-anchor="middle">merge, filter, validate</text>
             </g>
+
+            <!-- Step 7: Generator -->
             <g class="flow-node" data-step="7" tabindex="0">
-              <rect x="665" y="520" width="160" height="80" rx="10" fill="rgba(74,222,128,0.12)" stroke="#4ade80" stroke-width="2"></rect>
-              <text x="745" y="552" text-anchor="middle">Generate</text>
-              <text x="745" y="574" text-anchor="middle">grounded answer</text>
+              <rect class="node-bg" x="350" y="504" width="200" height="48" rx="24" fill="rgba(74,222,128,0.14)" stroke="#4ade80" stroke-width="2"/>
+              <text x="450" y="524" text-anchor="middle">LLM generator</text>
+              <text class="sub" x="450" y="538" text-anchor="middle">grounded synthesis</text>
             </g>
+
+            <!-- Step 8: Answer -->
             <g class="flow-node" data-step="8" tabindex="0">
-              <rect x="835" y="520" width="115" height="80" rx="10" fill="rgba(139,92,246,0.2)" stroke="#8b5cf6" stroke-width="2"></rect>
-              <text x="892" y="552" text-anchor="middle">Answer</text>
-              <text x="892" y="574" text-anchor="middle">or abstain</text>
+              <ellipse class="node-bg" cx="450" cy="608" rx="70" ry="28" fill="rgba(139,92,246,0.22)" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="450" y="604" text-anchor="middle">Answer</text>
+              <text class="sub" x="450" y="618" text-anchor="middle">or abstain</text>
             </g>
+
+            <!-- Side annotations -->
+            <text class="flow-label" x="760" y="152" text-anchor="end">Knowledge base</text>
+            <text class="flow-label" x="760" y="252" text-anchor="end">LLM / classifier</text>
+            <text class="flow-label" x="760" y="448" text-anchor="end">Single active branch</text>
           </svg>
         </div>
 
@@ -1143,7 +1259,7 @@
               <button class="icon-btn" id="nextStep" aria-label="Next step">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
               </button>
-              <button class="btn-play" id="playFlow" type="button">Play flow</button>
+              <button class="btn-play" id="playFlow" type="button">Play pipeline</button>
               <div class="step-count" id="stepCount"></div>
             </div>
           </div>
@@ -1434,15 +1550,15 @@
     let flowPlaying = false;
 
     const pathByStep = {
-      0: ["0"],
-      1: ["0", "1"],
-      2: ["0", "1"],
-      3: ["0", "1", "3"],
-      4: ["0", "1", "2", "4", "4b"],
-      5: ["0", "1", "2"],
-      6: ["0", "1", "2", "5"],
-      7: ["0", "1", "3", "7"],
-      8: ["0", "1", "3", "7", "8"]
+      0: [],
+      1: ["spine-0"],
+      2: ["spine-1"],
+      3: ["branch-correct"],
+      4: ["branch-ambiguous"],
+      5: ["branch-incorrect"],
+      6: ["merge-left", "merge-center", "merge-right", "spine-3"],
+      7: ["spine-4"],
+      8: []
     };
 
     function highlightPaths(stepIndex) {
@@ -1451,7 +1567,9 @@
         (pathByStep[i] || []).forEach((p) => activePaths.add(p));
       }
       $$(".flow-path").forEach((path) => {
-        path.classList.toggle("active", activePaths.has(path.dataset.path));
+        const isActive = activePaths.has(path.dataset.path);
+        path.classList.toggle("active", isActive);
+        path.setAttribute("marker-end", isActive ? "url(#arrow-active)" : "url(#arrow)");
       });
     }
 
@@ -1473,7 +1591,7 @@
       flowTimer = null;
       const btn = $("#playFlow");
       if (btn) {
-        btn.textContent = "Play flow";
+        btn.textContent = "Play pipeline";
         btn.classList.remove("playing");
       }
     }
