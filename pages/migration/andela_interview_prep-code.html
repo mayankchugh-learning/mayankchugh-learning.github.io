@@ -82,7 +82,16 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
 .badge-high{background:#FAEEDA;color:#854F0B}
 .badge-med{background:#E6F1FB;color:#185FA5}
 .repo-note{font-size:11px;color:var(--muted);margin-top:1rem;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm)}
+.diagram-stack{display:flex;flex-direction:column;gap:16px}
+.diagram-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.diagram-panel-head{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500}
+.diagram-panel-sub{font-size:11px;color:var(--muted);font-weight:400;margin-top:2px}
+.diagram-wrap{padding:16px 12px;overflow-x:auto;background:#fafaf8}
+.diagram-wrap .mermaid{display:flex;justify-content:center;min-width:min(100%,520px)}
+.diagram-tip{font-size:12px;color:var(--muted);line-height:1.55;padding:12px 14px;border-top:1px solid var(--border);background:var(--bg)}
+.diagram-tip strong{color:var(--accent)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 </head>
 <body>
 
@@ -102,11 +111,12 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
 <div class="app">
   <div class="hero">
     <h2>Code walkthrough — andela-security-auditor</h2>
-    <p>Built from your local repo copy. Click files, trace POST /scan, and see which rules fire on <code style="font-family:var(--font-mono);font-size:11px">vulnerable_infra.tf</code>.</p>
+    <p>Built from your local repo copy. Use <strong>Diagrams</strong> for architecture + sequence charts, or trace code file-by-file.</p>
   </div>
 
   <div class="tabs">
     <button class="tab active" data-section="modules">Modules & files</button>
+    <button class="tab" data-section="diagrams">Diagrams</button>
     <button class="tab" data-section="flow">POST /scan flow</button>
     <button class="tab" data-section="trace">Rule trace (vuln file)</button>
   </div>
@@ -120,6 +130,123 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
         <div class="panel-body" id="mod-body">
           <p class="lead">Start with <strong>app/api/routes.py</strong> — that is where the interview demo lives.</p>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGRAMS -->
+  <div id="diagrams" class="section">
+    <div class="diagram-stack">
+      <div class="diagram-panel">
+        <div class="diagram-panel-head">
+          Architecture — SFPRSS (7 layers)
+          <div class="diagram-panel-sub">Mnemonic: Streamlit · FastAPI · Parsers · Rules · Risk scorer · SQLite · Security</div>
+        </div>
+        <div class="diagram-wrap">
+          <pre class="mermaid" id="diagram-arch">
+flowchart TB
+  subgraph L1["1 Streamlit — dashboard/app.py"]
+    ST["File upload · Risk display · Scan history"]
+  end
+  subgraph L2["2 FastAPI — app/api/routes.py"]
+    API["POST /scan · GET /scans · GET /health · OpenAPI /docs"]
+  end
+  subgraph L3["3 Parsers"]
+    HCL["hcl_parser.py · .tf"]
+    CF["cf_parser.py · .yaml"]
+  end
+  subgraph L4["4 Rules engine"]
+    DEF["definitions.py · 11 rules · points"]
+    ENG["engine.py · apply_rules"]
+  end
+  subgraph L5["5 Risk scorer"]
+    RS["risk_score.py · sum · cap 100"]
+  end
+  subgraph L6["6 SQLite"]
+    DB[("Scan + Finding tables")]
+  end
+  subgraph L7["7 Security"]
+    SEC["main.py · rate limit · headers · temp cleanup"]
+  end
+  ST -->|"HTTP multipart"| API
+  API --> HCL
+  API --> CF
+  HCL --> ENG
+  CF --> ENG
+  DEF -.-> ENG
+  ENG --> RS
+  RS --> DB
+  SEC -.-> API
+  API --> ST
+          </pre>
+        </div>
+        <div class="diagram-tip"><strong>Interview:</strong> Draw top-to-bottom. Emphasise Streamlit never imports app code — only HTTP. Rules + parsers share one flat resource list shape.</div>
+      </div>
+
+      <div class="diagram-panel">
+        <div class="diagram-panel-head">
+          Sequence — POST /scan (VT PRS DJR)
+          <div class="diagram-panel-sub">Validate · Temp · Parse · Rules · Risk · SQLite · Delete · JSON · Render</div>
+        </div>
+        <div class="diagram-wrap">
+          <pre class="mermaid" id="diagram-seq">
+sequenceDiagram
+  autonumber
+  actor U as User
+  participant ST as Streamlit
+  participant API as FastAPI scan endpoint
+  participant V as Validate
+  participant P as Parser
+  participant R as Rules engine
+  participant S as Risk scorer
+  participant DB as SQLite
+  U->>ST: Upload vulnerable_infra.tf
+  ST->>API: POST /scan multipart file
+  API->>V: Check ext whitelist + 10MB max
+  V->>V: sanitise_filename
+  API->>API: Write temp file try/finally
+  API->>P: parse_terraform or parse_cloudformation
+  P-->>API: resources list
+  API->>R: apply_rules resources
+  R-->>API: findings list
+  API->>S: calculate_risk_score findings
+  S-->>API: score 100 level Critical
+  API->>DB: INSERT Scan + Finding rows
+  Note over DB: Secrets never stored
+  API->>API: os.unlink temp in finally
+  API-->>ST: JSON scan_id score findings
+  ST-->>U: Show metrics + findings table
+          </pre>
+        </div>
+        <div class="diagram-tip"><strong>Interview:</strong> Walk 11 steps in order. Highlight try/finally temp delete, cap at 100, and value redacted for HARDCODED_SECRET.</div>
+      </div>
+
+      <div class="diagram-panel">
+        <div class="diagram-panel-head">
+          Rules engine — inside apply_rules
+          <div class="diagram-panel-sub">One loop over resources · Terraform aws_* + CloudFormation AWS::* types</div>
+        </div>
+        <div class="diagram-wrap">
+          <pre class="mermaid" id="diagram-rules">
+flowchart LR
+  IN["resources[]"] --> LOOP{"For each resource"}
+  LOOP --> T{"type?"}
+  T -->|aws_s3_bucket| R1["PUBLIC_S3_BUCKET"]
+  T -->|aws_security_group| R2["OPEN_SSH / RDP / ALL_PORTS / OUTBOUND"]
+  T -->|aws_ebs_volume| R3["UNENCRYPTED_EBS"]
+  T -->|aws_lb_listener| R4["HTTP_LISTENER"]
+  T -->|any config| R5["HARDCODED_SECRET scan"]
+  T -->|AWS::S3::Bucket| R6["CF equivalents"]
+  R1 --> OUT["findings[]"]
+  R2 --> OUT
+  R3 --> OUT
+  R4 --> OUT
+  R5 --> OUT
+  R6 --> OUT
+  OUT --> SCORE["sum points min 100"]
+          </pre>
+        </div>
+        <div class="diagram-tip"><strong>Interview:</strong> Same engine, two parsers. HARDCODED_SECRET skips var. and data. prefixes — only literal strings flagged.</div>
       </div>
     </div>
   </div>
@@ -414,8 +541,26 @@ document.querySelectorAll('.tab').forEach(function(tab){
     document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
     tab.classList.add('active');
     document.getElementById(tab.dataset.section).classList.add('active');
+    if(tab.dataset.section==='diagrams') renderDiagrams();
   });
 });
+
+var diagramsDone=false;
+function renderDiagrams(){
+  if(diagramsDone||typeof mermaid==='undefined') return;
+  mermaid.initialize({
+    startOnLoad:false,
+    theme:'neutral',
+    securityLevel:'loose',
+    flowchart:{curve:'basis',padding:12},
+    sequence:{actorMargin:40,messageMargin:35}
+  });
+  var nodes=document.querySelectorAll('#diagrams pre.mermaid');
+  if(!nodes.length) return;
+  mermaid.run({nodes:nodes}).then(function(){diagramsDone=true;}).catch(function(e){
+    console.error('Mermaid render failed',e);
+  });
+}
 
 function initApp(){
   renderModules();
