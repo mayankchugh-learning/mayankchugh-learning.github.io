@@ -426,7 +426,7 @@
         msg.style.top = to.y + "px";
         if (items[i]) items[i].classList.add("done");
         document.getElementById("comp-" + seg.to)?.classList.add("active");
-        await new Promise((r) setTimeout(r, 700));
+        await new Promise((r) => setTimeout(r, 700));
         document.querySelectorAll(".component").forEach((c) => c.classList.remove("active"));
       }
 
