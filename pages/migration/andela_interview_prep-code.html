@@ -193,7 +193,7 @@ db.commit()`,
     say:'Walk interviewers through scan_file: whitelist extension, 10MB cap, temp file in try/finally, parse by .tf vs yaml, then rules and persist. Secrets never stored — only rule metadata.'
   },
   'app/scanner/hcl_parser.py':{
-    layer:'Terraform parser',what:'Uses python-hcl2 to flatten resources into {type, name, config} dicts the rules engine expects.',
+    layer:'Parsers (Terraform + CF)',what:'hcl_parser.py uses python-hcl2 for .tf files. cf_parser.py uses pyyaml for CloudFormation — both output the same {type, name, config} list for the rules engine.',
     fns:['parse_terraform','_unquote (hcl2 v8 quote fix)'],
     code:`for resource_block in data.get("resource", []):
     for rtype, instances in resource_block.items():
@@ -306,37 +306,51 @@ const TRACE_RULES=[
 
 const LAYERS=[
   {k:'dashboard/app.py',l:'1 · Streamlit'},
-  {k:'app/main.py',l:'2 · FastAPI boot'},
-  {k:'app/api/routes.py',l:'3 · API routes'},
-  {k:'app/scanner/hcl_parser.py',l:'4 · Parsers'},
-  {k:'app/scanner/cf_parser.py',l:'4 · Parsers'},
-  {k:'app/rules/engine.py',l:'5 · Rules'},
-  {k:'app/rules/definitions.py',l:'5 · Rules'},
-  {k:'app/scoring/risk_score.py',l:'6 · Scoring'},
-  {k:'app/database/models.py',l:'7 · SQLite'}
+  {k:'app/api/routes.py',l:'2 · FastAPI API'},
+  {k:'app/scanner/hcl_parser.py',l:'3 · Parsers'},
+  {k:'app/rules/engine.py',l:'4 · Rules engine'},
+  {k:'app/scoring/risk_score.py',l:'5 · Risk scorer'},
+  {k:'app/database/models.py',l:'6 · SQLite'},
+  {k:'app/main.py',l:'7 · Security middleware'}
 ];
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function renderModules(){
   const tree=document.getElementById('file-tree');
-  tree.innerHTML='<h3>SFPRSS layers</h3>';
+  tree.innerHTML='';
+  const h1=document.createElement('h3');
+  h1.textContent='SFPRSS layers';
+  tree.appendChild(h1);
   LAYERS.forEach(function(x){
     const b=document.createElement('button');
-    b.type='button';b.className='file-btn layer';b.textContent=x.l;
+    b.type='button';
+    b.className='file-btn layer';
+    b.textContent=x.l;
     b.dataset.path=x.k;
-    b.addEventListener('click',function(){selectModule(x.k,b);});
     tree.appendChild(b);
   });
-  tree.innerHTML+='<h3 style="margin-top:10px">All files</h3>';
+  const h2=document.createElement('h3');
+  h2.style.marginTop='10px';
+  h2.textContent='All files';
+  tree.appendChild(h2);
   Object.keys(MODULES).forEach(function(path){
     const b=document.createElement('button');
-    b.type='button';b.className='file-btn';b.textContent=path;
+    b.type='button';
+    b.className='file-btn';
+    b.textContent=path;
     b.dataset.path=path;
-    b.addEventListener('click',function(){selectModule(path,b);});
     tree.appendChild(b);
   });
-  selectModule('app/api/routes.py',tree.querySelector('[data-path="app/api/routes.py"]'));
+  if(!tree.dataset.bound){
+    tree.dataset.bound='1';
+    tree.addEventListener('click',function(e){
+      const btn=e.target.closest('.file-btn');
+      if(!btn||!btn.dataset.path) return;
+      selectModule(btn.dataset.path,btn);
+    });
+  }
+  selectModule('app/api/routes.py',tree.querySelector('.file-btn[data-path="app/api/routes.py"]'));
 }
 
 function selectModule(path,btn){
