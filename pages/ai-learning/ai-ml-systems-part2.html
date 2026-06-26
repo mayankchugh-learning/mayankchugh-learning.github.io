@@ -52,6 +52,47 @@
 
     .back a:hover { text-decoration: underline; }
 
+    .related {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .related a {
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .related a:hover { color: var(--indigo); }
+
+    footer {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover { color: var(--indigo); }
+
+    .subtitle a {
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .subtitle a:hover { text-decoration: underline; }
+
     h1 {
       margin: 0;
       font-size: clamp(28px, 4vw, 42px);
@@ -803,11 +844,14 @@
 <body>
   <div class="read-progress" aria-hidden="true"><div class="read-progress-bar" id="progressBar"></div></div>
   <main class="app">
-    <p class="back"><a href="index.html">← All guides</a></p>
+    <p class="back"><a href="../learning/index.html">← All guides</a></p>
 
     <header>
       <h1>AI/ML Systems — RAG &amp; Agents</h1>
-      <p class="subtitle">Part 2: Building the system around the model — retrieval pipelines, evaluation, agents, and production scenarios.</p>
+      <p class="subtitle">Part 2: Building the system around the model — retrieval pipelines, evaluation, agents, and production scenarios. Pairs with the interactive
+        <a href="rag-architecture.html">RAG Architecture</a>,
+        <a href="langchain-document-components.html">Document Model</a>, and
+        <a href="vector-store-vs-database.html">Vector Store vs Database</a> guides.</p>
       <div class="pill-row">
         <span class="pill">RAG</span>
         <span class="pill">Agents</span>
@@ -843,7 +887,11 @@
     <!-- INTRO -->
     <section id="intro" class="reveal">
       <h2>From model foundations to system failures</h2>
-      <p><strong>Prior foundations:</strong> Classical ML · Statistics · Calibration · LLM fundamentals · Multimodal systems · Fine-tuning · Post-training · Prompting · Context engineering.</p>
+      <p><strong>Prior foundations:</strong> Classical ML · Statistics · Calibration ·
+        <a href="LLM-Explorer-Standalone.html" style="color:var(--teal);text-decoration:none;font-weight:600">LLM fundamentals</a> · Multimodal systems ·
+        <a href="fineTuning.html" style="color:var(--teal);text-decoration:none;font-weight:600">Fine-tuning</a> · Post-training · Prompting · Context engineering.
+        For transformer internals, see the
+        <a href="SelfAttentionExplainerOffline.html" style="color:var(--teal);text-decoration:none;font-weight:600">self-attention explainer</a>.</p>
       <p>Those foundations matter. But production AI systems rarely fail because someone forgot the definition of self-attention.</p>
       <p>They fail because:</p>
       <ul>
@@ -854,6 +902,7 @@
       </ul>
       <div class="callout teal">
         <strong>Key idea:</strong> The model is one component inside a larger system. Before that system can be evaluated, secured, or operated reliably, it has to be built correctly — starting with how it retrieves evidence and how it acts.
+        For retrieval quality gates, see the <a href="CRAG.html" style="color:var(--teal);text-decoration:none;font-weight:600">CRAG Decision Guide</a>.
       </div>
       <p>This guide covers <strong>retrieval</strong> and <strong>agents</strong>: the two layers where a capable model most often gets surrounded by a fragile system.</p>
     </section>
@@ -1500,6 +1549,24 @@
         <strong>The next layer is evals, safety, operations, and system design judgment</strong> — the work that turns a capable model into a system you can ship, measure, and trust.
       </div>
     </section>
+
+    <section class="related" aria-label="Related guides">
+      <p>
+        Related:
+        <a href="rag-architecture.html">RAG Architecture</a> ·
+        <a href="langchain-document-components.html">LangChain Document Model</a> ·
+        <a href="vector-store-vs-database.html">Vector Store vs Database</a> ·
+        <a href="CRAG.html">CRAG Decision Guide</a> ·
+        <a href="fineTuning.html">Fine-tuning</a> ·
+        <a href="ai_pioneers_page.html">AI Pioneers programme</a> ·
+        <a href="../learning/index.html">All learning guides</a>
+      </p>
+    </section>
+
+    <footer>
+      AI/ML Systems — RAG &amp; Agents (Part 2) · System design &amp; interview scenarios ·
+      <a href="rag-architecture.html">RAG Architecture →</a>
+    </footer>
   </main>
 
   <script>
