@@ -144,6 +144,7 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
   <div class="tabs">
     <button class="tab active" data-section="modules">Modules & files</button>
     <button class="tab" data-section="diagrams">Diagrams</button>
+    <button class="tab" data-section="keyterms">Key terms</button>
     <button class="tab" data-section="flow">POST /scan flow</button>
     <button class="tab" data-section="trace">Rule trace (vuln file)</button>
   </div>
@@ -313,6 +314,51 @@ pre.code .hl{color:#7ec8e3;background:rgba(126,200,227,.12);display:block;margin
     </div>
   </div>
 
+  <!-- KEY TERMS -->
+  <div id="keyterms" class="section">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem">CIS, Black, and Ruff — what each does and how they fit together in the project and CI pipeline.</div>
+
+    <div class="panel" style="margin-bottom:12px">
+      <div class="panel-head">CIS — Center for Internet Security</div>
+      <div class="panel-body">
+        <p class="lead">A non-profit organisation that publishes the <strong>CIS Benchmarks</strong> — industry-standard security configuration guidelines for cloud infrastructure, operating systems, and applications.</p>
+        <p class="lead">When you say your auditor checks <strong>"11 CIS Benchmark-inspired rules"</strong>, you're saying your rules are based on the same security standards that enterprises like banks, hospitals, and governments use to audit their AWS environments.</p>
+        <p class="lead">Examples: <em>"S3 buckets should never be public"</em>, <em>"SSH should never be open to 0.0.0.0/0"</em>. These aren't your opinions — they're internationally recognised security baselines.</p>
+        <div class="interview"><strong>What to say in interview:</strong> "The 11 rules are based on CIS Benchmark guidelines — the industry standard that enterprises use for cloud security compliance audits."</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:12px">
+      <div class="panel-head">Black — Python code formatter</div>
+      <div class="panel-body">
+        <p class="lead">Black automatically reformats Python code to a consistent style — indentation, line length, spacing, quotes. You run <code style="font-family:var(--font-mono);font-size:11px">black .</code> and it rewrites your files to look identical regardless of who wrote them. It's opinionated and has no configuration options by design.</p>
+        <p class="lead">In the CI pipeline, <code style="font-family:var(--font-mono);font-size:11px">black --check .</code> fails the build if any file isn't formatted correctly.</p>
+        <div class="interview"><strong>What to say in interview:</strong> "Black enforces consistent code formatting across the entire codebase — zero style debates, zero formatting differences between contributors."</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:12px">
+      <div class="panel-head">Ruff — Python linter</div>
+      <div class="panel-body">
+        <p class="lead">Ruff checks your code for errors, unused imports, bad practices, and style violations — <strong>without changing the code</strong>. It's extremely fast (written in Rust) and replaces older tools like flake8 and pylint.</p>
+        <p class="lead">In your project, <code style="font-family:var(--font-mono);font-size:11px">ruff check .</code> catches things like unused imports and flags them as errors. The CI pipeline fails if ruff finds any issues.</p>
+        <div class="interview"><strong>What to say in interview:</strong> "Ruff is a fast Python linter — it catches unused imports, undefined variables, and bad practices before they reach production. It runs in the CI pipeline on every push."</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">How CIS, Black, and Ruff work together</div>
+      <div class="panel-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px;font-size:12px">
+          <div style="padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#E6F1FB"><strong style="color:#185FA5">CIS</strong><br><span style="color:var(--muted)">What security rules to check for (the standard)</span></div>
+          <div style="padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#E6F1FB"><strong style="color:#185FA5">Black</strong><br><span style="color:var(--muted)">How your Python code looks (formatting)</span></div>
+          <div style="padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#FAEEDA"><strong style="color:#854F0B">Ruff</strong><br><span style="color:var(--muted)">Whether your Python code is clean (linting)</span></div>
+        </div>
+        <div class="interview">All three run automatically in <strong>GitHub Actions</strong> on every push — <code style="font-family:var(--font-mono);font-size:11px">ruff check .</code> → <code style="font-family:var(--font-mono);font-size:11px">black --check .</code> → <code style="font-family:var(--font-mono);font-size:11px">pytest tests/ -v</code>. That's what gives you the <strong>green CI badge</strong>. See <code style="font-family:var(--font-mono);font-size:11px">.github/workflows/ci.yml</code> in the repo.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- FLOW -->
   <div id="flow" class="section">
     <div class="layout">
@@ -422,6 +468,17 @@ score = min(total, 100)
 if score == 0: level = "Clean"
 elif score <= 25: level = "Low Risk" ...`,
     say:'Capping at 100 keeps the dashboard simple — 100 always means act now. Detail lives in the findings table.'
+  },
+  '.github/workflows/ci.yml':{
+    layer:'GitHub Actions CI',what:'Runs on every push to main: ruff check . → black --check . → pytest tests/ -v. This is the green CI badge.',
+    fns:['Lint with ruff','Format check with black','Run tests'],
+    code:`- name: Lint with ruff
+  run: ruff check .
+- name: Format check with black
+  run: black --check .
+- name: Run tests
+  run: pytest tests/ -v`,
+    say:'CIS rules are what the app checks. Black and Ruff are what keeps the Python code clean — all automated in CI on every push.'
   },
   'app/database/models.py':{
     layer:'SQLite models',what:'Scan (parent) + Finding (child FK). Stores rule_id, severity, points, description, resource — never secret values.',

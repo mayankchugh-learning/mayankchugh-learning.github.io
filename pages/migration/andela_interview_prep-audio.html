@@ -344,10 +344,10 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
 
 <div class="app">
 <div class="metric-row">
-  <div class="metric"><div class="metric-val" id="total-cards">16</div><div class="metric-label">Flashcards</div></div>
+  <div class="metric"><div class="metric-val" id="total-cards">19</div><div class="metric-label">Flashcards</div></div>
   <div class="metric"><div class="metric-val" id="seen-count">0</div><div class="metric-label">Seen</div></div>
   <div class="metric"><div class="metric-val" id="known-count">0</div><div class="metric-label">Known</div></div>
-  <div class="metric"><div class="metric-val">5</div><div class="metric-label">Sections</div></div>
+  <div class="metric"><div class="metric-val">6</div><div class="metric-label">Sections</div></div>
 </div>
 <div class="repo-link-row">
   <a class="repo-link" href="https://github.com/mayankchugh-learning/andela-security-auditor.git" target="_blank" rel="noopener noreferrer">Open GitHub repo</a>
@@ -357,6 +357,7 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
   <button class="tab active" onclick="showSection('listen',this)">Listen</button>
   <button class="tab" onclick="showSection('flashcards',this)">Flashcards</button>
   <button class="tab" onclick="showSection('architecture',this)">Architecture</button>
+  <button class="tab" onclick="showSection('keyterms',this)">Key terms</button>
   <button class="tab" onclick="showSection('demo',this)">Demo script</button>
   <button class="tab" onclick="showSection('decisions',this)">Why X?</button>
 </div>
@@ -412,6 +413,7 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
           <option value="flashcards-full">Flashcards — full answers only</option>
           <option value="demo">Demo script (10 min flow)</option>
           <option value="architecture">Architecture + mnemonics</option>
+          <option value="keyterms">Key terms — CIS, Black, Ruff</option>
           <option value="decisions">Why X? decisions</option>
           <option value="full">Full run — everything (~45 min)</option>
         </select>
@@ -586,7 +588,7 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
       </div>
       <div class="arch-box green" style="margin-top:12px">
         <div class="arch-title">30-second interview answer</div>
-        <div class="arch-detail">"CIS is the Center for Internet Security. Their AWS Foundations Benchmark is the standard checklist for cloud hardening — IAM MFA, encrypted storage, no public S3, tight security groups. I implemented 11 rules inspired by that benchmark, applied to Terraform and CloudFormation at scan time, so teams catch misconfigurations in CI before they reach production."</div>
+        <div class="arch-detail">"The 11 rules are based on CIS Benchmark guidelines — the industry standard that enterprises use for cloud security compliance audits. CIS is the Center for Internet Security. Their AWS Foundations Benchmark covers IAM MFA, encrypted storage, no public S3, and tight security groups. I applied 11 rules inspired by that benchmark to Terraform and CloudFormation at scan time."</div>
       </div>
     </div>
   </div>
@@ -600,6 +602,68 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
       <div style="padding:10px 16px;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">0 / 100</span><div style="font-size:11px;color:var(--color-text-secondary)">Clean / Critical scores</div></div>
       <div style="padding:10px 16px;border-right:0.5px solid var(--color-border-tertiary)"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">13 years</span><div style="font-size:11px;color:var(--color-text-secondary)">Client-embedded at Cathay</div></div>
       <div style="padding:10px 16px"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">55+ RFPs</span><div style="font-size:11px;color:var(--color-text-secondary)">Won for Cathay / BA / M&S</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- KEY TERMS -->
+<div id="keyterms" class="section">
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem">CIS, Black, and Ruff — know what each does and how they fit together in the project and CI pipeline.</div>
+
+  <div class="card">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--color-border-tertiary);font-size:13px;font-weight:500">CIS — Center for Internet Security</div>
+    <div style="padding:14px 16px">
+      <div class="arch-box purple">
+        <div class="arch-detail">A non-profit organisation that publishes the <strong>CIS Benchmarks</strong> — industry-standard security configuration guidelines for cloud infrastructure, operating systems, and applications.</div>
+      </div>
+      <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin:12px 0">When you say your auditor checks <strong>"11 CIS Benchmark-inspired rules"</strong>, you're saying your rules are based on the same security standards that enterprises like banks, hospitals, and governments use to audit their AWS environments.</p>
+      <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:12px">Examples: <em>"S3 buckets should never be public"</em>, <em>"SSH should never be open to 0.0.0.0/0"</em>. These aren't your opinions — they're internationally recognised security baselines.</p>
+      <div class="arch-box green">
+        <div class="arch-title">What to say in interview</div>
+        <div class="arch-detail">"The 11 rules are based on CIS Benchmark guidelines — the industry standard that enterprises use for cloud security compliance audits."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--color-border-tertiary);font-size:13px;font-weight:500">Black — Python code formatter</div>
+    <div style="padding:14px 16px">
+      <div class="arch-box blue">
+        <div class="arch-detail">Black automatically reformats Python code to a consistent style — indentation, line length, spacing, quotes. You run <span class="arch-code">black .</span> and it rewrites your files to look identical regardless of who wrote them. It's opinionated and has no configuration options by design.</div>
+      </div>
+      <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin:12px 0">In the CI pipeline, <span class="arch-code">black --check .</span> fails the build if any file isn't formatted correctly.</p>
+      <div class="arch-box green">
+        <div class="arch-title">What to say in interview</div>
+        <div class="arch-detail">"Black enforces consistent code formatting across the entire codebase — zero style debates, zero formatting differences between contributors."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--color-border-tertiary);font-size:13px;font-weight:500">Ruff — Python linter</div>
+    <div style="padding:14px 16px">
+      <div class="arch-box amber">
+        <div class="arch-detail">Ruff checks your code for errors, unused imports, bad practices, and style violations — <strong>without changing the code</strong>. It's extremely fast (written in Rust) and replaces older tools like flake8 and pylint.</div>
+      </div>
+      <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin:12px 0">In your project, <span class="arch-code">ruff check .</span> catches things like unused imports (e.g. <span class="arch-code">import re</span> that's never used) and flags them as errors. The CI pipeline fails if ruff finds any issues.</p>
+      <div class="arch-box green">
+        <div class="arch-title">What to say in interview</div>
+        <div class="arch-detail">"Ruff is a fast Python linter — it catches unused imports, undefined variables, and bad practices before they reach production. It runs in the CI pipeline on every push."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--color-border-tertiary);font-size:13px;font-weight:500">How CIS, Black, and Ruff work together</div>
+    <div style="padding:14px 16px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:14px">
+        <div class="arch-box purple" style="margin:0"><div class="arch-title">CIS</div><div class="arch-detail">What security rules to check for (the standard)</div></div>
+        <div class="arch-box blue" style="margin:0"><div class="arch-title">Black</div><div class="arch-detail">How your Python code looks (formatting)</div></div>
+        <div class="arch-box amber" style="margin:0"><div class="arch-title">Ruff</div><div class="arch-detail">Whether your Python code is clean (linting)</div></div>
+      </div>
+      <div class="arch-box green">
+        <div class="arch-detail">All three run automatically in <strong>GitHub Actions</strong> on every push — <span class="arch-code">ruff check .</span> → <span class="arch-code">black --check .</span> → <span class="arch-code">pytest tests/ -v</span>. That's what gives you the <strong>green CI badge</strong> on the repo.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -765,7 +829,10 @@ body.embedded #protected-content { padding: 1rem; max-width: none; margin: 0; }
 
 <script>
 const allCards=[
-  {type:'qa',typeLabel:'Q&A',q:'What is CIS?',a:'CIS stands for Center for Internet Security — a non-profit that publishes CIS Benchmarks, which are consensus-based security configuration guides used worldwide for compliance and cloud hardening.\n\nFor this project, the rules are inspired by the CIS Amazon Web Services Foundations Benchmark: IAM MFA and least privilege, S3 Block Public Access, EBS/RDS encryption at rest, HTTPS on load balancers, and restricted security groups.\n\nUnlike Prowler or AWS Security Hub (which scan live AWS accounts via API), this tool scans Terraform and CloudFormation files statically — shift-left guardrails in CI before deploy. The 11 rules are a curated subset chosen because they are detectable in IaC without an AWS account.',memo:'<strong>CIS</strong> — <strong>C</strong>enter for Internet Security · <strong>I</strong>aC scan (static .tf/.yaml, not live API) · <strong>S</strong>ubset of AWS Foundations Benchmark (11 rules). Contrast: Prowler = live account.',tip:'If they ask "which CIS version?" — say inspired by AWS Foundations Benchmark themes, not a 1:1 control ID mapping. Honest and senior.'},
+  {type:'qa',typeLabel:'Q&A',q:'What is CIS?',a:'CIS stands for Center for Internet Security — a non-profit that publishes CIS Benchmarks, industry-standard security configuration guidelines for cloud, OS, and applications.\n\nWhen you say "11 CIS Benchmark-inspired rules", you mean rules based on the same standards banks, hospitals, and governments use to audit AWS — e.g. no public S3, no SSH open to 0.0.0.0/0. Not your opinions — internationally recognised baselines.\n\nThis project uses a curated subset of the CIS AWS Foundations Benchmark, detectable in Terraform and CloudFormation without a live AWS account.',memo:'<strong>CIS</strong> — <strong>C</strong>enter for Internet Security · <strong>I</strong>ndustry standard · <strong>S</strong>ubset of 11 IaC rules. Say: "based on CIS Benchmark guidelines — industry standard for cloud compliance audits."',tip:'Lead with the interview line: "The 11 rules are based on CIS Benchmark guidelines."'},
+  {type:'qa',typeLabel:'Q&A',q:'What is Black?',a:'Black is a Python code formatter. It automatically reformats code to a consistent style — indentation, line length, spacing, quotes. Run black . and every file looks the same regardless of who wrote it. Opinionated, no config by design.\n\nIn CI: black --check . fails the build if any file is not formatted correctly.',memo:'<strong>Black</strong> — <strong>B</strong>uild-wide format · <strong>L</strong>ooks identical · <strong>A</strong>uto rewrite · <strong>C</strong>heck in CI · <strong>K</strong>ill build if wrong.',tip:'"Zero style debates, zero formatting differences between contributors."'},
+  {type:'qa',typeLabel:'Q&A',q:'What is Ruff?',a:'Ruff is a fast Python linter (written in Rust). It checks for errors, unused imports, bad practices, and style violations — without changing code. Replaces flake8 and pylint.\n\nIn this project: ruff check . catches unused imports and flags errors. CI fails on any ruff issue.',memo:'<strong>Ruff</strong> — <strong>R</strong>ust-fast linter · <strong>U</strong>nused imports caught · <strong>F</strong>ails CI · <strong>F</strong>lake8 replacement.',tip:'"Catches unused imports and bad practices before production — runs on every push."'},
+  {type:'qa',typeLabel:'Q&A',q:'How do CIS, Black, and Ruff relate?',a:'CIS = what security rules to check (the compliance standard).\nBlack = how Python code looks (formatting).\nRuff = whether Python code is clean (linting).\n\nAll three run in GitHub Actions on every push: ruff check . → black --check . → pytest. That pipeline is the green CI badge.',memo:'<strong>CBR</strong> — <strong>C</strong>IS rules · <strong>B</strong>lack format · <strong>R</strong>uff lint · all in <strong>CI</strong> on push.',tip:'Point at the green badge on GitHub when you say this.'},
   {type:'qa',typeLabel:'Q&A',q:'Tell me about this project in 60 seconds.',a:'Enterprise Security Guardrail Auditor — scans Terraform and CloudFormation files for 11 CIS Benchmark violations, calculates a Risk Score 0-100, stores history in SQLite, exposes a FastAPI REST API, and visualises findings in Streamlit. Built in 1h 55min using Vibe Coding — I directed Claude Code as architect. 29 tests passing, green CI, full PII controls. Repo is public — you can clone and run it right now.',memo:'<strong>GUARD-FAST</strong> — <strong>G</strong>uardrail auditor · <strong>U</strong>pload IaC (.tf/.yaml) · <strong>A</strong>udit trail (GitHub+CI) · <strong>R</strong>isk 0–100 · <strong>D</strong>irected by you. <strong>F</strong>astAPI · <strong>A</strong>rchitect-led · <strong>S</strong>treamlit · <strong>T</strong>erraform+CIS (11 rules).',tip:'Lead with the audit trail and GitHub repo — that\'s your strongest credibility signal.'},
   {type:'qa',typeLabel:'Q&A',q:'Under 2 hours? How can the quality be good?',a:'The time reflects the Vibe Coding workflow — I directed an AI that executed. But quality is verifiable: 29 automated tests all passing, green CI on GitHub, ruff and black clean, 11 security rules, full PII controls. The repo is public — clone it and run it right now. Fast execution with verifiable quality is exactly what an FDE needs to deliver.',memo:'<strong>VIBE-PROOF</strong> — <strong>V</strong>erify (29 tests) · <strong>I</strong> directed architecture · <strong>B</strong>uild is public (clone it) · <strong>E</strong>vidence (green CI). <strong>P</strong>roof beats apology · <strong>R</strong>epo is the proof · <strong>O</strong>nly FDEs ship this fast · <strong>O</strong>pen source · <strong>F</strong>DE delivery.',tip:'Hold your ground. Don\'t apologise for the speed.'},
   {type:'qa',typeLabel:'Q&A',q:'Why Project 2 over the other options?',a:'Three reasons. First, I hold HashiCorp Terraform certification — the only project where a certification directly maps to the core technology. Second, tightest scope: static config files I control, no cloud accounts, no synthetic data. Third, JD explicitly lists Terraform and compliance as requirements — choosing Project 2 signals I read the JD carefully. That\'s what a senior FDE does before writing a single line of code.',memo:'<strong>CTF</strong> — <strong>C</strong>ertified (HashiCorp Terraform) · <strong>T</strong>ight scope (static files only) · <strong>F</strong>it JD (Terraform + compliance).',tip:'Mention the Terraform cert specifically — it\'s verifiable.'},
@@ -877,8 +944,15 @@ const architectureAudio=[
   {title:'Eleven rules — POP SOREH NWHA',text:'Critical 40 points: PUBLIC_S3_BUCKET, OPEN_ALL_PORTS. High 25 points: OPEN_SSH, OPEN_RDP, UNENCRYPTED_EBS, UNENCRYPTED_RDS, HARDCODED_SECRET. Medium 20 points: NO_MFA, WEAK_IAM_POLICY, HTTP_LISTENER, UNRESTRICTED_OUTBOUND.'},
   {title:'PII controls — WASH SLNI HCE',text:'Input: whitelist file types, 10 megabyte limit, sanitise filename, rate limit 10 per minute. Data: secrets never stored or logged, no raw file in database, no client IP. API: security headers and clean error messages only.'},
   {title:'Demo scores — 0 100 45',text:'clean_infra.tf score zero Clean. vulnerable_infra.tf score 100 Critical with six violations. mixed_infra.yaml score 45 Medium with two violations.'},
-  {title:'What is CIS — 30 second answer',text:'CIS is the Center for Internet Security. Their AWS Foundations Benchmark is the standard checklist for cloud hardening — IAM MFA, encrypted storage, no public S3, tight security groups. I implemented 11 rules inspired by that benchmark, applied to Terraform and CloudFormation at scan time, so teams catch misconfigurations in CI before they reach production.'},
+  {title:'What is CIS — 30 second answer',text:'The 11 rules are based on C I S Benchmark guidelines — the industry standard enterprises use for cloud security compliance audits. C I S is the Center for Internet Security. Examples: S3 buckets should never be public. SSH should never be open to zero zero zero zero. Internationally recognised baselines, not personal opinions.'},
   {title:'Numbers to know',text:'Build time 1 hour 55 minutes. 29 of 29 tests passing. 11 security rules. Risk scores 0 clean to 100 critical. 13 years client-embedded at Cathay. 55 plus RFPs won.'},
+];
+
+const keyTermsAudio=[
+  {title:'CIS — Center for Internet Security',text:'A non-profit that publishes C I S Benchmarks — industry-standard security configuration guidelines. Your 11 rules are based on the same standards banks, hospitals, and governments use. Examples: no public S3, no SSH open to the internet. Say in interview: The 11 rules are based on C I S Benchmark guidelines — the industry standard for cloud security compliance audits.'},
+  {title:'Black — Python formatter',text:'Black automatically reformats Python to consistent style — indentation, line length, spacing. Run black dot to rewrite files. In CI, black --check dot fails the build if formatting is wrong. Say in interview: Black enforces consistent code formatting — zero style debates between contributors.'},
+  {title:'Ruff — Python linter',text:'Ruff checks errors, unused imports, and bad practices without changing code. Written in Rust, very fast, replaces flake8. ruff check dot in CI fails on unused imports. Say in interview: Ruff catches unused imports and bad practices before production — runs on every push.'},
+  {title:'CIS + Black + Ruff together',text:'C I S equals what security rules to check. Black equals how Python code looks. Ruff equals whether Python code is clean. All run in GitHub Actions on every push: ruff, then black, then pytest. That is the green CI badge.'},
 ];
 
 const decisionsAudio=[
@@ -938,6 +1012,7 @@ const audioPlayer=(function(){
     if(playlistId==='flashcards-full') return cardSegments('flashcards-full');
     if(playlistId==='demo') return demoAudioSteps.map(function(s,i){return{label:'Demo '+(i+1),title:s.title,text:s.text,type:'demo'};});
     if(playlistId==='architecture') return architectureAudio.map(function(s,i){return{label:'Arch '+(i+1),title:s.title,text:s.text,type:'arch'};});
+    if(playlistId==='keyterms') return keyTermsAudio.map(function(s,i){return{label:'Term '+(i+1),title:s.title,text:s.text,type:'term'};});
     if(playlistId==='decisions') return decisionsAudio.map(function(s,i){return{label:'Decision '+(i+1),title:s.title,text:s.text,type:'decision'};});
     if(playlistId==='full'){
       return[].concat(

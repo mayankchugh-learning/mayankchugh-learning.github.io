@@ -68,6 +68,10 @@ Static HTML site hosted on GitHub Pages. The main portfolio lives at `index.html
 | [PythonBasicsOffline.html](pages/ai-learning/PythonBasicsOffline.html) | Python basics — week 1 interactive guide |
 | [SelfAttentionExplainerOffline.html](pages/ai-learning/SelfAttentionExplainerOffline.html) | Self-attention explainer |
 | [AI-Enginee-Job-Portals.html](pages/ai-learning/AI-Enginee-Job-Portals.html) | AI engineer job portals directory |
+| [rag-architecture.html](pages/ai-learning/rag-architecture.html) | RAG architecture — offline indexing and online query pipelines |
+| [vector-store-vs-database.html](pages/ai-learning/vector-store-vs-database.html) | Vector store vs vector database — scale and decision guide |
+| [langchain-document-components.html](pages/ai-learning/langchain-document-components.html) | LangChain document model for RAG ingestion |
+| [CRAG.html](pages/ai-learning/CRAG.html) | Corrective RAG interactive decision guide |
 
 ### Articles (`pages/articles/`)
 

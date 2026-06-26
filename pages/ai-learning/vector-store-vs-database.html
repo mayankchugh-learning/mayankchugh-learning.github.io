@@ -1,0 +1,1352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vector Store vs Vector Database — Interactive Guide</title>
+  <style>
+    :root {
+      --bg: #0a0e18;
+      --surface: #121a2e;
+      --panel: #1a2540;
+      --ink: #eef2ff;
+      --muted: #8b9cb8;
+      --line: #2a3a5c;
+      --store: #a78bfa;
+      --store-soft: rgba(167, 139, 250, 0.14);
+      --store-glow: rgba(167, 139, 250, 0.35);
+      --db: #38bdf8;
+      --db-soft: rgba(56, 189, 248, 0.14);
+      --db-glow: rgba(56, 189, 248, 0.35);
+      --amber: #fbbf24;
+      --amber-soft: rgba(251, 191, 36, 0.12);
+      --green: #4ade80;
+      --rose: #fb7185;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes tabIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.85; }
+    }
+
+    @keyframes orbit {
+      from { transform: rotate(0deg) translateX(72px) rotate(0deg); }
+      to { transform: rotate(360deg) translateX(72px) rotate(-360deg); }
+    }
+
+    @keyframes queryPulse {
+      0% { box-shadow: 0 0 0 0 var(--store-glow); }
+      70% { box-shadow: 0 0 0 14px transparent; }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+
+    @keyframes packetMove {
+      0% { offset-distance: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { offset-distance: 100%; opacity: 0; }
+    }
+
+    @keyframes barGrow {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 70% 45% at 10% -5%, rgba(167, 139, 250, 0.14), transparent),
+        radial-gradient(ellipse 55% 40% at 95% 10%, rgba(56, 189, 248, 0.1), transparent);
+      color: var(--ink);
+      font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+
+    .app {
+      width: min(1320px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+      animation: fadeUp 0.45s ease both;
+    }
+
+    .back-link:hover { color: var(--db); }
+
+    .hero {
+      margin-bottom: 8px;
+      animation: fadeUp 0.55s ease both;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--store);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 4.5vw, 52px);
+      line-height: 1.08;
+      background: linear-gradient(135deg, #fff 20%, var(--store) 55%, var(--db));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      margin: 14px 0 0;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .nav-wrap {
+      margin: 26px 0 24px;
+      animation: fadeUp 0.55s 0.08s ease both;
+    }
+
+    .nav {
+      display: flex;
+      gap: 6px;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: max-content;
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--ink);
+      background: var(--store-soft);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--store), var(--db));
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active {
+      display: block;
+      animation: tabIn 0.35s ease both;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .summary {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .summary:nth-child(1) { border-left: 3px solid var(--store); animation-delay: 0.05s; }
+    .summary:nth-child(2) { border-left: 3px solid var(--db); animation-delay: 0.1s; }
+    .summary:nth-child(3) { border-left: 3px solid var(--amber); animation-delay: 0.15s; }
+
+    .summary b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .summary span { color: var(--muted); font-size: 14px; }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.25s ease, border-color 0.25s ease;
+      animation: fadeUp 0.55s ease both;
+    }
+
+    .card:hover { transform: translateY(-4px); }
+
+    .card.store { border-color: rgba(167, 139, 250, 0.35); }
+    .card.db { border-color: rgba(56, 189, 248, 0.35); }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card.store .card-head { background: linear-gradient(180deg, var(--store-soft), transparent); }
+    .card.db .card-head { background: linear-gradient(180deg, var(--db-soft), transparent); }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+
+    .card.store .card-icon { background: var(--store-soft); }
+    .card.db .card-icon { background: var(--db-soft); }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .card-body { padding: 18px 20px 22px; }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field:last-child { margin-bottom: 0; }
+
+    .field-label {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .card.store .field-label { background: var(--store-soft); color: var(--store); }
+    .card.db .field-label { background: var(--db-soft); color: var(--db); }
+
+    .field p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .field strong { color: var(--ink); }
+
+    .compare-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      animation: fadeUp 0.45s ease both;
+    }
+
+    .compare-row .dim {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      width: 100%;
+    }
+
+    .pill.store {
+      background: var(--store-soft);
+      color: var(--store);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+    }
+
+    .pill.db {
+      background: var(--db-soft);
+      color: var(--db);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .bar-wrap {
+      margin-top: 8px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      border-radius: 999px;
+      transform-origin: left center;
+      animation: barGrow 0.8s ease both;
+    }
+
+    .bar.store { background: linear-gradient(90deg, var(--store), #c4b5fd); }
+    .bar.db { background: linear-gradient(90deg, var(--db), #7dd3fc); }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .panel-head h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .panel-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .panel-body { padding: 20px; }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .sim-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sim-btn:hover { border-color: var(--store); }
+    .sim-btn.active.store {
+      border-color: var(--store);
+      background: var(--store-soft);
+      color: var(--store);
+    }
+
+    .sim-btn.active.db {
+      border-color: var(--db);
+      background: var(--db-soft);
+      color: var(--db);
+    }
+
+    .sim-btn.run {
+      margin-left: auto;
+      background: linear-gradient(135deg, var(--store), var(--db));
+      border: 0;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .viz {
+      position: relative;
+      min-height: 280px;
+      padding: 20px;
+      border-radius: 14px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .viz-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(42, 58, 92, 0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(42, 58, 92, 0.35) 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.5;
+    }
+
+    .viz-stage {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+      min-height: 240px;
+    }
+
+    .viz-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .viz-col h4 {
+      margin: 0;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .vector-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--muted);
+      opacity: 0.5;
+      transition: all 0.35s ease;
+    }
+
+    .vector-dot.hit {
+      background: var(--green);
+      opacity: 1;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
+      transform: scale(1.3);
+    }
+
+    .vector-cloud {
+      display: grid;
+      grid-template-columns: repeat(5, 14px);
+      gap: 8px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px dashed var(--line);
+      min-width: 120px;
+    }
+
+    .query-node {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+      animation: queryPulse 2s ease infinite;
+    }
+
+    .query-node.store { background: var(--store); }
+    .query-node.db { background: var(--db); }
+
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 140px;
+    }
+
+    .pipe-step {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      font-size: 12px;
+      text-align: center;
+      opacity: 0.35;
+      transform: translateX(-6px);
+      transition: all 0.35s ease;
+    }
+
+    .pipe-step.lit {
+      opacity: 1;
+      transform: none;
+      border-color: var(--amber);
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .sim-log {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--panel);
+      font-family: ui-monospace, "Cascadia Code", monospace;
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 44px;
+    }
+
+    .sim-log strong { color: var(--ink); }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .check-item:hover { border-color: var(--store); }
+    .check-item.checked { border-color: var(--db); background: var(--db-soft); }
+
+    .check-item input {
+      margin-top: 3px;
+      accent-color: var(--db);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .check-item label {
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .check-item label b { display: block; margin-bottom: 2px; }
+    .check-item label span { color: var(--muted); font-size: 13px; }
+
+    .verdict {
+      margin-top: 18px;
+      padding: 20px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(56, 189, 248, 0.2));
+      border: 1px solid var(--line);
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .verdict h3 { margin: 0 0 8px; font-size: 18px; }
+    .verdict p { margin: 0; color: var(--muted); }
+
+    .verdict .badge {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .verdict.store .badge { background: var(--store-soft); color: var(--store); }
+    .verdict.db .badge { background: var(--db-soft); color: var(--db); }
+    .verdict.both .badge { background: var(--amber-soft); color: var(--amber); }
+
+    .examples-split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: default;
+      transition: all 0.25s ease;
+    }
+
+    .tag:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .tag.store:hover { border-color: var(--store); color: var(--store); }
+    .tag.db:hover { border-color: var(--db); color: var(--db); }
+
+    .when-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .when-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .when-list li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .when-list li::marker { color: var(--store); }
+    .card.db .when-list li::marker { color: var(--db); }
+
+    .rule-banner {
+      padding: 24px 28px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(109, 40, 217, 0.45), rgba(14, 116, 144, 0.45));
+      border: 1px solid rgba(167, 139, 250, 0.35);
+      text-align: center;
+      animation: fadeUp 0.55s ease both;
+    }
+
+    .rule-banner h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+
+    .rule-banner p {
+      margin: 0 auto;
+      max-width: 680px;
+      color: rgba(238, 242, 255, 0.88);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .rule-banner .highlight-store { color: #c4b5fd; font-weight: 700; }
+    .rule-banner .highlight-db { color: #7dd3fc; font-weight: 700; }
+
+    .toggle-compare {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .toggle-track {
+      display: inline-flex;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+    }
+
+    .toggle-track button {
+      padding: 8px 18px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+
+    .toggle-track button.active.store {
+      background: var(--store);
+      color: #fff;
+    }
+
+    .toggle-track button.active.db {
+      background: var(--db);
+      color: #fff;
+    }
+
+    .focus-panel {
+      display: none;
+      animation: tabIn 0.35s ease both;
+    }
+
+    .focus-panel.active { display: block; }
+
+    .related {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+      animation: fadeUp 0.55s ease both;
+    }
+
+    .related a {
+      color: var(--db);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .related a:hover { color: var(--store); }
+
+    footer {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--store);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover { color: var(--db); }
+
+    @media (max-width: 900px) {
+      .split, .examples-split, .when-grid, .summary-strip { grid-template-columns: 1fr; }
+      .compare-row { grid-template-columns: 1fr; }
+      .compare-row .dim { margin-bottom: 4px; }
+      .viz-stage { grid-template-columns: 1fr; }
+      .sim-btn.run { margin-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <a class="back-link" href="../learning/index.html">← Back to guides</a>
+
+    <header class="hero">
+      <p class="eyebrow">Ultimate RAG Bootcamp · Section 6</p>
+      <h1>Vector Store vs Vector Database</h1>
+      <p class="subtitle">
+        Lightweight similarity search libraries versus full-scale vector databases —
+        compare architecture, scale, cost, and when to graduate from prototype to production.
+        This sits at the <strong>indexing step</strong> of the
+        <a href="rag-architecture.html" style="color:var(--db);text-decoration:none;font-weight:600">RAG Architecture</a>
+        pipeline, after chunking and embedding.
+      </p>
+    </header>
+
+    <div class="summary-strip">
+      <div class="summary">
+        <b>Vector Store</b>
+        <span>Library or tool focused on storing and searching vectors efficiently — usually in-memory or as a local file.</span>
+      </div>
+      <div class="summary">
+        <b>Vector Database</b>
+        <span>Full database system for vector data at scale — replication, sharding, and high availability built in.</span>
+      </div>
+      <div class="summary">
+        <b>The Simple Rule</b>
+        <span>Prototype with a store; graduate to a database when you need production reliability and advanced querying.</span>
+      </div>
+    </div>
+
+    <div class="nav-wrap">
+      <nav class="nav" aria-label="Sections">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="compare">Quick Compare</button>
+        <button class="tab-btn" data-tab="simulator">Search Simulator</button>
+        <button class="tab-btn" data-tab="decide">Decision Guide</button>
+        <button class="tab-btn" data-tab="examples">Examples &amp; Rules</button>
+      </nav>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="tab-panel active" id="tab-overview">
+      <div class="split">
+        <article class="card store">
+          <div class="card-head">
+            <div class="card-icon">📦</div>
+            <h2>Vector Store</h2>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <span class="field-label">What it is</span>
+              <p>A <strong>lightweight library or tool</strong> focused on <strong>storing and searching vectors</strong> efficiently.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Core function</span>
+              <p><strong>Simple similarity search</strong> — find the K nearest neighbors to a query vector.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Architecture</span>
+              <p>Usually runs <strong>in-memory</strong> or as a <strong>local file</strong> — single-machine operation.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Best for</span>
+              <p><strong>Prototypes, research,</strong> and <strong>small applications</strong> with fewer than ~1M vectors.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card db">
+          <div class="card-head">
+            <div class="card-icon">🗄️</div>
+            <h2>Vector Database</h2>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <span class="field-label">What it is</span>
+              <p>A <strong>full-featured database system</strong> designed for <strong>vector data at scale</strong>.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Core function</span>
+              <p><strong>Advanced search</strong> with filters, metadata queries, and full <strong>CRUD</strong> database operations.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Architecture</span>
+              <p><strong>Distributed system</strong> with <strong>replication, sharding,</strong> and <strong>high availability</strong>.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Best for</span>
+              <p><strong>Production systems, enterprise applications,</strong> and <strong>billions of vectors</strong>.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- COMPARE -->
+    <section class="tab-panel" id="tab-compare">
+      <div class="toggle-compare">
+        <div class="toggle-track" role="group" aria-label="Highlight side">
+          <button class="toggle-side active store" data-side="both">Both</button>
+          <button class="toggle-side store" data-side="store">Vector Store</button>
+          <button class="toggle-side db" data-side="db">Vector Database</button>
+        </div>
+      </div>
+
+      <div class="compare-grid" id="compareGrid">
+        <div class="compare-row" data-row="scale">
+          <div class="dim">Scale</div>
+          <div>
+            <span class="pill store">~1M vectors</span>
+            <div class="bar-wrap"><div class="bar store" style="width: 22%"></div></div>
+          </div>
+          <div>
+            <span class="pill db">Billions+</span>
+            <div class="bar-wrap"><div class="bar db" style="width: 100%"></div></div>
+          </div>
+        </div>
+        <div class="compare-row" data-row="setup">
+          <div class="dim">Setup time</div>
+          <div>
+            <span class="pill store">Minutes</span>
+            <div class="bar-wrap"><div class="bar store" style="width: 18%"></div></div>
+          </div>
+          <div>
+            <span class="pill db">Hours / Days</span>
+            <div class="bar-wrap"><div class="bar db" style="width: 75%"></div></div>
+          </div>
+        </div>
+        <div class="compare-row" data-row="cost">
+          <div class="dim">Cost</div>
+          <div>
+            <span class="pill store">Free / $</span>
+            <div class="bar-wrap"><div class="bar store" style="width: 15%"></div></div>
+          </div>
+          <div>
+            <span class="pill db">$$$ / $$$$</span>
+            <div class="bar-wrap"><div class="bar db" style="width: 90%"></div></div>
+          </div>
+        </div>
+        <div class="compare-row" data-row="speed">
+          <div class="dim">Query speed</div>
+          <div>
+            <span class="pill store">Microseconds</span>
+            <div class="bar-wrap"><div class="bar store" style="width: 95%"></div></div>
+          </div>
+          <div>
+            <span class="pill db">Milliseconds</span>
+            <div class="bar-wrap"><div class="bar db" style="width: 55%"></div></div>
+          </div>
+        </div>
+        <div class="compare-row" data-row="features">
+          <div class="dim">Features</div>
+          <div>
+            <span class="pill store">Basic search</span>
+            <div class="bar-wrap"><div class="bar store" style="width: 30%"></div></div>
+          </div>
+          <div>
+            <span class="pill db">Full CRUD</span>
+            <div class="bar-wrap"><div class="bar db" style="width: 100%"></div></div>
+          </div>
+        </div>
+        <div class="compare-row" data-row="deploy">
+          <div class="dim">Deployment</div>
+          <div>
+            <span class="pill store">Local</span>
+            <div class="bar-wrap"><div class="bar store" style="width: 40%"></div></div>
+          </div>
+          <div>
+            <span class="pill db">Cloud</span>
+            <div class="bar-wrap"><div class="bar db" style="width: 85%"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULATOR -->
+    <section class="tab-panel" id="tab-simulator">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>K-Nearest Neighbors Search Simulator</h3>
+          <p>Watch how a query vector flows through a vector store versus a vector database pipeline.</p>
+        </div>
+        <div class="panel-body">
+          <div class="sim-controls">
+            <button class="sim-btn active store" data-mode="store">Vector Store path</button>
+            <button class="sim-btn db" data-mode="db">Vector Database path</button>
+            <button class="sim-btn run" id="runSim">Run search →</button>
+          </div>
+
+          <div class="viz">
+            <div class="viz-grid" aria-hidden="true"></div>
+            <div class="viz-stage">
+              <div class="viz-col">
+                <h4>Indexed vectors</h4>
+                <div class="vector-cloud" id="vectorCloud"></div>
+              </div>
+
+              <div class="viz-col">
+                <h4>Query</h4>
+                <div class="query-node store" id="queryNode">Q</div>
+                <div class="pipeline" id="pipeline"></div>
+              </div>
+
+              <div class="viz-col">
+                <h4>Top-K results</h4>
+                <div class="vector-cloud" id="resultCloud"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-log" id="simLog">Select a path and click <strong>Run search</strong> to animate retrieval.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECIDE -->
+    <section class="tab-panel" id="tab-decide">
+      <div class="split">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Which fits your project?</h3>
+            <p>Check every statement that applies. Your recommendation updates live.</p>
+          </div>
+          <div class="panel-body">
+            <div class="checklist" id="decideChecks">
+              <div class="check-item" data-weight="store">
+                <input type="checkbox" id="c1">
+                <label for="c1"><b>Proof of concept or learning project</b><span>You're experimenting, not shipping to customers yet.</span></label>
+              </div>
+              <div class="check-item" data-weight="store">
+                <input type="checkbox" id="c2">
+                <label for="c2"><b>Under ~1 million vectors</b><span>Dataset fits comfortably on one machine.</span></label>
+              </div>
+              <div class="check-item" data-weight="store">
+                <input type="checkbox" id="c3">
+                <label for="c3"><b>Need fastest possible search</b><span>In-memory ANN can hit microsecond latency.</span></label>
+              </div>
+              <div class="check-item" data-weight="store">
+                <input type="checkbox" id="c4">
+                <label for="c4"><b>Limited budget</b><span>Open-source stores like FAISS or Chroma cost little to run locally.</span></label>
+              </div>
+              <div class="check-item" data-weight="store">
+                <input type="checkbox" id="c5">
+                <label for="c5"><b>Embedded or offline application</b><span>You want full control without managed cloud dependencies.</span></label>
+              </div>
+              <div class="check-item" data-weight="db">
+                <input type="checkbox" id="c6">
+                <label for="c6"><b>Production application</b><span>Real users, SLAs, and uptime expectations.</span></label>
+              </div>
+              <div class="check-item" data-weight="db">
+                <input type="checkbox" id="c7">
+                <label for="c7"><b>Scale beyond millions of vectors</b><span>Sharding and distributed indexing become necessary.</span></label>
+              </div>
+              <div class="check-item" data-weight="db">
+                <input type="checkbox" id="c8">
+                <label for="c8"><b>High availability &amp; reliability</b><span>Replication, failover, and managed ops matter.</span></label>
+              </div>
+              <div class="check-item" data-weight="db">
+                <input type="checkbox" id="c9">
+                <label for="c9"><b>Advanced filtering &amp; metadata search</b><span>Combine vector similarity with structured filters and CRUD.</span></label>
+              </div>
+              <div class="check-item" data-weight="db">
+                <input type="checkbox" id="c10">
+                <label for="c10"><b>Multiple users or tenants</b><span>Isolation, auth, and multi-tenant access patterns.</span></label>
+              </div>
+              <div class="check-item" data-weight="db">
+                <input type="checkbox" id="c11">
+                <label for="c11"><b>Want managed infrastructure</b><span>Prefer Pinecone, Weaviate Cloud, or similar over self-hosting.</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="verdict store" id="verdict">
+          <span class="badge">Recommendation</span>
+          <h3>Start with a Vector Store</h3>
+          <p>Select the checkboxes that describe your project to get a tailored recommendation based on the bootcamp decision criteria.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXAMPLES -->
+    <section class="tab-panel" id="tab-examples">
+      <h3 style="margin: 0 0 14px; font-size: 18px;">Popular examples</h3>
+      <div class="examples-split">
+        <div class="panel">
+          <div class="panel-head">
+            <h3 style="margin:0;font-size:16px;color:var(--store)">Vector Stores</h3>
+          </div>
+          <div class="panel-body">
+            <div class="tag-cloud">
+              <span class="tag store">FAISS</span>
+              <span class="tag store">Annoy</span>
+              <span class="tag store">ChromaDB</span>
+              <span class="tag store">ScaNN</span>
+              <span class="tag store">NMSLIB</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h3 style="margin:0;font-size:16px;color:var(--db)">Vector Databases</h3>
+          </div>
+          <div class="panel-body">
+            <div class="tag-cloud">
+              <span class="tag db">Pinecone</span>
+              <span class="tag db">Weaviate</span>
+              <span class="tag db">Qdrant</span>
+              <span class="tag db">Milvus</span>
+              <span class="tag db">Vespa</span>
+              <span class="tag db">DataStax</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="when-grid">
+        <article class="card store">
+          <div class="card-head">
+            <div class="card-icon">📁</div>
+            <h2>Use Vector Store When…</h2>
+          </div>
+          <div class="card-body">
+            <ul class="when-list">
+              <li>Building a proof of concept</li>
+              <li>Working with &lt; 1 million vectors</li>
+              <li>Need fastest possible search speed</li>
+              <li>Have a limited budget</li>
+              <li>Want full control over the implementation</li>
+              <li>Building embedded applications</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="card db">
+          <div class="card-head">
+            <div class="card-icon">☁️</div>
+            <h2>Use Vector Database When…</h2>
+          </div>
+          <div class="card-body">
+            <ul class="when-list">
+              <li>Building production applications</li>
+              <li>Need to scale beyond millions of vectors</li>
+              <li>Require high availability &amp; reliability</li>
+              <li>Need advanced filtering &amp; metadata search</li>
+              <li>Have multiple users / tenants</li>
+              <li>Want managed infrastructure</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <div class="rule-banner">
+        <h3>The Simple Rule</h3>
+        <p>
+          Start with a <span class="highlight-store">Vector Store</span> for prototyping and learning.
+          Graduate to a <span class="highlight-db">Vector Database</span> when you need production-scale features,
+          reliability, and advanced querying capabilities.
+        </p>
+      </div>
+    </section>
+
+    <section class="related" aria-label="Related guides">
+      <p>
+        Related:
+        <a href="rag-architecture.html">RAG Architecture</a> ·
+        <a href="langchain-document-components.html">LangChain Document Model</a> ·
+        <a href="CRAG.html">CRAG Decision Guide</a> ·
+        <a href="../learning/index.html">All learning guides</a>
+      </p>
+    </section>
+
+    <footer>
+      Vector Store vs Vector Database · Ultimate RAG Bootcamp · Section 6 ·
+      <a href="rag-architecture.html">RAG Architecture →</a>
+    </footer>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".tab-panel");
+
+    tabs.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        tabs.forEach((b) => b.classList.remove("active"));
+        panels.forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    const toggleSides = document.querySelectorAll(".toggle-side");
+    const compareRows = document.querySelectorAll(".compare-row");
+
+    toggleSides.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        toggleSides.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const side = btn.dataset.side;
+        compareRows.forEach((row) => {
+          const pills = row.querySelectorAll(".pill");
+          const bars = row.querySelectorAll(".bar");
+          pills.forEach((p) => (p.style.opacity = "1"));
+          bars.forEach((b) => (b.style.opacity = "1"));
+          if (side === "store") {
+            pills[1].style.opacity = "0.25";
+            bars[1].style.opacity = "0.25";
+          } else if (side === "db") {
+            pills[0].style.opacity = "0.25";
+            bars[0].style.opacity = "0.25";
+          }
+        });
+      });
+    });
+
+    const storeSteps = [
+      "Load index (in-memory)",
+      "Compute cosine similarity",
+      "Return top-K neighbors"
+    ];
+
+    const dbSteps = [
+      "Parse query + metadata filters",
+      "Route to shard / replica",
+      "ANN search + CRUD layer",
+      "Return filtered top-K"
+    ];
+
+    let simMode = "store";
+    const modeBtns = document.querySelectorAll(".sim-btn[data-mode]");
+    const queryNode = document.getElementById("queryNode");
+    const pipeline = document.getElementById("pipeline");
+    const simLog = document.getElementById("simLog");
+    const vectorCloud = document.getElementById("vectorCloud");
+    const resultCloud = document.getElementById("resultCloud");
+
+    function buildDots(container, count) {
+      container.innerHTML = "";
+      for (let i = 0; i < count; i++) {
+        const dot = document.createElement("div");
+        dot.className = "vector-dot";
+        dot.dataset.idx = String(i);
+        container.appendChild(dot);
+      }
+    }
+
+    buildDots(vectorCloud, 25);
+    buildDots(resultCloud, 5);
+
+    function renderPipeline(steps) {
+      pipeline.innerHTML = steps.map((s) => `<div class="pipe-step">${s}</div>`).join("");
+    }
+
+    renderPipeline(storeSteps);
+
+    modeBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        modeBtns.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        simMode = btn.dataset.mode;
+        queryNode.className = "query-node " + simMode;
+        renderPipeline(simMode === "store" ? storeSteps : dbSteps);
+        simLog.innerHTML = `Ready to run <strong>${simMode === "store" ? "Vector Store" : "Vector Database"}</strong> retrieval path.`;
+      });
+    });
+
+    let simRunning = false;
+
+    document.getElementById("runSim").addEventListener("click", async () => {
+      if (simRunning) return;
+      simRunning = true;
+
+      const steps = pipeline.querySelectorAll(".pipe-step");
+      const sourceDots = vectorCloud.querySelectorAll(".vector-dot");
+      const resultDots = resultCloud.querySelectorAll(".vector-dot");
+
+      sourceDots.forEach((d) => d.classList.remove("hit"));
+      resultDots.forEach((d) => d.classList.remove("hit"));
+      steps.forEach((s) => s.classList.remove("lit"));
+
+      const hits = simMode === "store"
+        ? [2, 7, 11, 14, 18]
+        : [1, 4, 9, 16, 22];
+
+      if (simMode === "store") {
+        simLog.textContent = "Vector Store: loading in-memory FAISS index…";
+      } else {
+        simLog.textContent = "Vector Database: routing query to distributed shard…";
+      }
+
+      await delay(500);
+
+      for (let i = 0; i < steps.length; i++) {
+        steps[i].classList.add("lit");
+        simLog.innerHTML = `<strong>Step ${i + 1}/${steps.length}:</strong> ${steps[i].textContent}`;
+        await delay(simMode === "store" ? 650 : 850);
+      }
+
+      let idx = 0;
+      for (const h of hits) {
+        sourceDots[h].classList.add("hit");
+        resultDots[idx].classList.add("hit");
+        idx++;
+        await delay(180);
+      }
+
+      const latency = simMode === "store" ? "0.3 ms" : "12 ms";
+      const extra = simMode === "db" ? " (includes metadata filter + replication read)" : " (pure ANN, no CRUD overhead)";
+      simLog.innerHTML = `<strong>Done.</strong> Returned top-5 neighbors in ~${latency}${extra}.`;
+
+      simRunning = false;
+    });
+
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    const checkItems = document.querySelectorAll(".check-item");
+    const verdict = document.getElementById("verdict");
+
+    function updateVerdict() {
+      let storeScore = 0;
+      let dbScore = 0;
+
+      checkItems.forEach((item) => {
+        const input = item.querySelector("input");
+        item.classList.toggle("checked", input.checked);
+        if (!input.checked) return;
+        if (item.dataset.weight === "store") storeScore++;
+        else dbScore++;
+      });
+
+      verdict.classList.remove("store", "db", "both");
+
+      if (storeScore === 0 && dbScore === 0) {
+        verdict.classList.add("store");
+        verdict.innerHTML = `
+          <span class="badge">Recommendation</span>
+          <h3>Start with a Vector Store</h3>
+          <p>Select the checkboxes that describe your project to get a tailored recommendation.</p>`;
+        return;
+      }
+
+      if (storeScore > dbScore) {
+        verdict.classList.add("store");
+        verdict.innerHTML = `
+          <span class="badge">Vector Store</span>
+          <h3>Lean toward a Vector Store</h3>
+          <p>${storeScore} store signal${storeScore > 1 ? "s" : ""} vs ${dbScore} database signal${dbScore !== 1 ? "s" : ""}.
+          FAISS, ChromaDB, or Annoy are strong fits for prototyping, local RAG, and sub-million-vector workloads.</p>`;
+      } else if (dbScore > storeScore) {
+        verdict.classList.add("db");
+        verdict.innerHTML = `
+          <span class="badge">Vector Database</span>
+          <h3>Lean toward a Vector Database</h3>
+          <p>${dbScore} database signal${dbScore > 1 ? "s" : ""} vs ${storeScore} store signal${storeScore !== 1 ? "s" : ""}.
+          Pinecone, Weaviate, Qdrant, or Milvus better match production scale, filtering, and reliability needs.</p>`;
+      } else {
+        verdict.classList.add("both");
+        verdict.innerHTML = `
+          <span class="badge">Hybrid path</span>
+          <h3>Prototype first, then migrate</h3>
+          <p>Scores are tied (${storeScore} each). Start with a vector store for fast iteration, then plan a migration path to a vector database before production launch.</p>`;
+      }
+    }
+
+    checkItems.forEach((item) => {
+      const input = item.querySelector("input");
+      input.addEventListener("change", updateVerdict);
+      item.addEventListener("click", (e) => {
+        if (e.target.tagName !== "INPUT") {
+          input.checked = !input.checked;
+          updateVerdict();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
