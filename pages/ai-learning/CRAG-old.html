@@ -1,44 +1,35 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-page="crag">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Corrective RAG (CRAG) — Interactive Guide</title>
+  <title>CRAG Interactive Explainer</title>
+  <script src="/assets/theme-switcher.js"></script>
   <style>
     :root {
-      --bg: #0c1222;
-      --surface: #141d33;
-      --panel: #1a2744;
-      --ink: #eef2ff;
-      --muted: #94a3c4;
-      --line: #2a3a5c;
-      --teal: #2dd4bf;
-      --teal-soft: rgba(45, 212, 191, 0.12);
-      --indigo: #8b5cf6;
-      --indigo-soft: rgba(139, 92, 246, 0.15);
-      --amber: #fbbf24;
-      --amber-soft: rgba(251, 191, 36, 0.12);
-      --rose: #fb7185;
-      --rose-soft: rgba(251, 113, 133, 0.12);
-      --green: #4ade80;
-      --green-soft: rgba(74, 222, 128, 0.12);
-      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
-      --glow: 0 0 40px rgba(139, 92, 246, 0.25);
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.3)); }
-      50% { filter: drop-shadow(0 0 16px rgba(45, 212, 191, 0.5)); }
-    }
-
-    @keyframes tabIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: none; }
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --ink: #18202f;
+      --muted: #637083;
+      --line: #d9dee8;
+      --teal: #0f766e;
+      --teal-soft: #d9f4ef;
+      --indigo: #4f46e5;
+      --indigo-soft: #e8e7ff;
+      --amber: #b45309;
+      --amber-soft: #fff1d6;
+      --rose: #be123c;
+      --rose-soft: #ffe3ea;
+      --green: #15803d;
+      --green-soft: #e1f6e8;
+      --shadow: 0 14px 35px rgba(22, 30, 46, 0.08);
+      --raised: #fbfcfe;
+      --input-bg: #ffffff;
+      --meter-bg: #e5e7eb;
+      --track-bg: #cbd5e1;
+      --track-knob: #ffffff;
+      --verdict-text: #334155;
+      --flow-canvas-bg: #ffffff;
     }
 
     * {
@@ -49,11 +40,9 @@
       margin: 0;
       min-height: 100vh;
       background: var(--bg);
-      background-image:
-        radial-gradient(ellipse 80% 50% at 15% -10%, rgba(139, 92, 246, 0.16), transparent),
-        radial-gradient(ellipse 55% 40% at 95% 5%, rgba(45, 212, 191, 0.1), transparent);
       color: var(--ink);
-      font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      transition: background 0.25s ease, color 0.25s ease;
     }
 
     button,
@@ -65,163 +54,88 @@
     .app {
       width: min(1360px, calc(100vw - 32px));
       margin: 0 auto;
-      padding: 28px 0 40px;
-    }
-
-    .hero {
-      margin-bottom: 8px;
-      animation: fadeUp 0.55s ease both;
-    }
-
-    .hero-content {
-      max-width: 780px;
+      padding: 28px 0 88px;
     }
 
     .topbar {
-      display: block;
-      margin-bottom: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(32px, 4.5vw, 56px);
-      line-height: 1.08;
-      background: linear-gradient(135deg, #fff 25%, var(--teal));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    h1 .acronym {
-      font-size: 0.72em;
-      font-weight: 700;
-      opacity: 0.92;
-    }
-
-    .tagline {
-      margin: 10px 0 0;
-      font-size: clamp(17px, 2.2vw, 22px);
-      font-weight: 600;
-      line-height: 1.35;
-      color: var(--ink);
-      max-width: 680px;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.02;
+      letter-spacing: 0;
     }
 
     .subtitle {
-      margin: 14px 0 0;
-      max-width: 720px;
+      margin: 12px 0 0;
+      max-width: 820px;
       color: var(--muted);
-      font-size: 16px;
-      line-height: 1.6;
-    }
-
-    .nav-wrap {
-      margin: 26px 0 24px;
-      animation: fadeUp 0.55s 0.08s ease both;
-    }
-
-    .nav {
-      display: flex;
-      gap: 6px;
-      padding: 6px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      width: 100%;
-    }
-
-    .tab-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 1;
-      gap: 8px;
-      min-height: 40px;
-      padding: 8px 12px;
-      border: 0;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-    }
-
-    .eyebrow {
-      margin: 0 0 6px;
-      color: var(--teal);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-size: 17px;
     }
 
     .summary-strip {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin: 0 0 28px;
+      gap: 12px;
+      margin: 22px 0;
     }
 
     .summary {
-      min-height: 100px;
-      padding: 16px 16px 16px 18px;
+      min-height: 92px;
+      padding: 16px;
       border: 1px solid var(--line);
-      border-left: 3px solid var(--teal);
-      border-radius: 12px;
-      background: var(--surface);
+      border-radius: 8px;
+      background: var(--panel);
       box-shadow: var(--shadow);
-      transition: transform 0.25s ease, border-color 0.25s ease;
-      animation: fadeUp 0.5s ease both;
-      display: grid;
-      grid-template-columns: 36px minmax(0, 1fr);
-      gap: 12px;
-      align-items: start;
-    }
-
-    .summary:nth-child(2) { border-left-color: var(--indigo); }
-    .summary:nth-child(3) { border-left-color: var(--rose); }
-
-    .summary-icon {
-      display: grid;
-      place-items: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: var(--teal-soft);
-      color: var(--teal);
-      font-size: 18px;
-      line-height: 1;
-    }
-
-    .summary:nth-child(2) .summary-icon { background: var(--indigo-soft); color: var(--indigo); }
-    .summary:nth-child(3) .summary-icon { background: var(--rose-soft); color: var(--rose); }
-
-    .summary:nth-child(1) { animation-delay: 0.05s; }
-    .summary:nth-child(2) { animation-delay: 0.1s; }
-    .summary:nth-child(3) { animation-delay: 0.15s; }
-
-    .summary:hover {
-      transform: translateY(-3px);
-      border-color: var(--teal);
     }
 
     .summary b {
       display: block;
-      margin-bottom: 4px;
-      font-size: 15px;
-      color: var(--ink);
+      margin-bottom: 5px;
+      font-size: 14px;
     }
 
     .summary span {
       color: var(--muted);
     }
 
+    .nav {
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
 
-    .tab-btn:hover {
-      color: var(--ink);
-      background: var(--indigo-soft);
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
     }
 
     .tab-btn svg {
@@ -240,43 +154,20 @@
 
     .tab-panel.active {
       display: block;
-      animation: tabIn 0.35s ease both;
     }
 
     .grid-2 {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 420px;
-      gap: 20px;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 18px;
       align-items: start;
-    }
-
-    .grid-2 .panel:first-child {
-      order: 2;
-    }
-
-    .grid-2 .panel:last-child {
-      order: 1;
-    }
-
-    @media (min-width: 1101px) {
-      .grid-2 .panel:first-child {
-        order: 1;
-      }
-
-      .grid-2 .panel:last-child {
-        order: 2;
-      }
     }
 
     .panel {
       border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--surface);
+      border-radius: 8px;
+      background: var(--panel);
       box-shadow: var(--shadow);
-    }
-
-    .panel-header {
-      background: linear-gradient(180deg, rgba(139, 92, 246, 0.06), transparent);
     }
 
     .panel-header {
@@ -323,15 +214,9 @@
       min-height: 40px;
       padding: 0 10px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
+      border-radius: 6px;
+      background: var(--input-bg);
       color: var(--ink);
-      transition: border-color 0.2s ease;
-    }
-
-    select:focus {
-      outline: 2px solid var(--indigo);
-      border-color: var(--indigo);
     }
 
     .switch-row {
@@ -341,13 +226,8 @@
       align-items: center;
       padding: 12px;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--panel);
-      transition: border-color 0.2s ease;
-    }
-
-    .switch-row:hover {
-      border-color: var(--teal);
+      border-radius: 8px;
+      background: var(--raised);
     }
 
     .switch-row span {
@@ -371,7 +251,7 @@
       position: absolute;
       inset: 0;
       border-radius: 999px;
-      background: var(--line);
+      background: var(--track-bg);
       transition: background .18s ease;
     }
 
@@ -383,7 +263,7 @@
       width: 20px;
       height: 20px;
       border-radius: 999px;
-      background: #fff;
+      background: var(--track-knob);
       box-shadow: 0 1px 5px rgba(0, 0, 0, .22);
       transition: transform .18s ease;
     }
@@ -405,25 +285,23 @@
       display: grid;
       gap: 12px;
       padding: 16px;
-      border-radius: 12px;
+      border-radius: 8px;
       border: 1px solid var(--line);
-      background: var(--panel);
+      background: var(--raised);
     }
 
     .meter {
       overflow: hidden;
-      height: 14px;
+      height: 12px;
       border-radius: 999px;
-      background: var(--line);
+      background: var(--meter-bg);
     }
 
     .meter-fill {
       width: 0%;
       height: 100%;
       background: var(--teal);
-      border-radius: 999px;
-      transition: width .35s cubic-bezier(0.4, 0, 0.2, 1), background .35s ease;
-      box-shadow: 0 0 12px currentColor;
+      transition: width .22s ease, background .22s ease;
     }
 
     .verdict {
@@ -443,13 +321,8 @@
       width: 34px;
       height: 34px;
       border-radius: 8px;
-      background: var(--surface);
+      background: var(--input-bg);
       color: var(--green);
-      transition: transform 0.3s ease;
-    }
-
-    .verdict.updated .verdict-icon {
-      transform: scale(1.1);
     }
 
     .verdict h3 {
@@ -459,7 +332,7 @@
 
     .verdict p {
       margin: 0;
-      color: var(--muted);
+      color: var(--verdict-text);
     }
 
     .reason-list {
@@ -492,122 +365,61 @@
     }
 
     .flow-canvas {
-      min-height: 680px;
-      padding: 14px 18px 18px;
+      min-height: 620px;
+      padding: 18px;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: 8px;
       background:
-        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(139, 92, 246, 0.08), transparent),
-        var(--panel);
-      overflow: hidden;
+        linear-gradient(90deg, rgba(79, 70, 229, .06) 1px, transparent 1px),
+        linear-gradient(rgba(15, 118, 110, .06) 1px, transparent 1px),
+        var(--flow-canvas-bg);
+      background-size: 32px 32px;
     }
 
     .flow-svg {
       width: 100%;
       height: auto;
-      min-height: 640px;
+      min-height: 560px;
       display: block;
-    }
-
-    .flow-lane {
-      fill: rgba(255, 255, 255, 0.015);
-      stroke: var(--line);
-      stroke-width: 1;
-      stroke-dasharray: 6 8;
-    }
-
-    .flow-lane-label {
-      fill: var(--muted);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
     }
 
     .flow-node {
       cursor: pointer;
     }
 
-    .flow-node .node-bg {
-      transition: fill .2s ease, stroke .2s ease, filter .2s ease, stroke-width .2s ease;
+    .flow-node rect,
+    .flow-node path {
+      transition: fill .18s ease, stroke .18s ease, filter .18s ease;
     }
 
-    .flow-node.active .node-bg {
-      stroke: var(--teal);
-      stroke-width: 2.5;
-      filter: drop-shadow(0 0 10px rgba(45, 212, 191, 0.45));
-      animation: pulseGlow 2s ease-in-out infinite;
+    .flow-node.active rect,
+    .flow-node.active path {
+      stroke: var(--indigo);
+      filter: drop-shadow(0 10px 16px rgba(79, 70, 229, .2));
     }
-
-    .flow-node .node-ring {
-      opacity: 0;
-      transition: opacity .25s ease;
-    }
-
-    .flow-node.active .node-ring {
-      opacity: 1;
-    }
-
-    .flow-path {
-      fill: none;
-      stroke: #3d4f72;
-      stroke-width: 2;
-      stroke-linecap: round;
-      transition: stroke 0.35s ease, stroke-width 0.35s ease, opacity 0.35s ease;
-      opacity: 0.55;
-    }
-
-    .flow-path.active {
-      stroke: var(--teal);
-      stroke-width: 3;
-      opacity: 1;
-      filter: drop-shadow(0 0 4px rgba(45, 212, 191, 0.35));
-    }
-
-    .flow-path.branch-correct.active { stroke: var(--green); }
-    .flow-path.branch-ambiguous.active { stroke: var(--amber); }
-    .flow-path.branch-incorrect.active { stroke: var(--rose); }
 
     .flow-node text {
       pointer-events: none;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 760;
       fill: var(--ink);
     }
 
-    .flow-node text.sub {
-      font-size: 11px;
-      font-weight: 600;
-      fill: var(--muted);
-    }
-
     .flow-label {
       fill: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-    }
-
-    .flow-label.correct { fill: var(--green); }
-    .flow-label.ambiguous { fill: var(--amber); }
-    .flow-label.incorrect { fill: var(--rose); }
-
-    .flow-merge {
-      fill: none;
-      stroke: var(--line);
-      stroke-width: 1.5;
-      stroke-dasharray: 4 6;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .step-detail {
-      min-height: 680px;
+      min-height: 620px;
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
     }
 
     .step-nav {
       display: grid;
-      grid-template-columns: 40px 40px auto minmax(0, 1fr);
+      grid-template-columns: 40px 40px minmax(0, 1fr);
       gap: 8px;
       margin-top: 18px;
       align-items: center;
@@ -619,39 +431,15 @@
       width: 40px;
       height: 40px;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--panel);
+      border-radius: 8px;
+      background: var(--input-bg);
       color: var(--ink);
       cursor: pointer;
-      transition: all 0.2s ease;
     }
 
     .icon-btn:hover {
       border-color: var(--indigo);
       color: var(--indigo);
-      transform: translateY(-1px);
-    }
-
-    .btn-play {
-      min-height: 40px;
-      padding: 0 14px;
-      border: 1px solid var(--indigo);
-      border-radius: 10px;
-      background: var(--indigo);
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-play:hover {
-      filter: brightness(1.1);
-      box-shadow: var(--glow);
-    }
-
-    .btn-play.playing {
-      background: var(--rose);
-      border-color: var(--rose);
     }
 
     .icon-btn svg {
@@ -679,16 +467,10 @@
       padding: 4px 9px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: var(--panel);
+      background: var(--input-bg);
       color: var(--muted);
       font-size: 13px;
       font-weight: 700;
-      transition: border-color 0.2s ease, color 0.2s ease;
-    }
-
-    .pill:hover {
-      border-color: var(--teal);
-      color: var(--teal);
     }
 
     .cards {
@@ -701,16 +483,9 @@
       min-height: 230px;
       padding: 16px;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: 8px;
       background: var(--panel);
       box-shadow: var(--shadow);
-      transition: transform 0.25s ease, border-color 0.25s ease;
-      animation: fadeUp 0.45s ease both;
-    }
-
-    .case-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--indigo);
     }
 
     .case-card .tag {
@@ -752,17 +527,6 @@
       gap: 14px;
       margin-top: 14px;
     }
-
-    .compare .panel {
-      background: var(--panel);
-    }
-
-    .case-card:nth-child(1) { animation-delay: 0.03s; }
-    .case-card:nth-child(2) { animation-delay: 0.06s; }
-    .case-card:nth-child(3) { animation-delay: 0.09s; }
-    .case-card:nth-child(4) { animation-delay: 0.12s; }
-    .case-card:nth-child(5) { animation-delay: 0.15s; }
-    .case-card:nth-child(6) { animation-delay: 0.18s; }
 
     .compare h3 {
       margin: 0 0 10px;
@@ -810,23 +574,16 @@
       min-height: 70px;
       padding: 13px;
       border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--panel);
+      border-radius: 8px;
+      background: var(--input-bg);
       color: var(--ink);
       cursor: pointer;
       text-align: left;
-      transition: all 0.2s ease;
-    }
-
-    .scenario-btn:hover {
-      border-color: var(--teal);
-      transform: translateX(4px);
     }
 
     .scenario-btn.active {
       border-color: var(--indigo);
       background: var(--indigo-soft);
-      box-shadow: var(--glow);
     }
 
     .scenario-btn span {
@@ -844,45 +601,16 @@
       font-size: 13px;
     }
 
-    .nav-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 28px;
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.2s ease;
-    }
-
-    .nav-link:hover {
-      color: var(--teal);
-    }
-
-    .reason-list li {
-      animation: fadeUp 0.4s ease both;
-    }
-
     @media (max-width: 1100px) {
+      .topbar,
       .grid-2,
       .flow-layout,
       .quiz {
         grid-template-columns: 1fr;
       }
 
-      .grid-2 .panel:first-child,
-      .grid-2 .panel:last-child {
-        order: unset;
-      }
-
       .nav {
         overflow-x: auto;
-        flex-wrap: nowrap;
-      }
-
-      .tab-btn {
-        flex: 0 0 auto;
-        min-width: max-content;
       }
 
       .summary-strip,
@@ -917,74 +645,78 @@
         gap: 3px;
       }
     }
+
+    footer {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover { text-decoration: underline; }
   </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
 </head>
 <body>
   <main class="app">
-    <header class="hero">
-      <div class="hero-content topbar">
-        <p class="eyebrow">Retrieval-Augmented Generation</p>
-        <h1>Corrective RAG <span class="acronym">(CRAG)</span></h1>
-        <p class="tagline">Grade retrieval, correct weak context, and know when the extra loop pays off.</p>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Corrective Retrieval-Augmented Generation</p>
+        <h1>CRAG decision guide</h1>
         <p class="subtitle">
-          Corrective RAG inserts a retrieval-quality evaluator before generation. When context is
-          incomplete, stale, or off-topic, the system can refine, rewrite, search, or abstain — instead
-          of answering from bad evidence.
+          CRAG adds a retrieval quality gate before answer generation. It is useful when retrieved
+          context may be incomplete, stale, or irrelevant, and the system needs a controlled correction path.
         </p>
       </div>
-
-      <div class="nav-wrap">
-        <nav class="nav" aria-label="Sections">
-          <button class="tab-btn active" data-tab="decision">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h10" fill="none" stroke="currentColor" stroke-width="2"/><path d="m11 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-            Fit Check
-          </button>
-          <button class="tab-btn" data-tab="architecture">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h6v6H4zM14 6h6v6h-6zM9 12v6h6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-            Architecture
-          </button>
-          <button class="tab-btn" data-tab="cases">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-            Use Cases
-          </button>
-          <button class="tab-btn" data-tab="practice">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 8h14M7 16h10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-            Scenarios
-          </button>
-        </nav>
-      </div>
+      <nav class="nav" aria-label="Sections">
+        <button class="tab-btn active" data-tab="decision">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h10" fill="none" stroke="currentColor" stroke-width="2"/><path d="m11 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Decision
+        </button>
+        <button class="tab-btn" data-tab="architecture">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h6v6H4zM14 6h6v6h-6zM9 12v6h6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Flow
+        </button>
+        <button class="tab-btn" data-tab="cases">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Use Cases
+        </button>
+        <button class="tab-btn" data-tab="practice">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 8h14M7 16h10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Scenarios
+        </button>
+      </nav>
     </header>
 
     <section class="summary-strip" aria-label="Quick answers">
       <div class="summary">
-        <span class="summary-icon" aria-hidden="true">✓</span>
-        <div>
-          <b>When to use it</b>
-          <span>Use Corrective RAG when retrieval can fail and wrong answers carry real cost.</span>
-        </div>
+        <b>When to use CRAG</b>
+        <span>Use it when retrieval can be wrong and the answer matters enough to verify or correct context.</span>
       </div>
       <div class="summary">
-        <span class="summary-icon" aria-hidden="true">↻</span>
-        <div>
-          <b>How it works</b>
-          <span>Retrieve → grade → refine if correct, rewrite or search if weak → generate from corrected context.</span>
-        </div>
+        <b>Architecture flow</b>
+        <span>Retrieve -> grade retrieval -> refine if good, search/rewrite if weak -> generate from corrected context.</span>
       </div>
       <div class="summary">
-        <span class="summary-icon" aria-hidden="true">✕</span>
-        <div>
-          <b>When to skip it</b>
-          <span>Skip for static KBs, tight latency budgets, or environments where external search is not allowed.</span>
-        </div>
+        <b>When not to use it</b>
+        <span>Avoid it for simple static KBs, strict low-latency flows, or cases where web search is disallowed.</span>
       </div>
     </section>
 
-    <section class="tab-panel active" id="decision" aria-label="Corrective RAG fit check">
+    <section class="tab-panel active" id="decision" aria-label="CRAG decision simulator">
       <div class="grid-2">
         <div class="panel">
           <div class="panel-header">
-            <h2>System conditions</h2>
-            <p>Tune your retrieval setup, risk profile, and constraints — the recommendation updates live.</p>
+            <h2>Do we need CRAG?</h2>
+            <p>Adjust the system conditions and watch the recommendation change.</p>
           </div>
           <div class="panel-body">
             <div class="control-group">
@@ -1040,7 +772,7 @@
                 <span>
                   Retrieval failures are visible in logs or evals
                   <br>
-                  <span>Corrective RAG works best when weak retrieval can be detected and improved.</span>
+                  <span>CRAG works best when weak retrieval can be detected and improved.</span>
                 </span>
                 <span class="switch">
                   <input id="observable" type="checkbox" checked>
@@ -1053,13 +785,13 @@
 
         <div class="panel">
           <div class="panel-header">
-            <h2>Fit recommendation</h2>
-            <p>Score reflects need for a correction loop — not whether your implementation is production-ready.</p>
+            <h2>Recommendation</h2>
+            <p>The score reflects need for a correction loop, not whether your current implementation is ready.</p>
           </div>
           <div class="panel-body decision">
             <div class="score-card">
               <div>
-                <b id="scoreLabel">Correction loop fit: 0</b>
+                <b id="scoreLabel">CRAG fit: 0</b>
                 <p class="small-note" id="scoreText">Adjust the controls to calculate a recommendation.</p>
               </div>
               <div class="meter" aria-hidden="true"><div class="meter-fill" id="meterFill"></div></div>
@@ -1070,13 +802,13 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
               </div>
               <div>
-                <h3 id="verdictTitle">Use Corrective RAG selectively</h3>
+                <h3 id="verdictTitle">Use CRAG selectively</h3>
                 <p id="verdictBody"></p>
               </div>
             </div>
 
             <div>
-              <h3>What drove this result</h3>
+              <h3>What drove the recommendation</h3>
               <ul class="reason-list" id="reasonList"></ul>
             </div>
 
@@ -1085,19 +817,19 @@
                 <div class="panel-body">
                   <h3>Plain RAG</h3>
                   <div class="mini-table">
-                    <div class="mini-row"><b>Control point</b><span>Usually at generation time, after retrieval.</span></div>
+                    <div class="mini-row"><b>Control point</b><span>Usually after retrieval, at generation time.</span></div>
                     <div class="mini-row"><b>Failure mode</b><span>Bad context can still be used confidently.</span></div>
-                    <div class="mini-row"><b>Cost</b><span>Lower latency and fewer model or tool calls.</span></div>
+                    <div class="mini-row"><b>Cost</b><span>Lower latency and fewer model/tool calls.</span></div>
                   </div>
                 </div>
               </div>
               <div class="panel">
                 <div class="panel-body">
-                  <h3>Corrective RAG (CRAG)</h3>
+                  <h3>CRAG</h3>
                   <div class="mini-table">
-                    <div class="mini-row"><b>Control point</b><span>Before generation, via a retrieval evaluator.</span></div>
+                    <div class="mini-row"><b>Control point</b><span>Before generation, using a retrieval evaluator.</span></div>
                     <div class="mini-row"><b>Failure mode</b><span>Weak context routes to rewrite, search, or abstention.</span></div>
-                    <div class="mini-row"><b>Cost</b><span>More latency, orchestration, and observability overhead.</span></div>
+                    <div class="mini-row"><b>Cost</b><span>More latency, orchestration, and observability needs.</span></div>
                   </div>
                 </div>
               </div>
@@ -1107,140 +839,76 @@
       </div>
     </section>
 
-    <section class="tab-panel" id="architecture" aria-label="Corrective RAG architecture flow">
-      <div class="panel" style="margin-bottom: 16px;">
-        <div class="panel-header">
-          <h2>Pipeline architecture</h2>
-          <p>Vertical swimlanes show each CRAG stage — click a node or press Play to walk the correction loop.</p>
-        </div>
-      </div>
+    <section class="tab-panel" id="architecture" aria-label="CRAG architecture flow">
       <div class="flow-layout">
         <div class="flow-canvas">
-          <svg class="flow-svg" viewBox="0 0 900 680" role="img" aria-label="Corrective RAG pipeline architecture">
+          <svg class="flow-svg" viewBox="0 0 980 650" role="img" aria-label="Corrective RAG architecture flow">
             <defs>
-              <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                <path d="M0,0 L0,8 L8,4 z" fill="#3d4f72"></path>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#667085"></path>
               </marker>
-              <marker id="arrow-active" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                <path d="M0,0 L0,8 L8,4 z" fill="#2dd4bf"></path>
-              </marker>
-              <linearGradient id="laneGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="rgba(139,92,246,0.06)"/>
-                <stop offset="100%" stop-color="rgba(45,212,191,0.04)"/>
-              </linearGradient>
             </defs>
 
-            <!-- Swimlanes -->
-            <rect class="flow-lane" x="72" y="28" width="808" height="72" rx="8"/>
-            <rect class="flow-lane" x="72" y="108" width="808" height="72" rx="8"/>
-            <rect class="flow-lane" x="72" y="188" width="808" height="88" rx="8"/>
-            <rect class="flow-lane" x="72" y="284" width="808" height="120" rx="8"/>
-            <rect class="flow-lane" x="72" y="412" width="808" height="72" rx="8"/>
-            <rect class="flow-lane" x="72" y="492" width="808" height="72" rx="8"/>
-            <rect class="flow-lane" x="72" y="572" width="808" height="72" rx="8"/>
+            <path d="M165 95 H330" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M490 95 H655" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M745 145 V228" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M745 352 V430" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M745 540 H835" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M410 145 V235" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M410 355 V430 H690" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M575 295 H655" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
+            <path d="M575 95 C615 95, 615 295, 655 295" stroke="#667085" stroke-width="2" marker-end="url(#arrow)" fill="none"></path>
 
-            <text class="flow-lane-label" x="14" y="68">Input</text>
-            <text class="flow-lane-label" x="14" y="148">Retrieve</text>
-            <text class="flow-lane-label" x="14" y="236">Evaluate</text>
-            <text class="flow-lane-label" x="14" y="348">Correct</text>
-            <text class="flow-lane-label" x="14" y="448">Merge</text>
-            <text class="flow-lane-label" x="14" y="528">Generate</text>
-            <text class="flow-lane-label" x="14" y="608">Output</text>
-
-            <!-- Main spine -->
-            <path class="flow-path" data-path="spine-0" d="M450 96 V124" marker-end="url(#arrow)"/>
-            <path class="flow-path" data-path="spine-1" d="M450 172 V200" marker-end="url(#arrow)"/>
-
-            <!-- Branch paths from evaluator -->
-            <path class="flow-path branch-correct" data-path="branch-correct" d="M390 300 C300 300, 220 318, 220 344" marker-end="url(#arrow)"/>
-            <path class="flow-path branch-ambiguous" data-path="branch-ambiguous" d="M450 300 V344" marker-end="url(#arrow)"/>
-            <path class="flow-path branch-incorrect" data-path="branch-incorrect" d="M510 300 C600 300, 680 318, 680 344" marker-end="url(#arrow)"/>
-
-            <!-- Correction → merge -->
-            <path class="flow-path branch-correct" data-path="merge-left" d="M220 396 C220 418, 340 438, 450 448" marker-end="url(#arrow)"/>
-            <path class="flow-path branch-ambiguous" data-path="merge-center" d="M450 396 V448" marker-end="url(#arrow)"/>
-            <path class="flow-path branch-incorrect" data-path="merge-right" d="M680 396 C680 418, 560 438, 450 448" marker-end="url(#arrow)"/>
-
-            <!-- Merge → generate → output -->
-            <path class="flow-path" data-path="spine-3" d="M450 472 V504" marker-end="url(#arrow)"/>
-            <path class="flow-path" data-path="spine-4" d="M450 552 V580" marker-end="url(#arrow)"/>
-
-            <path class="flow-merge" d="M180 448 H720"/>
-
-            <text class="flow-label correct" x="248" y="318">✓ Correct</text>
-            <text class="flow-label ambiguous" x="430" y="318">? Ambiguous</text>
-            <text class="flow-label incorrect" x="628" y="318">✕ Incorrect</text>
-
-            <!-- Step 0: User query -->
             <g class="flow-node active" data-step="0" tabindex="0">
-              <ellipse class="node-bg" cx="450" cy="64" rx="78" ry="32" fill="rgba(139,92,246,0.22)" stroke="#8b5cf6" stroke-width="2"/>
-              <ellipse class="node-ring" cx="450" cy="64" rx="88" ry="40" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <text x="450" y="60" text-anchor="middle">User query</text>
-              <text class="sub" x="450" y="74" text-anchor="middle">intent + question</text>
+              <rect x="30" y="55" width="135" height="80" rx="8" fill="#e8e7ff" stroke="#b8b5ff" stroke-width="2"></rect>
+              <text x="97" y="88" text-anchor="middle">User</text>
+              <text x="97" y="110" text-anchor="middle">question</text>
             </g>
-
-            <!-- Step 1: Retriever -->
             <g class="flow-node" data-step="1" tabindex="0">
-              <rect class="node-bg" x="350" y="124" width="200" height="48" rx="24" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" stroke-width="2"/>
-              <ellipse class="node-ring" cx="450" cy="148" rx="108" ry="30" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <text x="450" y="144" text-anchor="middle">Retriever</text>
-              <text class="sub" x="450" y="158" text-anchor="middle">vector / hybrid top-k</text>
+              <rect x="330" y="55" width="160" height="80" rx="8" fill="#d9f4ef" stroke="#95d8ce" stroke-width="2"></rect>
+              <text x="410" y="88" text-anchor="middle">Retrieve</text>
+              <text x="410" y="110" text-anchor="middle">top-k docs</text>
             </g>
-
-            <!-- Step 2: Evaluator hub -->
             <g class="flow-node" data-step="2" tabindex="0">
-              <polygon class="node-bg" points="450,200 510,232 510,268 450,300 390,268 390,232" fill="rgba(251,191,36,0.16)" stroke="#fbbf24" stroke-width="2"/>
-              <circle class="node-ring" cx="450" cy="250" r="62" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <text x="450" y="246" text-anchor="middle">Retrieval</text>
-              <text x="450" y="262" text-anchor="middle">evaluator</text>
+              <path d="M745 45 L835 95 L745 145 L655 95 Z" fill="#fff1d6" stroke="#e6bd73" stroke-width="2"></path>
+              <text x="745" y="89" text-anchor="middle">Grade</text>
+              <text x="745" y="111" text-anchor="middle">retrieval</text>
             </g>
+            <text class="flow-label" x="594" y="78">Correct</text>
+            <text class="flow-label" x="613" y="278">Ambiguous</text>
+            <text class="flow-label" x="760" y="197">Incorrect</text>
 
-            <!-- Step 3: Refine internal -->
             <g class="flow-node" data-step="3" tabindex="0">
-              <rect class="node-bg" x="130" y="344" width="180" height="52" rx="10" fill="rgba(74,222,128,0.12)" stroke="#4ade80" stroke-width="2"/>
-              <text x="220" y="366" text-anchor="middle">Refine docs</text>
-              <text class="sub" x="220" y="382" text-anchor="middle">strip noise, keep evidence</text>
+              <rect x="330" y="235" width="160" height="120" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"></rect>
+              <text x="410" y="282" text-anchor="middle">Knowledge</text>
+              <text x="410" y="304" text-anchor="middle">refine</text>
+              <text x="410" y="326" text-anchor="middle">internal docs</text>
             </g>
-
-            <!-- Step 4: Rewrite query -->
             <g class="flow-node" data-step="4" tabindex="0">
-              <rect class="node-bg" x="360" y="344" width="180" height="52" rx="10" fill="rgba(251,191,36,0.14)" stroke="#fbbf24" stroke-width="2"/>
-              <text x="450" y="366" text-anchor="middle">Rewrite query</text>
-              <text class="sub" x="450" y="382" text-anchor="middle">targeted search form</text>
+              <rect x="665" y="228" width="160" height="80" rx="8" fill="#ffe3ea" stroke="#f4a7ba" stroke-width="2"></rect>
+              <text x="745" y="260" text-anchor="middle">Transform</text>
+              <text x="745" y="282" text-anchor="middle">query</text>
             </g>
-
-            <!-- Step 5: External search -->
             <g class="flow-node" data-step="5" tabindex="0">
-              <rect class="node-bg" x="590" y="344" width="180" height="52" rx="10" fill="rgba(251,113,133,0.14)" stroke="#fb7185" stroke-width="2"/>
-              <text x="680" y="366" text-anchor="middle">External search</text>
-              <text class="sub" x="680" y="382" text-anchor="middle">web, API, or tool</text>
+              <rect x="665" y="330" width="160" height="80" rx="8" fill="#ffe3ea" stroke="#f4a7ba" stroke-width="2"></rect>
+              <text x="745" y="362" text-anchor="middle">Search</text>
+              <text x="745" y="384" text-anchor="middle">external source</text>
             </g>
-
-            <!-- Step 6: Context merge -->
             <g class="flow-node" data-step="6" tabindex="0">
-              <rect class="node-bg" x="340" y="424" width="220" height="48" rx="24" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="2"/>
-              <text x="450" y="444" text-anchor="middle">Context refinement</text>
-              <text class="sub" x="450" y="458" text-anchor="middle">merge, filter, validate</text>
+              <rect x="665" y="430" width="160" height="80" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"></rect>
+              <text x="745" y="462" text-anchor="middle">Refine</text>
+              <text x="745" y="484" text-anchor="middle">new context</text>
             </g>
-
-            <!-- Step 7: Generator -->
             <g class="flow-node" data-step="7" tabindex="0">
-              <rect class="node-bg" x="350" y="504" width="200" height="48" rx="24" fill="rgba(74,222,128,0.14)" stroke="#4ade80" stroke-width="2"/>
-              <text x="450" y="524" text-anchor="middle">LLM generator</text>
-              <text class="sub" x="450" y="538" text-anchor="middle">grounded synthesis</text>
+              <rect x="665" y="520" width="160" height="80" rx="8" fill="#e1f6e8" stroke="#98d9ab" stroke-width="2"></rect>
+              <text x="745" y="552" text-anchor="middle">Generate</text>
+              <text x="745" y="574" text-anchor="middle">grounded answer</text>
             </g>
-
-            <!-- Step 8: Answer -->
             <g class="flow-node" data-step="8" tabindex="0">
-              <ellipse class="node-bg" cx="450" cy="608" rx="70" ry="28" fill="rgba(139,92,246,0.22)" stroke="#8b5cf6" stroke-width="2"/>
-              <text x="450" y="604" text-anchor="middle">Answer</text>
-              <text class="sub" x="450" y="618" text-anchor="middle">or abstain</text>
+              <rect x="835" y="520" width="115" height="80" rx="8" fill="#e8e7ff" stroke="#b8b5ff" stroke-width="2"></rect>
+              <text x="892" y="552" text-anchor="middle">Answer</text>
+              <text x="892" y="574" text-anchor="middle">or abstain</text>
             </g>
-
-            <!-- Side annotations -->
-            <text class="flow-label" x="760" y="152" text-anchor="end">Knowledge base</text>
-            <text class="flow-label" x="760" y="252" text-anchor="end">LLM / classifier</text>
-            <text class="flow-label" x="760" y="448" text-anchor="end">Single active branch</text>
           </svg>
         </div>
 
@@ -1259,7 +927,6 @@
               <button class="icon-btn" id="nextStep" aria-label="Next step">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
               </button>
-              <button class="btn-play" id="playFlow" type="button">Play pipeline</button>
               <div class="step-count" id="stepCount"></div>
             </div>
           </div>
@@ -1267,11 +934,11 @@
       </div>
     </section>
 
-    <section class="tab-panel" id="cases" aria-label="Corrective RAG use cases">
+    <section class="tab-panel" id="cases" aria-label="CRAG use cases and non-use cases">
       <div class="panel">
         <div class="panel-header">
-          <h2>When to use Corrective RAG</h2>
-          <p>Add a correction loop when retrieval quality must be validated before the model answers.</p>
+          <h2>When to use CRAG</h2>
+          <p>Use CRAG when the retrieval layer needs a quality control loop before generation.</p>
         </div>
         <div class="panel-body">
           <div class="cards">
@@ -1283,7 +950,7 @@
             <article class="case-card">
               <div class="tag">Use</div>
               <h3>Low recall retrieval</h3>
-              <p>When the retriever returns adjacent but insufficient chunks, Corrective RAG can flag weak context and route to correction.</p>
+              <p>When the retriever often returns adjacent but insufficient chunks, CRAG can detect weak context and route to correction.</p>
             </article>
             <article class="case-card">
               <div class="tag">Use</div>
@@ -1293,17 +960,17 @@
             <article class="case-card">
               <div class="tag">Use</div>
               <h3>Mixed internal and external knowledge</h3>
-              <p>Some questions need internal policy plus fresh external facts. Corrective RAG can merge and refine both before answering.</p>
+              <p>Questions may need internal policy plus fresh external facts. CRAG can merge and refine both sources before answering.</p>
             </article>
             <article class="case-card">
               <div class="tag">Use</div>
               <h3>You can observe retrieval failures</h3>
-              <p>If evals show poor recall, irrelevant passages, or weak faithfulness, Corrective RAG gives a clear place to intervene.</p>
+              <p>If evals show poor context recall, irrelevant passages, or weak faithfulness, CRAG gives a targeted place to intervene.</p>
             </article>
             <article class="case-card">
               <div class="tag">Use</div>
               <h3>Abstention is acceptable</h3>
-              <p>Corrective RAG shines when the system may say “not enough evidence” instead of forcing an answer from weak context.</p>
+              <p>CRAG is strongest when the system may say "not enough evidence" instead of forcing an answer from weak context.</p>
             </article>
           </div>
         </div>
@@ -1313,8 +980,8 @@
 
       <div class="panel">
         <div class="panel-header">
-          <h2>When not to use Corrective RAG</h2>
-          <p>It is a control loop — skip it when plain RAG already meets your product constraints.</p>
+          <h2>When not to use CRAG</h2>
+          <p>CRAG is a control loop. Do not add it when the simpler system already satisfies the product constraints.</p>
         </div>
         <div class="panel-body">
           <div class="cards">
@@ -1331,12 +998,12 @@
             <article class="case-card stop">
               <div class="tag">Avoid</div>
               <h3>Small, stable, well-covered KB</h3>
-              <p>If your domain is narrow and evals already show strong recall and faithfulness, Corrective RAG may add complexity without benefit.</p>
+              <p>If your domain is narrow and evals already show strong recall and faithfulness, CRAG may add complexity without benefit.</p>
             </article>
             <article class="case-card warn">
               <div class="tag">Careful</div>
               <h3>No trusted correction source</h3>
-              <p>Correction can hurt quality if web search or fallback corpora are noisier than the original retrieval.</p>
+              <p>CRAG can make answers worse if the web search or fallback corpus is noisier than the original retrieval.</p>
             </article>
             <article class="case-card warn">
               <div class="tag">Careful</div>
@@ -1353,12 +1020,12 @@
       </div>
     </section>
 
-    <section class="tab-panel" id="practice" aria-label="Corrective RAG scenario practice">
+    <section class="tab-panel" id="practice" aria-label="CRAG scenario practice">
       <div class="quiz">
         <div class="panel">
           <div class="panel-header">
-            <h2>Real-world scenarios</h2>
-            <p>Pick a product situation and see whether Corrective RAG is a good fit.</p>
+            <h2>Scenario practice</h2>
+            <p>Pick a product situation and classify whether CRAG is a good fit.</p>
           </div>
           <div class="panel-body">
             <div class="scenario-list" id="scenarioList"></div>
@@ -1378,7 +1045,11 @@
       </div>
     </section>
 
-    <a class="nav-link" href="index.html">← Back to all guides</a>
+    <footer>
+      CRAG Decision Guide · Corrective Retrieval-Augmented Generation ·
+      <a href="rag-architecture.html">RAG Architecture →</a>
+      · <a href="ai-ml-systems-part2.html">RAG &amp; Agents (Part 2) →</a>
+    </footer>
   </main>
 
   <script>
@@ -1389,7 +1060,7 @@
       {
         title: "User question",
         subtitle: "The request enters the RAG system.",
-        body: "Corrective RAG starts like ordinary RAG. A user asks a question, and the system must decide what evidence is needed before answering.",
+        body: "CRAG starts like ordinary RAG. A user asks a question, and the system must decide what evidence is needed before answering.",
         tags: ["input", "intent"]
       },
       {
@@ -1401,7 +1072,7 @@
       {
         title: "Grade retrieval",
         subtitle: "A retrieval evaluator judges whether the context can answer the question.",
-        body: "This is the Corrective RAG control point. A lightweight evaluator (often an LLM or classifier) routes the request as Correct, Ambiguous, or Incorrect based on relevance and answer coverage.",
+        body: "This is the CRAG control point. The evaluator routes the request as Correct, Ambiguous, or Incorrect based on relevance and answer coverage.",
         tags: ["quality gate", "routing", "confidence"]
       },
       {
@@ -1413,7 +1084,7 @@
       {
         title: "Transform query",
         subtitle: "If retrieval is weak, rewrite the question for correction.",
-        body: "The original question may be too conversational for search. Corrective RAG rewrites it into a targeted query for a fallback retriever or web search.",
+        body: "The original user question may be too conversational for search. CRAG rewrites it into a more targeted query for a fallback retriever or web search.",
         tags: ["query rewrite", "fallback"]
       },
       {
@@ -1425,7 +1096,7 @@
       {
         title: "Refine new context",
         subtitle: "Filter and combine evidence before generation.",
-        body: "New evidence may contain noise. Corrective RAG should strip unsupported text and, for ambiguous cases, merge useful internal and external context.",
+        body: "The new evidence may contain noise. CRAG should strip unsupported text and, for ambiguous cases, merge useful internal and external context.",
         tags: ["merge", "filter", "support"]
       },
       {
@@ -1446,7 +1117,7 @@
       {
         title: "Fintech support asks about a new RBI circular",
         detail: "Internal docs may lag behind regulatory changes. Wrong answers can create compliance risk.",
-        verdict: "Use Corrective RAG",
+        verdict: "Use CRAG",
         why: "The question depends on fresh external facts and the risk of a hallucinated answer is high. Retrieval should be graded and corrected before generation.",
         tags: ["fresh facts", "high risk", "external source"]
       },
@@ -1454,20 +1125,20 @@
         title: "Employee asks for the office Wi-Fi password policy",
         detail: "The answer lives in a short, stable internal handbook.",
         verdict: "Plain RAG is enough",
-        why: "The knowledge base is narrow, stable, and internally authoritative. Strong metadata filtering or direct lookup is likely simpler than Corrective RAG.",
+        why: "The knowledge base is narrow, stable, and internally authoritative. Strong metadata filtering or direct lookup is likely simpler than CRAG.",
         tags: ["stable KB", "low drift"]
       },
       {
         title: "Research assistant summarizes breaking AI security news",
         detail: "The vector store contains old papers, but the user wants recent incidents.",
-        verdict: "Use Corrective RAG",
-        why: "Internal retrieval may be stale. Corrective RAG can detect that retrieved papers do not answer the current-events question and route to search.",
+        verdict: "Use CRAG",
+        why: "Internal retrieval may be stale. CRAG can detect that the retrieved papers do not answer the current-events question and route to search.",
         tags: ["stale index", "current events"]
       },
       {
         title: "Mobile checkout assistant must answer under 400 ms",
         detail: "Users ask simple shipping questions during payment.",
-        verdict: "Avoid Corrective RAG",
+        verdict: "Avoid CRAG",
         why: "The latency budget is too tight for evaluator and correction calls. Precomputed FAQs, caching, or deterministic lookup may fit better.",
         tags: ["low latency", "simple answers"]
       },
@@ -1475,13 +1146,12 @@
         title: "Healthcare chatbot answers from clinician-approved content only",
         detail: "Web search is forbidden. The approved corpus is limited.",
         verdict: "Use a constrained variant",
-        why: "Do not use open web correction. A Corrective RAG-style evaluator can still route to abstention, clarification, or a second approved internal source.",
+        why: "Do not use open web correction. A CRAG-style evaluator can still route to abstention, clarification, or a second approved internal source.",
         tags: ["no web", "abstention", "approved corpus"]
       }
     ];
 
     function setActiveTab(tabId) {
-      stopFlowPlay();
       $$(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tabId));
       $$(".tab-panel").forEach(panel => panel.classList.toggle("active", panel.id === tabId));
     }
@@ -1505,28 +1175,25 @@
 
       let color = "var(--rose)";
       let verdictBg = "var(--rose-soft)";
-      let title = "Avoid Corrective RAG for now";
-      let body = "The added latency or lack of a correction source makes Corrective RAG a poor fit. Improve retrieval or add abstention first.";
+      let title = "Avoid CRAG for now";
+      let body = "The added latency or lack of correction source makes CRAG a poor fit. Improve retrieval or add abstention first.";
 
       if (bounded >= 68) {
         color = "var(--teal)";
         verdictBg = "var(--green-soft)";
-        title = "Use Corrective RAG";
-        body = "Your system has enough retrieval uncertainty, freshness pressure, or answer risk to justify a correction loop.";
+        title = "Use CRAG";
+        body = "The system has enough retrieval uncertainty, freshness pressure, or answer risk to justify a correction loop.";
       } else if (bounded >= 42) {
         color = "var(--amber)";
         verdictBg = "var(--amber-soft)";
-        title = "Use Corrective RAG selectively";
-        body = "Apply it on uncertain or high-risk queries. Keep plain RAG for easy, high-confidence requests.";
+        title = "Use CRAG selectively";
+        body = "Use it only on uncertain or high-risk queries. Keep plain RAG for easy, high-confidence requests.";
       }
 
       meter.style.background = color;
-      $("#scoreLabel").textContent = "Correction loop fit: " + Math.round(bounded);
+      $("#scoreLabel").textContent = "CRAG fit: " + Math.round(bounded);
       $("#scoreText").textContent = bounded >= 68 ? "Strong fit" : bounded >= 42 ? "Conditional fit" : "Weak fit";
       $("#verdictBox").style.background = verdictBg;
-      $("#verdictBox").classList.remove("updated");
-      void $("#verdictBox").offsetWidth;
-      $("#verdictBox").classList.add("updated");
       $("#verdictTitle").textContent = title;
       $("#verdictBody").textContent = body;
 
@@ -1546,32 +1213,6 @@
     }
 
     let currentStep = 0;
-    let flowTimer = null;
-    let flowPlaying = false;
-
-    const pathByStep = {
-      0: [],
-      1: ["spine-0"],
-      2: ["spine-1"],
-      3: ["branch-correct"],
-      4: ["branch-ambiguous"],
-      5: ["branch-incorrect"],
-      6: ["merge-left", "merge-center", "merge-right", "spine-3"],
-      7: ["spine-4"],
-      8: []
-    };
-
-    function highlightPaths(stepIndex) {
-      const activePaths = new Set();
-      for (let i = 0; i <= stepIndex; i++) {
-        (pathByStep[i] || []).forEach((p) => activePaths.add(p));
-      }
-      $$(".flow-path").forEach((path) => {
-        const isActive = activePaths.has(path.dataset.path);
-        path.classList.toggle("active", isActive);
-        path.setAttribute("marker-end", isActive ? "url(#arrow-active)" : "url(#arrow)");
-      });
-    }
 
     function setStep(index) {
       currentStep = (index + stepData.length) % stepData.length;
@@ -1582,37 +1223,6 @@
       $("#stepTags").innerHTML = step.tags.map(tag => `<span class="pill">${tag}</span>`).join("");
       $("#stepCount").textContent = `${currentStep + 1} of ${stepData.length}`;
       $$(".flow-node").forEach(node => node.classList.toggle("active", Number(node.dataset.step) === currentStep));
-      highlightPaths(currentStep);
-    }
-
-    function stopFlowPlay() {
-      flowPlaying = false;
-      clearInterval(flowTimer);
-      flowTimer = null;
-      const btn = $("#playFlow");
-      if (btn) {
-        btn.textContent = "Play pipeline";
-        btn.classList.remove("playing");
-      }
-    }
-
-    function toggleFlowPlay() {
-      if (flowPlaying) {
-        stopFlowPlay();
-        return;
-      }
-      flowPlaying = true;
-      const btn = $("#playFlow");
-      btn.textContent = "Stop";
-      btn.classList.add("playing");
-      setStep(currentStep);
-      flowTimer = setInterval(() => {
-        if (currentStep >= stepData.length - 1) {
-          stopFlowPlay();
-          return;
-        }
-        setStep(currentStep + 1);
-      }, 1400);
     }
 
     function renderScenarios() {
@@ -1654,9 +1264,8 @@
         }
       });
     });
-    $("#prevStep").addEventListener("click", () => { stopFlowPlay(); setStep(currentStep - 1); });
-    $("#nextStep").addEventListener("click", () => { stopFlowPlay(); setStep(currentStep + 1); });
-    $("#playFlow").addEventListener("click", toggleFlowPlay);
+    $("#prevStep").addEventListener("click", () => setStep(currentStep - 1));
+    $("#nextStep").addEventListener("click", () => setStep(currentStep + 1));
     $("#scenarioList").addEventListener("click", event => {
       const btn = event.target.closest(".scenario-btn");
       if (btn) setScenario(Number(btn.dataset.scenario));
