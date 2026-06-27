@@ -753,8 +753,18 @@
       margin-top: 14px;
     }
 
+    /* Fit panel sidebar is only 420px — stack comparison cards so mini-rows have room */
+    .decision .compare {
+      grid-template-columns: 1fr;
+    }
+
     .compare .panel {
       background: var(--panel);
+      min-width: 0;
+    }
+
+    .compare .panel-body {
+      min-width: 0;
     }
 
     .case-card:nth-child(1) { animation-delay: 0.03s; }
@@ -775,10 +785,11 @@
 
     .mini-row {
       display: grid;
-      grid-template-columns: 160px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
       gap: 12px;
       padding: 9px 0;
       border-top: 1px solid var(--line);
+      align-items: start;
     }
 
     .mini-row b {
@@ -787,6 +798,7 @@
 
     .mini-row span {
       color: var(--muted);
+      min-width: 0;
     }
 
     .quiz {
