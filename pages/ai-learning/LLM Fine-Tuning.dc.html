@@ -48,6 +48,11 @@ details>summary::marker,details>summary::-webkit-details-marker{display:none}
 .card{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:18px 20px}
 .eyebrow{font-family:var(--fm);font-size:11px;letter-spacing:0.13em;text-transform:uppercase;margin-bottom:8px}
 .section-wrap{max-width:960px;margin:0 auto;padding:0 24px}
+.quiz-opt{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--sur2);color:#C9CCBE;font-family:var(--fn);font-size:13px;line-height:1.5;cursor:pointer;transition:border-color 0.15s,background 0.15s}
+.quiz-opt:hover:not(:disabled){border-color:var(--telb)}
+.quiz-opt:disabled{cursor:default}
+.confetti-btn{position:fixed;bottom:1.25rem;right:1.25rem;z-index:1000;font-family:var(--fm);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding:0.55rem 0.9rem;border-radius:999px;border:1px solid var(--ambb);background:rgba(24,26,22,0.92);color:var(--amb);cursor:pointer;backdrop-filter:blur(8px);transition:transform 0.15s,border-color 0.15s}
+.confetti-btn:hover{transform:translateY(-2px);border-color:rgba(217,117,52,0.6)}
 </style>
 </helmet>
 
@@ -60,6 +65,7 @@ details>summary::marker,details>summary::-webkit-details-marker{display:none}
       <a href="#stage2" class="nl">Stage 2</a>
       <a href="#stage3" class="nl">Stage 3 · DPO</a>
       <a href="#lora" class="nl">LoRA math</a>
+      <a href="#quiz" class="nl">Quiz</a>
     </div>
   </div>
 </nav>
@@ -601,6 +607,41 @@ model.<span class="fn">push_to_hub</span>(<span class="st">"your-hf-username/pha
   </div>
 </section>
 
+<!-- ══ QUIZ ══ -->
+<section id="quiz" style="max-width:960px;margin:0 auto;padding:0 24px 88px">
+  <div class="eyebrow" style="color:var(--sub);margin-bottom:8px">Check your understanding</div>
+  <h2 style="font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:10px">Quick revision quiz</h2>
+  <p style="color:var(--mut);font-size:15px;max-width:640px;margin-bottom:32px">Answer all five questions correctly for a confetti celebration. One attempt per question.</p>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <sc-for list="{{ quizItems }}" as="item">
+      <div class="card">
+        <div style="font-family:var(--fm);font-size:11px;color:var(--sub);margin-bottom:8px">Question {{ item.num }} of {{ quizTotal }}</div>
+        <p style="font-size:15px;font-weight:600;color:var(--txt);margin-bottom:14px;line-height:1.5">{{ item.q }}</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ item.options }}" as="opt">
+            <button type="button" class="quiz-opt" onClick="{{ opt.pick }}" style="{{ opt.style }}" disabled="{{ opt.locked }}">{{ opt.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ quizAllCorrect }}">
+    <div style="margin-top:24px;background:rgba(79,174,167,0.1);border:1px solid rgba(79,174,167,0.35);border-radius:10px;padding:18px 22px">
+      <div style="font-size:15px;font-weight:600;color:var(--tel);margin-bottom:6px">Perfect score — M0 → M3 unlocked</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">You nailed the pipeline: merge between stages, SFT on Alpaca pairs, DPO without a reward model, and LoRA adapters on frozen weights.</p>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ quizHasWrong }}">
+    <div style="margin-top:24px;background:rgba(240,122,107,0.08);border:1px solid rgba(240,122,107,0.25);border-radius:10px;padding:18px 22px">
+      <div style="font-size:15px;font-weight:600;color:#F07A6B;margin-bottom:6px">Not quite — review the highlights above</div>
+      <p style="font-size:14px;color:#C9CCBE;margin:0">Review the highlighted correct answers, then refresh the page to try again.</p>
+    </div>
+  </sc-if>
+</section>
+
 <!-- FOOTER -->
 <div style="max-width:960px;margin:0 auto;padding:0 24px 80px">
   <div style="border-top:1px solid var(--bdr);padding-top:32px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between">
@@ -616,9 +657,182 @@ model.<span class="fn">push_to_hub</span>(<span class="st">"your-hf-username/pha
   </div>
 </div>
 </x-dc>
+
+<button type="button" class="confetti-btn" id="confetti-replay" aria-label="Replay confetti celebration">Confetti blast</button>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var CONFETTI_COLORS = ['#D97534', '#4FAEA7', '#C394C0', '#F07A6B', '#F7F8F2'];
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function fireConfettiExplosion() {
+    if (typeof confetti !== 'function') return;
+
+    var burstDefaults = {
+      colors: CONFETTI_COLORS,
+      ticks: 180,
+      gravity: 0.95,
+      decay: 0.92,
+      zIndex: 9999,
+      disableForReducedMotion: true
+    };
+
+    confetti(Object.assign({}, burstDefaults, {
+      particleCount: 180,
+      spread: 110,
+      startVelocity: 58,
+      origin: { x: 0.5, y: 0.32 },
+      scalar: 1.05
+    }));
+
+    confetti(Object.assign({}, burstDefaults, {
+      particleCount: 70,
+      angle: 58,
+      spread: 62,
+      startVelocity: 52,
+      origin: { x: 0.08, y: 0.42 }
+    }));
+
+    confetti(Object.assign({}, burstDefaults, {
+      particleCount: 70,
+      angle: 122,
+      spread: 62,
+      startVelocity: 52,
+      origin: { x: 0.92, y: 0.42 }
+    }));
+
+    var duration = 2200;
+    var end = Date.now() + duration;
+
+    (function frame() {
+      confetti(Object.assign({}, burstDefaults, {
+        particleCount: 3,
+        startVelocity: 38,
+        spread: 360,
+        origin: {
+          x: randomInRange(0.12, 0.88),
+          y: randomInRange(0.05, 0.25)
+        }
+      }));
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
+  }
+
+  window.fireConfettiExplosion = fireConfettiExplosion;
+
+  function initConfetti() {
+    var replayBtn = document.getElementById('confetti-replay');
+    if (replayBtn) {
+      replayBtn.addEventListener('click', fireConfettiExplosion);
+    }
+
+    if (prefersReducedMotion) return;
+
+    window.setTimeout(fireConfettiExplosion, 450);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initConfetti);
+  } else {
+    initConfetti();
+  }
+})();
+</script>
+
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { dpoIdx: 0 };
+  state = { dpoIdx: 0, quiz: [null, null, null, null, null], quizCelebrated: false };
+
+  quizQuestions = [
+    {
+      q: 'What must you do between fine-tuning stages before starting the next?',
+      options: [
+        'Delete the old adapter weights from disk',
+        'Call merge_and_unload() to bake the adapter into the base weights',
+        'Train a separate reward model on human rankings',
+        'Increase LoRA rank on the previous adapter'
+      ],
+      correct: 1
+    },
+    {
+      q: "What is Stage 1 (non-instruction) fine-tuning's training objective?",
+      options: [
+        'Minimize DPO loss on chosen vs rejected responses',
+        'Cross-entropy on instruction tokens only (mask the prompt)',
+        'Next-token prediction on raw domain text chunks',
+        'PPO policy optimization against a reward signal'
+      ],
+      correct: 2
+    },
+    {
+      q: 'Which data format does Stage 2 SFT use?',
+      options: [
+        'prompt / chosen / rejected preference triplets',
+        'Alpaca-style instruction / input / output pairs',
+        'Image–label classification pairs',
+        'Raw 512-token text chunks with no structure'
+      ],
+      correct: 1
+    },
+    {
+      q: 'How does DPO differ from RLHF + PPO?',
+      options: [
+        'DPO requires four models loaded simultaneously in VRAM',
+        'DPO trains directly on chosen/rejected pairs without a separate reward model',
+        'DPO only works on raw pre-trained models, never instruct-tuned ones',
+        'DPO uses layer freezing instead of LoRA adapters'
+      ],
+      correct: 1
+    },
+    {
+      q: 'In LoRA, which parameters are actually trained?',
+      options: [
+        'All original weight matrices W across the full model',
+        'Only the final output (classification) layer',
+        'Small rank-decomposed adapter matrices A and B alongside frozen W',
+        'Only bias terms — the BitFit approach'
+      ],
+      correct: 2
+    }
+  ];
+
+  quizOptStyle(qIdx, optIdx) {
+    const picked = this.state.quiz[qIdx];
+    const correct = this.quizQuestions[qIdx].correct;
+    const base = 'background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-family:var(--fn);font-size:13px;color:#C9CCBE;line-height:1.5;width:100%;text-align:left;';
+    if (picked === null) return base + 'cursor:pointer;';
+    if (optIdx === correct) return base + 'border-color:rgba(79,174,167,0.55);background:rgba(79,174,167,0.12);cursor:default;';
+    if (optIdx === picked) return base + 'border-color:rgba(240,122,107,0.55);background:rgba(240,122,107,0.12);cursor:default;';
+    return base + 'opacity:0.55;cursor:default;';
+  }
+
+  pickQuizAnswer(qIdx, optIdx) {
+    if (this.state.quiz[qIdx] !== null) return;
+    this.setState(s => {
+      const quiz = [...s.quiz];
+      quiz[qIdx] = optIdx;
+      return { quiz };
+    }, () => {
+      const allAnswered = this.state.quiz.every(a => a !== null);
+      const allCorrect = this.quizQuestions.every((q, i) => this.state.quiz[i] === q.correct);
+      if (allAnswered && allCorrect && !this.state.quizCelebrated) {
+        this.setState({ quizCelebrated: true });
+        if (typeof window.fireConfettiExplosion === 'function') {
+          window.setTimeout(window.fireConfettiExplosion, 200);
+        }
+      }
+    });
+  }
 
   renderVals() {
     const examples = [
@@ -639,8 +853,25 @@ class Component extends DCLogic {
       }
     ];
 
-    const { dpoIdx } = this.state;
+    const { dpoIdx, quiz } = this.state;
     const ex = examples[dpoIdx];
+
+    const quizTotal = this.quizQuestions.length;
+    const quizProgress = quiz.filter(a => a !== null).length;
+    const quizAllCorrect = quizProgress === quizTotal &&
+      this.quizQuestions.every((q, i) => quiz[i] === q.correct);
+    const quizHasWrong = quizProgress === quizTotal && !quizAllCorrect;
+
+    const quizItems = this.quizQuestions.map((question, qIdx) => ({
+      num: qIdx + 1,
+      q: question.q,
+      options: question.options.map((label, optIdx) => ({
+        label,
+        pick: () => this.pickQuizAnswer(qIdx, optIdx),
+        style: this.quizOptStyle(qIdx, optIdx),
+        locked: quiz[qIdx] !== null
+      }))
+    }));
 
     return {
       dpoPrompt:   ex.prompt,
@@ -649,7 +880,12 @@ class Component extends DCLogic {
       dpoIdx:      dpoIdx + 1,
       dpoTotal:    examples.length,
       nextEx: () => this.setState(s => ({ dpoIdx: (s.dpoIdx + 1) % examples.length })),
-      prevEx: () => this.setState(s => ({ dpoIdx: (s.dpoIdx - 1 + examples.length) % examples.length }))
+      prevEx: () => this.setState(s => ({ dpoIdx: (s.dpoIdx - 1 + examples.length) % examples.length })),
+      quizItems,
+      quizTotal,
+      quizProgress,
+      quizAllCorrect,
+      quizHasWrong
     };
   }
 }
