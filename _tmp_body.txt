@@ -1,0 +1,12 @@
+<body>
+<div id="root"></div>
+
+<!-- Pyodide runtime -->
+<script src="5722bfee-0b18-4de8-a26e-b54d7e923641"></script>
+<!-- Section data -->
+<script src="5a83718b-b5ba-4912-bebc-cc71e0f9f70b"></script>
+<!-- React app -->
+<script type="text/babel" src="e02dbae1-4fa3-45fc-9ddc-02379ac7a4d3"></script>
+
+
+</body></html>
