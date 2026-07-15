@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Terms, Properly Explained — A Glossary by Mayank Chugh</title>
+<meta name="description" content="A plain-language glossary of AI terms — LLMs, attention, context windows, fine-tuning, agents — by Mayank Chugh, Senior Enterprise Architect & AI Engineer.">
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+  :root{
+    --background: 260 22% 97%;
+    --foreground: 260 20% 14%;
+    --card: 0 0% 100%;
+    --muted: 260 16% 93%;
+    --muted-foreground: 260 8% 42%;
+    --accent: 265 55% 92%;
+    --accent-foreground: 265 45% 32%;
+    --border: 260 14% 87%;
+    --violet: 265 45% 48%;
+    --violet-dark: 265 50% 35%;
+    --ink: 260 25% 12%;
+    --radius: .75rem;
+    --sidebar-w: 280px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:hsl(var(--background));
+    color:hsl(var(--foreground));
+    font-family:"Source Sans 3", sans-serif;
+    line-height:1.65;
+  }
+  h1,h2,h3{font-family:Fraunces,serif; margin:0; letter-spacing:-0.01em; color:hsl(var(--ink));}
+  code,pre,.mono{font-family:"JetBrains Mono", monospace;}
+  a{color:inherit;}
+  p{margin:0 0 12px;}
+
+  .sidebar{
+    position:fixed; left:0; top:0; height:100vh; width:var(--sidebar-w);
+    border-right:1px solid hsl(var(--border));
+    background:hsl(var(--card));
+    display:flex; flex-direction:column;
+    overflow-y:auto;
+  }
+  .sidebar-head{
+    display:flex; align-items:center; gap:10px;
+    padding:20px 18px; border-bottom:1px solid hsl(var(--border));
+  }
+  .sidebar-head .mark{
+    width:36px;height:36px;border-radius:10px;
+    background:hsl(var(--violet)); color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:Fraunces,serif; font-weight:700; font-size:15px;
+  }
+  .sidebar-head .who{font-size:14px; font-weight:700;}
+  .sidebar-head .who small{display:block; font-weight:400; font-size:11px; color:hsl(var(--muted-foreground)); font-family:"JetBrains Mono",monospace; text-transform:uppercase; letter-spacing:.06em;}
+
+  .nav{padding:14px 10px; flex:1;}
+  .nav a{
+    display:block; padding:8px 12px; border-radius:8px;
+    font-size:13.5px; color:hsl(var(--foreground) / .8);
+    text-decoration:none; margin-bottom:2px;
+  }
+  .nav a:hover{background:hsl(var(--muted));}
+  .nav a.active{background:hsl(var(--violet) / .1); color:hsl(var(--violet)); font-weight:600;}
+  .nav .group-label{
+    font-family:"JetBrains Mono",monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:.08em; color:hsl(var(--muted-foreground)); padding:14px 12px 6px;
+  }
+
+  .sidebar-foot{
+    border-top:1px solid hsl(var(--border));
+    padding:14px 16px;
+    font-size:12px;
+    color:hsl(var(--muted-foreground));
+  }
+  .sidebar-foot a{color:hsl(var(--violet-dark)); font-weight:600; text-decoration:none;}
+
+  .main{margin-left:var(--sidebar-w); max-width:820px; padding:0 32px 96px;}
+
+  .hero{
+    padding:56px 0 40px;
+    border-bottom:1px solid hsl(var(--border));
+    margin-bottom:8px;
+  }
+  .kicker{
+    display:inline-block; margin-bottom:14px;
+    font-family:"JetBrains Mono",monospace; font-size:11px; text-transform:uppercase;
+    letter-spacing:.1em; color:hsl(var(--violet)); font-weight:700;
+    background:hsl(var(--accent)); padding:5px 12px; border-radius:999px;
+  }
+  h1.title{font-size:clamp(30px,4.4vw,46px); font-weight:700;}
+  .lede{max-width:640px; margin-top:16px; font-size:16.5px; color:hsl(var(--muted-foreground));}
+
+  .author-card{
+    margin-top:26px; display:flex; align-items:center; gap:14px;
+    padding:14px 16px; border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    background:hsl(var(--card)); max-width:640px;
+  }
+  .author-card .avatar{
+    width:46px;height:46px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg, hsl(var(--violet)), hsl(265 60% 70%));
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:Fraunces,serif; font-weight:700; font-size:16px;
+  }
+  .author-card .name{font-weight:700; font-size:14.5px;}
+  .author-card .role{font-size:12.5px; color:hsl(var(--muted-foreground));}
+  .author-card .links{margin-left:auto; display:flex; gap:10px; flex-wrap:wrap;}
+  .author-card .links a{
+    font-size:12px; font-family:"JetBrains Mono",monospace;
+    color:hsl(var(--violet-dark)); text-decoration:none; font-weight:600;
+  }
+  .author-card .links a:hover{text-decoration:underline;}
+
+  section{scroll-margin-top:32px; padding:44px 0; border-bottom:1px solid hsl(var(--border));}
+  section:last-of-type{border-bottom:none;}
+  .eyebrow{
+    display:inline-block; margin-bottom:10px;
+    font-family:"JetBrains Mono",monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.08em; color:hsl(var(--violet));
+    background:hsl(var(--accent)); padding:4px 10px; border-radius:999px;
+  }
+  h2{font-size:26px; font-weight:700; margin-bottom:14px;}
+  h3{font-size:16px; font-weight:600; margin:18px 0 8px;}
+  .muted{color:hsl(var(--muted-foreground));}
+  .term{font-family:"JetBrains Mono",monospace; background:hsl(var(--muted)); padding:1px 6px; border-radius:5px; font-size:.9em;}
+
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:16px 0;}
+  .card{
+    padding:16px; border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    background:hsl(var(--card));
+  }
+  .card h4{margin:0 0 6px; font-size:14px; font-weight:700; font-family:"Source Sans 3",sans-serif;}
+  .card p{margin:0; font-size:13px; color:hsl(var(--muted-foreground));}
+
+  .callout{
+    border-left:4px solid hsl(var(--violet)); background:hsl(var(--accent) / .5);
+    border-radius:0 var(--radius) var(--radius) 0; padding:14px 16px; margin:16px 0; font-size:14.5px;
+  }
+  .callout strong{display:block; margin-bottom:4px; font-size:12px; text-transform:uppercase; letter-spacing:.05em;}
+
+  .glossary-list{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0;}
+  .glossary-list span{
+    font-family:"JetBrains Mono",monospace; font-size:12px; padding:5px 12px;
+    border-radius:999px; background:hsl(var(--muted)); color:hsl(var(--foreground) / .8);
+  }
+
+  /* Temperature slider demo */
+  .demo{border:1px solid hsl(var(--border)); border-radius:var(--radius); overflow:hidden; margin:16px 0; background:hsl(var(--card));}
+  .demo-head{background:hsl(var(--muted)); padding:10px 16px; font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:600; color:hsl(var(--muted-foreground)); text-transform:uppercase; letter-spacing:.05em;}
+  .demo-body{padding:18px;}
+  .demo-body input[type=range]{width:100%; accent-color:hsl(var(--violet));}
+  .slider-labels{display:flex; justify-content:space-between; font-size:11.5px; color:hsl(var(--muted-foreground)); font-family:"JetBrains Mono",monospace; margin-top:4px;}
+  #temp-output{
+    margin-top:14px; padding:12px 14px; border-radius:8px; background:hsl(var(--muted));
+    font-size:14px; min-height:20px;
+  }
+  #temp-value{font-weight:700; color:hsl(var(--violet-dark));}
+
+  footer.page-footer{
+    margin-top:40px; padding-top:30px; text-align:center; font-size:13px; color:hsl(var(--muted-foreground));
+  }
+  footer.page-footer a{color:hsl(var(--violet-dark)); font-weight:600; text-decoration:none;}
+
+  @media (max-width: 900px){
+    .sidebar{display:none;}
+    .main{margin-left:0; padding:0 20px 80px;}
+  }
+</style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-head">
+      <div class="mark">MC</div>
+      <div class="who">Mayank Chugh<small>AI Glossary</small></div>
+    </div>
+    <div class="nav">
+      <div class="group-label">The Foundation</div>
+      <a href="#llm">Large Language Model</a>
+      <a href="#transformer">Transformer &amp; Attention</a>
+      <a href="#tokens">Tokens</a>
+      <a href="#parameters">Parameters</a>
+
+      <div class="group-label">How It Reads You</div>
+      <a href="#context-window">Context Window</a>
+      <a href="#prompting">Prompting, Zero-Shot &amp; Few-Shot</a>
+      <a href="#temperature">Temperature</a>
+
+      <div class="group-label">How It Learns</div>
+      <a href="#training">Training, in Three Stages</a>
+      <a href="#fine-tuning">Fine-Tuning</a>
+      <a href="#hallucination">Hallucination</a>
+
+      <div class="group-label">Beyond Chat</div>
+      <a href="#reasoning-models">Reasoning Models</a>
+      <a href="#multimodal">Multimodal</a>
+      <a href="#ai-agents">AI Agents</a>
+      <a href="#context-engineering">Context Engineering</a>
+      <a href="#agi-asi">AGI vs. ASI</a>
+
+      <div class="group-label">Interactive</div>
+      <a href="#try-temperature">Temperature, Live</a>
+    </div>
+    <div class="sidebar-foot">
+      Glossary by <a href="https://mayankchugh-learning.github.io/" target="_blank" rel="noopener">Mayank Chugh</a><br>
+      Senior Enterprise Architect · AI Engineer
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <div class="hero">
+      <span class="kicker">A Plain-Language Glossary</span>
+      <h1 class="title">AI Terms, Properly Explained</h1>
+      <p class="lede">
+        The vocabulary of modern AI, without the hand-waving — what a transformer actually does, why a
+        "context window" is a limit and not a feature, and where a chatbot stops and an agent begins.
+        Written for engineers and non-engineers who are tired of definitions that just use the term to
+        define itself.
+      </p>
+
+      <div class="author-card">
+        <div class="avatar">MC</div>
+        <div>
+          <div class="name">Mayank Chugh</div>
+          <div class="role">Senior Enterprise Architect · AI Engineer · RAG &amp; Agentic AI</div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="http://www.youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+          <a href="https://medium.com/@mayankchugh.jobathk" target="_blank" rel="noopener">Medium</a>
+        </div>
+      </div>
+    </div>
+
+    <section id="llm">
+      <span class="eyebrow">The Foundation</span>
+      <h2>Large Language Model</h2>
+      <p>At its core, an LLM is a next-word predictor: given everything written so far, it produces a probability
+      distribution over what token comes next, samples one, and repeats. The "large" refers to the number of
+      tunable parameters and the volume of text it was trained on — scale is what turns a crude autocomplete into
+      something that can hold a coherent conversation, write code, or summarize a contract.</p>
+      <p class="muted">It has no persistent memory of you, no beliefs, and no awareness between requests — every
+      reply is reconstructed from the conversation you send it, fresh each time.</p>
+    </section>
+
+    <section id="transformer">
+      <span class="eyebrow">The Foundation</span>
+      <h2>Transformer &amp; Attention</h2>
+      <p>The transformer is the neural network architecture behind essentially every modern LLM. Its key idea is
+      <strong>attention</strong>: for every word in a sentence, the model computes how relevant every other word
+      is to it, and weighs them accordingly. That's how "bank" is interpreted correctly in "I deposited my
+      paycheck at the bank" — the model isn't reading the sentence in isolation, it's weighing "deposited" and
+      "paycheck" heavily when deciding what "bank" means.</p>
+      <div class="callout">
+        <strong>Why it mattered</strong>
+        Earlier architectures processed text mostly in sequence, one word influencing the next. Attention lets a
+        model weigh every word against every other word simultaneously — the single architectural change that
+        made today's scale of language modeling practical.
+      </div>
+    </section>
+
+    <section id="tokens">
+      <span class="eyebrow">The Foundation</span>
+      <h2>Tokens</h2>
+      <p>Models don't read whole words — they read tokens, which are often word fragments. "Unbelievable" might
+      split into pieces like <span class="term">un</span>, <span class="term">believ</span>, <span class="term">able</span>.
+      This lets a fixed vocabulary represent any input, including typos, rare words, and other languages, without
+      needing a dictionary entry for every possible word.</p>
+      <p class="muted">Pricing, rate limits, and context window size are all measured in tokens, not words or
+      characters — a useful fact once you're budgeting API costs.</p>
+    </section>
+
+    <section id="parameters">
+      <span class="eyebrow">The Foundation</span>
+      <h2>Parameters</h2>
+      <p>Parameters are the model's internal tunable numbers — weights adjusted during training. Individually,
+      a single parameter means nothing; collectively, billions of them encode everything the model "knows" about
+      language, facts, and patterns. When you hear a model described as "70B" or "400B," that's a parameter
+      count, and it's a rough proxy — not a guarantee — for capability.</p>
+    </section>
+
+    <section id="context-window">
+      <span class="eyebrow">How It Reads You</span>
+      <h2>Context Window</h2>
+      <p>The context window is the maximum amount of text — measured in tokens — a model can consider at once:
+      your prompt, the conversation history, any documents you've pasted in, and the response it's generating,
+      all sharing one fixed budget. Once that budget is full, the oldest content has to be dropped or
+      summarized to make room for new input.</p>
+      <div class="callout">
+        <strong>Think of it like this</strong>
+        It's a whiteboard with a fixed size: you can write a lot on it, but once you run out of space, something
+        earlier has to be erased before you can add more.
+      </div>
+    </section>
+
+    <section id="prompting">
+      <span class="eyebrow">How It Reads You</span>
+      <h2>Prompting, Zero-Shot &amp; Few-Shot</h2>
+      <p>Prompting is simply the instruction you give the model — its entire "understanding" of a task comes from
+      the wording and examples in that one message. A <strong>zero-shot</strong> prompt asks for a task with no
+      examples ("translate this to Spanish"); a <strong>few-shot</strong> prompt includes a handful of worked
+      examples first, letting the model infer the pattern before it sees your real input.</p>
+      <div class="cards">
+        <div class="card">
+          <h4>Zero-shot</h4>
+          <p>You describe the task directly and trust the model's general training to fill in the rest.</p>
+        </div>
+        <div class="card">
+          <h4>Few-shot</h4>
+          <p>You show two or three input/output examples first — an open-book approach that narrows ambiguity
+          before the real question.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="temperature">
+      <span class="eyebrow">How It Reads You</span>
+      <h2>Temperature</h2>
+      <p>Temperature controls how much randomness goes into picking the next token. At low temperature, the model
+      almost always picks its highest-probability guess — consistent, a little predictable. At high temperature,
+      it's more willing to pick a less likely token — more varied, occasionally incoherent. It's a dial between
+      the safe, expected answer and the more adventurous one, not a measure of "creativity" in any deeper sense.</p>
+    </section>
+
+    <section id="training">
+      <span class="eyebrow">How It Learns</span>
+      <h2>Training, in Three Stages</h2>
+      <p>"Training" usually bundles together three distinct jobs:</p>
+      <div class="cards">
+        <div class="card">
+          <h4>Pretraining</h4>
+          <p>The model learns general language patterns from a vast, mostly unlabeled text corpus — fill-in-the-blank
+          at massive scale, with no human grading required.</p>
+        </div>
+        <div class="card">
+          <h4>Fine-tuning</h4>
+          <p>A focused pass on a narrower, curated dataset that teaches specific behavior or domain knowledge —
+          a residency after a general degree.</p>
+        </div>
+        <div class="card">
+          <h4>Alignment / RLHF</h4>
+          <p>Human feedback nudges the model's responses toward being more helpful, honest, and safe, rather than
+          just statistically likely.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="fine-tuning">
+      <span class="eyebrow">How It Learns</span>
+      <h2>Fine-Tuning</h2>
+      <p>Fine-tuning takes an already-trained model and continues training it on a smaller, specific dataset,
+      adjusting its existing parameters rather than starting over. It's how a general-purpose model becomes
+      noticeably better at a narrow task — a particular writing style, a support-ticket format, a company's
+      internal terminology — without the cost of training from scratch.</p>
+    </section>
+
+    <section id="hallucination">
+      <span class="eyebrow">How It Learns</span>
+      <h2>Hallucination</h2>
+      <p>A hallucination is a fluent, confident, and wrong answer — a fabricated citation, a nonexistent API
+      method, a plausible-sounding but false fact. It happens because the model is fundamentally predicting
+      likely-sounding text, not consulting a database of verified truth. Nothing in the architecture
+      distinguishes "I actually know this" from "this is a very plausible-sounding sentence."</p>
+      <div class="callout">
+        <strong>Why it matters in practice</strong>
+        Grounding techniques like retrieval-augmented generation (RAG) reduce hallucination by giving the model
+        real source text to quote from instead of relying purely on what it memorized during training — closer
+        to an open-book exam than a closed-book one.
+      </div>
+    </section>
+
+    <section id="reasoning-models">
+      <span class="eyebrow">Beyond Chat</span>
+      <h2>Reasoning Models</h2>
+      <p>Reasoning models are trained or prompted to work through a problem step by step before producing a final
+      answer, rather than jumping straight to a response. That extra deliberation — thinking it through on
+      purpose — tends to improve performance on multi-step problems like math and logic puzzles, at the cost of
+      slower, more expensive responses.</p>
+    </section>
+
+    <section id="multimodal">
+      <span class="eyebrow">Beyond Chat</span>
+      <h2>Multimodal</h2>
+      <p>A multimodal model can take in — and sometimes produce — more than one kind of input: text, images,
+      audio, or video, processed through the same underlying architecture. Instead of a text-only model, it has
+      more than one sense to perceive the world with.</p>
+    </section>
+
+    <section id="ai-agents">
+      <span class="eyebrow">Beyond Chat</span>
+      <h2>AI Agents</h2>
+      <p>An AI agent is a model wired up with the ability to take actions — call an API, run code, query a
+      database — and observe the results, typically in a loop: perceive, reason, act, observe, repeat. That's
+      the line between a chatbot, which only produces text, and an agent, which can actually do something with
+      the world instead of just describing what it would do.</p>
+    </section>
+
+    <section id="context-engineering">
+      <span class="eyebrow">Beyond Chat</span>
+      <h2>Context Engineering</h2>
+      <p>Context engineering is the practice of deliberately deciding what goes into a model's limited context
+      window — which documents, which conversation history, which tool outputs — rather than dumping everything
+      available onto the table before it opens its mouth. As context windows fill with tool results and history,
+      curating what actually gets sent in becomes as important as the prompt itself.</p>
+    </section>
+
+    <section id="agi-asi">
+      <span class="eyebrow">Beyond Chat</span>
+      <h2>AGI vs. ASI</h2>
+      <p><strong>AGI</strong> (artificial general intelligence) refers to a system with human-level ability
+      across essentially any intellectual task, not just the narrow ones it was trained for. <strong>ASI</strong>
+      (artificial superintelligence) refers to a hypothetical system that exceeds human ability broadly. Both
+      remain aspirational terms — current systems, however capable at specific tasks, are neither.</p>
+    </section>
+
+    <section id="try-temperature">
+      <span class="eyebrow">Interactive</span>
+      <h2>Temperature, Live</h2>
+      <p>Drag the slider to see how the same prompt — "Describe a cat" — might shift as temperature increases,
+      from the safest possible completion to a more unusual one.</p>
+      <div class="demo">
+        <div class="demo-head">prompt: "Describe a cat" → sampled at varying temperature</div>
+        <div class="demo-body">
+          <input type="range" id="temp-slider" min="0" max="10" value="2" oninput="updateTemp(this.value)">
+          <div class="slider-labels"><span>0.0 — deterministic</span><span>1.0 — balanced</span><span>2.0 — chaotic</span></div>
+          <div id="temp-output">temperature = <span id="temp-value">0.2</span> → <span id="temp-text">"A small domesticated mammal, typically kept as a pet."</span></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      Glossary by <a href="https://mayankchugh-learning.github.io/" target="_blank" rel="noopener">Mayank Chugh</a>
+      · Senior Enterprise Architect · AI Engineer · RAG &amp; Agentic AI
+      <br><br>
+      <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a> ·
+      <a href="http://www.youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a> ·
+      <a href="https://medium.com/@mayankchugh.jobathk" target="_blank" rel="noopener">Medium</a> ·
+      <a href="https://huggingface.co/spaces/mayankchugh-learning" target="_blank" rel="noopener">Hugging Face</a> ·
+      <a href="https://topmate.io/mayank_chugh" target="_blank" rel="noopener">Book a Call</a> ·
+      <a href="https://mayanklearns.gumroad.com/" target="_blank" rel="noopener">Gumroad</a> ·
+      <a href="https://buymeacoffee.com/mayankchugh?new=1" target="_blank" rel="noopener">Buy Me a Coffee</a>
+    </footer>
+
+  </main>
+
+  <script>
+    var responses = [
+      "A small domesticated mammal, typically kept as a pet.",
+      "A small domesticated mammal, typically kept as a pet.",
+      "A furry, four-legged companion known for napping and independence.",
+      "A furry, four-legged companion known for napping and independence.",
+      "A whiskered creature that somehow owns the house it lives in.",
+      "A whiskered creature that somehow owns the house it lives in.",
+      "A small predator that negotiated room and board in exchange for looking dignified.",
+      "A small predator that negotiated room and board in exchange for looking dignified.",
+      "Picture a cloud that judges you, occasionally knocks things off shelves, and purrs.",
+      "Picture a cloud that judges you, occasionally knocks things off shelves, and purrs.",
+      "gwrmph — the model has wandered off into something about quantum yarn."
+    ];
+    function updateTemp(v){
+      var temp = (v / 5).toFixed(1);
+      document.getElementById('temp-value').textContent = temp;
+      document.getElementById('temp-text').textContent = '"' + responses[v] + '"';
+    }
+
+    var sections = document.querySelectorAll('section[id]');
+    var navLinks = document.querySelectorAll('.nav a');
+    function onScroll(){
+      var pos = window.scrollY + 120;
+      sections.forEach(function(sec){
+        var link = document.querySelector('.nav a[href="#' + sec.id + '"]');
+        if (!link) return;
+        if (pos >= sec.offsetTop && pos < sec.offsetTop + sec.offsetHeight){
+          navLinks.forEach(function(l){ l.classList.remove('active'); });
+          link.classList.add('active');
+        }
+      });
+    }
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+  </script>
+</body>
+</html>

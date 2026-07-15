@@ -66,6 +66,10 @@ Static HTML site hosted on GitHub Pages. The main portfolio lives at `index.html
 | [positional_encoding.html](pages/ai-learning/positional_encoding.html) | Positional encoding — in-depth explainer |
 | [positional-encoding-standalone.html](pages/ai-learning/positional-encoding-standalone.html) | Positional encoding — standalone demo |
 | [PythonBasicsOffline.html](pages/ai-learning/PythonBasicsOffline.html) | Python basics — week 1 interactive guide |
+| [PythonBasics-v1.html](pages/ai-learning/PythonBasics-v1.html) | Pydantic & agents interactive guide |
+| [pydantic_app/](pages/pydantic_app/index.html) | Mastering Pydantic — models, validation, settings, structured outputs |
+| [python_agents_app/](pages/python_agents_app/index.html) | Agents with just Python — no-framework agent guide |
+| [resilient_marzipan_app/](pages/resilient_marzipan_app/index.html) | AI terms glossary — plain-language explanations |
 | [SelfAttentionExplainerOffline.html](pages/ai-learning/SelfAttentionExplainerOffline.html) | Self-attention explainer |
 | [AI-Enginee-Job-Portals.html](pages/ai-learning/AI-Enginee-Job-Portals.html) | AI engineer job portals directory |
 | [rag-architecture.html](pages/ai-learning/rag-architecture.html) | RAG architecture — offline indexing and online query pipelines |

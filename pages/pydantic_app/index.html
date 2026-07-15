@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mastering Pydantic — Complete Reference Guide by Mayank Chugh</title>
+<meta name="description" content="An interactive Pydantic reference guide — models, validation, settings, and LLM structured outputs — by Mayank Chugh, Senior Enterprise Architect & AI Engineer.">
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+  :root{
+    --background: 30 25% 97%;
+    --foreground: 20 14% 14%;
+    --card: 0 0% 100%;
+    --muted: 30 18% 93%;
+    --muted-foreground: 20 8% 42%;
+    --accent: 14 47% 92%;
+    --accent-foreground: 14 47% 30%;
+    --border: 30 15% 87%;
+    --terracotta: 14 47% 51%;
+    --terracotta-dark: 14 50% 38%;
+    --ink: 20 20% 12%;
+    --radius: .75rem;
+    --sidebar-w: 280px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:hsl(var(--background));
+    color:hsl(var(--foreground));
+    font-family:"Source Sans 3", sans-serif;
+    line-height:1.65;
+  }
+  h1,h2,h3{font-family:Fraunces,serif; margin:0; letter-spacing:-0.01em; color:hsl(var(--ink));}
+  code,pre,.mono{font-family:"JetBrains Mono", monospace;}
+  a{color:inherit;}
+  p{margin:0 0 12px;}
+
+  /* ---- Sidebar ---- */
+  .sidebar{
+    position:fixed; left:0; top:0; height:100vh; width:var(--sidebar-w);
+    border-right:1px solid hsl(var(--border));
+    background:hsl(var(--card));
+    display:flex; flex-direction:column;
+    overflow-y:auto;
+  }
+  .sidebar-head{
+    display:flex; align-items:center; gap:10px;
+    padding:20px 18px; border-bottom:1px solid hsl(var(--border));
+  }
+  .sidebar-head .mark{
+    width:36px;height:36px;border-radius:10px;
+    background:hsl(var(--terracotta)); color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:Fraunces,serif; font-weight:700; font-size:15px;
+  }
+  .sidebar-head .who{font-size:14px; font-weight:700;}
+  .sidebar-head .who small{display:block; font-weight:400; font-size:11px; color:hsl(var(--muted-foreground)); font-family:"JetBrains Mono",monospace; text-transform:uppercase; letter-spacing:.06em;}
+
+  .nav{padding:14px 10px; flex:1;}
+  .nav a{
+    display:block; padding:8px 12px; border-radius:8px;
+    font-size:13.5px; color:hsl(var(--foreground) / .8);
+    text-decoration:none; margin-bottom:2px;
+  }
+  .nav a:hover{background:hsl(var(--muted));}
+  .nav a.active{background:hsl(var(--terracotta) / .1); color:hsl(var(--terracotta)); font-weight:600;}
+  .nav .group-label{
+    font-family:"JetBrains Mono",monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:.08em; color:hsl(var(--muted-foreground)); padding:14px 12px 6px;
+  }
+
+  .sidebar-foot{
+    border-top:1px solid hsl(var(--border));
+    padding:14px 16px;
+    font-size:12px;
+    color:hsl(var(--muted-foreground));
+  }
+  .sidebar-foot a{color:hsl(var(--terracotta-dark)); font-weight:600; text-decoration:none;}
+
+  /* ---- Main content ---- */
+  .main{margin-left:var(--sidebar-w); max-width:820px; padding:0 32px 96px;}
+
+  .hero{
+    padding:56px 0 40px;
+    border-bottom:1px solid hsl(var(--border));
+    margin-bottom:8px;
+  }
+  .kicker{
+    display:inline-block; margin-bottom:14px;
+    font-family:"JetBrains Mono",monospace; font-size:11px; text-transform:uppercase;
+    letter-spacing:.1em; color:hsl(var(--terracotta)); font-weight:700;
+    background:hsl(var(--accent)); padding:5px 12px; border-radius:999px;
+  }
+  h1.title{font-size:clamp(30px,4.4vw,46px); font-weight:700;}
+  .lede{max-width:640px; margin-top:16px; font-size:16.5px; color:hsl(var(--muted-foreground));}
+
+  .author-card{
+    margin-top:26px; display:flex; align-items:center; gap:14px;
+    padding:14px 16px; border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    background:hsl(var(--card)); max-width:640px;
+  }
+  .author-card .avatar{
+    width:46px;height:46px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg, hsl(var(--terracotta)), hsl(14 60% 68%));
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:Fraunces,serif; font-weight:700; font-size:16px;
+  }
+  .author-card .name{font-weight:700; font-size:14.5px;}
+  .author-card .role{font-size:12.5px; color:hsl(var(--muted-foreground));}
+  .author-card .links{margin-left:auto; display:flex; gap:10px; flex-wrap:wrap;}
+  .author-card .links a{
+    font-size:12px; font-family:"JetBrains Mono",monospace;
+    color:hsl(var(--terracotta-dark)); text-decoration:none; font-weight:600;
+  }
+  .author-card .links a:hover{text-decoration:underline;}
+
+  section{scroll-margin-top:32px; padding:44px 0; border-bottom:1px solid hsl(var(--border));}
+  section:last-of-type{border-bottom:none;}
+  .eyebrow{
+    display:inline-block; margin-bottom:10px;
+    font-family:"JetBrains Mono",monospace; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.08em; color:hsl(var(--terracotta));
+    background:hsl(var(--accent)); padding:4px 10px; border-radius:999px;
+  }
+  h2{font-size:26px; font-weight:700; margin-bottom:14px;}
+  h3{font-size:16px; font-weight:600; margin:18px 0 8px;}
+  .muted{color:hsl(var(--muted-foreground));}
+
+  pre{
+    background:#1c1712; color:#f1e8dd;
+    border-radius:var(--radius); padding:16px 18px;
+    overflow-x:auto; font-size:13px; line-height:1.55; margin:14px 0;
+    border:1px solid hsl(var(--border));
+  }
+  code.inline{
+    background:hsl(var(--muted)); padding:1px 6px; border-radius:5px; font-size:.9em;
+  }
+
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:16px 0;}
+  .card{
+    padding:16px; border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    background:hsl(var(--card));
+  }
+  .card h4{margin:0 0 6px; font-size:14px; font-weight:700; font-family:"Source Sans 3",sans-serif;}
+  .card p{margin:0; font-size:13px; color:hsl(var(--muted-foreground));}
+
+  .callout{
+    border-left:4px solid hsl(var(--terracotta)); background:hsl(var(--accent) / .5);
+    border-radius:0 var(--radius) var(--radius) 0; padding:14px 16px; margin:16px 0; font-size:14.5px;
+  }
+  .callout.warn{border-left-color:#c0392b; background:#fdecea;}
+  .callout strong{display:block; margin-bottom:4px; font-size:12px; text-transform:uppercase; letter-spacing:.05em;}
+
+  .compare-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0;}
+  @media (max-width:640px){.compare-grid{grid-template-columns:1fr;}}
+  .compare-grid .card.bad{border-color:#e6a29a;}
+  .compare-grid .card.good{border-color:#8fbf9e;}
+
+  /* Playground */
+  .playground{border:1px solid hsl(var(--border)); border-radius:var(--radius); overflow:hidden; margin:16px 0; background:hsl(var(--card));}
+  .playground-head{background:hsl(var(--muted)); padding:10px 16px; font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:600; color:hsl(var(--muted-foreground)); text-transform:uppercase; letter-spacing:.05em;}
+  .playground-body{padding:16px;}
+  .field-row{display:flex; gap:10px; margin-bottom:10px; align-items:center; flex-wrap:wrap;}
+  .field-row label{font-size:12.5px; font-weight:600; width:110px; flex-shrink:0;}
+  .field-row input{
+    flex:1; min-width:160px; padding:8px 10px; border:1px solid hsl(var(--border));
+    border-radius:8px; font-family:"JetBrains Mono",monospace; font-size:13px; background:hsl(var(--background));
+  }
+  .validate-btn{
+    margin-top:6px; padding:9px 18px; border:none; border-radius:8px; cursor:pointer;
+    background:hsl(var(--terracotta)); color:#fff; font-weight:700; font-size:13.5px;
+  }
+  .validate-btn:hover{opacity:.9;}
+  .result{margin-top:14px; padding:12px 14px; border-radius:8px; font-family:"JetBrains Mono",monospace; font-size:12.5px; display:none;}
+  .result.ok{display:block; background:#e8f5ea; color:#276b3c; border-left:4px solid #4caf6f;}
+  .result.err{display:block; background:#fdecea; color:#9b2c1f; border-left:4px solid #e0554a;}
+
+  footer.page-footer{
+    margin-top:40px; padding-top:30px; text-align:center; font-size:13px; color:hsl(var(--muted-foreground));
+  }
+  footer.page-footer a{color:hsl(var(--terracotta-dark)); font-weight:600; text-decoration:none;}
+
+  @media (max-width: 900px){
+    .sidebar{display:none;}
+    .main{margin-left:0; padding:0 20px 80px;}
+  }
+</style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-head">
+      <div class="mark">MC</div>
+      <div class="who">Mayank Chugh<small>Pydantic Reference</small></div>
+    </div>
+    <div class="nav">
+      <div class="group-label">Foundations</div>
+      <a href="#why">Why Pydantic Exists</a>
+      <a href="#first-model">Your First Model</a>
+      <a href="#basemodel-vs">BaseModel vs. dataclass vs. plain class</a>
+
+      <div class="group-label">Modeling Data</div>
+      <a href="#nested-models">Nested Models</a>
+      <a href="#optional-literal">Optional and Literal Types</a>
+      <a href="#field-constraints">Field Constraints &amp; Custom Validators</a>
+      <a href="#computed-fields">Computed Fields &amp; Serialization Control</a>
+
+      <div class="group-label">Configuration</div>
+      <a href="#pydantic-settings">Pydantic Settings</a>
+
+      <div class="group-label">Interactive</div>
+      <a href="#playground">Live Validation Playground</a>
+
+      <div class="group-label">Pydantic + LLMs</div>
+      <a href="#llm-liability">Why Raw LLM Text Output Is a Liability</a>
+      <a href="#structured-outputs">OpenAI Structured Outputs</a>
+      <a href="#fastapi">Response Models &amp; Auto-Generated Docs</a>
+
+      <div class="group-label">Wrap-up</div>
+      <a href="#where-next">Where Pydantic Goes From Here</a>
+    </div>
+    <div class="sidebar-foot">
+      Guide by <a href="https://mayankchugh-learning.github.io/" target="_blank" rel="noopener">Mayank Chugh</a><br>
+      Senior Enterprise Architect · AI Engineer
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <div class="hero">
+      <span class="kicker">Complete Reference Guide</span>
+      <h1 class="title">Mastering Pydantic</h1>
+      <p class="lede">
+        A practical, example-driven walkthrough of Pydantic — from your first <code class="inline">BaseModel</code>
+        to validated, self-correcting structured outputs from LLMs. Written for engineers who want the shape of
+        their data to be a guarantee, not a hope.
+      </p>
+
+      <div class="author-card">
+        <div class="avatar">MC</div>
+        <div>
+          <div class="name">Mayank Chugh</div>
+          <div class="role">Senior Enterprise Architect · AI Engineer · RAG &amp; Agentic AI</div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="http://www.youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+          <a href="https://medium.com/@mayankchugh.jobathk" target="_blank" rel="noopener">Medium</a>
+        </div>
+      </div>
+    </div>
+
+    <section id="why">
+      <span class="eyebrow">Foundations</span>
+      <h2>Why Pydantic Exists</h2>
+      <p>Python is dynamically typed — a function can be handed a string where it expected an integer, and nothing
+      complains until three calls deeper, in a stack trace that leads you nowhere near the actual mistake. Pydantic
+      exists to close that gap: it turns type hints into enforced, runtime contracts.</p>
+      <div class="callout">
+        <strong>Analogy</strong>
+        A recipe card pinned to a shared kitchen wall says "2 cups flour" — anyone can write "some flour" instead
+        and nothing stops them. Pydantic is the difference between that recipe card and a customs declaration form:
+        one is a suggestion, the other is checked at the border before anything is allowed through.
+      </div>
+      <p>Without validation, bad data doesn't fail loudly at the door — it fails quietly, three modules later,
+      as a <code class="inline">TypeError</code> no one can trace back to its source. Pydantic moves that failure
+      to the one place it's cheap to fix: the boundary.</p>
+    </section>
+
+    <section id="first-model">
+      <span class="eyebrow">Foundations</span>
+      <h2>Your First Model</h2>
+      <p>A Pydantic model is a class where every attribute is a validated, typed field. Instantiate it with bad
+      data, and it raises before your code ever sees it.</p>
+      <pre><code>from pydantic import BaseModel
+
+class User(BaseModel):
+    id: int
+    full_name: str
+    years_experience: int = 0
+
+u = User(id="42", full_name="Mayank Chugh", years_experience=20)
+print(u.id)               # 42 (int, coerced)
+print(u.model_dump())      # {'id': 42, 'full_name': 'Mayank Chugh', 'years_experience': 20}</code></pre>
+      <p class="muted">Notice <code class="inline">id="42"</code> — a string — was coerced into an int. Pydantic
+      validates the <em>shape</em>, not just the raw type: it will accept anything it can safely convert, and
+      reject anything it can't.</p>
+    </section>
+
+    <section id="basemodel-vs">
+      <span class="eyebrow">Foundations</span>
+      <h2>BaseModel vs. dataclass vs. plain class</h2>
+      <p>All three let you group typed attributes together. Only one of them actually checks the data at
+      runtime.</p>
+      <div class="cards">
+        <div class="card">
+          <h4>Plain class</h4>
+          <p>Type hints are pure documentation. Nothing is enforced — you can assign any value to any attribute.</p>
+        </div>
+        <div class="card">
+          <h4>@dataclass</h4>
+          <p>Removes boilerplate (<code class="inline">__init__</code>, <code class="inline">__repr__</code>) but
+          still does zero validation by default.</p>
+        </div>
+        <div class="card">
+          <h4>BaseModel</h4>
+          <p>Validates on construction, coerces compatible types, and gives you <code class="inline">model_dump()</code>,
+          <code class="inline">model_json_schema()</code>, and structured error messages for free.</p>
+        </div>
+      </div>
+      <p class="muted">Rule of thumb: use <code class="inline">BaseModel</code> at every boundary where data enters
+      your system from the outside world — an API request, a config file, an LLM response.</p>
+    </section>
+
+    <section id="nested-models">
+      <span class="eyebrow">Modeling Data</span>
+      <h2>Nested Models</h2>
+      <p>Models can contain other models, and lists of models. Validation recurses all the way down — a bad
+      value three levels deep still raises a precise, addressable error.</p>
+      <pre><code>class Address(BaseModel):
+    city: str
+    state: str = "Maharashtra"
+
+class Order(BaseModel):
+    order_id: str
+    items: list[str]
+    ship_to: Address
+
+o = Order(order_id="ORD-001", items=["keyboard"], ship_to={"city": "Pune"})
+print(o.ship_to.city)   # "Pune"</code></pre>
+      <p class="muted">This is the "org chart" pattern — each nested model owns and validates its own slice of the
+      data, the same way a department head is responsible for their own team rather than the whole company.</p>
+    </section>
+
+    <section id="optional-literal">
+      <span class="eyebrow">Modeling Data</span>
+      <h2>Optional and Literal Types</h2>
+      <p><code class="inline">Optional[X]</code> says a field may be missing or <code class="inline">None</code>.
+      <code class="inline">Literal[...]</code> constrains a field to an exact, closed set of values — useful for
+      status codes, categories, or anything an LLM should be forced to pick from rather than invent.</p>
+      <pre><code>from typing import Optional, Literal
+
+class Ticket(BaseModel):
+    priority: Literal["low", "medium", "high"]
+    assignee: Optional[str] = None</code></pre>
+      <div class="callout warn">
+        <strong>Watch out</strong>
+        <code class="inline">assignee: Optional[str] = None</code> makes the field optional to <em>omit</em> —
+        it does not make it optional to be the wrong type. Passing <code class="inline">assignee=123</code> still fails.
+      </div>
+    </section>
+
+    <section id="field-constraints">
+      <span class="eyebrow">Modeling Data</span>
+      <h2>Field Constraints &amp; Custom Validators</h2>
+      <p><code class="inline">Field(...)</code> adds constraints — min/max length, numeric ranges, defaults —
+      directly on the type. When a rule is too specific for <code class="inline">Field</code> to express, you
+      reach for a validator.</p>
+      <div class="compare-grid">
+        <div class="card">
+          <h4>field_validator — per-field custom logic</h4>
+          <p>Check or transform the value of a single field, e.g. normalizing an email or rejecting disposable domains.</p>
+        </div>
+        <div class="card">
+          <h4>model_validator — cross-field rules</h4>
+          <p>Check a rule that depends on two or more fields together, e.g. <code class="inline">password</code> must
+          equal <code class="inline">confirm_password</code>.</p>
+        </div>
+      </div>
+      <pre><code>from pydantic import BaseModel, Field, field_validator, model_validator
+
+class Signup(BaseModel):
+    email: str = Field(min_length=5)
+    password: str
+    confirm_password: str
+
+    @field_validator("email")
+    @classmethod
+    def no_disposable_domains(cls, v):
+        if v.endswith("@mailinator.com"):
+            raise ValueError("disposable domains not accepted")
+        return v
+
+    @model_validator(mode="after")
+    def passwords_match(self):
+        if self.password != self.confirm_password:
+            raise ValueError("password and confirm_password do not match")
+        return self</code></pre>
+    </section>
+
+    <section id="computed-fields">
+      <span class="eyebrow">Modeling Data</span>
+      <h2>Computed Fields &amp; Serialization Control</h2>
+      <p><code class="inline">@computed_field</code> lets you calculate a brand-new value <em>from</em> other
+      fields and have it show up in <code class="inline">model_dump()</code> and the JSON schema, without storing
+      it redundantly.</p>
+      <pre><code>from pydantic import BaseModel, computed_field
+
+class Cart(BaseModel):
+    unit_price: float
+    quantity: int
+
+    @computed_field
+    @property
+    def total(self) -> float:
+        return round(self.unit_price * self.quantity, 2)</code></pre>
+      <p class="muted">Pair this with <code class="inline">Field(exclude=True)</code> or a custom
+      <code class="inline">SecretStr</code> when a field should be validated but never leave the process
+      (API keys, password hashes) — the difference between shape and correctness, and what's safe to show
+      downstream.</p>
+    </section>
+
+    <section id="pydantic-settings">
+      <span class="eyebrow">Configuration</span>
+      <h2>Pydantic Settings</h2>
+      <p><code class="inline">pydantic-settings</code> extends the same validation model to configuration:
+      environment variables, <code class="inline">.env</code> files, and secrets — validated exactly like any
+      other model, instead of read ad hoc with <code class="inline">os.environ.get()</code>.</p>
+      <pre><code>from pydantic_settings import BaseSettings
+from pydantic import SecretStr
+
+class Settings(BaseSettings):
+    debug: bool = False
+    database_url: str
+    api_key: SecretStr
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+print(settings.api_key)   # SecretStr('**********')</code></pre>
+      <p class="muted"><code class="inline">SecretStr</code> masks the value in logs, reprs, and tracebacks —
+      it only reveals the raw string when you explicitly call
+      <code class="inline">settings.api_key.get_secret_value()</code>.</p>
+    </section>
+
+    <section id="playground">
+      <span class="eyebrow">Interactive</span>
+      <h2>Live Validation Playground</h2>
+      <p>This mirrors the <code class="inline">Signup</code> model above. Try invalid input — a short email, an
+      empty name, mismatched passwords — and see the validation errors it produces.</p>
+      <div class="playground">
+        <div class="playground-head">model: Signup(BaseModel)</div>
+        <div class="playground-body">
+          <div class="field-row"><label for="pg-email">email</label><input id="pg-email" value="mayank@example.com"></div>
+          <div class="field-row"><label for="pg-pw">password</label><input id="pg-pw" value="super-secret-123"></div>
+          <div class="field-row"><label for="pg-pw2">confirm</label><input id="pg-pw2" value="super-secret-123"></div>
+          <button type="button" class="validate-btn" onclick="runValidation()">Validate</button>
+          <div id="pg-result" class="result"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="llm-liability">
+      <span class="eyebrow">Pydantic + LLMs</span>
+      <h2>Why Raw LLM Text Output Is a Liability</h2>
+      <p>An LLM asked to "extract product info as JSON" will usually comply — until it doesn't: a missing brace,
+      an invented field, a price returned as the string "around $40". Feeding that straight into your system
+      is like taking a shouted order at a noisy counter instead of a printed slip: it mostly works, until the
+      one time it doesn't and nobody notices.</p>
+      <div class="callout">
+        <strong>The retry pattern</strong>
+        Validate the model's output against a <code class="inline">BaseModel</code>. On failure, feed the exact
+        <code class="inline">ValidationError</code> back to the model and ask it to retry — Pydantic becomes the
+        feedback loop that makes an LLM self-correcting, up to a bounded number of attempts before you fail loudly.
+      </div>
+    </section>
+
+    <section id="structured-outputs">
+      <span class="eyebrow">Pydantic + LLMs</span>
+      <h2>OpenAI Structured Outputs</h2>
+      <p>Modern LLM APIs accept a Pydantic model directly as the target schema and guarantee (or closely
+      constrain) the response to match it — the same idea as <code class="inline">response_model</code> in
+      FastAPI, with a different vendor name.</p>
+      <pre><code>from pydantic import BaseModel
+from openai import OpenAI
+
+class ProductInfo(BaseModel):
+    name: str
+    price_usd: float
+    in_stock: bool
+
+client = OpenAI()
+resp = client.responses.parse(
+    model="claude-sonnet-4-6",
+    input="Extract product info as JSON from: ...",
+    text_format=ProductInfo,
+)
+product: ProductInfo = resp.output_parsed</code></pre>
+    </section>
+
+    <section id="fastapi">
+      <span class="eyebrow">Pydantic + LLMs</span>
+      <h2>Response Models &amp; Auto-Generated Docs</h2>
+      <p>FastAPI is built directly on Pydantic: the same models used to validate a request body double as the
+      <code class="inline">response_model</code>, and both are introspected to generate live OpenAPI docs —
+      automatic request validation with zero hand-written schema.</p>
+      <pre><code>from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class OrderOut(BaseModel):
+    order_id: str
+    total: float
+
+@app.post("/orders", response_model=OrderOut)
+def create_order(order: Order):
+    return OrderOut(order_id=order.order_id, total=42.0)</code></pre>
+      <p class="muted">The request body, the response body, and the interactive docs at
+      <code class="inline">/docs</code> all come from one model definition — no separate schema to keep in sync.</p>
+    </section>
+
+    <section id="where-next">
+      <span class="eyebrow">Wrap-up</span>
+      <h2>Where Pydantic Goes From Here</h2>
+      <p>This guide is deliberately out of scope on a few things — generic models, custom serializers per-field,
+      Pydantic's Rust core (<code class="inline">pydantic-core</code>), and schema migration strategies. What's
+      here is the 20% that covers most real systems: models, nesting, validators, settings, and the LLM boundary
+      where structured output stops being optional.</p>
+      <p>If this was useful, the rest of my AI engineering work — RAG pipelines, self-correcting agentic
+      workflows, and MCP tooling — is linked below.</p>
+    </section>
+
+    <footer class="page-footer">
+      Guide by <a href="https://mayankchugh-learning.github.io/" target="_blank" rel="noopener">Mayank Chugh</a>
+      · Senior Enterprise Architect · AI Engineer · RAG &amp; Agentic AI
+      <br><br>
+      <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a> ·
+      <a href="http://www.youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a> ·
+      <a href="https://medium.com/@mayankchugh.jobathk" target="_blank" rel="noopener">Medium</a> ·
+      <a href="https://huggingface.co/spaces/mayankchugh-learning" target="_blank" rel="noopener">Hugging Face</a> ·
+      <a href="https://topmate.io/mayank_chugh" target="_blank" rel="noopener">Book a Call</a> ·
+      <a href="https://mayanklearns.gumroad.com/" target="_blank" rel="noopener">Gumroad</a> ·
+      <a href="https://buymeacoffee.com/mayankchugh?new=1" target="_blank" rel="noopener">Buy Me a Coffee</a>
+    </footer>
+
+  </main>
+
+  <script>
+    function runValidation(){
+      var email = document.getElementById('pg-email').value.trim();
+      var pw = document.getElementById('pg-pw').value;
+      var pw2 = document.getElementById('pg-pw2').value;
+      var box = document.getElementById('pg-result');
+      var errors = [];
+
+      if (email.length < 5) errors.push("email: String should have at least 5 characters");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push("email: value is not a valid email address");
+      if (email.endsWith('@mailinator.com')) errors.push("email: disposable domains not accepted");
+      if (pw.length < 1) errors.push("password: Field required");
+      if (pw !== pw2) errors.push("__root__: password and confirm_password do not match");
+
+      if (errors.length){
+        box.className = 'result err';
+        box.innerHTML = '<strong>1 validation error for Signup</strong><br>' + errors.join('<br>');
+      } else {
+        box.className = 'result ok';
+        box.innerHTML = 'Validated successfully ✓<br>Signup(email=' + JSON.stringify(email) + ', password="**********", confirm_password="**********")';
+      }
+    }
+
+    // Highlight active section in sidebar on scroll
+    var sections = document.querySelectorAll('section[id]');
+    var navLinks = document.querySelectorAll('.nav a');
+    function onScroll(){
+      var pos = window.scrollY + 120;
+      sections.forEach(function(sec){
+        var link = document.querySelector('.nav a[href="#' + sec.id + '"]');
+        if (!link) return;
+        if (pos >= sec.offsetTop && pos < sec.offsetTop + sec.offsetHeight){
+          navLinks.forEach(function(l){ l.classList.remove('active'); });
+          link.classList.add('active');
+        }
+      });
+    }
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+  </script>
+</body>
+</html>
