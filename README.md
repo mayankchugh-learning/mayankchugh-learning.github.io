@@ -76,6 +76,7 @@ Static HTML site hosted on GitHub Pages. The main portfolio lives at `index.html
 | [vector-store-vs-database.html](pages/ai-learning/vector-store-vs-database.html) | Vector store vs vector database — scale and decision guide |
 | [langchain-document-components.html](pages/ai-learning/langchain-document-components.html) | LangChain document model for RAG ingestion |
 | [CRAG.html](pages/ai-learning/CRAG.html) | Corrective RAG interactive decision guide |
+| [agentic-rag-langgraph-guide.html](pages/ai-learning/agentic-rag-langgraph-guide.html) | Agentic RAG with LangGraph — decide, retrieve, grade, rewrite, generate |
 | [ai-ml-systems-part2.html](pages/ai-learning/ai-ml-systems-part2.html) | AI/ML systems — RAG, agents, evaluation, and interview scenarios (Part 2) |
 
 ### Articles (`pages/articles/`)

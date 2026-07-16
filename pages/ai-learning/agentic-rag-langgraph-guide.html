@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic RAG with LangGraph — Step-by-Step Guide</title>
+  <meta name="description" content="Learn Agentic RAG with LangGraph: decide, retrieve, grade, rewrite, and generate — with architecture, notebook walkthrough, and live demo paths.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --ink: #0f1f1c;
+      --muted: #4a635c;
+      --line: #c8ddd6;
+      --paper: #f4faf7;
+      --surface: #ffffff;
+      --teal: #0f766e;
+      --teal-deep: #0a5c56;
+      --teal-soft: #d8f3ee;
+      --mint: #ecf8f4;
+      --sand: #fff8eb;
+      --amber: #b45309;
+      --rose: #9f1239;
+      --sky: #0369a1;
+      --shadow: 0 20px 50px rgba(15, 31, 28, 0.08);
+      --radius: 14px;
+      --max: 1120px;
+      --step: 1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font: 16px/1.65 "IBM Plex Sans", sans-serif;
+      background:
+        radial-gradient(ellipse 90% 60% at 10% -20%, rgba(15, 118, 110, 0.14), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(180, 83, 9, 0.08), transparent 50%),
+        linear-gradient(180deg, #eef8f4 0%, var(--paper) 28%, #f7fbf9 100%);
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(rgba(15, 118, 110, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 118, 110, 0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, #000 0%, transparent 70%);
+    }
+
+    a { color: var(--teal-deep); }
+
+    .wrap {
+      width: min(var(--max), calc(100% - 2rem));
+      margin: 0 auto;
+    }
+
+    /* —— Top nav —— */
+    .topnav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      background: rgba(244, 250, 247, 0.82);
+      border-bottom: 1px solid rgba(200, 221, 214, 0.7);
+    }
+
+    .topnav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 0.45rem;
+      text-decoration: none;
+      color: var(--ink);
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand span {
+      color: var(--teal);
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+    }
+
+    .nav-links a:hover { color: var(--teal-deep); }
+
+    /* —— Hero —— */
+    .hero {
+      position: relative;
+      padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2rem, 4vw, 3rem);
+      min-height: min(88vh, 720px);
+      display: grid;
+      align-content: center;
+      gap: 1.25rem;
+      animation: rise 0.7s ease both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-brand {
+      margin: 0;
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(2.8rem, 7vw, 5.2rem);
+      font-weight: 700;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: var(--teal-deep);
+    }
+
+    .hero h1 {
+      margin: 0;
+      max-width: 18ch;
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(1.55rem, 3.2vw, 2.15rem);
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .hero-lead {
+      margin: 0;
+      max-width: 42rem;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      min-height: 46px;
+      padding: 0 1.15rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: var(--teal);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.28);
+    }
+
+    .btn-primary:hover { background: var(--teal-deep); }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+
+    .btn-ghost:hover { background: var(--surface); }
+
+    .flow-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      color: var(--teal-deep);
+    }
+
+    .flow-strip i {
+      font-style: normal;
+      padding: 0.35rem 0.65rem;
+      background: var(--teal-soft);
+      border-radius: 8px;
+      animation: pulseSoft 2.8s ease-in-out infinite;
+    }
+
+    .flow-strip i:nth-child(2) { animation-delay: 0.2s; }
+    .flow-strip i:nth-child(3) { animation-delay: 0.4s; }
+    .flow-strip i:nth-child(4) { animation-delay: 0.6s; }
+    .flow-strip i:nth-child(5) { animation-delay: 0.8s; }
+
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    /* —— Sections —— */
+    section {
+      padding: 3.25rem 0;
+      scroll-margin-top: 4.5rem;
+      animation: rise 0.6s ease both;
+    }
+
+    .section-kicker {
+      margin: 0 0 0.4rem;
+      color: var(--teal);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0 0 0.65rem;
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(1.7rem, 3vw, 2.35rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .section-lead {
+      margin: 0 0 1.75rem;
+      max-width: 42rem;
+      color: var(--muted);
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    @media (max-width: 760px) {
+      .compare { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+
+    .panel {
+      padding: 1.35rem 1.4rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    .panel p { margin: 0; color: var(--muted); }
+
+    .panel.classic {
+      background: linear-gradient(160deg, #fff 60%, #f3f4f6);
+    }
+
+    .panel.agentic {
+      background: linear-gradient(160deg, #fff 40%, var(--mint));
+      border-color: #9fd5cb;
+    }
+
+    .line-flow {
+      margin: 1rem 0 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.82rem;
+      color: var(--ink);
+      line-height: 1.7;
+    }
+
+    /* —— Architecture —— */
+    .arch-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .arch-layout { grid-template-columns: 1fr; }
+    }
+
+    .mermaid-box {
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow-x: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .mermaid { display: flex; justify-content: center; }
+
+    .node-list {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .node-item {
+      padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--teal);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    }
+
+    .node-item:hover,
+    .node-item.active {
+      background: var(--mint);
+      border-color: #7fc4b7;
+      transform: translateX(2px);
+    }
+
+    .node-item strong {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.85rem;
+      color: var(--teal-deep);
+      margin-bottom: 0.2rem;
+    }
+
+    .node-item span {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .node-detail {
+      margin-top: 0.85rem;
+      padding: 1rem 1.1rem;
+      background: var(--sand);
+      border: 1px solid #f0dfb8;
+      border-radius: 10px;
+      min-height: 5.5rem;
+    }
+
+    .node-detail h4 {
+      margin: 0 0 0.35rem;
+      font-size: 0.95rem;
+    }
+
+    .node-detail p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* —— Progress steps —— */
+    .progress {
+      position: sticky;
+      top: 3.6rem;
+      z-index: 30;
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding: 0.65rem 0;
+      margin: 0 0 1.25rem;
+      background: rgba(244, 250, 247, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .progress button {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 0.4rem 0.85rem;
+      font: 600 0.78rem/1 "IBM Plex Sans", sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .progress button.active,
+    .progress button:hover {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .lesson {
+      display: none;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .lesson.active {
+      display: block;
+      animation: rise 0.35s ease both;
+    }
+
+    .lesson h3 {
+      margin: 0 0 0.5rem;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.45rem;
+    }
+
+    .lesson > p { color: var(--muted); }
+
+    .checklist {
+      margin: 1rem 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 0.65rem;
+      align-items: flex-start;
+      padding: 0.55rem 0.7rem;
+      background: var(--mint);
+      border-radius: 8px;
+      font-size: 0.94rem;
+    }
+
+    .checklist li::before {
+      content: "→";
+      color: var(--teal);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    pre, .code {
+      margin: 1rem 0 0;
+      padding: 1rem 1.1rem;
+      overflow-x: auto;
+      background: #0f1f1c;
+      color: #d7efe8;
+      border-radius: 12px;
+      font: 0.82rem/1.55 "IBM Plex Mono", monospace;
+    }
+
+    .code .c { color: #7fafa3; }
+    .code .k { color: #7dd3c0; }
+    .code .s { color: #f0c674; }
+
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--mint);
+    }
+
+    /* —— Demo paths —— */
+    .path-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1rem;
+    }
+
+    .path-tabs button {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 0.55rem 0.9rem;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .path-tabs button.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .path-panel {
+      display: none;
+      padding: 1.35rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .path-panel.active { display: block; animation: rise 0.3s ease both; }
+
+    .trace {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 1rem 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+    }
+
+    .trace span {
+      padding: 0.35rem 0.6rem;
+      border-radius: 7px;
+      background: var(--teal-soft);
+      color: var(--teal-deep);
+      opacity: 0;
+      animation: popIn 0.4s ease forwards;
+    }
+
+    .trace span:nth-child(1) { animation-delay: 0.05s; }
+    .trace span:nth-child(2) { animation-delay: 0.2s; }
+    .trace span:nth-child(3) { animation-delay: 0.35s; }
+    .trace span:nth-child(4) { animation-delay: 0.5s; }
+    .trace span:nth-child(5) { animation-delay: 0.65s; }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .trace .end { background: #e8eef5; color: var(--sky); }
+    .trace .warn { background: #fde8e8; color: var(--rose); }
+
+    .expect {
+      margin: 0;
+      padding: 0.85rem 1rem;
+      background: var(--sand);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    /* —— Takeaways —— */
+    .tips {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.85rem;
+      counter-reset: tip;
+    }
+
+    .tip {
+      position: relative;
+      padding: 1.15rem 1.1rem 1.15rem 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      counter-increment: tip;
+    }
+
+    .tip::before {
+      content: counter(tip);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.6rem;
+      height: 1.6rem;
+      margin-bottom: 0.55rem;
+      border-radius: 50%;
+      background: var(--teal-soft);
+      color: var(--teal-deep);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .tip strong {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 0.98rem;
+    }
+
+    .tip p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .homework {
+      margin-top: 1.25rem;
+      padding: 1.35rem 1.4rem;
+      background: linear-gradient(135deg, var(--teal-deep), #14665f);
+      color: #e8fff9;
+      border-radius: var(--radius);
+    }
+
+    .homework h3 {
+      margin: 0 0 0.4rem;
+      font-family: Fraunces, Georgia, serif;
+      color: #fff;
+    }
+
+    .homework p { margin: 0; opacity: 0.92; }
+
+    /* —— Resources / deploy —— */
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .resource {
+      padding: 1.15rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .resource h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1rem;
+    }
+
+    .resource p {
+      margin: 0 0 0.75rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .resource code {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+      background: var(--mint);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    footer {
+      padding: 2.5rem 0 3rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    footer strong { color: var(--ink); }
+  </style>
+</head>
+<body>
+  <header class="topnav">
+    <div class="wrap topnav-inner">
+      <a class="brand" href="#top">Agentic RAG <span>LangGraph</span></a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="../learning/index.html">← Learning</a>
+        <a href="#why">Why</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#learn">Learn</a>
+        <a href="#demos">Demos</a>
+        <a href="#takeaways">Takeaways</a>
+        <a href="#deploy">Deploy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="wrap">
+      <section class="hero" aria-label="Introduction">
+        <p class="hero-brand">Agentic RAG</p>
+        <h1>Decide. Retrieve. Grade. Rewrite. Answer.</h1>
+        <p class="hero-lead">
+          Classic RAG always retrieves. Agentic RAG adds control flow —
+          so the model retrieves only when needed, checks relevance, and
+          rewrites weak queries before answering.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#learn">Start the walkthrough</a>
+          <a class="btn btn-ghost" href="#architecture">See the architecture</a>
+        </div>
+        <div class="flow-strip" aria-hidden="true">
+          <i>decide</i>
+          <i>retrieve</i>
+          <i>grade</i>
+          <i>rewrite</i>
+          <i>generate</i>
+        </div>
+      </section>
+
+      <!-- Why -->
+      <section id="why">
+        <p class="section-kicker">Classic vs Agentic</p>
+        <h2>Hope vs validate</h2>
+        <p class="section-lead">
+          Most RAG apps do the same thing every time: retrieve, then generate.
+          Agentic RAG asks better questions first.
+        </p>
+        <div class="compare">
+          <article class="panel classic">
+            <h3>Classic RAG</h3>
+            <p>A straight line. No check on whether retrieval helped.</p>
+            <p class="line-flow">question → vector search → answer</p>
+          </article>
+          <article class="panel agentic">
+            <h3>Agentic RAG</h3>
+            <p>Control flow with loops, relevance grading, and a rewrite budget.</p>
+            <p class="line-flow">
+              Should I retrieve at all?<br>
+              Are these docs relevant?<br>
+              If not — rewrite and try again (not forever).
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Architecture -->
+      <section id="architecture">
+        <p class="section-kicker">The map</p>
+        <h2>Architecture walkthrough</h2>
+        <p class="section-lead">
+          Every query enters <strong>decide</strong>. From there the graph either
+          answers directly or runs retrieve → grade → generate / rewrite.
+          Click a node to inspect its role.
+        </p>
+
+        <div class="arch-layout">
+          <div class="mermaid-box">
+            <pre class="mermaid">
+flowchart TD
+    START([START]) --> Decision["decide\nanswer or retrieve"]
+    Decision -->|tool_calls| Retriever["retrieve\nChroma tool"]
+    Decision -->|no tool_calls| END1([END])
+    Retriever --> Grade{"grade_documents\nrelevant?"}
+    Grade -->|yes| Generate["generate\ngrounded answer"]
+    Grade -->|no + rewrites left| Rewrite["rewrite\nrephrase question"]
+    Grade -->|no + max rewrites| Generate
+    Generate --> END2([END])
+    Rewrite -->|loop| Decision
+    classDef decision fill:#E6F4F1,stroke:#0F766E,color:#134E4A;
+    classDef terminal fill:#F1F5F9,stroke:#64748B,color:#334155;
+    classDef node fill:#FFFFFF,stroke:#334155,color:#0F172A;
+    class Decision,Retriever,Generate,Rewrite node;
+    class Grade decision;
+    class START,END1,END2 terminal;
+            </pre>
+          </div>
+
+          <aside>
+            <div class="node-list" id="nodeList" role="list">
+              <button type="button" class="node-item active" data-node="decide" role="listitem">
+                <strong>decide</strong>
+                <span>Answer directly or emit tool_calls</span>
+              </button>
+              <button type="button" class="node-item" data-node="retrieve" role="listitem">
+                <strong>retrieve</strong>
+                <span>ToolNode + Chroma similarity search</span>
+              </button>
+              <button type="button" class="node-item" data-node="grade" role="listitem">
+                <strong>grade_documents</strong>
+                <span>Yes/no relevance gate</span>
+              </button>
+              <button type="button" class="node-item" data-node="generate" role="listitem">
+                <strong>generate</strong>
+                <span>Grounded answer from context</span>
+              </button>
+              <button type="button" class="node-item" data-node="rewrite" role="listitem">
+                <strong>rewrite</strong>
+                <span>Better query + loop to decide</span>
+              </button>
+            </div>
+            <div class="node-detail" id="nodeDetail">
+              <h4>decide</h4>
+              <p>Binds <code>retrieve_knowledge_corpus</code>. No tool call → END (greetings, trivia). Tool call → retrieve.</p>
+            </div>
+          </aside>
+        </div>
+
+        <div style="overflow-x:auto; margin-top:1.5rem;">
+          <table>
+            <thead>
+              <tr><th>From</th><th>Condition</th><th>To</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>START</td><td>always</td><td>decide</td></tr>
+              <tr><td>decide</td><td>tools_condition = tools</td><td>retrieve</td></tr>
+              <tr><td>decide</td><td>no tool calls</td><td>END</td></tr>
+              <tr><td>retrieve</td><td>grade = yes</td><td>generate</td></tr>
+              <tr><td>retrieve</td><td>grade = no &amp; rewrites left</td><td>rewrite</td></tr>
+              <tr><td>retrieve</td><td>grade = no &amp; max rewrites</td><td>generate</td></tr>
+              <tr><td>generate</td><td>always</td><td>END</td></tr>
+              <tr><td>rewrite</td><td>always</td><td>decide</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Learn step by step -->
+      <section id="learn">
+        <p class="section-kicker">Notebook path</p>
+        <h2>Learn step by step</h2>
+        <p class="section-lead">
+          Follow the same sequence as <code>agentic-rag-langgraph.ipynb</code>.
+          Finish one lesson, then advance.
+        </p>
+
+        <div class="progress" id="lessonProgress" aria-label="Lesson progress"></div>
+
+        <!-- Lesson 0 -->
+        <article class="lesson active" data-lesson="0">
+          <h3>0 · What you will build</h3>
+          <p>
+            An agentic RAG pipeline where the LLM decides whether to retrieve,
+            grades document relevance, generates an answer, or rewrites the query
+            and loops — with a max-rewrite guard (<code>MAX_REWRITES = 2</code>).
+          </p>
+          <ul class="checklist">
+            <li>Decide: answer small talk / general facts, or call the retriever</li>
+            <li>Retrieve: similarity search over indexed blogs</li>
+            <li>Grade: binary relevance check on context</li>
+            <li>Generate: grounded answer from context</li>
+            <li>Rewrite: rephrase the question to improve retrieval</li>
+          </ul>
+          <p style="margin-top:1rem;color:var(--muted);font-size:0.94rem;">
+            Requirements: Python 3.10+, <code>OPENAI_API_KEY</code> in <code>.env</code>
+            (or Colab userdata).
+          </p>
+          <div class="lesson-nav">
+            <span></span>
+            <button type="button" class="btn btn-primary" data-next>Next: Setup →</button>
+          </div>
+        </article>
+
+        <!-- Lesson 1 -->
+        <article class="lesson" data-lesson="1">
+          <h3>1 · Install &amp; environment</h3>
+          <p>Install the LangChain / LangGraph stack, then load your API key.</p>
+          <pre class="code"><span class="c"># Install once</span>
+%pip install -q langchain_core langchain-openai \
+  langchain-community langgraph chromadb \
+  langchain-text-splitters beautifulsoup4 \
+  python-dotenv lxml tiktoken
+
+<span class="c"># Load OPENAI_API_KEY from .env or Colab</span>
+<span class="k">from</span> dotenv <span class="k">import</span> load_dotenv
+load_dotenv()
+os.environ.setdefault(<span class="s">"USER_AGENT"</span>, <span class="s">"agentic-rag-langgraph-notebook"</span>)</pre>
+          <ul class="checklist">
+            <li>Chat model: <code>gpt-4o-mini</code> (cheap &amp; fast for demos)</li>
+            <li>Embeddings: <code>text-embedding-3-large</code> (better retrieval)</li>
+            <li>Smoke-test both before building the corpus</li>
+          </ul>
+          <div class="lesson-nav">
+            <button type="button" class="btn btn-ghost" data-prev>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Next: Knowledge →</button>
+          </div>
+        </article>
+
+        <!-- Lesson 2 -->
+        <article class="lesson" data-lesson="2">
+          <h3>2 · Knowledge corpus</h3>
+          <p>
+            Index <strong>three public posts</strong> on different topics so
+            “should I retrieve?” is a real decision — not a toy with one document.
+          </p>
+          <table>
+            <thead><tr><th>Topic</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td>Reward hacking</td><td>Lilian Weng</td></tr>
+              <tr><td>Hallucination</td><td>Lilian Weng</td></tr>
+              <tr><td>Transformers</td><td>Jay Alammar — Illustrated Transformer</td></tr>
+            </tbody>
+          </table>
+          <ul class="checklist">
+            <li>Load with <code>WebBaseLoader</code>, prefer <code>&lt;article&gt;</code> / <code>&lt;main&gt;</code></li>
+            <li>Chunk with tiktoken splitter (~400 tokens, 80 overlap)</li>
+            <li>Store in Chroma collection <code>agentic-rag-corpus</code>, retriever <code>k=4</code></li>
+            <li>Sanity-check: “What are common types of reward hacking?”</li>
+          </ul>
+          <pre class="code">text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=400,
+    chunk_overlap=80,
+)
+vectorstore = Chroma.from_documents(
+    documents=doc_splits,
+    collection_name=<span class="s">"agentic-rag-corpus"</span>,
+    embedding=embeddings,
+)
+retriever = vectorstore.as_retriever(search_kwargs={<span class="s">"k"</span>: 4})</pre>
+          <div class="lesson-nav">
+            <button type="button" class="btn btn-ghost" data-prev>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Next: Tool &amp; state →</button>
+          </div>
+        </article>
+
+        <!-- Lesson 3 -->
+        <article class="lesson" data-lesson="3">
+          <h3>3 · Retriever tool &amp; graph state</h3>
+          <p>
+            The tool description is not decoration — it teaches the model
+            <strong>when</strong> to call retrieval.
+          </p>
+          <pre class="code">retriever_tool = create_retriever_tool(
+    retriever,
+    name=<span class="s">"retrieve_knowledge_corpus"</span>,
+    description=(
+        <span class="s">"Search the local knowledge corpus about: reward hacking, "</span>
+        <span class="s">"LLM hallucination, and Transformer architecture. "</span>
+        <span class="s">"Use ONLY for those topics. Do NOT use for greetings or trivia."</span>
+    ),
+)
+
+MAX_REWRITES = 2
+
+<span class="k">class</span> AgentState(TypedDict):
+    messages: Annotated[Sequence[BaseMessage], add_messages]
+    rewrite_count: int</pre>
+          <ul class="checklist">
+            <li>Strict tool descriptions keep chit-chat out of the vector store</li>
+            <li><code>rewrite_count</code> + max rewrites prevent infinite loops</li>
+            <li>Without the guard, a bad corpus can spin forever</li>
+          </ul>
+          <div class="lesson-nav">
+            <button type="button" class="btn btn-ghost" data-prev>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Next: Nodes →</button>
+          </div>
+        </article>
+
+        <!-- Lesson 4 -->
+        <article class="lesson" data-lesson="4">
+          <h3>4 · Graph nodes</h3>
+          <p>Each node prints a banner so you can watch the path in notebook output.</p>
+          <table>
+            <thead><tr><th>Node</th><th>One-line job</th></tr></thead>
+            <tbody>
+              <tr><td><code>decide</code></td><td>Bind tools → RETRIEVE or DIRECT ANSWER</td></tr>
+              <tr><td><code>retrieve</code></td><td><code>ToolNode</code> runs Chroma search</td></tr>
+              <tr><td><code>grade_documents</code></td><td>Structured yes/no with Pydantic</td></tr>
+              <tr><td><code>generate</code></td><td>Grounded answer from latest context</td></tr>
+              <tr><td><code>rewrite</code></td><td>Improved <code>HumanMessage</code> + bump counter</td></tr>
+            </tbody>
+          </table>
+          <pre class="code"><span class="k">def</span> grade_documents(state: AgentState) -> Literal[<span class="s">"generate"</span>, <span class="s">"rewrite"</span>]:
+    result = grader.invoke({...})
+    <span class="k">if</span> score == <span class="s">"yes"</span>:
+        <span class="k">return</span> <span class="s">"generate"</span>
+    <span class="k">if</span> rewrite_count >= MAX_REWRITES:
+        <span class="k">return</span> <span class="s">"generate"</span>  <span class="c"># best-effort</span>
+    <span class="k">return</span> <span class="s">"rewrite"</span></pre>
+          <div class="lesson-nav">
+            <button type="button" class="btn btn-ghost" data-prev>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Next: Wire graph →</button>
+          </div>
+        </article>
+
+        <!-- Lesson 5 -->
+        <article class="lesson" data-lesson="5">
+          <h3>5 · Wire the LangGraph workflow</h3>
+          <p>Connect nodes with edges that match the architecture diagram.</p>
+          <pre class="code">workflow = StateGraph(AgentState)
+workflow.add_node(<span class="s">"decide"</span>, decide)
+workflow.add_node(<span class="s">"retrieve"</span>, retriever_node)
+workflow.add_node(<span class="s">"generate"</span>, generate)
+workflow.add_node(<span class="s">"rewrite"</span>, rewrite)
+
+workflow.add_edge(START, <span class="s">"decide"</span>)
+workflow.add_conditional_edges(
+    <span class="s">"decide"</span>, tools_condition, {<span class="s">"tools"</span>: <span class="s">"retrieve"</span>, END: END},
+)
+workflow.add_conditional_edges(<span class="s">"retrieve"</span>, grade_documents)
+workflow.add_edge(<span class="s">"generate"</span>, END)
+workflow.add_edge(<span class="s">"rewrite"</span>, <span class="s">"decide"</span>)
+
+app = workflow.compile()</pre>
+          <ul class="checklist">
+            <li>START → decide</li>
+            <li>decide → retrieve or END</li>
+            <li>retrieve → grade → generate or rewrite</li>
+            <li>rewrite → decide (loop)</li>
+          </ul>
+          <div class="lesson-nav">
+            <button type="button" class="btn btn-ghost" data-prev>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Next: Run demos →</button>
+          </div>
+        </article>
+
+        <!-- Lesson 6 -->
+        <article class="lesson" data-lesson="6">
+          <h3>6 · Run with <code>ask()</code></h3>
+          <p>
+            Wrap <code>app.invoke</code> and print a clean summary: tools called,
+            rewrite count, final answer.
+          </p>
+          <pre class="code"><span class="k">def</span> ask(question: str):
+    result = app.invoke({
+        <span class="s">"messages"</span>: [HumanMessage(content=question)],
+        <span class="s">"rewrite_count"</span>: 0,
+    })
+    <span class="c"># print tools / rewrite_count / FINAL ANSWER</span>
+    <span class="k">return</span> result
+
+ask(<span class="s">"What types of reward hacking does Lilian Weng describe?"</span>)</pre>
+          <p style="margin-top:1rem;color:var(--muted);">
+            Next: explore the four live paths below — corpus, greeting, trivia, multi-topic.
+          </p>
+          <div class="lesson-nav">
+            <button type="button" class="btn btn-ghost" data-prev>← Back</button>
+            <a class="btn btn-primary" href="#demos">Go to demos →</a>
+          </div>
+        </article>
+      </section>
+
+      <!-- Demos -->
+      <section id="demos">
+        <p class="section-kicker">Live paths</p>
+        <h2>Four demo paths</h2>
+        <p class="section-lead">
+          Same agent, different questions — watch which route the graph takes.
+        </p>
+
+        <div class="path-tabs" id="pathTabs" role="tablist">
+          <button type="button" class="active" data-path="a" role="tab">A · Corpus</button>
+          <button type="button" data-path="b" role="tab">B · Greeting</button>
+          <button type="button" data-path="c" role="tab">C · Trivia</button>
+          <button type="button" data-path="d" role="tab">D · Multi-topic</button>
+        </div>
+
+        <div class="path-panel active" data-path="a" role="tabpanel">
+          <h3 style="margin:0 0 0.4rem;font-family:Fraunces,Georgia,serif;">Path A — Happy path</h3>
+          <p style="margin:0;color:var(--muted);">
+            “What types of reward hacking does Lilian Weng describe?”
+          </p>
+          <div class="trace">
+            <span>decide</span>
+            <span>retrieve</span>
+            <span>grade YES</span>
+            <span>generate</span>
+            <span class="end">END</span>
+          </div>
+          <p class="expect">
+            Expect banners showing RETRIEVE → grade: YES → grounded answer from the reward-hacking post.
+          </p>
+        </div>
+
+        <div class="path-panel" data-path="b" role="tabpanel">
+          <h3 style="margin:0 0 0.4rem;font-family:Fraunces,Georgia,serif;">Path B — Greeting</h3>
+          <p style="margin:0;color:var(--muted);">“Hi! How are you today?”</p>
+          <div class="trace">
+            <span>decide</span>
+            <span class="end">DIRECT ANSWER → END</span>
+          </div>
+          <p class="expect">
+            No tool call. If your model still retrieves, tighten the tool description — that is a teaching moment, not a failure.
+          </p>
+        </div>
+
+        <div class="path-panel" data-path="c" role="tabpanel">
+          <h3 style="margin:0 0 0.4rem;font-family:Fraunces,Georgia,serif;">Path C — General knowledge</h3>
+          <p style="margin:0;color:var(--muted);">“What is the capital of India?”</p>
+          <div class="trace">
+            <span>decide</span>
+            <span class="end">no retriever → END</span>
+          </div>
+          <p class="expect">
+            The agent should not waste vector search on trivia outside the corpus.
+          </p>
+        </div>
+
+        <div class="path-panel" data-path="d" role="tabpanel">
+          <h3 style="margin:0 0 0.4rem;font-family:Fraunces,Georgia,serif;">Path D — Multi-topic</h3>
+          <p style="margin:0;color:var(--muted);">
+            Self-attention plus hallucination causes — one agent across a multi-topic corpus.
+          </p>
+          <div class="trace">
+            <span>decide</span>
+            <span>retrieve</span>
+            <span>grade</span>
+            <span>generate</span>
+            <span class="warn">or rewrite → decide</span>
+          </div>
+          <p class="expect">
+            May pull transformers and/or hallucination chunks, then grade and generate (or rewrite if weak).
+          </p>
+        </div>
+      </section>
+
+      <!-- Takeaways -->
+      <section id="takeaways">
+        <p class="section-kicker">Design tips</p>
+        <h2>Five takeaways</h2>
+        <p class="section-lead">Production-minded habits from the notebook and teaching script.</p>
+        <div class="tips">
+          <article class="tip">
+            <strong>Diverse sources</strong>
+            <p>Multi-topic corpora make “should I retrieve?” meaningful.</p>
+          </article>
+          <article class="tip">
+            <strong>Readable printers</strong>
+            <p>Summarize docs and context — don’t dump raw Document objects.</p>
+          </article>
+          <article class="tip">
+            <strong>Rewrite budget</strong>
+            <p><code>rewrite_count</code> + max rewrites stop infinite loops.</p>
+          </article>
+          <article class="tip">
+            <strong>Strict tool text</strong>
+            <p>Tell the model when <em>not</em> to retrieve (hi / trivia).</p>
+          </article>
+          <article class="tip">
+            <strong>Log decisions</strong>
+            <p>For production: larger k, metadata filters, log every grade/rewrite.</p>
+          </article>
+        </div>
+
+        <div class="homework">
+          <h3>Homework — Corrective RAG (CRAG)</h3>
+          <p>
+            If grading still fails after max rewrites, call a <strong>web search</strong> tool,
+            grade again, then generate. That is the natural upgrade from this notebook to CRAG.
+          </p>
+        </div>
+      </section>
+
+      <!-- Deploy -->
+      <section id="deploy">
+        <p class="section-kicker">Ship it</p>
+        <h2>Deploy this page</h2>
+        <p class="section-lead">
+          This file is a single static HTML page — no build step. Pair it with the notebook in your repo.
+        </p>
+        <div class="resource-grid">
+          <article class="resource">
+            <h3>GitHub Pages</h3>
+            <p>Push this file to your repo, then enable Pages on the branch (or <code>/docs</code> folder).</p>
+            <code>agentic-rag-langgraph-guide.html</code>
+          </article>
+          <article class="resource">
+            <h3>Netlify</h3>
+            <p>Drag-and-drop the file (or the repo root). Set publish directory to <code>/</code> and open the HTML URL.</p>
+            <code>Publish directory: .</code>
+          </article>
+          <article class="resource">
+            <h3>Companion files</h3>
+            <p>Point learners to the runnable notebook and architecture notes.</p>
+            <p style="margin:0;">
+              <code>agentic-rag-langgraph.ipynb</code><br>
+              <code>agentic-rag-langgraph-architecture.md</code>
+            </p>
+          </article>
+          <article class="resource">
+            <h3>Stack</h3>
+            <p>LangGraph · LangChain · Chroma · OpenAI embeddings · gpt-4o-mini</p>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <strong>Agentic RAG with LangGraph</strong> —
+      decide → retrieve → grade → generate / rewrite.
+      Built as a static learning guide for Netlify &amp; GitHub Pages.
+    </div>
+  </footer>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "base",
+      themeVariables: {
+        primaryColor: "#ffffff",
+        primaryTextColor: "#0f1f1c",
+        primaryBorderColor: "#334155",
+        lineColor: "#0f766e",
+        secondaryColor: "#E6F4F1",
+        tertiaryColor: "#F1F5F9",
+        fontFamily: "IBM Plex Sans, sans-serif"
+      },
+      flowchart: { curve: "basis", htmlLabels: true }
+    });
+
+    const nodeCopy = {
+      decide: {
+        title: "decide",
+        body: "Binds retrieve_knowledge_corpus. No tool call → END (greetings, trivia). Tool call → retrieve."
+      },
+      retrieve: {
+        title: "retrieve",
+        body: "ToolNode runs retrieve_knowledge_corpus against the Chroma index (k=4 chunks)."
+      },
+      grade: {
+        title: "grade_documents",
+        body: "Structured yes/no. Relevant → generate. Not relevant → rewrite if budget remains, else generate with best-effort honesty."
+      },
+      generate: {
+        title: "generate",
+        body: "Grounded answer from retrieved context + original question. Concise, cites source topics when helpful."
+      },
+      rewrite: {
+        title: "rewrite",
+        body: "Rephrases the original question as a new HumanMessage, increments rewrite_count, loops back to decide."
+      }
+    };
+
+    const nodeList = document.getElementById("nodeList");
+    const nodeDetail = document.getElementById("nodeDetail");
+
+    nodeList.addEventListener("click", (e) => {
+      const item = e.target.closest("[data-node]");
+      if (!item) return;
+      nodeList.querySelectorAll(".node-item").forEach((el) => el.classList.remove("active"));
+      item.classList.add("active");
+      const info = nodeCopy[item.dataset.node];
+      nodeDetail.innerHTML = `<h4>${info.title}</h4><p>${info.body}</p>`;
+    });
+
+    /* Lessons */
+    const lessons = [...document.querySelectorAll(".lesson")];
+    const progress = document.getElementById("lessonProgress");
+    const labels = [
+      "0 Overview",
+      "1 Setup",
+      "2 Corpus",
+      "3 Tool & state",
+      "4 Nodes",
+      "5 Graph",
+      "6 ask()"
+    ];
+
+    labels.forEach((label, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = label;
+      if (i === 0) btn.classList.add("active");
+      btn.addEventListener("click", () => showLesson(i));
+      progress.appendChild(btn);
+    });
+
+    function showLesson(index) {
+      lessons.forEach((el, i) => el.classList.toggle("active", i === index));
+      [...progress.children].forEach((el, i) => el.classList.toggle("active", i === index));
+      document.getElementById("learn").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    document.getElementById("learn").addEventListener("click", (e) => {
+      const next = e.target.closest("[data-next]");
+      const prev = e.target.closest("[data-prev]");
+      const current = lessons.findIndex((l) => l.classList.contains("active"));
+      if (next && current < lessons.length - 1) showLesson(current + 1);
+      if (prev && current > 0) showLesson(current - 1);
+    });
+
+    /* Demo paths */
+    const pathTabs = document.getElementById("pathTabs");
+    pathTabs.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-path]");
+      if (!btn) return;
+      const id = btn.dataset.path;
+      pathTabs.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".path-panel").forEach((p) => {
+        const on = p.dataset.path === id;
+        p.classList.toggle("active", on);
+        if (on) {
+          p.querySelectorAll(".trace span").forEach((s) => {
+            s.style.animation = "none";
+            void s.offsetWidth;
+            s.style.animation = "";
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
