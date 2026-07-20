@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Drill — Sales SSBI Trainer / Semantic Model Enablement</title>
+<meta name="description" content="29 interview questions across semantic models, Fabric Direct Lake, DAX filter context, training design, and stakeholder communication — with progress tracking.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dark-bg: #0B1E33;
+    --mid-bg: #0F2A44;
+    --card-bg: #11314F;
+    --deep-blue: #065A82;
+    --teal: #1C7293;
+    --mint: #3FB8AF;
+    --light-txt: #EAF4FB;
+    --sub-txt: #9FC1D9;
+    --gold: #E8B84B;
+    --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse 70% 40% at 10% -5%, rgba(63,184,175,0.14), transparent),
+      radial-gradient(ellipse 50% 35% at 95% 10%, rgba(232,184,75,0.08), transparent),
+      linear-gradient(160deg, var(--dark-bg) 0%, var(--mid-bg) 100%);
+    font-family: "DM Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--light-txt);
+    min-height: 100vh;
+    padding: 28px 20px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  .topnav {
+    display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center;
+    margin-bottom: 22px; font-size: 0.85rem;
+  }
+  .topnav a {
+    color: var(--sub-txt); text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .topnav a:hover { color: var(--mint); }
+  .topnav .sep { color: rgba(255,255,255,0.2); }
+  header { margin-bottom: 28px; }
+  .eyebrow {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--mint); margin: 0 0 8px;
+  }
+  h1 {
+    font-family: Syne, Georgia, "Cambria", serif;
+    font-size: clamp(1.7rem, 4vw, 2.15rem);
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+  .subtitle { color: var(--sub-txt); font-size: 1rem; margin: 0 0 16px; line-height: 1.5; }
+  .related {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .related a {
+    font-size: 0.78rem; color: var(--mint); text-decoration: none;
+    border: 1px solid rgba(63,184,175,0.35); padding: 5px 10px; border-radius: 6px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .related a:hover { background: rgba(63,184,175,0.12); border-color: var(--mint); }
+
+  .progress-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+  }
+  .progress-track {
+    flex: 1; height: 8px; background: rgba(255,255,255,0.08);
+    border-radius: 6px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--teal), var(--mint));
+    width: 0%; transition: width 0.35s ease;
+  }
+  .progress-label { font-size: 0.85rem; color: var(--sub-txt); white-space: nowrap; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 22px;
+  }
+  .pill {
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--light-txt);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .pill:hover { border-color: var(--mint); }
+  .pill.active {
+    background: var(--mint);
+    border-color: var(--mint);
+    color: #082A28;
+    font-weight: 600;
+  }
+
+  .toolbar {
+    display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .search {
+    flex: 1; min-width: 200px;
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--light-txt);
+    font-size: 0.9rem;
+  }
+  .search::placeholder { color: var(--sub-txt); }
+  .btn {
+    background: var(--gold);
+    color: var(--dark-bg);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.secondary {
+    background: transparent;
+    color: var(--light-txt);
+    border: 1px solid rgba(255,255,255,0.2);
+    font-weight: 500;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-left: 4px solid var(--teal);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 16px 18px;
+    cursor: pointer;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .card-num {
+    font-size: 0.78rem;
+    color: var(--sub-txt);
+    font-weight: 700;
+    padding-top: 2px;
+    white-space: nowrap;
+  }
+  .card-q {
+    flex: 1;
+    font-size: 0.98rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  .chevron {
+    color: var(--mint);
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+    padding-top: 3px;
+  }
+  .card.open .chevron { transform: rotate(90deg); }
+  .card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .card.open .card-body { max-height: 900px; }
+  .card-answer {
+    padding: 0 18px 18px 18px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--light-txt);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 14px;
+  }
+  .mark-row {
+    padding: 0 18px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mark-row label {
+    font-size: 0.8rem; color: var(--sub-txt); display: flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .cat-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--sub-txt);
+    margin-bottom: 4px;
+  }
+
+  .cat-section-title {
+    font-family: Georgia, serif;
+    font-size: 1.2rem;
+    margin: 30px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: var(--sub-txt);
+  }
+
+  footer {
+    text-align: center; color: var(--sub-txt); font-size: 0.8rem; margin-top: 40px;
+    line-height: 1.6;
+  }
+  footer a { color: var(--mint); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .toolbar { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav" aria-label="Breadcrumb">
+    <a href="../../index.html">Portfolio</a>
+    <span class="sep">/</span>
+    <a href="index.html">Learning</a>
+    <span class="sep">/</span>
+    <span style="color:var(--light-txt)">SSBI Interview Drill</span>
+  </nav>
+
+  <header>
+    <p class="eyebrow">Career · BI Enablement</p>
+    <h1>Sales SSBI Interview Drill</h1>
+    <p class="subtitle">29 practiced answers for Sales SSBI Trainer / Semantic Model Enablement — built from real Fabric Direct Lake incidents, DAX filter-context traps, and training design judgment.</p>
+    <div class="related">
+      <a href="../migration/ssas_migration_proposal.html">SSAS → Fabric proposal</a>
+      <a href="../migration/d365_migration_guide.html">D365 migration guide</a>
+      <a href="index.html">All learning pages</a>
+    </div>
+  </header>
+
+  <div class="progress-row">
+    <span class="progress-label" id="progressLabel">0 / 29 reviewed</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="controls" id="categoryPills"></div>
+
+  <div class="toolbar">
+    <input class="search" id="searchBox" type="text" placeholder="Search questions or answers...">
+    <button class="btn" id="quizBtn">Random Question</button>
+    <button class="btn secondary" id="resetBtn">Reset Progress</button>
+  </div>
+
+  <div id="cardContainer"></div>
+  <div class="empty-state" id="emptyState" style="display:none;">No questions match your search.</div>
+
+  <footer>
+    29 questions · 7 categories · Sales SSBI Semantic Model project, Episodes 1 &amp; 2<br>
+    <a href="index.html">← Back to Learning</a>
+    · <a href="venv_comprehensive_guide.html">Python venv guide</a>
+  </footer>
+</div>
+
+<script>
+const STORAGE_KEY = "ssbi-interview-drill-reviewed";
+const CATEGORIES = [{"id":"model","name":"Semantic Model & Measure Design","color":"065A82","questions":[{"q":"Walk me through how you'd design measures so two analysts filtering differently never get contradictory numbers.","a":"I split measures into two families and treat them differently. Additive measures — Revenue, Units, COGS — are safe to sum across any dimension, so I build them as plain SUM()s. Rate measures — AOV, GM%, YoY% — are never safe to average across segments, so I always use DIVIDE() on the summed numerator and denominator, which DAX recomputes fresh in whatever filter context the visual is in. The anti-pattern I actively guard against is AVERAGEX() over a pre-computed ratio column, which treats every segment as an equal vote regardless of how much revenue it represents. I document this distinction explicitly for every measure I ship, so a training user or another analyst can see at a glance which measures they can safely slice however they like."},{"q":"How would you explain the difference between a dimension and a measure to someone who's only ever used Excel?","a":"I'd frame it around the two questions people actually ask: 'which slice am I looking at' versus 'what number am I looking at.' Dimensions are the lenses — Region, Store, Product Category, Time — they don't calculate anything, they just group and filter. Measures are the math — Revenue, GM% — and critically, the same measure can produce a different number depending on which dimensions are currently filtering it. For an Excel-first audience, I'd use a live example: put GM% on a card with no filters, then add Region, then add Category, and show the number recalculating each time rather than staying fixed like a static Excel formula would."},{"q":"What's the difference between filter context and row context in DAX, and why does it matter for training end users?","a":"Row context is DAX iterating row-by-row, the way a calculated column or an iterator function like SUMX works. Filter context is the set of filters currently applied to a visual — from slicers, page filters, or the rows/columns of a matrix — and it's what CALCULATE() manipulates. For training purposes, filter context is the one that actually causes the 'why do the numbers differ' confusion, because two visuals with different filters are legitimately evaluating the same measure in two different contexts. I teach users to always ask 'what's actually filtering this visual right now' before trusting a number, rather than assuming a KPI is a fixed, context-free fact."},{"q":"A user tells you 'the same KPI shows two different numbers on two different dashboards.' How do you diagnose that?","a":"First I check whether the two visuals are genuinely filtered to the same context — different time grain, different dimension slicers, or a hidden page-level filter are the most common causes, and I've seen this exact issue live: my own YoY% measure returned a completely different number depending on whether a Year filter was applied, and both answers were technically correct DAX output for their respective contexts. Second, I check whether one of the two is a rate measure that got summed or averaged incorrectly upstream — in Excel or in a different report — rather than recomputed. Third, I check the underlying data source and refresh timestamp, since a Direct Lake versus Import mode discrepancy or a stale cache can also produce this exact symptom."},{"q":"How do you decide what grain a fact table should be at, and what breaks if you get it wrong?","a":"I set the grain to the finest level the business will ever need to slice by — for a sales fact table, that's usually one row per transaction line, not per transaction or per day. If the grain is too coarse, you lose the ability to answer a legitimate business question later without re-ingesting. If a join during Silver processing accidentally fans out that grain — for example a many-to-many join against a dimension with duplicate keys — every downstream sum silently inflates, which is why I always verify row counts before and after every join rather than assuming a merge behaved as expected."},{"q":"Explain time intelligence in Power BI — how does something like YoY% actually get calculated under the hood?","a":"A YoY% measure typically uses SAMEPERIODLASTYEAR() inside CALCULATE() to shift the current filter context's date range back exactly one year, then compares that shifted revenue against the current revenue. The part that trips people up — because it tripped me up — is that this only produces a meaningful number when the current filter context is a single, complete, comparable period on both sides. I hit this directly: a zero-filter grand total spanning two full years isn't a valid 'current period,' so the shifted-back range fell mostly outside my date table's range, and the measure computed something that looked plausible but wasn't the year-over-year comparison I intended. The fix was adding an explicit Year filter so the measure had one real period to compare against."}]},{"id":"incident","name":"Real Incident Stories (Your Best Answers)","color":"1C7293","questions":[{"q":"Tell me about a time a measure gave you a confusing or wrong-looking result, and how you figured out why.","a":"While building a Direct Lake semantic model in Microsoft Fabric, my YoY% measure read exactly 0.000000 on every single visual — not blank, not an error, a clean confident zero, which made it look like a chart-rendering problem rather than a data problem. I confirmed it was a real computed value by switching the visual to 'show as a table' at six decimal places rather than trusting the chart's axis. The root cause was that I'd marked my date table correctly, but marking a table as the date table only sets metadata for its own key column — it doesn't create a relationship to the fact table. Without that relationship, SAMEPERIODLASTYEAR had nothing to filter by, so my prior-year measure silently equaled my current-year measure, and subtracting a number from itself divided by itself is exactly zero. Once I drew the missing relationship explicitly, the measure resolved correctly. The lesson I now apply everywhere: a measure reading exactly zero is a specific diagnostic signature, not proof of a broken chart — trace the underlying relationships before assuming a rendering bug."},{"q":"Have you ever seen a report's 'Total' row show a misleading number? What caused it and how did you fix it?","a":"Yes, and it happened unplanned in my own dashboard while building a training demo about exactly this failure mode. A table visual showing YoY% by region had an auto-generated Total row reading negative 6.91%, which was the literal arithmetic sum of three independent regional percentages — Power BI defaults a table's Total row to Sum for any numeric column, percentages included, unless you tell it otherwise. I fixed it by turning the Total row off entirely for that visual, since there's no mathematically valid total for a per-region rate column — the fix isn't a different aggregation, it's recognizing that no aggregation is correct there. I actually kept this in the training content I was building, because it's a more convincing demonstration of the 'never sum a rate measure' rule than any scripted example would have been."}]},{"id":"platform","name":"Power BI / Microsoft Fabric Platform","color":"3FB8AF","questions":[{"q":"What's the difference between Import, DirectQuery, and Direct Lake mode, and when would you choose each?","a":"Import mode caches data in memory for the fastest query performance but requires a scheduled refresh, so freshness lags behind the source. DirectQuery sends every visual interaction back to the source system live, which guarantees freshness but is limited by source query performance and often restricts DAX functionality. Direct Lake, specific to Fabric, reads Delta tables directly from OneLake without a separate import step, giving near-Import speed with near-real-time freshness — it's the default and recommended mode for a Fabric Lakehouse source, and it's what I used building a semantic model entirely through the browser, no Power BI Desktop install required."},{"q":"What are the real limitations of Direct Lake mode that catch people off guard?","a":"The one I hit directly: Direct Lake tables cannot have calculated columns in the modeling view — the New Column button is simply disabled, and it's confirmed platform behavior, not a workaround-able UI restriction. I needed a composite Region-plus-Month key to build a relationship, and the only real fix was building that concatenated key upstream, in the PySpark notebook that creates the table, rather than patching it in at the modeling layer the way Import mode would let you. Direct Lake also falls back to DirectQuery automatically if you apply Row-Level Security, which is worth knowing before you architect security around it."},{"q":"How would you architect ingestion from two different source systems — say Excel and a SQL database — into one consistent model?","a":"I land both sources into an identical Bronze schema, untouched, so Silver doesn't need to know or care which system a row came from — in Fabric that's two separate Copy Data activities in one pipeline, running in parallel, writing to the same folder shape. I add an explicit reconciliation check at the start of Silver processing that compares row counts between the two sources before trusting either one, which caught a real header-parsing bug for me — one source was off by exactly one row because a connector setting silently let the header row flow through as data. The goal is that the business question never depends on which system a given row happened to come from."},{"q":"What's a medallion architecture, and how do Bronze/Silver/Gold map to actual Fabric items?","a":"Bronze is raw, untouched ingestion — in Fabric, Copy Data activities landing files or tables into a Lakehouse's Files or Tables area. Silver is conformed and de-duplicated data at a fixed grain, joined to its dimensions — a PySpark notebook writing Delta tables, where I always verify row counts and null counts after every join to catch a fan-out before it propagates. Gold is business-ready aggregation — another notebook producing summary tables that a Power BI semantic model reads directly, ideally via Direct Lake so there's no separate refresh schedule to manage."},{"q":"How do you handle schema changes on a Delta table without breaking downstream consumers?","a":"Delta enforces schema-on-write by default, so mode('overwrite') alone will actually fail with a schema-mismatch exception the moment you add a column — which is a safety feature, not a bug, even though it initially reads like an error. I explicitly add .option('overwriteSchema', 'true') when I intend the change, so it's a deliberate act rather than an accidental one. Downstream, for a Direct Lake semantic model specifically, I know the model caches which columns exist, so after a schema change I refresh the semantic model's metadata explicitly rather than assuming it picks up the new column automatically."},{"q":"What's Row-Level Security, and how does it interact with Direct Lake specifically?","a":"Row-Level Security restricts which rows a given user can see based on their identity, typically implemented as a DAX filter expression tied to a security role. The Direct Lake-specific detail worth knowing: applying RLS causes the model to fall back from Direct Lake to DirectQuery for the affected queries, which is a real performance trade-off to plan for, not just a configuration toggle — I'd want to test that fallback's actual latency before committing to an RLS design on a large Direct Lake model."}]},{"id":"training","name":"Training & Instructional Design","color":"21295C","questions":[{"q":"How do you structure content differently for a 'Tutor' facilitating live vs. a 'User' going through it self-paced?","a":"Tutor content needs to answer 'why does this matter to the business' up front, include the questions learners are likely to ask, and give explicit 'expected result' checkpoints so a facilitator can confirm the room is actually following along, not just nodding. User content strips that down to a clear, linear 'do this, then verify that' sequence with lightweight explanations and a quick-reference glossary, because a self-paced learner needs to recover on their own if they get stuck, without a facilitator in the room to ask. I build both from the same underlying content, but the Tutor version carries the facilitation logic and error-anticipation, and the User version carries the step-by-step execution."},{"q":"Walk me through how you'd design an exercise that actually tests whether someone understands filter context, not just whether they can click buttons.","a":"I'd give them a single KPI and ask them to produce it two different, both technically defensible ways — for example, computing GM% by averaging a per-category column versus recomputing it from summed revenue and cost — and ask them to explain why the two numbers differ and which one is actually correct for a company-wide report. A pure click-through exercise can be completed by pattern-matching a screenshot; this format forces them to reason about denominator context, which is the actual skill the training exists to build."},{"q":"What's your approach to writing 'expected result' checks for a training exercise?","a":"I always use the actual computed value from the real underlying dataset, never a rounded or invented placeholder, because a training exercise that shows a number that doesn't quite match what the learner sees erodes trust in the whole material. I also include a 'why this number' one-line explanation alongside the expected value, so if a learner gets a different result, the check itself helps them self-diagnose rather than just telling them they failed."},{"q":"How would you measure whether a training program actually changed behavior, not just satisfaction scores?","a":"Satisfaction scores measure whether people enjoyed the session, not whether they can do the job differently afterward. I'd track something closer to support-ticket categories before and after rollout — specifically, a drop in 'why do the numbers differ' tickets is a direct, measurable signal that the filter-context and measure-design training actually landed, versus generic post-training survey scores which mostly measure how likeable the trainer was."},{"q":"Describe how you'd handle a learner who insists their (wrong) interpretation of a KPI is correct.","a":"I'd avoid a direct 'you're wrong' framing and instead walk them through reproducing their number themselves, live, so they see exactly which step introduces the discrepancy — usually an averaged rate measure or an incompatible filter combination. Letting someone find their own error in their own steps is far more durable than being told the answer, and it avoids the training feeling adversarial, which matters a lot for adoption with a room of confident, experienced business users."}]},{"id":"stakeholder","name":"Stakeholder Communication & Business Translation","color":"6D4C8C","questions":[{"q":"How do you translate 'the model is technically correct' into language a category manager will actually act on?","a":"I lead with the business consequence, not the mechanism. Rather than explaining SAMEPERIODLASTYEAR filter context, I'd say 'the company-wide number looks flat, but that's hiding one region growing and one region driving the whole decline — here's which one to actually act on,' and only go into the DAX mechanism if they ask. I learned this concretely building a dashboard where the blended YoY% of negative 2% hid APAC actually growing while Americas was down nearly 5% — leading with that business story is far more persuasive than leading with the measure definition."},{"q":"Tell me about a time you had to explain a technical limitation to a non-technical stakeholder without it sounding like an excuse.","a":"Across 20-plus years writing RFQ and RFP responses and running client-facing architecture engagements at Cathay Pacific, HSBC, and CHANEL, the pattern that works is naming the constraint plainly, then immediately pairing it with the workaround and the cost of not addressing it — never leaving a stakeholder with just the bad news. When I hit that Direct Lake calculated-column restriction, the framing to a business audience wouldn't be 'I can't do this in the tool,' it would be 'this needs to be built one layer earlier, here's the extra day it costs, here's why it's actually more correct done that way.'"},{"q":"How would you write a documentation template that a team will actually maintain, not abandon after month one?","a":"The template has to cost less to fill in than the pain of not having it, so I keep it to what's genuinely needed to reproduce an analysis — the KPI definitions referenced, the exact filter story used, and the date the snapshot was taken — rather than a comprehensive but rarely-completed form. I'd rather have a three-line filter-story note attached to every shared insight than an elaborate template nobody fills in after the second week."},{"q":"Describe your process for gathering requirements when the business side doesn't fully know what they need yet.","a":"I start by asking what decision the report or training is meant to inform, not what fields or visuals they want, because 'what decision are you trying to make' surfaces the actual measures and dimensions needed far more reliably than a wishlist of chart types. This is the same instinct behind a lot of my enterprise architecture work — a target operating model or a solution design only holds up if it's anchored to a real decision or workflow, not a feature list."}]},{"id":"scenario","name":"Scenario & Judgment","color":"A83E1D","questions":[{"q":"A regional manager wants a KPI card with no filters that shows 'this year's growth.' How do you push back or design around the grand-total time-intelligence trap?","a":"I'd explain, briefly, that a truly unfiltered YoY card doesn't have a single defined 'current period' to compare against — I hit exactly this: a zero-filter card read 0.98 instead of the real negative 2.04% year-over-year figure, because the underlying calculation was effectively comparing two combined years against one prior year, not a clean year-over-year comparison. The fix I'd propose is a default Year filter or slicer set to the most recent complete year, so 'this year's growth' has an actual defined meaning baked into the report rather than left to an ambiguous grand total."},{"q":"You're two weeks from a training rollout and discover the underlying semantic model has an error users haven't noticed yet. What do you do?","a":"I fix the model first and delay content finalization around it rather than shipping training material that teaches a broken number as correct — training built on a wrong baseline actively damages trust once someone eventually notices the discrepancy. I'd communicate the delay with a specific, bounded timeline rather than a vague 'it'll take longer,' and I'd use the incident itself as a real, credible example in the training material if it's the kind of mistake users are likely to make themselves — which several of the bugs I've personally hit would make excellent live teaching moments."},{"q":"How do you decide what to build once vs. rebuild for each new dataset, when a team says 'just replicate this training for our region too'?","a":"I separate what's genuinely dataset-specific — actual dimension and measure names, real numbers in exercises — from what's structural and reusable — the module sequence, the exercise format, the DAX patterns being taught. The structural layer gets built once and parameterized; only the dataset-specific layer gets rebuilt per region, which is the same instinct behind a well-designed semantic model itself: separate what changes from what doesn't, so extending the training to a new region is a data substitution, not a redesign."}]},{"id":"behavioral","name":"Behavioral","color":"1E6B4F","questions":[{"q":"Tell me about a project where you had to learn a platform's real constraints by hitting them, not by reading documentation.","a":"Building a Sales SSBI semantic model end-to-end in Microsoft Fabric, browser-only with no Power BI Desktop, I hit ten distinct real issues in sequence — an undocumented Azure free-tier region restriction, a header-parsing setting buried under a non-obvious settings popup, a Direct Lake platform limitation on calculated columns that isn't mentioned prominently in the docs, and a Delta schema-mismatch permission model that isn't obvious until you hit it. None of them were individually hard once identified, but none of them were discoverable by reading documentation ahead of time — they only surfaced by actually building the thing end to end, which is exactly why I think hands-on build experience matters more than platform familiarity from tutorials."},{"q":"Describe a time you had to correct your own earlier guidance once you learned you were wrong.","a":"While documenting expected validation values for that same Fabric build, I initially expected a zero-filter YoY% card to match a company-wide year-over-year figure I'd computed separately in Python. Once I actually tested it in Power BI, the DAX measure legitimately computed something different — not a bug, just a different, valid calculation for that specific filter context. Rather than leaving the earlier documentation as-is, I went back and corrected it with the real mechanism explained, because documentation that's confidently wrong is worse than documentation that's honestly incomplete."},{"q":"How do you prioritize when a 'quick fix' would work but the 'correct fix' requires touching an earlier layer of the pipeline?","a":"I default to the correct fix unless there's a genuine, named time constraint, because a quick fix at the wrong layer usually just relocates the bug rather than resolving it — I saw this directly needing a composite relationship key that Direct Lake wouldn't let me patch in at the modeling layer, where the only real fix was going back to the PySpark notebook that builds the table. When time pressure is real, I'll take the quick fix but I document explicitly that it's a shortcut and what the correct fix would require, so it doesn't quietly become permanent."}]}];
+function loadReviewed() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? new Set(arr) : new Set();
+  } catch (_) {
+    return new Set();
+  }
+}
+
+function saveReviewed() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...reviewed]));
+  } catch (_) { /* ignore quota / private mode */ }
+}
+
+const reviewed = loadReviewed();
+let activeCategory = "all";
+let searchTerm = "";
+
+const pillsEl = document.getElementById("categoryPills");
+const containerEl = document.getElementById("cardContainer");
+const emptyEl = document.getElementById("emptyState");
+const progressFill = document.getElementById("progressFill");
+const progressLabel = document.getElementById("progressLabel");
+
+const totalQuestions = CATEGORIES.reduce((sum, c) => sum + c.questions.length, 0);
+
+function renderPills() {
+  let html = '<button class="pill active" data-cat="all">All (' + totalQuestions + ')</button>';
+  CATEGORIES.forEach(c => {
+    html += '<button class="pill" data-cat="' + c.id + '" style="border-color:#' + c.color + '55">' + c.name + ' (' + c.questions.length + ')</button>';
+  });
+  pillsEl.innerHTML = html;
+  pillsEl.querySelectorAll(".pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.dataset.cat;
+      pillsEl.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderCards();
+    });
+  });
+}
+
+function questionId(catId, idx) { return catId + "-" + idx; }
+
+function renderCards() {
+  containerEl.innerHTML = "";
+  let shown = 0;
+  const term = searchTerm.trim().toLowerCase();
+
+  CATEGORIES.forEach(cat => {
+    if (activeCategory !== "all" && activeCategory !== cat.id) return;
+
+    const matches = cat.questions
+      .map((q, idx) => ({ ...q, idx }))
+      .filter(q => !term || q.q.toLowerCase().includes(term) || q.a.toLowerCase().includes(term));
+
+    if (matches.length === 0) return;
+
+    const sectionTitle = document.createElement("div");
+    sectionTitle.className = "cat-section-title";
+    sectionTitle.style.color = "#" + cat.color;
+    sectionTitle.textContent = cat.name;
+    containerEl.appendChild(sectionTitle);
+
+    matches.forEach(q => {
+      shown++;
+      const id = questionId(cat.id, q.idx);
+      const card = document.createElement("div");
+      card.className = "card";
+      card.style.borderLeftColor = "#" + cat.color;
+      card.dataset.id = id;
+
+      card.innerHTML =
+        '<div class="card-head">' +
+          '<span class="card-num">Q' + (q.idx + 1) + '</span>' +
+          '<span class="card-q">' + q.q + '</span>' +
+          '<span class="chevron">&#9656;</span>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<div class="card-answer">' + q.a + '</div>' +
+          '<div class="mark-row">' +
+            '<label><input type="checkbox" ' + (reviewed.has(id) ? "checked" : "") + ' data-mark="' + id + '"> Mark as reviewed</label>' +
+          '</div>' +
+        '</div>';
+
+      card.querySelector(".card-head").addEventListener("click", () => {
+        card.classList.toggle("open");
+      });
+
+      containerEl.appendChild(card);
+    });
+  });
+
+  containerEl.querySelectorAll("[data-mark]").forEach(cb => {
+    cb.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = cb.dataset.mark;
+      if (cb.checked) reviewed.add(id); else reviewed.delete(id);
+      saveReviewed();
+      updateProgress();
+    });
+  });
+
+  emptyEl.style.display = shown === 0 ? "block" : "none";
+}
+
+function updateProgress() {
+  const pct = Math.round((reviewed.size / totalQuestions) * 100);
+  progressFill.style.width = pct + "%";
+  progressLabel.textContent = reviewed.size + " / " + totalQuestions + " reviewed";
+}
+
+document.getElementById("searchBox").addEventListener("input", (e) => {
+  searchTerm = e.target.value;
+  renderCards();
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Clear all reviewed progress for this drill?")) return;
+  reviewed.clear();
+  saveReviewed();
+  updateProgress();
+  renderCards();
+});
+
+document.getElementById("quizBtn").addEventListener("click", () => {
+  const all = [];
+  CATEGORIES.forEach(cat => cat.questions.forEach((q, idx) => all.push({ catId: cat.id, idx })));
+  const pick = all[Math.floor(Math.random() * all.length)];
+  activeCategory = "all";
+  searchTerm = "";
+  document.getElementById("searchBox").value = "";
+  pillsEl.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
+  pillsEl.querySelector('[data-cat="all"]').classList.add("active");
+  renderCards();
+  requestAnimationFrame(() => {
+    const id = questionId(pick.catId, pick.idx);
+    const card = containerEl.querySelector('[data-id="' + id + '"]');
+    if (card) {
+      card.classList.add("open");
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.style.boxShadow = "0 0 0 2px #E8B84B";
+      setTimeout(() => { card.style.boxShadow = "none"; }, 1600);
+    }
+  });
+});
+
+renderPills();
+renderCards();
+updateProgress();
+</script>
+</body>
+</html>
