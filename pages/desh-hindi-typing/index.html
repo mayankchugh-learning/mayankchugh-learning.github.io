@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hindi Typing - Desh Hindi Keyboard</title>
+  <meta name="description" content="Type Hinglish, get Hindi. Hindi typing made delightful with transliteration, voice typing, and auto-saved drafts." />
+  <link rel="icon" href="header-icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <button class="new-file-btn" id="newFileBtn" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New File
+        </button>
+        <p class="sidebar-note">Your files are stored only in this browser</p>
+      </div>
+      <div class="draft-list" id="draftList"></div>
+      <div class="sidebar-footer">
+        <a href="#faq" class="sidebar-link">Tell us your feedback</a>
+      </div>
+    </aside>
+
+    <div class="main-wrap">
+      <!-- Top bar -->
+      <header class="topbar">
+        <button class="icon-btn sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <a class="brand" href="#">
+          <img src="header-icon.svg" alt="" width="32" height="32" />
+          <span>Desh Hindi</span>
+        </a>
+        <div class="topbar-actions">
+          <button class="text-btn" id="undoBtn" type="button" title="Undo">Undo</button>
+          <button class="text-btn" id="redoBtn" type="button" title="Redo">Redo</button>
+        </div>
+      </header>
+
+      <!-- Editor shell -->
+      <section class="editor-shell">
+        <div class="toolbar">
+          <div class="toolbar-group">
+            <select id="fontSelect" class="toolbar-select" title="Fonts">
+              <option value="'Noto Sans Devanagari', Roboto, sans-serif">Default</option>
+              <option value="'Noto Sans Devanagari', sans-serif">Noto Sans Devanagari</option>
+              <option value="Mukta, 'Noto Sans Devanagari', sans-serif">Mukta</option>
+              <option value="Hind, 'Noto Sans Devanagari', sans-serif">Hind</option>
+              <option value="Kalam, 'Noto Sans Devanagari', cursive">Kalam</option>
+              <option value="Rajdhani, 'Noto Sans Devanagari', sans-serif">Rajdhani</option>
+              <option value="Roboto, sans-serif">Roboto</option>
+            </select>
+            <select id="fontSizeSelect" class="toolbar-select size" title="Font Size">
+              <option value="14">14</option>
+              <option value="16" selected>16</option>
+              <option value="18">18</option>
+              <option value="20">20</option>
+              <option value="24">24</option>
+              <option value="28">28</option>
+              <option value="32">32</option>
+            </select>
+          </div>
+
+          <div class="toolbar-group">
+            <button class="icon-btn" id="boldBtn" type="button" title="Bold (Ctrl + B)"><b>B</b></button>
+            <button class="icon-btn" id="italicBtn" type="button" title="Italic (Ctrl + I)"><i>I</i></button>
+            <button class="icon-btn" id="underlineBtn" type="button" title="Underline (Ctrl + U)"><u>U</u></button>
+          </div>
+
+          <div class="toolbar-group">
+            <button class="icon-btn" data-align="left" type="button" title="Align left">☰</button>
+            <button class="icon-btn" data-align="center" type="button" title="Align center">☰</button>
+            <button class="icon-btn" data-align="right" type="button" title="Align right">☰</button>
+          </div>
+
+          <div class="toolbar-group">
+            <button class="icon-btn" id="ulBtn" type="button" title="Bullet list">•≡</button>
+            <button class="icon-btn" id="olBtn" type="button" title="Numbered list">1.</button>
+            <button class="icon-btn" id="printBtn" type="button" title="Print (Ctrl+P)">🖨</button>
+            <button class="icon-btn" id="settingsBtn" type="button" title="Settings">⚙</button>
+          </div>
+
+          <div class="toolbar-group push-end">
+            <button class="lang-toggle" id="langToggle" type="button" title="Switch language">
+              <span id="langLabel">हिन्दी</span>
+              <span class="lang-switch-icon" aria-hidden="true">⇄</span>
+              <span class="lang-muted">English</span>
+            </button>
+            <button class="action-btn voice" id="voiceBtn" type="button">
+              <span class="mic">🎤</span> Voice Typing
+            </button>
+            <button class="action-btn copy" id="copyBtn" type="button">Copy Text</button>
+          </div>
+        </div>
+
+        <div class="editor-area">
+          <div
+            id="editor"
+            class="editor"
+            contenteditable="true"
+            role="textbox"
+            aria-multiline="true"
+            aria-label="Hindi typing editor"
+            data-placeholder="Type in English letters… Hindi will appear as you go"
+          ></div>
+          <div id="suggestions" class="suggestions hidden" role="listbox" aria-label="Hindi suggestions"></div>
+        </div>
+      </section>
+
+      <!-- Marketing -->
+      <main class="marketing">
+        <section class="hero-copy">
+          <h1>Hindi Typing, Made Delightful.</h1>
+          <p class="lead">Type Hinglish, get Hindi. Switch languages in a click. Auto-save drafts. Copy anywhere.</p>
+        </section>
+
+        <section class="features">
+          <article class="feature-card">
+            <div class="feature-art hinglish">
+              <div class="pill-row">
+                <span class="pill active">हिंदी</span>
+                <span class="pill">English</span>
+              </div>
+              <p class="demo-line">namaste → <strong>नमस्ते</strong></p>
+            </div>
+            <div class="feature-body">
+              <h3>Type Hinglish, get Hindi.</h3>
+              <p>Type continuously in English letters &amp; the Hindi will be auto-generated. Switch languages in a click.</p>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-art voice">
+              <button class="demo-voice" type="button" tabindex="-1">🎤 Listening...</button>
+            </div>
+            <div class="feature-body">
+              <h3>Talk and we'll write for you.</h3>
+              <p>When the voice typing button is activated, we'll convert your voice to text — just click and talk.</p>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-art copy">
+              <span class="chip">Copy Text</span>
+              <span class="chip success">Copied!</span>
+            </div>
+            <div class="feature-body">
+              <h3>Craft here, take it anywhere.</h3>
+              <p>Copy the Hindi text wherever you need it — open the app or website you wish and paste.</p>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-art drafts">
+              <div class="mini-draft">हिन्दी भाषा व साहित्य…</div>
+              <div class="mini-draft muted">Last Week</div>
+            </div>
+            <div class="feature-body">
+              <h3>All your drafts are auto-saved.</h3>
+              <p>Drafts are saved automatically without you manually needing to save. Access them in the sidebar.</p>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-art tools">
+              <span class="tool">B</span><span class="tool"><i>I</i></span><span class="tool"><u>U</u></span>
+              <span class="tool">Fonts</span>
+            </div>
+            <div class="feature-body">
+              <h3>More edit tools to personalize.</h3>
+              <p>Personalise your text with editing tools and a variety of fonts to find the perfect style.</p>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-art dark">
+              <div class="theme-preview light">Dark Mode <span class="switch off"></span></div>
+              <div class="theme-preview night">Dark Mode <span class="switch on"></span></div>
+            </div>
+            <div class="feature-body">
+              <h3>Dark theme for sleek experience.</h3>
+              <p>Try Dark Theme in Settings. Switch for an eye-friendly interface that reduces strain.</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="fonts-cta">
+          <h2>Download Hindi fonts for your computer.</h2>
+          <p>You can use these fonts on Word, PowerPoint and other apps.</p>
+          <a class="cta-btn" href="https://fonts.google.com/?subset=devanagari" target="_blank" rel="noopener">Hindi Fonts</a>
+        </section>
+
+        <section class="app-promo">
+          <div>
+            <h2>Try Desh Hindi Keyboard on your phone</h2>
+            <p>Hindi &amp; English typing modes, voice typing, handwriting, stickers, and much more.</p>
+            <div class="store-links">
+              <a href="https://play.google.com/store/apps/details?id=com.clusterdev.hindikeyboard" target="_blank" rel="noopener">Google Play</a>
+              <a href="https://apps.apple.com/us/app/desh-hindi-keyboard/id6446771035" target="_blank" rel="noopener">App Store</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="languages">
+          <h2>Looking for other languages?</h2>
+          <div class="lang-grid">
+            <a href="https://www.deshkeyboard.com/hindi-typing/">हिंदी Hindi</a>
+            <a href="https://www.manglish.app/">മലയാളം Malayalam</a>
+            <a href="https://www.deshkeyboard.com/kannada-typing/">ಕನ್ನಡ Kannada</a>
+            <a href="https://www.deshkeyboard.com/bangla-typing/">বাংলা Bangla</a>
+            <a href="https://www.deshkeyboard.com/tamil-typing/">தமிழ் Tamil</a>
+            <a href="https://www.deshkeyboard.com/telugu-typing/">తెలుగు Telugu</a>
+            <a href="https://www.deshkeyboard.com/marathi-typing/">मराठी Marathi</a>
+            <a href="https://www.deshkeyboard.com/gujarati-typing/">ગુજરાતી Gujarati</a>
+            <a href="https://www.deshkeyboard.com/odia-typing/">ଓଡ଼ିଆ Odia</a>
+            <a href="https://www.deshkeyboard.com/punjabi-typing/">ਪੰਜਾਬੀ Punjabi</a>
+          </div>
+        </section>
+
+        <section class="faq" id="faq">
+          <h2>Have questions?</h2>
+          <details open>
+            <summary>How to use Desh Hindi for Hindi typing?</summary>
+            <p>Type in English letters and the Hindi word will appear. This is English to Hindi transliteration. Press Space, Enter, or click a suggestion to commit.</p>
+          </details>
+          <details>
+            <summary>I'm not able to use Hindi voice typing</summary>
+            <p>Voice typing works best on Google Chrome browsers with microphone permission enabled.</p>
+          </details>
+          <details>
+            <summary>Desh Hindi Online does not work properly on my phone</summary>
+            <p>For the best mobile experience, download the Desh Hindi Keyboard app for Android or iOS.</p>
+          </details>
+          <details>
+            <summary>Is Desh Hindi Keyboard safe?</summary>
+            <p>This clone stores drafts only in your browser (localStorage). The live Desh Hindi tool uses an API for Hindi suggestions. See the <a href="https://clusterdev.com/apps/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+          </details>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <p>Clone inspired by <a href="https://www.deshkeyboard.com/hindi-typing/" target="_blank" rel="noopener">Desh Hindi Keyboard</a> · by ClusterDev</p>
+          <div class="footer-links">
+            <a href="#editor">Go To Editor</a>
+            <a href="https://clusterdev.com/apps/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="modal hidden" id="settingsModal" role="dialog" aria-labelledby="settingsTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="settingsTitle">Settings</h2>
+        <button class="icon-btn" id="closeSettings" type="button" aria-label="Close">✕</button>
+      </div>
+      <label class="setting-row">
+        <span>Dark Mode</span>
+        <button class="toggle" id="darkToggle" type="button" role="switch" aria-checked="false">
+          <span class="knob"></span>
+        </button>
+      </label>
+      <p class="setting-hint">Eye-friendly interface that reduces strain.</p>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast" role="status"></div>
+  <button class="back-to-top" id="backToTop" type="button">↑ Top</button>
+
+  <script src="app.js"></script>
+</body>
+</html>

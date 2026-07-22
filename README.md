@@ -23,6 +23,7 @@ Static HTML site hosted on GitHub Pages. The main portfolio lives at `index.html
 ├── index.html              # Main portfolio (site entry point)
 ├── pages/
 │   ├── portfolio/          # Consulting and professional pages
+│   ├── desh-hindi-typing/  # Hindi typing editor project
 │   ├── migration/          # Migration guides, proposals, interview prep
 │   ├── ai-learning/        # Tutorials and interactive AI content
 │   ├── articles/           # Blog and opinion pieces
@@ -43,6 +44,12 @@ Static HTML site hosted on GitHub Pages. The main portfolio lives at `index.html
 | Page | Description |
 |------|-------------|
 | [consulting.html](pages/portfolio/consulting.html) | AI consulting and career coaching |
+
+### Projects (`pages/desh-hindi-typing/`)
+
+| Page | Description |
+|------|-------------|
+| [desh-hindi-typing/](pages/desh-hindi-typing/index.html) | Desh Hindi Typing — Hinglish → Hindi editor with voice typing and drafts |
 
 ### Migration (`pages/migration/`)
 
