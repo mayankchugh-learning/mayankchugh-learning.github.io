@@ -272,6 +272,50 @@ li { margin-bottom: 6px; }
   border: 1px solid var(--border);
 }
 .mental p { margin: 6px 0; }
+.dual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+.dual-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--off);
+}
+.dual-card-head {
+  padding: 10px 14px;
+  font-family: Syne, sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+}
+.dual-card-head.a { background: var(--navy); }
+.dual-card-head.b { background: var(--emerald); }
+.dual-card-body { padding: 12px 14px 14px; }
+.dual-card .code-block { margin: 8px 0 0; font-size: 0.78rem; }
+.dual-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.dual-badge.a { background: rgba(15,30,54,0.12); color: var(--navy); }
+.dual-badge.b { background: rgba(15,123,85,0.12); color: var(--emerald); }
+.prove-box {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px dashed var(--blue);
+  background: #eef6fb;
+}
+@media (max-width: 700px) {
+  .dual-grid { grid-template-columns: 1fr; }
+}
 .cta-end {
   text-align: center;
   background: linear-gradient(145deg, var(--navy), var(--navy2));
@@ -334,7 +378,9 @@ li { margin-bottom: 6px; }
     <a href="#troubleshoot">5. Troubleshooting</a>
     <a href="#faq">6. FAQ</a>
     <a href="#java">7. Java map</a>
-    <a href="#example">8. Example</a>
+    <a href="#example">8. Scraper example</a>
+    <a href="#project1">9. Pin Python 3.10 (uv)</a>
+    <a href="#two-projects">10. Two projects, two Pythons</a>
   </aside>
 
   <div class="main">
@@ -582,7 +628,7 @@ env/
       <p>Commit <code>requirements.txt</code>. Teammates run <code>pip install -r requirements.txt</code>.</p>
 
       <h3>One venv per project or one for all?</h3>
-      <p><strong>One per project.</strong> Shared venvs become version hell.</p>
+      <p><strong>One per project.</strong> Shared venvs become version hell. Two folders can even use different Python versions at once — see <a href="#two-projects">section 10</a>.</p>
 
       <h3>venv vs conda?</h3>
       <p><strong>venv:</strong> built-in, lightweight, pip. Best for Python-only work.</p>
@@ -605,6 +651,9 @@ python -m pip install --upgrade pip</div>
 
       <h3>venv vs virtualenv?</h3>
       <p>Similar idea. <strong>venv</strong> is built into Python 3.3+. Prefer venv.</p>
+
+      <h3>What about uv?</h3>
+      <p><strong>uv</strong> is a fast modern tool that can create venvs and install deps. For pinning a Python version (e.g. 3.10), use <code>uv python install 3.10</code> then <code>uv venv --python 3.10 .venv</code> — see <a href="#project1">section 9</a>.</p>
     </section>
 
     <section class="section" id="java">
@@ -718,11 +767,153 @@ pip freeze &gt; requirements.txt
       </div>
     </section>
 
+    <section class="section" id="project1">
+      <h2>9. Real Example: project1 — Pin Python 3.10 with uv</h2>
+      <p>From Week-02 AI Learning: this project targets <strong>Python 3.10</strong>. A venv cannot change its Python version in place — if you need a different version, recreate it. Prefer <code>.venv</code> and <code>uv</code> for a modern workflow.</p>
+
+      <h3>1. Set version constraints</h3>
+      <p>In <code>pyproject.toml</code>:</p>
+      <div class="code-block">requires-python = "&gt;=3.10"</div>
+      <p>Or pin to 3.10 only:</p>
+      <div class="code-block">requires-python = "==3.10.*"</div>
+      <p>In <code>.python-version</code>:</p>
+      <div class="code-block">3.10</div>
+
+      <h3>2. Install Python 3.10 (if needed)</h3>
+      <div class="code-block">python3.10 --version</div>
+      <p>If that fails:</p>
+      <div class="code-block">uv python install 3.10</div>
+
+      <h3>3. Remove any existing venv</h3>
+      <p>Recreate when switching Python versions:</p>
+      <div class="code-block">Remove-Item -Recurse -Force .venv</div>
+
+      <h3>4. Create a new venv with 3.10</h3>
+      <div class="code-block">uv venv --python 3.10 .venv</div>
+
+      <h3>5. Activate and verify</h3>
+      <div class="code-block">.\.venv\Scripts\activate
+python --version</div>
+      <div class="success">
+        <strong>Success:</strong> You should see <code>Python 3.10.x</code>.
+      </div>
+
+      <h3>6. Install dependencies</h3>
+      <div class="code-block">uv sync</div>
+      <p>or:</p>
+      <div class="code-block">uv pip install -e .</div>
+
+      <h3>Notes (gotchas)</h3>
+      <ul>
+        <li>Prefer <code>&gt;=3.10</code>, <code>&gt;=3.10,&lt;3.11</code>, or <code>==3.10.*</code> in <code>requires-python</code> — not a bare <code>= "3.10"</code>.</li>
+        <li><code>pip install python 3.10</code> does <strong>not</strong> install Python; use <code>uv python install 3.10</code> (or the official installer).</li>
+        <li><code>uv init</code> creates a project folder, not a virtual environment. Use <code>uv venv</code> for the venv.</li>
+      </ul>
+
+      <div class="java-callout">
+        <strong>Java parallel:</strong> <code>requires-python</code> / <code>.python-version</code> ≈ pinning the JDK in <code>pom.xml</code> / toolchain.<br>
+        <code>uv venv --python 3.10</code> ≈ creating a project scoped to that JDK — if you change the JDK, you rebuild the environment, you don’t “upgrade in place.”
+      </div>
+    </section>
+
+    <section class="section" id="two-projects">
+      <h2>10. Demo: Two Projects, Two venvs, Two Python Versions</h2>
+      <p>Each project folder owns its own <code>.venv</code>. Those venvs can point at <strong>different Python versions</strong> at the same time — like two Java projects using JDK 17 and JDK 21 side by side. Activating one never changes the other.</p>
+
+      <h3>Folder layout</h3>
+      <div class="code-block">C:\dev\
+├── project-a\          ← needs Python 3.10
+│   ├── .venv\          ← isolated env for A only
+│   ├── .python-version
+│   ├── pyproject.toml
+│   └── app.py
+└── project-b\          ← needs Python 3.13
+    ├── .venv\          ← isolated env for B only
+    ├── .python-version
+    ├── pyproject.toml
+    └── app.py</div>
+
+      <h3>Create both (PowerShell)</h3>
+      <p>Install both interpreters once (if needed), then create a venv <em>inside each project folder</em>:</p>
+      <div class="code-block"># Install interpreters (once on the machine)
+uv python install 3.10
+uv python install 3.13
+
+# --- project-a → Python 3.10 ---
+mkdir C:\dev\project-a
+cd C:\dev\project-a
+Set-Content .python-version "3.10"
+uv venv --python 3.10 .venv
+
+# --- project-b → Python 3.13 ---
+mkdir C:\dev\project-b
+cd C:\dev\project-b
+Set-Content .python-version "3.13"
+uv venv --python 3.13 .venv</div>
+
+      <h3>Side-by-side: activate and prove the versions differ</h3>
+      <div class="dual-grid">
+        <div class="dual-card">
+          <div class="dual-card-head a">project-a</div>
+          <div class="dual-card-body">
+            <span class="dual-badge a">PYTHON 3.10</span>
+            <p>Open a terminal <strong>in</strong> <code>project-a</code>:</p>
+            <div class="code-block">cd C:\dev\project-a
+.\.venv\Scripts\activate
+python --version
+# → Python 3.10.x
+
+where python
+# → ...\project-a\.venv\Scripts\python.exe</div>
+          </div>
+        </div>
+        <div class="dual-card">
+          <div class="dual-card-head b">project-b</div>
+          <div class="dual-card-body">
+            <span class="dual-badge b">PYTHON 3.13</span>
+            <p>Open a <strong>second</strong> terminal in <code>project-b</code>:</p>
+            <div class="code-block">cd C:\dev\project-b
+.\.venv\Scripts\activate
+python --version
+# → Python 3.13.x
+
+where python
+# → ...\project-b\.venv\Scripts\python.exe</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prove-box">
+        <strong>Proof in one terminal (switch folders):</strong>
+        <div class="code-block">cd C:\dev\project-a
+.\.venv\Scripts\activate
+python --version          # 3.10.x
+deactivate
+
+cd C:\dev\project-b
+.\.venv\Scripts\activate
+python --version          # 3.13.x — different project, different Python</div>
+        <p style="margin-top:10px;margin-bottom:0;">Packages installed in <code>project-a\.venv</code> are invisible to <code>project-b</code>, and vice versa. Same rule as two Maven projects with different JDKs and different <code>~/.m2</code>-scoped deps.</p>
+      </div>
+
+      <h3>What must stay true</h3>
+      <ul>
+        <li><strong>One venv per project folder</strong> — never share <code>.venv</code> across projects.</li>
+        <li><strong>Activate after <code>cd</code> into that project</strong> — <code>python</code> then resolves to <em>that</em> folder’s interpreter.</li>
+        <li><strong>Changing Python version = recreate the venv</strong> — do not try to “upgrade” an existing <code>.venv</code> in place.</li>
+        <li>In the IDE, pick <code>project-a\.venv\Scripts\python.exe</code> for A and <code>project-b\.venv\Scripts\python.exe</code> for B (separate windows/workspaces).</li>
+      </ul>
+
+      <div class="success">
+        <strong>Takeaway:</strong> Two project folders → two <code>.venv</code> folders → can run Python 3.10 and 3.13 at the same time without fighting over system Python.
+      </div>
+    </section>
+
     <section class="section cta-end">
       <h2>You've got this</h2>
       <p>venv is simple once the mental switch flips:</p>
       <p class="punch">venv = Maven-style dependency isolation for Python</p>
-      <p>Activate → install → freeze to requirements.txt → done.</p>
+      <p>Activate → install → freeze to requirements.txt → done. With uv: pin the version → <code>uv venv</code> → <code>uv sync</code>. Each project folder keeps its own <code>.venv</code> — and its own Python version.</p>
       <p style="margin-top:16px;"><a href="index.html">← Back to Learning</a> · <a href="../ai-learning/PythonBasicsOffline.html">Next: Python Basics</a></p>
     </section>
 
