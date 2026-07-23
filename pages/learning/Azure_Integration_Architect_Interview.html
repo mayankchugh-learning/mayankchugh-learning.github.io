@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Azure Integration Architect Interview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep: #0a1628;
+      --bg-mid: #12253f;
+      --bg-card: #163056;
+      --bg-elevated: #1a3a66;
+      --azure: #3db8f5;
+      --azure-soft: #7dd3fc;
+      --azure-glow: rgba(61, 184, 245, 0.35);
+      --mint: #5eead4;
+      --coral: #fb923c;
+      --text: #e8f1fb;
+      --text-muted: #94a8c4;
+      --text-dim: #6b829e;
+      --success: #34d399;
+      --border: rgba(125, 211, 252, 0.18);
+      --radius: 18px;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.55;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(61, 184, 245, 0.22), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 10%, rgba(94, 234, 212, 0.12), transparent 50%),
+        radial-gradient(ellipse 50% 60% at 50% 100%, rgba(26, 58, 102, 0.8), transparent 60%),
+        linear-gradient(165deg, #07101c 0%, #0a1628 40%, #0d1f38 100%);
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(125, 211, 252, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(125, 211, 252, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
+      z-index: -1;
+      pointer-events: none;
+      animation: gridDrift 40s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      from { transform: translateY(0); }
+      to { transform: translateY(48px); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 var(--azure-glow); }
+      50% { box-shadow: 0 0 28px 4px var(--azure-glow); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+    }
+
+    /* —— Header —— */
+    header.hero {
+      text-align: center;
+      padding: 2.5rem 0 2rem;
+      animation: fadeUp 0.8s var(--ease) both;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--azure-soft);
+      margin-bottom: 1rem;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 12px var(--mint);
+      animation: pulseGlow 2.4s ease-in-out infinite;
+    }
+
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(2.1rem, 6vw, 3.4rem);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--azure-soft);
+    }
+
+    .hero-sub {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 34rem;
+      margin: 0 auto 1.5rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .chip {
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(22, 48, 86, 0.6);
+      color: var(--text-muted);
+      backdrop-filter: blur(8px);
+    }
+
+    .chip.hot {
+      border-color: rgba(94, 234, 212, 0.4);
+      color: var(--mint);
+    }
+
+    /* —— Mode switch —— */
+    .mode-bar {
+      display: flex;
+      gap: 0.4rem;
+      padding: 0.35rem;
+      background: rgba(16, 37, 63, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin: 0 auto 1.75rem;
+      width: fit-content;
+      max-width: 100%;
+      overflow-x: auto;
+      animation: fadeUp 0.8s var(--ease) 0.1s both;
+    }
+
+    .mode-btn {
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.55rem 1rem;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.25s, background 0.25s, transform 0.2s;
+    }
+
+    .mode-btn:hover { color: var(--text); }
+    .mode-btn.active {
+      background: linear-gradient(135deg, #1e4a7a, #2563a8);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(37, 99, 168, 0.4);
+    }
+
+    /* —— Progress —— */
+    .progress-wrap {
+      margin-bottom: 1.25rem;
+      animation: fadeUp 0.8s var(--ease) 0.15s both;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 0.45rem;
+    }
+
+    .progress-meta strong { color: var(--azure-soft); font-weight: 600; }
+
+    .progress-track {
+      height: 6px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--azure), var(--mint));
+      transition: width 0.5s var(--ease);
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    /* —— Category filters —— */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.8s var(--ease) 0.2s both;
+    }
+
+    .filter-btn {
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+    }
+
+    .filter-btn:hover {
+      border-color: var(--azure);
+      color: var(--azure-soft);
+    }
+
+    .filter-btn.active {
+      background: rgba(61, 184, 245, 0.15);
+      border-color: var(--azure);
+      color: var(--azure-soft);
+    }
+
+    /* —— Flashcard —— */
+    .card-stage {
+      perspective: 1400px;
+      margin-bottom: 1.25rem;
+      min-height: 380px;
+      animation: fadeUp 0.8s var(--ease) 0.25s both;
+    }
+
+    .flashcard {
+      position: relative;
+      width: 100%;
+      min-height: 380px;
+      transform-style: preserve-3d;
+      transition: transform 0.7s var(--ease);
+      cursor: pointer;
+    }
+
+    .flashcard.flipped { transform: rotateY(180deg); }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(145deg, rgba(26, 58, 102, 0.95), rgba(16, 37, 63, 0.98));
+      box-shadow: var(--shadow);
+      padding: 1.75rem 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+    }
+
+    .face::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 1.5rem;
+      right: 1.5rem;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--azure), transparent);
+      opacity: 0.7;
+    }
+
+    .face-back {
+      transform: rotateY(180deg);
+      background:
+        linear-gradient(145deg, rgba(20, 70, 90, 0.95), rgba(14, 40, 62, 0.98));
+    }
+
+    .face-back::before {
+      background: linear-gradient(90deg, transparent, var(--mint), transparent);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .cat-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      background: rgba(61, 184, 245, 0.12);
+      color: var(--azure-soft);
+    }
+
+    .cat-badge.arch { background: rgba(61, 184, 245, 0.14); color: var(--azure-soft); }
+    .cat-badge.ais { background: rgba(94, 234, 212, 0.12); color: var(--mint); }
+    .cat-badge.apim { background: rgba(251, 146, 60, 0.14); color: var(--coral); }
+    .cat-badge.stake { background: rgba(167, 139, 250, 0.14); color: #c4b5fd; }
+
+    .q-num {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .face-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.65rem;
+    }
+
+    .question-text {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.35rem, 3.5vw, 1.75rem);
+      line-height: 1.3;
+      flex: 1;
+    }
+
+    .answer-text {
+      font-size: 0.98rem;
+      color: var(--text);
+      line-height: 1.65;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .hint {
+      margin-top: auto;
+      padding-top: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hint kbd {
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text-muted);
+    }
+
+    /* —— Controls —— */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s var(--ease) 0.3s both;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.7rem 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(22, 48, 86, 0.8);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.2s, background 0.25s, border-color 0.25s, box-shadow 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--azure);
+      box-shadow: 0 8px 24px rgba(61, 184, 245, 0.2);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #1d8fd4, #3db8f5);
+      border-color: transparent;
+      color: #041018;
+    }
+
+    .btn.primary:hover {
+      box-shadow: 0 8px 28px rgba(61, 184, 245, 0.4);
+    }
+
+    .btn.ghost {
+      background: transparent;
+    }
+
+    .btn.mark {
+      border-color: rgba(52, 211, 153, 0.35);
+      color: var(--success);
+    }
+
+    .btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* —— List view —— */
+    .list-view { display: none; }
+    .list-view.visible { display: block; animation: fadeUp 0.5s var(--ease); }
+
+    .accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .acc-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(16, 37, 63, 0.7);
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+
+    .acc-item.open { border-color: rgba(61, 184, 245, 0.4); }
+
+    .acc-head {
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 1rem 1.15rem;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      transition: background 0.2s;
+    }
+
+    .acc-head:hover { background: rgba(61, 184, 245, 0.06); }
+
+    .acc-num {
+      flex-shrink: 0;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 8px;
+      background: rgba(61, 184, 245, 0.15);
+      color: var(--azure-soft);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      margin-top: 0.1rem;
+    }
+
+    .acc-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s var(--ease);
+    }
+
+    .acc-item.open .acc-body { max-height: 800px; }
+
+    .acc-answer {
+      padding: 0 1.15rem 1.15rem 3.65rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      border-top: 1px solid transparent;
+    }
+
+    .acc-item.open .acc-answer {
+      padding-top: 0.75rem;
+      border-top-color: var(--border);
+    }
+
+    /* —— Ask them / Tips panels —— */
+    .panel {
+      display: none;
+      animation: fadeUp 0.5s var(--ease);
+    }
+
+    .panel.visible { display: block; }
+
+    .panel h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.85rem;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel-lead {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .ask-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .ask-list li {
+      padding: 1rem 1.15rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(16, 37, 63, 0.65);
+      font-size: 0.95rem;
+      position: relative;
+      padding-left: 2.75rem;
+      transition: transform 0.25s var(--ease), border-color 0.25s;
+      animation: fadeUp 0.5s var(--ease) both;
+    }
+
+    .ask-list li:nth-child(1) { animation-delay: 0.05s; }
+    .ask-list li:nth-child(2) { animation-delay: 0.1s; }
+    .ask-list li:nth-child(3) { animation-delay: 0.15s; }
+    .ask-list li:nth-child(4) { animation-delay: 0.2s; }
+    .ask-list li:nth-child(5) { animation-delay: 0.25s; }
+    .ask-list li:nth-child(6) { animation-delay: 0.3s; }
+
+    .ask-list li:hover {
+      transform: translateX(6px);
+      border-color: rgba(61, 184, 245, 0.45);
+    }
+
+    .ask-list li::before {
+      content: "?";
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      background: rgba(61, 184, 245, 0.15);
+      color: var(--azure);
+      font-weight: 700;
+      font-size: 0.8rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .tip-grid {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    @media (min-width: 640px) {
+      .tip-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .tip-card {
+      padding: 1.15rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(16, 37, 63, 0.7);
+      transition: transform 0.3s var(--ease), box-shadow 0.3s;
+    }
+
+    .tip-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .tip-card h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--azure-soft);
+      margin-bottom: 0.4rem;
+    }
+
+    .tip-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .closing-banner {
+      margin-top: 1.5rem;
+      padding: 1.35rem 1.5rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(94, 234, 212, 0.35);
+      background:
+        linear-gradient(135deg, rgba(94, 234, 212, 0.08), rgba(61, 184, 245, 0.08));
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.15rem;
+      font-style: italic;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .closing-banner span {
+      display: block;
+      font-family: "DM Sans", sans-serif;
+      font-style: normal;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mint);
+      margin-bottom: 0.5rem;
+    }
+
+    /* —— Confetti burst for mastered —— */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: rgba(16, 37, 63, 0.95);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: var(--success);
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 50;
+      transition: transform 0.4s var(--ease);
+      box-shadow: var(--shadow);
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .flash-only { display: block; }
+    .flash-only.hidden { display: none; }
+
+    footer {
+      text-align: center;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    footer a {
+      color: var(--azure-soft);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    /* —— Cloud map table —— */
+    .cloud-talk {
+      margin-bottom: 1.25rem;
+      padding: 1rem 1.15rem;
+      border-radius: 14px;
+      border: 1px solid rgba(61, 184, 245, 0.28);
+      background: rgba(61, 184, 245, 0.08);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .cloud-talk strong { color: var(--azure-soft); font-weight: 600; }
+
+    .table-scroll {
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(16, 37, 63, 0.75);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .cloud-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      min-width: 640px;
+    }
+
+    .cloud-table thead th {
+      position: sticky;
+      top: 0;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.9rem 1rem;
+      background: rgba(10, 28, 48, 0.95);
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cloud-table thead th.col-azure { color: var(--azure-soft); }
+    .cloud-table thead th.col-aws { color: var(--coral); }
+    .cloud-table thead th.col-gcp { color: var(--mint); }
+
+    .cloud-table tbody tr {
+      transition: background 0.2s;
+      animation: fadeUp 0.45s var(--ease) both;
+    }
+
+    .cloud-table tbody tr:nth-child(1) { animation-delay: 0.04s; }
+    .cloud-table tbody tr:nth-child(2) { animation-delay: 0.08s; }
+    .cloud-table tbody tr:nth-child(3) { animation-delay: 0.12s; }
+    .cloud-table tbody tr:nth-child(4) { animation-delay: 0.16s; }
+    .cloud-table tbody tr:nth-child(5) { animation-delay: 0.2s; }
+    .cloud-table tbody tr:nth-child(6) { animation-delay: 0.24s; }
+    .cloud-table tbody tr:nth-child(7) { animation-delay: 0.28s; }
+    .cloud-table tbody tr:nth-child(8) { animation-delay: 0.32s; }
+    .cloud-table tbody tr:nth-child(9) { animation-delay: 0.36s; }
+    .cloud-table tbody tr:nth-child(10) { animation-delay: 0.4s; }
+
+    .cloud-table tbody tr:hover {
+      background: rgba(61, 184, 245, 0.07);
+    }
+
+    .cloud-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(125, 211, 252, 0.1);
+      vertical-align: top;
+      color: var(--text-muted);
+    }
+
+    .cloud-table tbody tr:last-child td { border-bottom: none; }
+
+    .cloud-table td.svc {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .cloud-table .role {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      margin-top: 0.2rem;
+    }
+
+    .cloud-table .alt {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.15rem;
+    }
+
+    .cloud-note {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    /* —— Audio / TTS —— */
+    .face-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .face-label-row .face-label { margin-bottom: 0; }
+
+    .listen-btn {
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(61, 184, 245, 0.4);
+      background: rgba(61, 184, 245, 0.12);
+      color: var(--azure-soft);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .listen-btn:hover {
+      background: rgba(61, 184, 245, 0.22);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(61, 184, 245, 0.2);
+    }
+
+    .listen-btn.playing {
+      border-color: rgba(52, 211, 153, 0.55);
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--success);
+      animation: pulseGlow 1.8s ease-in-out infinite;
+    }
+
+    .listen-btn.sm {
+      font-size: 0.65rem;
+      padding: 0.28rem 0.55rem;
+    }
+
+    .btn.audio {
+      border-color: rgba(61, 184, 245, 0.4);
+      color: var(--azure-soft);
+    }
+
+    .btn.audio.playing {
+      border-color: rgba(52, 211, 153, 0.5);
+      color: var(--success);
+    }
+
+    .audio-dock {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(140%);
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0.65rem 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(61, 184, 245, 0.35);
+      background: rgba(10, 22, 40, 0.92);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      transition: transform 0.4s var(--ease);
+      max-width: calc(100vw - 1.5rem);
+    }
+
+    .audio-dock.visible { transform: translateX(-50%) translateY(0); }
+
+    .audio-dock .now {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      max-width: 14rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .audio-dock .now strong { color: var(--azure-soft); }
+
+    .audio-dock label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .audio-dock input[type="range"] {
+      width: 88px;
+      accent-color: var(--azure);
+    }
+
+    .speakable {
+      position: relative;
+    }
+
+    .speakable .listen-btn.float {
+      position: absolute;
+      top: 0.65rem;
+      right: 0.65rem;
+    }
+
+    .cloud-talk {
+      position: relative;
+      padding-right: 5.5rem;
+    }
+
+    .closing-banner {
+      position: relative;
+      padding-right: 5.5rem;
+    }
+
+    .ask-list li {
+      padding-right: 4.5rem;
+    }
+
+    .ask-list li .listen-btn {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .ask-list li .listen-btn:hover { transform: translateY(calc(-50% - 1px)); }
+
+    .tip-card {
+      position: relative;
+      padding-top: 2.4rem;
+    }
+
+    .tip-card .listen-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+    }
+
+    .acc-answer-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      padding: 0 1.15rem 1.15rem 3.65rem;
+    }
+
+    .acc-item.open .acc-answer-wrap {
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .acc-answer {
+      padding: 0;
+      border-top: none;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .acc-item.open .acc-answer {
+      padding-top: 0;
+      border-top-color: transparent;
+    }
+
+    .tts-unsupported {
+      display: none;
+      margin: 0 auto 1rem;
+      max-width: 36rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--coral);
+      padding: 0.5rem 0.75rem;
+      border: 1px solid rgba(251, 146, 60, 0.35);
+      border-radius: 10px;
+      background: rgba(251, 146, 60, 0.08);
+    }
+
+    .tts-unsupported.show { display: block; }
+
+    @media (max-width: 540px) {
+      .card-stage, .flashcard, .face { min-height: 420px; }
+      .face { padding: 1.25rem; }
+      .acc-answer-wrap { padding-left: 1.15rem; }
+      .audio-dock .now { max-width: 8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="eyebrow">Interview Prep · Night Before</div>
+      <h1>Azure Integration<br /><em>Architect</em></h1>
+      <p class="hero-sub">21 questions with strong answers — flip cards, listen to answers, practice aloud.</p>
+      <div class="meta-row">
+        <span class="chip">APIM · Logic Apps · Service Bus</span>
+        <span class="chip">🔊 Audio answers</span>
+      </div>
+    </header>
+
+    <p class="tts-unsupported" id="ttsWarn">Text-to-speech isn’t available in this browser. Try Chrome or Edge for audio.</p>
+
+    <nav class="mode-bar" aria-label="Study modes">
+      <button class="mode-btn active" data-mode="flash" type="button">Flashcards</button>
+      <button class="mode-btn" data-mode="list" type="button">All Q&amp;A</button>
+      <button class="mode-btn" data-mode="cloud" type="button">Cloud Map</button>
+      <button class="mode-btn" data-mode="ask" type="button">Ask Them</button>
+    </nav>
+
+    <div class="flash-only" id="flashChrome">
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span>Progress · <strong id="masteredCount">0</strong> / <span id="totalCount">21</span> marked</span>
+          <span id="cardPos">1 of 21</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <div class="filters" id="filters" role="group" aria-label="Categories"></div>
+
+      <div class="card-stage">
+        <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flip card to reveal answer">
+          <div class="face face-front">
+            <div class="card-top">
+              <span class="cat-badge" id="frontCat">Architecture</span>
+              <span class="q-num" id="frontNum">Q1</span>
+            </div>
+            <div class="face-label-row">
+              <div class="face-label">Question</div>
+              <button type="button" class="listen-btn" id="btnListenQ" data-speak="question" aria-label="Listen to question">🔊 Listen</button>
+            </div>
+            <p class="question-text" id="frontQ"></p>
+            <div class="hint">Tap card or <kbd>Space</kbd> to flip · <kbd>L</kbd> listen answer</div>
+          </div>
+          <div class="face face-back">
+            <div class="card-top">
+              <span class="cat-badge" id="backCat">Architecture</span>
+              <span class="q-num" id="backNum">Q1</span>
+            </div>
+            <div class="face-label-row">
+              <div class="face-label">Strong answer</div>
+              <button type="button" class="listen-btn" id="btnListenA" data-speak="answer" aria-label="Listen to answer">🔊 Listen</button>
+            </div>
+            <p class="answer-text" id="backA"></p>
+            <div class="hint"><kbd>Space</kbd> flip · <kbd>L</kbd> listen · <kbd>Esc</kbd> stop</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn ghost" id="btnPrev" type="button" aria-label="Previous">← Prev</button>
+        <button class="btn primary" id="btnFlip" type="button">Flip</button>
+        <button class="btn audio" id="btnListen" type="button">🔊 Answer</button>
+        <button class="btn mark" id="btnMaster" type="button">✓ Got it</button>
+        <button class="btn ghost" id="btnNext" type="button" aria-label="Next">Next →</button>
+      </div>
+    </div>
+
+    <div class="list-view" id="listView">
+      <div class="accordion" id="accordion"></div>
+    </div>
+
+    <div class="panel" id="cloudPanel">
+      <h2>Cloud-agnostic map</h2>
+      <p class="panel-lead">Same integration patterns, different product names — use this when you claim multi-cloud fluency.</p>
+      <p class="cloud-talk" id="cloudTalk">
+        <button type="button" class="listen-btn sm float" data-speak-el="cloudTalkText" aria-label="Listen to talking point">🔊 Listen</button>
+        <strong>Talking point:</strong>
+        <span id="cloudTalkText">I’m cloud-agnostic on the architecture. Queues, pub-sub, API façades, orchestration, and streaming are the same problems on Azure, AWS, and GCP — I map the tool to the pattern, not the brand.</span>
+      </p>
+      <div style="margin: 0 0 0.85rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button type="button" class="listen-btn" id="btnListenTable" aria-label="Listen to full cloud map">🔊 Listen full map</button>
+        <button type="button" class="listen-btn sm" data-speak-el="cloudNote" aria-label="Listen to note">🔊 Note</button>
+      </div>
+      <div class="table-scroll">
+        <table class="cloud-table" id="cloudTable">
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th class="col-azure">Azure (AIS)</th>
+              <th class="col-aws">AWS</th>
+              <th class="col-gcp">GCP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="svc">API gateway<span class="role">Perimeter, policies, developer portal</span></td>
+              <td>API Management (APIM)</td>
+              <td>API Gateway<span class="alt">+ Amazon Cognito / WAF</span></td>
+              <td>Apigee<span class="alt">or Cloud API Gateway</span></td>
+            </tr>
+            <tr>
+              <td class="svc">Workflow orchestration<span class="role">Multi-step business processes</span></td>
+              <td>Logic Apps</td>
+              <td>Step Functions<span class="alt">+ EventBridge Pipes</span></td>
+              <td>Workflows<span class="alt">or Cloud Composer</span></td>
+            </tr>
+            <tr>
+              <td class="svc">Enterprise messaging<span class="role">Queues · ordered · DLQ · sessions</span></td>
+              <td>Service Bus Queues</td>
+              <td>SQS<span class="alt">FIFO queues + DLQ</span></td>
+              <td>Pub/Sub<span class="alt">pull subscriptions</span></td>
+            </tr>
+            <tr>
+              <td class="svc">Pub-sub fan-out<span class="role">One event → many consumers</span></td>
+              <td>Service Bus Topics</td>
+              <td>SNS<span class="alt">+ SQS subscribers</span></td>
+              <td>Pub/Sub</td>
+            </tr>
+            <tr>
+              <td class="svc">Reactive event routing<span class="role">Push / webhook · CloudEvents</span></td>
+              <td>Event Grid</td>
+              <td>EventBridge</td>
+              <td>Eventarc<span class="alt">+ Pub/Sub</span></td>
+            </tr>
+            <tr>
+              <td class="svc">High-throughput streaming<span class="role">IoT / telemetry / analytics ingest</span></td>
+              <td>Event Hubs<span class="alt">Kafka-compatible</span></td>
+              <td>Kinesis Data Streams<span class="alt">or MSK (Kafka)</span></td>
+              <td>Pub/Sub<span class="alt">or Dataflow / Kafka on GKE</span></td>
+            </tr>
+            <tr>
+              <td class="svc">Serverless glue<span class="role">Transforms, custom connectors</span></td>
+              <td>Azure Functions</td>
+              <td>Lambda</td>
+              <td>Cloud Functions<span class="alt">or Cloud Run</span></td>
+            </tr>
+            <tr>
+              <td class="svc">API catalog / governance<span class="role">Enterprise inventory &amp; discoverability</span></td>
+              <td>API Center</td>
+              <td>API Gateway + Portal<span class="alt">or AppRegistry patterns</span></td>
+              <td>Apigee API hub</td>
+            </tr>
+            <tr>
+              <td class="svc">Hybrid / on-prem bridge<span class="role">No inbound firewall holes</span></td>
+              <td>On-Premises Data Gateway<span class="alt">or VNet + ExpressRoute</span></td>
+              <td>Direct Connect / VPN<span class="alt">+ PrivateLink / App Runner VPC</span></td>
+              <td>Cloud Interconnect / VPN<span class="alt">+ Private Service Connect</span></td>
+            </tr>
+            <tr>
+              <td class="svc">Secrets &amp; identity<span class="role">No connection strings in code</span></td>
+              <td>Managed Identity + Key Vault</td>
+              <td>IAM Roles + Secrets Manager</td>
+              <td>Workload Identity + Secret Manager</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="cloud-note" id="cloudNote">Closest functional mapping for interview talk-track — not 1:1 product parity. Lead with patterns (API-led versus event-driven, orchestration versus choreography), then name the cloud service.</p>
+    </div>
+
+    <div class="panel" id="askPanel">
+      <h2>Questions you should ask</h2>
+      <p class="panel-lead">
+        Turn the interview into a two-way conversation — shows architectural judgment and contract mindset.
+        <button type="button" class="listen-btn sm" id="btnListenAskAll" style="margin-left:0.5rem;">🔊 Listen all</button>
+      </p>
+      <ul class="ask-list" id="askList">
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>What does the current integration landscape look like — greenfield, or existing APIM / Logic Apps / Service Bus to rationalise?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>What’s driving this engagement — new programme, legacy modernisation, or production troubleshooting?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>How is integration governance handled today — design authority already in place, or part of establishing one?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>Who are the day-to-day stakeholders — architecture, delivery teams, or business functions (finance, HR)?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>What does success look like at the 3-month and 6-month mark?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>Is there an existing DevOps / CI-CD setup for integration assets, or is that in scope?</li>
+      </ul>
+    </div>
+
+    <footer>
+      Azure Integration Architect Interview ·
+      <a href="index.html">← Back to Learning</a>
+    </footer>
+  </div>
+
+  <div class="audio-dock" id="audioDock" aria-live="polite">
+    <span class="now">Playing · <strong id="audioNow">—</strong></span>
+    <label>Speed <input type="range" id="rateSlider" min="0.7" max="1.4" step="0.05" value="1" /></label>
+    <button type="button" class="listen-btn sm" id="btnStopAudio">⏹ Stop</button>
+  </div>
+
+  <div class="toast" id="toast" role="status">Marked as ready ✓</div>
+
+  <script>
+    const QUESTIONS = [
+      {
+        id: 1,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "Walk me through how you'd design an end-to-end integration architecture for a client with SAP, Salesforce, and custom cloud-native apps.",
+        a: "I'd start with a discovery workshop to map data flows, ownership, and criticality — exactly the kind of session I ran at CHANEL and HSBC. Architecturally: APIM at the perimeter as a single façade, Logic Apps or a message broker to decouple SAP and Salesforce from downstream consumers, and synchronous API calls only where an immediate response is genuinely needed. I'd insist on a canonical data model early — the biggest failure mode in 20 years isn't the tooling, it's undocumented point-to-point integrations nobody can safely change later."
+      },
+      {
+        id: 2,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "How do you decide between API-led and event-driven for a given integration?",
+        a: "It comes down to whether the consumer needs an immediate answer. Real-time inventory check: API-led via APIM. 'Notify all systems that an order was fulfilled': event-driven pub-sub so producers and consumers stay decoupled. In practice — Cathay Pacific cargo, CHANEL retail — I've always needed both patterns coexisting, and part of the architect's job is deciding which fits each flow rather than picking one dogmatically."
+      },
+      {
+        id: 3,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "Describe a time you designed an integration for a legacy or on-premises system.",
+        a: "At CHANEL, I led a cloud data platform delivery using Qlik Replicate to migrate Dynamics 365 data from on-premises into Azure SQL Database, feeding Power BI downstream. The challenge was designing the landing zone, security boundary, and refresh cadence so the business got near-real-time reporting without impacting the on-prem transactional system. That's the same fundamental hybrid-integration problem this role deals with."
+      },
+      {
+        id: 4,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "How would you approach defining enterprise integration standards and governance from scratch?",
+        a: "This is squarely TOGAF territory, which I'm certified in and have applied at Capgemini and Deloitte. I'd start with a lightweight reference architecture — naming conventions, error-handling standards, security baseline (OAuth2/managed identity by default), and a small set of approved patterns. Run it through a design authority so it has teeth, then apply it to a pilot integration to prove it works before mandating it enterprise-wide. Governance that isn't grounded in a real delivered example gets ignored."
+      },
+      {
+        id: 5,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "How do you design for scalability and high availability?",
+        a: "For scalability: async decoupling wherever the business process tolerates it — queues absorb load spikes far better than synchronous chains. For availability: geo-redundancy on stateful components like Service Bus Premium, retry policies with exponential backoff and circuit breakers, and idempotency designed in from the start so retries don't create duplicate side effects. I applied these same principles on the AWS side — my IoT deployment at Cathay Pacific's warehouse had to handle intermittent scanner connectivity, so message durability and idempotent processing were non-negotiable."
+      },
+      {
+        id: 6,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "What's your approach to building reusable integration frameworks rather than one-off point solutions?",
+        a: "I look for the repeating shape across integrations — most enterprises have the same handful of patterns (batch data sync, real-time lookup, event notification, ERP transaction post) repeated dozens of times with different endpoints. I'd template those as reference architectures with parameterised IaC — Bicep templates for Azure resources, standard APIM policy fragments for auth and logging — so a new integration is a configuration exercise, not a from-scratch build."
+      },
+      {
+        id: 7,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "How do you handle a situation where the business wants a quick point-to-point integration that violates architecture standards?",
+        a: "I'd understand the business urgency first — sometimes a tactical solution with a documented remediation plan is the right call. But I'd make the trade-off explicit: here's the technical debt this creates, here's the cost of unwinding it later, here's a time-boxed commitment to replace it. I've had exactly these conversations at CHANEL and HSBC — the key is not blocking the business, but not letting shortcuts become invisible permanent debt either."
+      },
+      {
+        id: 8,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "How do you approach microservices and cloud-native architecture in the context of enterprise integration?",
+        a: "Microservices push integration to the edges — instead of one monolith, you have dozens of services needing well-governed contracts. That's exactly where APIM and an event backbone earn their value: APIM gives a consistent façade and versioning strategy, Service Bus/Event Grid give decoupling so services can evolve independently. I've applied this on both Azure and AWS side — the principles (bounded contexts, contract-first APIs, eventual consistency) are cloud-agnostic."
+      },
+      {
+        id: 9,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "What are the core components of Azure Integration Services and how do they fit together?",
+        a: "APIM, Logic Apps, Service Bus, and Event Grid are the core four, extended with Event Hubs for streaming and Functions for lightweight glue. A typical composition: APIM at the perimeter controlling inbound traffic, Logic Apps orchestrating multi-step workflows, Service Bus providing reliable decoupled messaging, Event Grid handling reactive fan-out. I'll be candid — my deepest hands-on time has been on the Azure infrastructure and DevOps side via AZ-104 and AZ-400, and I'm actively building specific hands-on depth inside APIM and Logic Apps. But I understand exactly how these four compose architecturally."
+      },
+      {
+        id: 10,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "When would you choose Service Bus over Event Grid, or vice versa?",
+        a: "Service Bus when you need guaranteed, ordered, at-least-once delivery, transactions, sessions, or dead-lettering — enterprise messaging where losing a message is unacceptable. Event Grid for reactive, best-effort event routing — 'something happened, tell whoever's listening' — push-based with CloudEvents support, natural for fan-out triggers. If I need transactional guarantees: Service Bus. If I need lightweight reactive plumbing across many subscribers: Event Grid."
+      },
+      {
+        id: 11,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "How does Logic Apps handle error handling and retries?",
+        a: "Built-in retry policies per action — configurable count, interval, and backoff strategy (fixed or exponential) — plus scoped try-catch constructs using the Scope action combined with 'run after' configurations to define failure paths. For business-critical flows, I'd pair with Azure Monitor alerts on failed runs and a dead-letter or compensation path so failures are visible and recoverable, not silent."
+      },
+      {
+        id: 12,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "What's the difference between Consumption and Standard tier Logic Apps?",
+        a: "Consumption: serverless, pay-per-execution, harder to source-control, no native VNet integration. Standard: runs on the Functions runtime, multiple workflows per app, properly source-controllable via workflow.json for real CI/CD, supports VNet integration for private connectivity. For enterprise hybrid integration work, I'd default to Standard tier — the DevOps and networking capabilities are the deciding factor."
+      },
+      {
+        id: 13,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "How do you connect an on-premises SQL Server or SAP to Azure without opening inbound firewall ports?",
+        a: "On-Premises Data Gateway is the standard — lightweight agent installed on-prem, opens only an outbound connection to Azure so Logic Apps or Power BI can reach on-prem sources without any inbound firewall changes. For more network-level control, VNet integration with ExpressRoute or VPN Gateway for Standard-tier Logic Apps or Functions reaching private endpoints. This maps directly to what I built at CHANEL with the Qlik Replicate D365-on-prem-to-Azure-SQL migration — different specific tool, same secure-hybrid-connectivity problem."
+      },
+      {
+        id: 14,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "How do you monitor and troubleshoot a production integration issue across APIM, Logic Apps, and Service Bus?",
+        a: "Centralise on Azure Monitor and Application Insights — end-to-end distributed tracing with correlation IDs passed through APIM headers, Logic Apps run history, and Service Bus diagnostic logs, so I can follow a single transaction across all three services. The discipline that matters most is designing correlation IDs in from day one — more production incidents are made worse by inability to trace a request across systems than by the underlying bug itself."
+      },
+      {
+        id: 15,
+        cat: "apim",
+        catLabel: "API Management",
+        q: "What are APIM policies, and can you give examples of how you'd use them?",
+        a: "Policies are XML-based rules applied at inbound/outbound/backend/on-error scope. Examples I'd expect to use: validate-jwt for OAuth2 token validation, rate-limit/quota for throttling by subscription key, cache-lookup/store for performance, set-header/transform-body for request/response mediation. This is an area where I'm consciously building hands-on depth — I have the underlying REST API design and OAuth2 security background solidly, and I'm applying it directly to APIM's policy syntax."
+      },
+      {
+        id: 16,
+        cat: "apim",
+        catLabel: "API Management",
+        q: "How would you version and manage the lifecycle of APIs in APIM?",
+        a: "APIM supports versioning via URL path, query parameter, or header, plus Revisions for testing changes before publishing as the live version. For lifecycle management: define a deprecation policy — keep old versions live with a sunset notice for a defined window, communicate to consumers via the developer portal, use Products to control which consumer segments get access to which version. API lifecycle governance is an extension of the same RFQ/proposal discipline I've applied for years."
+      },
+      {
+        id: 17,
+        cat: "apim",
+        catLabel: "API Management",
+        q: "How do you secure APIs in APIM for both internal and external consumers?",
+        a: "Internal: managed identity and Azure AD OAuth2 client credentials flow, ideally behind a private endpoint so traffic never touches the public internet. External partners: subscription keys layered with OAuth2 or client certificates, combined with IP filtering and rate limiting. WAF via Application Gateway or Front Door in front of APIM for external-facing APIs. Security-in-depth here mirrors exactly what I applied at HSBC and CHANEL on the cloud architecture side: identity-first, network segmentation, least privilege."
+      },
+      {
+        id: 18,
+        cat: "stake",
+        catLabel: "Stakeholder & Delivery",
+        q: "How do you run an architecture workshop with conflicting business and technical stakeholders?",
+        a: "I start by getting everyone aligned on the business outcome before any technology is discussed — what does success look like, what's the cost of not solving this. Then I translate technical trade-offs into business language: 'this approach costs two extra weeks but means we can add new partners without re-engineering,' rather than debating REST versus messaging in the abstract. I've run dozens of these sessions at CHANEL and HSBC as an Enterprise Architect."
+      },
+      {
+        id: 19,
+        cat: "stake",
+        catLabel: "Stakeholder & Delivery",
+        q: "How do you mentor a junior integration developer who's struggling with a design decision?",
+        a: "I start by understanding what they've already tried and why, rather than jumping to the answer — that builds their judgment, not just their to-do list. Then I walk the trade-offs using a real example from the current project. Across 20 years leading delivery teams at Cathay Pacific and technical teams at Capgemini, the mentoring that stuck was always the kind that transferred judgment, not just instructions."
+      },
+      {
+        id: 20,
+        cat: "stake",
+        catLabel: "Stakeholder & Delivery",
+        q: "As a contractor, how do you get up to speed quickly and start adding value fast?",
+        a: "First few days I'm mapping what exists — current integrations, pain points, tribal knowledge that isn't documented, who owns what. I look for the quick win that builds trust — often a governance gap or a fragile point-to-point integration everyone already knows is a problem — and fix or de-risk that first while the fuller architecture picture forms. This is exactly the muscle I built writing 55+ RFQ/RFP proposals and doing client-facing consulting at Capgemini and Deloitte."
+      },
+      {
+        id: 21,
+        cat: "stake",
+        catLabel: "Stakeholder & Delivery",
+        q: "How do you balance delivery speed with architecture governance?",
+        a: "I treat governance as guardrails, not gates — the standards should make the fast path also the compliant path wherever possible, for example by providing pre-approved APIM policy templates and IaC modules so following the standard is less work than going around it. Where genuine tension exists, I make the trade-off visible to the sponsor rather than silently picking a side. Delivery teams respect governance that's been designed to help them."
+      }
+    ];
+
+    const CAT_META = [
+      { id: "all", label: "All" },
+      { id: "arch", label: "Architecture" },
+      { id: "ais", label: "AIS Technical" },
+      { id: "apim", label: "APIM" },
+      { id: "stake", label: "Stakeholder" }
+    ];
+
+    const STORAGE_KEY = "ais-interview-mastered-v1";
+    const RATE_KEY = "ais-interview-tts-rate";
+
+    let filter = "all";
+    let index = 0;
+    let mastered = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+    let speechRate = Number(localStorage.getItem(RATE_KEY) || "1");
+    let activeSpeakBtn = null;
+
+    const synth = window.speechSynthesis;
+    const ttsOk = !!synth;
+
+    const el = {
+      card: document.getElementById("flashcard"),
+      frontQ: document.getElementById("frontQ"),
+      frontCat: document.getElementById("frontCat"),
+      frontNum: document.getElementById("frontNum"),
+      backA: document.getElementById("backA"),
+      backCat: document.getElementById("backCat"),
+      backNum: document.getElementById("backNum"),
+      filters: document.getElementById("filters"),
+      cardPos: document.getElementById("cardPos"),
+      progressFill: document.getElementById("progressFill"),
+      masteredCount: document.getElementById("masteredCount"),
+      totalCount: document.getElementById("totalCount"),
+      btnPrev: document.getElementById("btnPrev"),
+      btnNext: document.getElementById("btnNext"),
+      btnFlip: document.getElementById("btnFlip"),
+      btnMaster: document.getElementById("btnMaster"),
+      btnListen: document.getElementById("btnListen"),
+      btnListenQ: document.getElementById("btnListenQ"),
+      btnListenA: document.getElementById("btnListenA"),
+      toast: document.getElementById("toast"),
+      flashChrome: document.getElementById("flashChrome"),
+      listView: document.getElementById("listView"),
+      accordion: document.getElementById("accordion"),
+      askPanel: document.getElementById("askPanel"),
+      cloudPanel: document.getElementById("cloudPanel"),
+      audioDock: document.getElementById("audioDock"),
+      audioNow: document.getElementById("audioNow"),
+      rateSlider: document.getElementById("rateSlider"),
+      btnStopAudio: document.getElementById("btnStopAudio"),
+      ttsWarn: document.getElementById("ttsWarn"),
+      cloudTable: document.getElementById("cloudTable")
+    };
+
+    /* —— Text-to-speech —— */
+    function pickVoice() {
+      const voices = synth.getVoices();
+      return (
+        voices.find((v) => /en-(GB|HK|AU|US)/i.test(v.lang) && /Neural|Natural|Google|Microsoft/i.test(v.name)) ||
+        voices.find((v) => /^en/i.test(v.lang)) ||
+        null
+      );
+    }
+
+    function setPlayingUi(btn, label) {
+      document.querySelectorAll(".listen-btn.playing, .btn.audio.playing").forEach((b) => {
+        b.classList.remove("playing");
+        if (b.dataset.restoreLabel) {
+          b.textContent = b.dataset.restoreLabel;
+          delete b.dataset.restoreLabel;
+        }
+      });
+      activeSpeakBtn = btn || null;
+      if (btn) {
+        btn.dataset.restoreLabel = btn.textContent;
+        btn.classList.add("playing");
+        btn.textContent = "⏹ Stop";
+      }
+      if (el.btnListen) {
+        el.btnListen.classList.toggle("playing", !!(btn && (btn === el.btnListen || btn === el.btnListenA)));
+        if (btn === el.btnListen || btn === el.btnListenA) {
+          el.btnListen.textContent = "⏹ Stop";
+        } else if (!synth.speaking) {
+          el.btnListen.textContent = "🔊 Answer";
+        }
+      }
+      el.audioDock.classList.toggle("visible", !!btn);
+      el.audioNow.textContent = label || "—";
+    }
+
+    function stopSpeech() {
+      if (ttsOk) synth.cancel();
+      setPlayingUi(null);
+      if (el.btnListen) el.btnListen.textContent = "🔊 Answer";
+    }
+
+    function speak(text, label, btn) {
+      if (!ttsOk) {
+        el.ttsWarn.classList.add("show");
+        return;
+      }
+      const cleaned = String(text || "").replace(/\s+/g, " ").trim();
+      if (!cleaned) return;
+
+      if (btn && activeSpeakBtn === btn && synth.speaking) {
+        stopSpeech();
+        return;
+      }
+
+      stopSpeech();
+      const u = new SpeechSynthesisUtterance(cleaned);
+      u.rate = speechRate;
+      u.pitch = 1;
+      u.lang = "en-GB";
+      const voice = pickVoice();
+      if (voice) u.voice = voice;
+
+      const shortLabel = (label || cleaned).slice(0, 48) + ((label || cleaned).length > 48 ? "…" : "");
+      setPlayingUi(btn, shortLabel);
+
+      u.onend = () => {
+        if (activeSpeakBtn === btn) setPlayingUi(null);
+        if (el.btnListen) el.btnListen.textContent = "🔊 Answer";
+      };
+      u.onerror = () => {
+        setPlayingUi(null);
+        if (el.btnListen) el.btnListen.textContent = "🔊 Answer";
+      };
+
+      // Chrome sometimes drops utterances if speak() follows cancel() immediately
+      setTimeout(() => synth.speak(u), 40);
+    }
+
+    function currentItem() {
+      return filtered()[index];
+    }
+
+    function speakQuestion(btn) {
+      const item = currentItem();
+      if (!item) return;
+      speak(`Question ${item.id}. ${item.q}`, `Q${item.id} question`, btn || el.btnListenQ);
+    }
+
+    function speakAnswer(btn) {
+      const item = currentItem();
+      if (!item) return;
+      speak(`Answer. ${item.a}`, `Q${item.id} answer`, btn || el.btnListenA || el.btnListen);
+    }
+
+    function cloudTableScript() {
+      const rows = [...el.cloudTable.querySelectorAll("tbody tr")];
+      const parts = rows.map((row) => {
+        const cells = [...row.children].map((c) => c.innerText.replace(/\s+/g, " ").trim());
+        return `${cells[0]}. Azure: ${cells[1]}. AWS: ${cells[2]}. GCP: ${cells[3]}.`;
+      });
+      return `Azure Integration Services cloud map. ${parts.join(" ")}`;
+    }
+
+    function wireSpeakButtons(root) {
+      root.querySelectorAll("[data-speak-el]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const target = document.getElementById(btn.dataset.speakEl);
+          if (!target) return;
+          speak(target.innerText, target.innerText.slice(0, 40), btn);
+        });
+      });
+      root.querySelectorAll("[data-speak-parent]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const parent = btn.parentElement;
+          const clone = parent.cloneNode(true);
+          clone.querySelectorAll("button").forEach((b) => b.remove());
+          speak(clone.innerText, clone.innerText.slice(0, 40), btn);
+        });
+      });
+    }
+
+    function filtered() {
+      return filter === "all" ? QUESTIONS : QUESTIONS.filter((q) => q.cat === filter);
+    }
+
+    function catClass(cat) {
+      return { arch: "arch", ais: "ais", apim: "apim", stake: "stake" }[cat] || "arch";
+    }
+
+    function saveMastered() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...mastered]));
+    }
+
+    function updateProgress() {
+      const n = QUESTIONS.length;
+      el.masteredCount.textContent = mastered.size;
+      el.totalCount.textContent = n;
+      el.progressFill.style.width = `${(mastered.size / n) * 100}%`;
+    }
+
+    function renderFilters() {
+      el.filters.innerHTML = CAT_META.map(
+        (c) =>
+          `<button type="button" class="filter-btn${filter === c.id ? " active" : ""}" data-filter="${c.id}">${c.label}</button>`
+      ).join("");
+    }
+
+    function renderCard() {
+      const list = filtered();
+      if (!list.length) return;
+      if (index >= list.length) index = list.length - 1;
+      if (index < 0) index = 0;
+
+      stopSpeech();
+      const item = list[index];
+      el.card.classList.remove("flipped");
+      el.frontQ.textContent = item.q;
+      el.backA.textContent = item.a;
+      el.frontCat.textContent = item.catLabel;
+      el.backCat.textContent = item.catLabel;
+      el.frontCat.className = `cat-badge ${catClass(item.cat)}`;
+      el.backCat.className = `cat-badge ${catClass(item.cat)}`;
+      el.frontNum.textContent = `Q${item.id}`;
+      el.backNum.textContent = `Q${item.id}`;
+      el.cardPos.textContent = `${index + 1} of ${list.length}`;
+      el.btnPrev.disabled = index === 0;
+      el.btnNext.disabled = index === list.length - 1;
+      el.btnMaster.textContent = mastered.has(item.id) ? "✓ Ready" : "✓ Got it";
+      el.btnMaster.style.opacity = mastered.has(item.id) ? "0.7" : "1";
+      el.btnListenQ.textContent = "🔊 Listen";
+      el.btnListenA.textContent = "🔊 Listen";
+      el.btnListen.textContent = "🔊 Answer";
+    }
+
+    function flip() {
+      el.card.classList.toggle("flipped");
+    }
+
+    function showToast(msg) {
+      el.toast.textContent = msg;
+      el.toast.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.toast.classList.remove("show"), 1800);
+    }
+
+    function markMastered() {
+      const item = currentItem();
+      if (!item) return;
+      if (mastered.has(item.id)) {
+        mastered.delete(item.id);
+        showToast("Unmarked");
+      } else {
+        mastered.add(item.id);
+        showToast("Marked as ready ✓");
+      }
+      saveMastered();
+      updateProgress();
+      renderCard();
+    }
+
+    function buildAccordion() {
+      el.accordion.innerHTML = QUESTIONS.map(
+        (item) => `
+        <div class="acc-item" data-id="${item.id}">
+          <button type="button" class="acc-head">
+            <span class="acc-num">${item.id}</span>
+            <span>${item.q}</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-answer-wrap">
+              <button type="button" class="listen-btn sm" data-speak-answer="${item.id}" aria-label="Listen to answer">🔊 Listen answer</button>
+              <div class="acc-answer">${item.a}</div>
+            </div>
+          </div>
+        </div>`
+      ).join("");
+    }
+
+    function setMode(mode) {
+      stopSpeech();
+      document.querySelectorAll(".mode-btn").forEach((b) => {
+        b.classList.toggle("active", b.dataset.mode === mode);
+      });
+      el.flashChrome.classList.toggle("hidden", mode !== "flash");
+      el.listView.classList.toggle("visible", mode === "list");
+      el.askPanel.classList.toggle("visible", mode === "ask");
+      el.cloudPanel.classList.toggle("visible", mode === "cloud");
+    }
+
+    /* Events */
+    el.filters.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-filter]");
+      if (!btn) return;
+      filter = btn.dataset.filter;
+      index = 0;
+      renderFilters();
+      renderCard();
+    });
+
+    el.card.addEventListener("click", (e) => {
+      if (e.target.closest(".listen-btn")) return;
+      flip();
+    });
+    el.btnFlip.addEventListener("click", flip);
+    el.btnPrev.addEventListener("click", () => {
+      index = Math.max(0, index - 1);
+      renderCard();
+    });
+    el.btnNext.addEventListener("click", () => {
+      index = Math.min(filtered().length - 1, index + 1);
+      renderCard();
+    });
+    el.btnMaster.addEventListener("click", markMastered);
+    el.btnListen.addEventListener("click", () => {
+      if (!el.card.classList.contains("flipped")) el.card.classList.add("flipped");
+      speakAnswer(el.btnListen);
+    });
+    el.btnListenQ.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speakQuestion(el.btnListenQ);
+    });
+    el.btnListenA.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speakAnswer(el.btnListenA);
+    });
+
+    document.querySelector(".mode-bar").addEventListener("click", (e) => {
+      const btn = e.target.closest(".mode-btn");
+      if (btn) setMode(btn.dataset.mode);
+    });
+
+    el.accordion.addEventListener("click", (e) => {
+      const listen = e.target.closest("[data-speak-answer]");
+      if (listen) {
+        e.stopPropagation();
+        const id = Number(listen.dataset.speakAnswer);
+        const item = QUESTIONS.find((q) => q.id === id);
+        if (item) speak(`Answer to question ${item.id}. ${item.a}`, `Q${item.id} answer`, listen);
+        return;
+      }
+      const head = e.target.closest(".acc-head");
+      if (!head) return;
+      head.closest(".acc-item").classList.toggle("open");
+    });
+
+    document.getElementById("btnListenTable").addEventListener("click", (e) => {
+      const btn = e.currentTarget;
+      speak(cloudTableScript(), "Cloud map table", btn);
+    });
+
+    document.getElementById("btnListenAskAll").addEventListener("click", (e) => {
+      const items = [...document.querySelectorAll("#askList li")].map((li, i) => {
+        const clone = li.cloneNode(true);
+        clone.querySelectorAll("button").forEach((b) => b.remove());
+        return `Question ${i + 1}. ${clone.innerText}`;
+      });
+      speak(`Questions you should ask the interviewer. ${items.join(" ")}`, "Ask them — all", e.currentTarget);
+    });
+
+    el.btnStopAudio.addEventListener("click", stopSpeech);
+    el.rateSlider.value = speechRate;
+    el.rateSlider.addEventListener("input", () => {
+      speechRate = Number(el.rateSlider.value);
+      localStorage.setItem(RATE_KEY, String(speechRate));
+    });
+
+    wireSpeakButtons(document);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.target.matches("input, textarea")) return;
+      if (e.code === "Escape") {
+        stopSpeech();
+        return;
+      }
+      if (document.querySelector(".mode-btn.active")?.dataset.mode !== "flash") return;
+      if (e.code === "Space") {
+        e.preventDefault();
+        flip();
+      } else if (e.code === "ArrowRight" || e.code === "KeyN") {
+        e.preventDefault();
+        el.btnNext.click();
+      } else if (e.code === "ArrowLeft" || e.code === "KeyP") {
+        e.preventDefault();
+        el.btnPrev.click();
+      } else if (e.code === "KeyM") {
+        e.preventDefault();
+        markMastered();
+      } else if (e.code === "KeyL") {
+        e.preventDefault();
+        if (!el.card.classList.contains("flipped")) el.card.classList.add("flipped");
+        speakAnswer(el.btnListen);
+      }
+    });
+
+    if (!ttsOk) el.ttsWarn.classList.add("show");
+    if (ttsOk) {
+      synth.getVoices();
+      synth.onvoiceschanged = () => synth.getVoices();
+    }
+
+    /* Init */
+    renderFilters();
+    updateProgress();
+    renderCard();
+    buildAccordion();
+  </script>
+</body>
+</html>
