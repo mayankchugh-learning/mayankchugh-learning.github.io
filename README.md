@@ -81,6 +81,7 @@ Static HTML site hosted on GitHub Pages. The main portfolio lives at `index.html
 | [AI-Enginee-Job-Portals.html](pages/ai-learning/AI-Enginee-Job-Portals.html) | AI engineer job portals directory |
 | [rag-architecture.html](pages/ai-learning/rag-architecture.html) | RAG architecture — offline indexing and online query pipelines |
 | [vector-store-vs-database.html](pages/ai-learning/vector-store-vs-database.html) | Vector store vs vector database — scale and decision guide |
+| [01_landscape_student_notes.html](pages/ai-learning/01_landscape_student_notes.html) | LangChain ecosystem — Part 1 student notes (Lang family, harness, timeline) |
 | [langchain-document-components.html](pages/ai-learning/langchain-document-components.html) | LangChain document model for RAG ingestion |
 | [CRAG.html](pages/ai-learning/CRAG.html) | Corrective RAG interactive decision guide |
 | [agentic-rag-langgraph-guide.html](pages/ai-learning/agentic-rag-langgraph-guide.html) | Agentic RAG with LangGraph — decide, retrieve, grade, rewrite, generate |

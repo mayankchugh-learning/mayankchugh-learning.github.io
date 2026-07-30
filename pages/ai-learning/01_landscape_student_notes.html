@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Part 1 — Understanding the LangChain Ecosystem</title>
+<meta name="description" content="Student notes: the Lang family (LangGraph, LangChain, Deep Agents, LangSmith), agents vs harnesses, and the real timeline through LangChain v1.0.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0f1e36;
+  --navy2: #1a2f4e;
+  --surface: #ffffff;
+  --off: #f4f6f9;
+  --ink: #1a1a2e;
+  --muted: #5a6a7e;
+  --border: #dde3ec;
+  --blue: #1d6fa4;
+  --accent: #e8a020;
+  --accent2: #f0c060;
+  --emerald: #0f7b55;
+  --warn-bg: #fff8e8;
+  --ok-bg: #ecfdf5;
+  --ok-border: #0f7b55;
+  --code-bg: #0f1e36;
+  --code-ink: #e8edf4;
+  --langgraph: #1d6fa4;
+  --langchain: #0f7b55;
+  --deep: #b45309;
+  --smith: #7c3aed;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "DM Sans", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 60% 40% at 0% 0%, rgba(29,111,164,0.08), transparent),
+    radial-gradient(ellipse 50% 30% at 100% 5%, rgba(15,123,85,0.06), transparent),
+    var(--off);
+  line-height: 1.65;
+  font-size: 16px;
+}
+.shell {
+  width: min(880px, calc(100% - 2.5rem));
+  margin-left: auto;
+  margin-right: auto;
+}
+.topnav {
+  background: rgba(15,30,54,0.97);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+}
+.topnav-inner {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+.topnav a { color: rgba(255,255,255,0.7); text-decoration: none; }
+.topnav a:hover { color: var(--accent2); }
+.topnav .sep { color: rgba(255,255,255,0.25); }
+.topnav .current { color: #fff; }
+.hero {
+  background: linear-gradient(145deg, var(--navy) 0%, var(--navy2) 100%);
+  color: #fff;
+  padding: 48px 0 40px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -8%;
+  top: -30%;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,160,32,0.18), transparent 70%);
+  pointer-events: none;
+}
+.hero .shell { position: relative; z-index: 1; }
+.eyebrow {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent2); margin-bottom: 10px;
+}
+.hero h1 {
+  font-family: Syne, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.hero .subtitle {
+  color: rgba(255,255,255,0.72);
+  max-width: 640px;
+  font-size: 1.05rem;
+  margin-bottom: 18px;
+}
+.hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.hero-pills span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 5px 11px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+}
+.layout { padding: 24px 0 64px; }
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 4px;
+}
+.toc strong {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 6px;
+  white-space: nowrap;
+}
+.toc a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.toc a:hover { color: var(--blue); background: var(--off); }
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 28px 30px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+.section h2 {
+  font-family: Syne, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(29,111,164,0.25);
+}
+.section h3 {
+  color: var(--navy2);
+  font-size: 1.05rem;
+  margin: 22px 0 8px;
+  font-family: Syne, sans-serif;
+  font-weight: 700;
+}
+.section p { margin: 0 0 12px; }
+.section p:last-child { margin-bottom: 0; }
+ul, ol { margin: 8px 0 12px 1.25rem; }
+li { margin-bottom: 6px; }
+code {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--off);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--navy2);
+}
+.code-block {
+  background: var(--code-bg);
+  color: var(--code-ink);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 12px 0;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-block code { background: none; color: inherit; padding: 0; }
+blockquote.key {
+  margin: 16px 0;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #fff8e8, #f4f6f9);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  font-size: 1.02rem;
+}
+blockquote.key p { margin: 0; }
+blockquote.key strong { color: var(--navy); }
+blockquote.quote {
+  margin: 14px 0;
+  padding: 14px 16px;
+  background: var(--off);
+  border-left: 4px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+  color: var(--muted);
+  font-style: italic;
+}
+blockquote.quote p { margin: 0; }
+.callout {
+  padding: 14px 16px;
+  margin: 14px 0;
+  border-radius: 8px;
+  border-left: 4px solid;
+  background: var(--off);
+  border-color: var(--blue);
+}
+.callout.warn {
+  background: var(--warn-bg);
+  border-color: var(--accent);
+}
+.callout.ok {
+  background: var(--ok-bg);
+  border-color: var(--ok-border);
+}
+.callout strong { color: var(--navy); }
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 18px 0 8px;
+}
+.product {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 16px 14px;
+  background: var(--off);
+  border-top: 3px solid var(--tone);
+}
+.product .label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tone);
+  margin-bottom: 4px;
+}
+.product h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  color: var(--navy);
+}
+.product p { margin: 0; font-size: 0.92rem; color: var(--ink); }
+.product.langgraph { --tone: var(--langgraph); }
+.product.langchain { --tone: var(--langchain); }
+.product.deep { --tone: var(--deep); }
+.product.smith { --tone: var(--smith); }
+.tier-stack {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.tier {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--off);
+}
+.tier .name {
+  font-family: Syne, sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--navy);
+}
+.tier .desc { font-size: 0.9rem; color: var(--ink); }
+.tier.highlight {
+  background: #eef6fb;
+  border-color: rgba(29,111,164,0.35);
+}
+.timeline {
+  margin: 18px 0 8px;
+  position: relative;
+  padding-left: 22px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--blue), var(--emerald));
+  border-radius: 2px;
+}
+.tl-item {
+  position: relative;
+  padding: 0 0 18px 0;
+}
+.tl-item:last-child { padding-bottom: 0; }
+.tl-item::before {
+  content: "";
+  position: absolute;
+  left: -19px;
+  top: 7px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--blue);
+  box-shadow: 0 0 0 3px rgba(29,111,164,0.12);
+}
+.tl-item.milestone::before {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232,160,32,0.2);
+}
+.tl-date {
+  font-family: Syne, sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.tl-item p { margin: 0; font-size: 0.92rem; }
+.check-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.check-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--off);
+  overflow: hidden;
+}
+.check-q {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 14px 16px;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.check-q:hover { background: #eef4fa; }
+.check-q .num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+}
+.check-a {
+  display: none;
+  padding: 0 16px 14px 50px;
+  font-size: 0.92rem;
+  color: var(--emerald);
+}
+.check-item.open .check-a { display: block; }
+.check-item.open .check-q { background: #ecfdf5; }
+.hint {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.cta-end {
+  text-align: center;
+  background: linear-gradient(145deg, var(--navy), var(--navy2));
+  color: #fff;
+  border: none;
+}
+.cta-end h2 { color: #fff; border-bottom-color: rgba(255,255,255,0.2); }
+.cta-end p { color: rgba(255,255,255,0.75); }
+.cta-end .punch {
+  color: var(--accent2);
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 14px 0;
+}
+.page-footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 8px;
+  padding-bottom: 24px;
+}
+.page-footer a { color: var(--blue); text-decoration: none; }
+.page-footer a:hover { text-decoration: underline; }
+@media (max-width: 700px) {
+  .product-grid { grid-template-columns: 1fr; }
+  .tier { grid-template-columns: 1fr; gap: 4px; }
+  .check-a { padding-left: 16px; }
+}
+@media (max-width: 600px) {
+  .shell { width: calc(100% - 1.5rem); }
+  .section { padding: 20px 16px 22px; }
+  .hero { padding: 36px 0 32px; }
+  .toc strong { width: 100%; margin-bottom: 2px; }
+}
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="Breadcrumb">
+  <div class="shell topnav-inner">
+    <a href="../../index.html">Portfolio</a>
+    <span class="sep">/</span>
+    <a href="../learning/index.html">Learning</a>
+    <span class="sep">/</span>
+    <span class="current">LangChain Ecosystem</span>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="shell">
+    <p class="eyebrow">Bootcamp · Part 1 · Student notes</p>
+    <h1>Understanding the LangChain Ecosystem</h1>
+    <p class="subtitle">
+      Before writing a single line of code — what LangChain actually is, how it relates to
+      LangGraph / LangSmith / Deep Agents, and why the framework looks the way it does today.
+    </p>
+    <div class="hero-pills" aria-label="Topics covered">
+      <span>Lang family map</span>
+      <span>Agent vs harness</span>
+      <span>2022 → 2026 timeline</span>
+      <span>Self-check</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="shell">
+    <nav class="toc" aria-label="On this page">
+      <strong>On this page</strong>
+      <a href="#family">1. Lang family</a>
+      <a href="#sentence">2. Key sentence</a>
+      <a href="#timeline">3. Timeline</a>
+      <a href="#self-check">4. Self-check</a>
+    </nav>
+
+    <article class="section" id="intro">
+      <h2>Why this map matters</h2>
+      <p>
+        Skipping this step is the single biggest reason people get confused later —
+        they start writing code without a mental map of where that code fits.
+      </p>
+      <p>
+        This page has no code to run. Treat it as the map you’ll keep referring back to
+        for the rest of the course.
+      </p>
+    </article>
+
+    <article class="section" id="family">
+      <h2>1. The “Lang” family: four products, four jobs</h2>
+      <p>
+        If you’ve searched anything about LangChain online, you’ve probably already run into
+        posts titled something like <em>“LangChain vs LangGraph vs LangSmith — Which One Should I Use?”</em>
+        That confusion exists for a simple reason: the LangChain team builds
+        <strong>four different products that share the same first word</strong>, but solve
+        <strong>four completely different problems</strong>.
+      </p>
+      <p>
+        None of these four tools are competitors. You don’t “pick one.” You use as many of
+        them as your project actually needs.
+      </p>
+
+      <div class="product-grid">
+        <div class="product langgraph">
+          <p class="label">Foundation</p>
+          <h3>LangGraph</h3>
+          <p>
+            A <strong>low-level orchestration framework</strong> — the engine underneath everything
+            else. Fine-grained control over flow: branching, loops, persistence (state between steps),
+            and durable execution (pause / resume long-running work).
+          </p>
+          <p style="margin-top:10px">
+            Most people building agents will <strong>never touch LangGraph directly</strong> at first —
+            LangChain is built to hide that complexity until you need it.
+          </p>
+        </div>
+
+        <div class="product langchain">
+          <p class="label">This course</p>
+          <h3>LangChain</h3>
+          <p>
+            Provides <code>create_agent</code>: a <strong>highly configurable harness</strong> for building
+            agents quickly. Built <em>on top of</em> LangGraph, so you get durable execution, persistence,
+            and human-in-the-loop without learning LangGraph’s internals first.
+          </p>
+          <p style="margin-top:10px">
+            This is the product the entire course is built around, starting from Part 2.
+          </p>
+        </div>
+
+        <div class="product deep">
+          <p class="label">Batteries included</p>
+          <h3>Deep Agents</h3>
+          <p>
+            A layer on top of LangChain’s <code>create_agent</code>. Where <code>create_agent</code> gives
+            you a customizable but empty harness, Deep Agents ships planning tools, a virtual filesystem,
+            and sub-agent spawning — pre-wired.
+          </p>
+          <p style="margin-top:10px">
+            Reach for it when you want to skip assembling those capabilities yourself. Covered properly
+            in a later module.
+          </p>
+        </div>
+
+        <div class="product smith">
+          <p class="label">Observability</p>
+          <h3>LangSmith</h3>
+          <p>
+            Not something you “build an agent with.” It’s an <strong>observability and evaluation
+            platform</strong> — it watches agents (and, via OpenTelemetry, almost anything else) and
+            shows exactly what happened during a run.
+          </p>
+        </div>
+      </div>
+
+      <h3>Why LangSmith exists</h3>
+      <p>
+        With a normal Python script, if something goes wrong you read the stack trace and the code.
+        An <strong>agent</strong> is different — it decides what to do at <em>runtime</em>, based on a
+        conversation with itself (calling tools, reasoning about results, calling more tools).
+        You cannot “read the code” to know what an agent actually did on a specific run, because the
+        code only describes what it <em>could</em> do, not what it <em>did</em> on that call.
+      </p>
+      <p>
+        LangSmith records a <strong>trace</strong> — a complete, timestamped record of every model call,
+        every tool call, and every decision, in order. When something goes wrong, you don’t guess.
+        You open the trace and read exactly what happened.
+      </p>
+
+      <div class="callout">
+        <strong>Two environment variables turn tracing on:</strong>
+        <div class="code-block"><code>LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=your-key-here</code></div>
+        That’s the entire setup cost. We’ll turn this on and look at a real trace in a later module.
+      </div>
+
+      <div class="callout ok">
+        <strong>Cost note:</strong> LangSmith’s free Developer tier includes 5,000 traces per month
+        as of 2026 — more than enough for learning and personal projects. Paid tiers matter once you’re
+        running production traffic.
+      </div>
+
+      <blockquote class="quote">
+        <p>
+          “LangChain’s agents are built on top of LangGraph. This allows us to take advantage of
+          LangGraph’s durable execution, human-in-the-loop support, persistence, and more.”
+          — official docs
+        </p>
+      </blockquote>
+    </article>
+
+    <article class="section" id="sentence">
+      <h2>2. The single most important sentence</h2>
+      <p>The official LangChain documentation opens with this framing — worth memorizing:</p>
+
+      <blockquote class="key">
+        <p>
+          <strong>An agent is a model calling tools in a loop until a given task is complete.</strong><br>
+          <strong>A harness is everything around that loop.</strong>
+        </p>
+      </blockquote>
+
+      <h3>Unpack both halves</h3>
+      <p>
+        <strong>The model</strong> is the raw language model — GPT, Claude, Gemini, whatever you plug in.
+        It is extraordinarily capable at reasoning, but on its own it has no ability to actually
+        <em>do</em> anything. It doesn’t know what tools exist. It has no instructions on how to behave
+        in your application. It can’t check anything outside of what it already knows.
+      </p>
+      <p><strong>The harness</strong> is everything that turns that raw capability into something useful:</p>
+      <ul>
+        <li>The <strong>system prompt</strong> — instructions on how the agent should behave</li>
+        <li>The <strong>tools</strong> — what it’s actually allowed to reach for and use</li>
+        <li>The <strong>middleware</strong> — checkpoints that shape behavior at every step (covered in depth starting in Part 8)</li>
+      </ul>
+      <p>
+        <code>create_agent</code> <em>is</em> that harness. When you call
+        <code>create_agent(model=..., tools=..., system_prompt=...)</code>, you are configuring the
+        harness around a model — not building a new model.
+      </p>
+
+      <div class="callout warn">
+        <strong>Why this distinction matters:</strong> almost everything you’ll learn for the rest of
+        this course — RAG, memory, multi-agent systems, database agents — is just a
+        <em>different configuration of the harness around the same underlying model</em>.
+        The model doesn’t change. What changes is what you give it access to, and what rules govern
+        how it uses that access.
+      </div>
+
+      <h3>The three tiers, precisely</h3>
+      <div class="tier-stack">
+        <div class="tier">
+          <div class="name">LangGraph</div>
+          <div class="desc">Build the harness from raw parts yourself. Maximum control, most effort.</div>
+        </div>
+        <div class="tier highlight">
+          <div class="name">LangChain</div>
+          <div class="desc">
+            <code>create_agent</code> gives you a pre-configured, highly customizable harness.
+            <strong>This is what the rest of this course uses.</strong>
+          </div>
+        </div>
+        <div class="tier">
+          <div class="name">Deep Agents</div>
+          <div class="desc">
+            <code>create_deep_agent</code> gives you a harness that already includes planning,
+            a filesystem, and sub-agent spawning, pre-wired.
+          </div>
+        </div>
+      </div>
+      <p>
+        All three stand on the same LangGraph engine. You are not “avoiding” LangGraph by using
+        LangChain — you’re standing on it; you just don’t need to look at it directly for most of
+        this course.
+      </p>
+    </article>
+
+    <article class="section" id="timeline">
+      <h2>3. A real timeline — not “it’s changed a lot”</h2>
+      <p>
+        Online tutorials span several years, and a huge amount is outdated — not because it was wrong
+        when written, but because the framework went through a genuine architectural overhaul.
+        Knowing the timeline lets you judge whether something you’re reading is current.
+      </p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-date">Oct 2022</div>
+          <p>
+            LangChain launches. Two core ideas: LLM abstractions, and “Chains” — predetermined
+            sequences of computation (e.g. a RAG chain: retrieve documents, then generate an answer).
+          </p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Dec 2022</div>
+          <p>
+            First general-purpose agents, based on the ReAct paper (Reasoning + Acting). The model
+            generates JSON representing a tool call, and LangChain parses that JSON by hand.
+          </p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Feb 2024</div>
+          <p>
+            LangGraph is released — the low-level orchestration layer that had been missing.
+            Adds streaming, durable execution, short-term memory, and human-in-the-loop support.
+          </p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Oct 2024</div>
+          <p>
+            LangGraph becomes the preferred way to build anything beyond a single model call.
+            Most of the old LangChain chains and agents are marked deprecated.
+          </p>
+        </div>
+        <div class="tl-item milestone">
+          <div class="tl-date">Oct 20, 2025 — LangChain v1.0</div>
+          <p>
+            One unified agent abstraction, built on LangGraph, replaces essentially everything that
+            came before. Old code still runs only if you deliberately install the separate
+            <code>langchain-classic</code> package.
+          </p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Mar 15, 2026</div>
+          <p>Deep Agents is released — the batteries-included harness described above.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Practical takeaway:</strong> for two years (2022–2024), building an agent meant
+        hand-parsing JSON into tool calls — what classes like <code>AgentExecutor</code> and functions
+        like <code>initialize_agent</code> do. That approach didn’t scale well, which is why LangGraph
+        was built. In October 2025, everything unified into the single <code>create_agent</code>
+        abstraction this course teaches.
+      </div>
+
+      <div class="callout warn">
+        <strong>If you see a 2026-dated tutorial using <code>AgentExecutor</code>, it is almost certainly
+        outdated</strong> — not wrong at the time, just written before the ground moved. Importing
+        <code>AgentExecutor</code> from <code>langchain</code> raises an <code>ImportError</code> because
+        that functionality now lives in <code>langchain-classic</code>, kept apart so the main v1.0
+        package stays clean.
+      </div>
+    </article>
+
+    <article class="section" id="self-check">
+      <h2>4. Quick self-check</h2>
+      <p>Before moving to Part 2, you should be able to answer these without looking back. Click a question to reveal the answer.</p>
+
+      <ul class="check-list">
+        <li class="check-item">
+          <button type="button" class="check-q" aria-expanded="false">
+            <span class="num">1</span>
+            <span>If someone asks you to <em>build</em> an agent quickly with a lot of customization, which of the four Lang-family tools do you reach for?</span>
+          </button>
+          <div class="check-a">LangChain’s <code>create_agent</code> — or Deep Agents if you want batteries-included.</div>
+        </li>
+        <li class="check-item">
+          <button type="button" class="check-q" aria-expanded="false">
+            <span class="num">2</span>
+            <span>If your agent is misbehaving in production and you need to know exactly what happened on one specific run, which tool do you reach for?</span>
+          </button>
+          <div class="check-a">LangSmith.</div>
+        </li>
+        <li class="check-item">
+          <button type="button" class="check-q" aria-expanded="false">
+            <span class="num">3</span>
+            <span>Fill in the blank: “An agent is a model calling ___ in a ___ until a given task is complete.”</span>
+          </button>
+          <div class="check-a">“tools”, “loop”.</div>
+        </li>
+        <li class="check-item">
+          <button type="button" class="check-q" aria-expanded="false">
+            <span class="num">4</span>
+            <span>Why would a tutorial using <code>AgentExecutor</code> be a signal that the content might be outdated?</span>
+          </button>
+          <div class="check-a">
+            <code>AgentExecutor</code> was the pre-v1.0 approach; anything using it was written before
+            October 2025’s unification into <code>create_agent</code>.
+          </div>
+        </li>
+      </ul>
+      <p class="hint">Tip: try answering aloud before opening each answer.</p>
+    </article>
+
+    <article class="section cta-end">
+      <h2>Next up</h2>
+      <p class="punch">Part 2 — Environment Setup</p>
+      <p>That’s where we actually start writing code.</p>
+    </article>
+
+    <footer class="page-footer">
+      <a href="../learning/index.html">← Back to Learning</a>
+    </footer>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll(".check-q").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    var item = btn.closest(".check-item");
+    var open = item.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+});
+</script>
+</body>
+</html>
