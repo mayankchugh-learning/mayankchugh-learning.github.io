@@ -80,6 +80,7 @@ Static HTML site hosted on GitHub Pages. The main portfolio lives at `index.html
 | [SelfAttentionExplainerOffline.html](pages/ai-learning/SelfAttentionExplainerOffline.html) | Self-attention explainer |
 | [AI-Enginee-Job-Portals.html](pages/ai-learning/AI-Enginee-Job-Portals.html) | AI engineer job portals directory |
 | [rag-architecture.html](pages/ai-learning/rag-architecture.html) | RAG architecture — offline indexing and online query pipelines |
+| [rrf_vs_reranker_pipeline.html](pages/ai-learning/rrf_vs_reranker_pipeline.html) | RRF vs reranker — hybrid RAG fusion and relevance scoring |
 | [vector-store-vs-database.html](pages/ai-learning/vector-store-vs-database.html) | Vector store vs vector database — scale and decision guide |
 | [01_landscape_student_notes.html](pages/ai-learning/01_landscape_student_notes.html) | LangChain ecosystem — Part 1 student notes (Lang family, harness, timeline) |
 | [langchain-document-components.html](pages/ai-learning/langchain-document-components.html) | LangChain document model for RAG ingestion |

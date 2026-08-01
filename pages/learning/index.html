@@ -410,6 +410,49 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
         </a>
       </article>
       <article class="learning-card">
+        <a href="../ai-learning/rrf_vs_reranker_pipeline.html" class="learning-card-link">
+          <div class="learning-card-thumb">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="RRF vs Reranker pipeline preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="rrfcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
+                </linearGradient>
+                <linearGradient id="rrfcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#b45309"/><stop offset="35%" stop-color="#1d6fa4"/><stop offset="70%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#0f7b55"/>
+                </linearGradient>
+              </defs>
+              <rect width="400" height="225" fill="url(#rrfcard-bg)"/>
+              <ellipse cx="60" cy="50" rx="80" ry="45" fill="#1d6fa4" opacity="0.18"/>
+              <ellipse cx="340" cy="180" rx="90" ry="50" fill="#0f7b55" opacity="0.14"/>
+              <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#f0c060" letter-spacing="2">HYBRID RAG</text>
+              <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">RRF vs Reranker</text>
+              <rect x="22" y="108" width="62" height="34" rx="7" fill="#1a2f4e" stroke="#b45309" stroke-opacity="0.7"/>
+              <text x="53" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fbbf24">BM25</text>
+              <text x="95" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">+</text>
+              <rect x="108" y="108" width="62" height="34" rx="7" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.7"/>
+              <text x="139" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#38bdf8">Dense</text>
+              <text x="181" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
+              <rect x="194" y="108" width="54" height="34" rx="7" fill="#1a2f4e" stroke="#7c3aed" stroke-opacity="0.7"/>
+              <text x="221" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#a78bfa">RRF</text>
+              <text x="259" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
+              <rect x="272" y="108" width="72" height="34" rx="7" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.7"/>
+              <text x="308" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#34d399">Rerank</text>
+              <text x="356" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
+              <rect x="366" y="108" width="22" height="34" rx="7" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.55"/>
+              <text x="377" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#f0c060">LLM</text>
+              <text x="200" y="178" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">Fuse ranks · then score relevance</text>
+              <rect x="0" y="223" width="400" height="2" fill="url(#rrfcard-bar)"/>
+            </svg>
+          </div>
+          <div class="learning-card-body">
+            <span class="learning-card-tag">RAG</span>
+            <h3>RRF vs Reranker Pipeline</h3>
+            <p>Interactive walkthrough of hybrid retrieval: BM25 + dense → Reciprocal Rank Fusion → cross-encoder rerank → LLM — and why you need both steps.</p>
+            <span class="learning-card-cta">Open page →</span>
+          </div>
+        </a>
+      </article>
+      <article class="learning-card">
         <a href="../ai-learning/vector-store-vs-database.html" class="learning-card-link">
           <div class="learning-card-thumb">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Vector Store vs Database preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
