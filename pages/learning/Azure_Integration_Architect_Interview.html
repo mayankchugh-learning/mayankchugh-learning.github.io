@@ -582,6 +582,8 @@
     .ask-list li:nth-child(4) { animation-delay: 0.2s; }
     .ask-list li:nth-child(5) { animation-delay: 0.25s; }
     .ask-list li:nth-child(6) { animation-delay: 0.3s; }
+    .ask-list li:nth-child(7) { animation-delay: 0.35s; }
+    .ask-list li:nth-child(8) { animation-delay: 0.4s; }
 
     .ask-list li:hover {
       transform: translateX(6px);
@@ -664,6 +666,267 @@
       color: var(--mint);
       margin-bottom: 0.5rem;
     }
+
+    .voice-quote {
+      padding: 1.15rem 1.25rem;
+      padding-right: 5.5rem;
+      border-radius: 14px;
+      border: 1px solid rgba(61, 184, 245, 0.28);
+      background: linear-gradient(145deg, rgba(26, 58, 102, 0.7), rgba(16, 37, 63, 0.9));
+      font-size: 0.98rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .voice-quote .listen-btn.float {
+      position: absolute;
+      top: 0.65rem;
+      right: 0.65rem;
+    }
+
+    .voice-quote.gap {
+      border-color: rgba(251, 146, 60, 0.4);
+      background: linear-gradient(145deg, rgba(60, 40, 20, 0.45), rgba(16, 37, 63, 0.92));
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--azure-soft);
+      margin: 1.75rem 0 0.75rem;
+    }
+
+    .section-label:first-child { margin-top: 0; }
+
+    .talk-stack { display: flex; flex-direction: column; gap: 0.85rem; }
+
+    .talk-item {
+      padding: 0.9rem 1rem 0.9rem 1.1rem;
+      border-left: 3px solid var(--azure);
+      border-radius: 0 12px 12px 0;
+      background: rgba(16, 37, 63, 0.55);
+    }
+
+    .talk-item .prompt {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-bottom: 0.35rem;
+    }
+
+    .talk-item .answer {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .concept-card {
+      padding: 1rem 1.1rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(16, 37, 63, 0.7);
+      transition: transform 0.25s var(--ease), border-color 0.25s;
+    }
+
+    .concept-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(61, 184, 245, 0.4);
+    }
+
+    .concept-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .concept-card .tagline {
+      font-size: 0.78rem;
+      color: var(--mint);
+      margin-bottom: 0.45rem;
+      font-weight: 600;
+    }
+
+    .concept-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin: 0.75rem 0 1.25rem;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .compare-table th {
+      background: rgba(61, 184, 245, 0.12);
+      color: var(--azure-soft);
+      font-weight: 700;
+    }
+
+    .compare-table td { color: var(--text-muted); background: rgba(16, 37, 63, 0.45); }
+
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin: 0.75rem 0 1.25rem;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+      align-items: start;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(16, 37, 63, 0.55);
+    }
+
+    .flow-step .n {
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 8px;
+      background: rgba(61, 184, 245, 0.18);
+      color: var(--azure-soft);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+    }
+
+    .flow-step strong { color: var(--text); font-size: 0.9rem; }
+    .flow-step span { display: block; color: var(--text-muted); font-size: 0.84rem; margin-top: 0.2rem; line-height: 1.45; }
+
+    .level-grid {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (min-width: 700px) {
+      .level-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .level-card {
+      padding: 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(16, 37, 63, 0.65);
+    }
+
+    .level-card h3 {
+      font-size: 0.88rem;
+      color: var(--azure-soft);
+      margin-bottom: 0.45rem;
+    }
+
+    .level-card p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    details.mock {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(16, 37, 63, 0.55);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+
+    details.mock summary {
+      cursor: pointer;
+      padding: 0.95rem 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      list-style: none;
+    }
+
+    details.mock summary::-webkit-details-marker { display: none; }
+
+    details.mock summary::after {
+      content: "+";
+      float: right;
+      color: var(--azure-soft);
+    }
+
+    details.mock[open] summary::after { content: "–"; }
+
+    details.mock .mock-body {
+      padding: 0 1.1rem 1.1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .mock-turn { margin-top: 0.85rem; font-size: 0.88rem; line-height: 1.55; }
+    .mock-turn .who { font-weight: 700; color: var(--mint); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .mock-turn.you .who { color: var(--azure-soft); }
+    .mock-turn p { color: var(--text-muted); margin-top: 0.25rem; }
+
+    pre.policy {
+      margin: 0.75rem 0 1rem;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #07101c;
+      color: #c8e7ff;
+      font-size: 0.72rem;
+      line-height: 1.45;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .diagram-block { margin-bottom: 1.75rem; }
+
+    .diagram-block h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+
+    .diagram-block .cap {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .diagram-frame {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .diagram-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .mode-bar .mode-btn { font-size: 0.78rem; padding: 0.45rem 0.7rem; }
 
     /* —— Confetti burst for mastered —— */
     .toast {
@@ -1006,11 +1269,12 @@
 <body>
   <div class="app">
     <header class="hero">
-      <div class="eyebrow">Interview Prep · Night Before</div>
+      <div class="eyebrow">Infosys AIS · Interview Prep</div>
       <h1>Azure Integration<br /><em>Architect</em></h1>
-      <p class="hero-sub">21 questions with strong answers — flip cards, listen to answers, practice aloud.</p>
+      <p class="hero-sub">Flashcards, honest positioning, concept analogies, headless/async patterns, and enterprise diagrams — practice aloud with audio.</p>
       <div class="meta-row">
         <span class="chip">APIM · Logic Apps · Service Bus</span>
+        <span class="chip">Architecture diagrams</span>
         <span class="chip">🔊 Audio answers</span>
       </div>
     </header>
@@ -1020,6 +1284,10 @@
     <nav class="mode-bar" aria-label="Study modes">
       <button class="mode-btn active" data-mode="flash" type="button">Flashcards</button>
       <button class="mode-btn" data-mode="list" type="button">All Q&amp;A</button>
+      <button class="mode-btn" data-mode="brief" type="button">Briefing</button>
+      <button class="mode-btn" data-mode="concepts" type="button">Concepts</button>
+      <button class="mode-btn" data-mode="patterns" type="button">Patterns</button>
+      <button class="mode-btn" data-mode="diagrams" type="button">Diagrams</button>
       <button class="mode-btn" data-mode="cloud" type="button">Cloud Map</button>
       <button class="mode-btn" data-mode="ask" type="button">Ask Them</button>
     </nav>
@@ -1027,7 +1295,7 @@
     <div class="flash-only" id="flashChrome">
       <div class="progress-wrap">
         <div class="progress-meta">
-          <span>Progress · <strong id="masteredCount">0</strong> / <span id="totalCount">21</span> marked</span>
+          <span>Progress · <strong id="masteredCount">0</strong> / <span id="totalCount">28</span> marked</span>
           <span id="cardPos">1 of 21</span>
         </div>
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
@@ -1166,24 +1434,264 @@
       <p class="cloud-note" id="cloudNote">Closest functional mapping for interview talk-track — not 1:1 product parity. Lead with patterns (API-led versus event-driven, orchestration versus choreography), then name the cloud service.</p>
     </div>
 
+    <div class="panel" id="briefPanel">
+      <h2>Infosys briefing</h2>
+      <p class="panel-lead">Honest positioning for the Azure Integration Services Architect technical evaluation — lead with strength, name the gap cleanly.</p>
+
+      <p class="section-label">Your opening line</p>
+      <div class="voice-quote" id="briefOpen">
+        <button type="button" class="listen-btn sm float" data-speak-el="briefOpenText" aria-label="Listen">🔊 Listen</button>
+        <span id="briefOpenText">My Azure integration experience is grounded in enterprise data migration and integration architecture — leading a CDC-based ERP migration using Qlik Replicate, and defining cloud integration strategy at HSBC and CHANEL. I hold AZ-400, AZ-104 and AZ-900, and have completed focused training in Azure AI Foundry and Azure API Management. What I haven't done is build production Logic Apps or Service Bus solutions hands-on — that's the gap I'd want to be upfront about.</span>
+      </div>
+
+      <p class="section-label">If pushed on hands-on AIS depth</p>
+      <div class="voice-quote gap" id="briefGap">
+        <button type="button" class="listen-btn sm float" data-speak-el="briefGapText" aria-label="Listen">🔊 Listen</button>
+        <span id="briefGapText">I want to be direct rather than stretch this — I haven't personally built production Logic Apps or Service Bus solutions. My depth is in the architecture layer above that: designing the integration strategy, the data flow, the governance model, and directing delivery teams who implement the specific components. I've completed focused training on Foundry and APIM to close part of that gap, and given my TOGAF background and 20 years of enterprise integration architecture, I'd expect to ramp on the AIS-specific tooling quickly.</span>
+      </div>
+
+      <p class="section-label">Map real experience to their questions</p>
+      <div class="talk-stack">
+        <div class="talk-item">
+          <p class="prompt">If asked: “Tell me about an integration project you led”</p>
+          <p class="answer">CHANEL — led a CDC-based ERP integration using Qlik Replicate, migrating D365 from on-prem to Azure SQL. Owned schema mapping, source-to-target transformation design, and downstream Power BI reporting integration.</p>
+        </div>
+        <div class="talk-item">
+          <p class="prompt">If asked: “How do you approach integration architecture governance?”</p>
+          <p class="answer">TOGAF 9.2 certified — 20 years defining architecture standards, leading design reviews, producing blueprints and technical specifications for governance sign-off.</p>
+        </div>
+        <div class="talk-item">
+          <p class="prompt">If asked: “How do you handle stakeholder alignment across teams?”</p>
+          <p class="answer">Career-long pattern — primary technical interface at Cathay Pacific for 13 years, across Enterprise Architects, Business Analysts, and Infrastructure teams simultaneously.</p>
+        </div>
+        <div class="talk-item">
+          <p class="prompt">If asked: “CI/CD and IaC experience?”</p>
+          <p class="answer">AZ-400 certified. Real Git-based version control and structured release governance at Cathay Pacific across multi-environment deployments.</p>
+        </div>
+      </div>
+
+      <div class="closing-banner" style="margin-top:1.5rem;">
+        <span>Remember</span>
+        Architect judgment + honest gap + ramp plan beats inflated hands-on claims.
+      </div>
+    </div>
+
+    <div class="panel" id="conceptsPanel">
+      <h2>AIS concepts &amp; analogies</h2>
+      <p class="panel-lead">Plain-language intuition for the Infosys call — review the cards, then the stateful vs stateless table.</p>
+
+      <div class="concept-grid">
+        <article class="concept-card">
+          <h3>Logic Apps</h3>
+          <p class="tagline">A recipe card that runs itself</p>
+          <p>Smart-home routine: trigger → steps. Consumption (serverless, pay-per-run) vs Standard (dedicated, stateful, VNet-integrated). Designer-centric orchestration.</p>
+        </article>
+        <article class="concept-card">
+          <h3>Service Bus</h3>
+          <p class="tagline">A post office, not a phone call</p>
+          <p>Queue = one mailbox. Topic = newsletter to subscribers. Sessions, DLQ, at-least-once — letter waits if nobody’s home.</p>
+        </article>
+        <article class="concept-card">
+          <h3>Event Grid</h3>
+          <p class="tagline">A fire alarm, not a delivery van</p>
+          <p>Reactive push: “something happened.” Lightweight CloudEvents fan-out — not for high-value transactional cargo.</p>
+        </article>
+        <article class="concept-card">
+          <h3>API Management</h3>
+          <p class="tagline">Building front desk &amp; security</p>
+          <p>Badge check (auth), crowd control (rate limits), visitor log (monitoring), developer portal. Your APIM training belongs here.</p>
+        </article>
+        <article class="concept-card">
+          <h3>Functions</h3>
+          <p class="tagline">Light that draws power only when on</p>
+          <p>Custom glue Logic Apps can’t express cleanly. Consumption / Premium / Dedicated. Pair with Durable Functions for code-centric orchestration.</p>
+        </article>
+        <article class="concept-card">
+          <h3>Hybrid connectivity</h3>
+          <p class="tagline">Private road vs public highway</p>
+          <p>On-Premises Data Gateway (outbound-only). VPN Gateway = encrypted shared lane; ExpressRoute = private road to HQ.</p>
+        </article>
+        <article class="concept-card">
+          <h3>Application Insights</h3>
+          <p class="tagline">Fitness tracker for the app</p>
+          <p>Requests, exceptions, dependencies — catch patterns before collapse. Pair with correlation IDs across APIM → Logic Apps → Service Bus.</p>
+        </article>
+        <article class="concept-card">
+          <h3>Monitor + Log Analytics</h3>
+          <p class="tagline">Central security office</p>
+          <p>Every camera feeds one control room. Monitor = the operation; Log Analytics = searchable archive of every tape.</p>
+        </article>
+      </div>
+
+      <p class="section-label">Stateful vs Stateless Logic Apps</p>
+      <div class="table-scroll">
+        <table class="compare-table">
+          <thead>
+            <tr><th>Feature</th><th>Stateful (Durable)</th><th>Stateless</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>State storage</td><td>External (e.g. Azure Storage)</td><td>In-memory</td></tr>
+            <tr><td>Max runtime</td><td>Up to ~1 year</td><td>~5 minutes</td></tr>
+            <tr><td>Performance</td><td>Higher latency (checkpoints)</td><td>Ultra-low latency</td></tr>
+            <tr><td>Failure recovery</td><td>Resume from checkpoint</td><td>Restart from beginning</td></tr>
+            <tr><td>Primary use</td><td>Approvals, batch, long tasks</td><td>Real-time APIs, webhooks</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="cloud-note">vs Durable Functions: same orchestration idea — Durable Functions are code-centric (C#/JS); Logic Apps are configuration/designer-centric.</p>
+    </div>
+
+    <div class="panel" id="patternsPanel">
+      <h2>Headless API &amp; async patterns</h2>
+      <p class="panel-lead">APIM + Stateful Logic Apps for high-volume checkout — conceptual → logical → physical, plus mock transcript and policy sketch.</p>
+
+      <p class="section-label">What is a headless API?</p>
+      <div class="concept-grid">
+        <article class="concept-card">
+          <h3>Decoupled design</h3>
+          <p>Backend data/content logic separated from what the user sees.</p>
+        </article>
+        <article class="concept-card">
+          <h3>Omnichannel delivery</h3>
+          <p>Same endpoints serve mobile, web, IoT, partners.</p>
+        </article>
+        <article class="concept-card">
+          <h3>Protocol-agnostic contracts</h3>
+          <p>Usually REST or GraphQL delivering JSON/XML — clients never see ERP internals.</p>
+        </article>
+      </div>
+
+      <p class="section-label">Conceptual · Logical · Physical</p>
+      <div class="level-grid">
+        <article class="level-card">
+          <h3>1. Conceptual</h3>
+          <p>Business goal: omni-channel clients submit large orders without waiting for multi-step backends. Boundary: clients submit + poll status; unaware of ERP internals.</p>
+        </article>
+        <article class="level-card">
+          <h3>2. Logical</h3>
+          <p>Ingress validates tokens and shapes contracts. Stateful orchestrator sequences steps + retries. Connectors translate to ERP and notification engines.</p>
+        </article>
+        <article class="level-card">
+          <h3>3. Physical</h3>
+          <p>APIM Premium multi-region; Logic Apps Standard stateful + Storage; VNet + private endpoints so backends aren’t public.</p>
+        </article>
+      </div>
+
+      <p class="section-label">Async request-reply flow</p>
+      <div class="flow-steps">
+        <div class="flow-step"><span class="n">1</span><div><strong>Omni-channel frontend</strong><span>Mobile / web / IoT — HTTPS REST or GraphQL</span></div></div>
+        <div class="flow-step"><span class="n">2</span><div><strong>Azure API Management</strong><span>Auth, throttling, hides backend complexity — never expose raw Logic App URLs</span></div></div>
+        <div class="flow-step"><span class="n">3</span><div><strong>Stateful Logic App</strong><span>Returns HTTP 202 quickly; persists checkpoints; drives ERP + messaging steps</span></div></div>
+        <div class="flow-step"><span class="n">4</span><div><strong>Client polls Location URL</strong><span>Status endpoint via APIM until terminal success/failure — UI stays responsive</span></div></div>
+      </div>
+
+      <details class="mock">
+        <summary>APIM policy sketch — 202 + Location header</summary>
+        <div class="mock-body">
+          <p class="cap" style="margin:0.75rem 0;color:var(--text-muted);font-size:0.85rem;">Interview talking point — normalise async responses and correlation IDs. Replace domain for demo.</p>
+<pre class="policy">&lt;policies&gt;
+  &lt;inbound&gt;
+    &lt;base /&gt;
+    &lt;rate-limit-by-key calls="100" renewal-period="60"
+      counter-key="@(context.Request.IpAddress)" /&gt;
+    &lt;set-header name="X-Correlation-ID" exists-action="override"&gt;
+      &lt;value&gt;@(context.RequestId.ToString())&lt;/value&gt;
+    &lt;/set-header&gt;
+  &lt;/inbound&gt;
+  &lt;backend&gt;&lt;base /&gt;&lt;/backend&gt;
+  &lt;outbound&gt;
+    &lt;base /&gt;
+    &lt;choose&gt;
+      &lt;when condition="@(context.Response.StatusCode == 200 || context.Response.StatusCode == 202)"&gt;
+        &lt;set-status code="202" reason="Accepted" /&gt;
+        &lt;set-header name="Location" exists-action="override"&gt;
+          &lt;value&gt;@($"https://yourdomain.com/status/{context.RequestId}")&lt;/value&gt;
+        &lt;/set-header&gt;
+      &lt;/when&gt;
+    &lt;/choose&gt;
+  &lt;/outbound&gt;
+  &lt;on-error&gt;&lt;base /&gt;&lt;/on-error&gt;
+&lt;/policies&gt;</pre>
+        </div>
+      </details>
+
+      <details class="mock" open>
+        <summary>Mock interview — headless checkout (3 turns)</summary>
+        <div class="mock-body">
+          <div class="mock-turn">
+            <div class="who">Interviewer</div>
+            <p>Walk me through a headless architecture using APIM and Logic Apps for high-volume checkout.</p>
+          </div>
+          <div class="mock-turn you">
+            <div class="who">You</div>
+            <p>Presentation is fully decoupled. Expose clean REST via APIM for mobile, web, partners. APIM owns auth, caching when safe, and throttling. Route orchestration to a stateful Logic App — checkout is multi-step (inventory, order, ERP, payment) so we need checkpoints and resume if a downstream is unavailable.</p>
+          </div>
+          <div class="mock-turn">
+            <div class="who">Interviewer</div>
+            <p>If the Logic App takes 30 seconds, won’t the frontend timeout?</p>
+          </div>
+          <div class="mock-turn you">
+            <div class="who">You</div>
+            <p>Asynchronous request-reply at the APIM edge: acknowledge with 202 Accepted and a Location tracking URL. Client polls status; UI stays responsive while the durable workflow continues.</p>
+          </div>
+          <div class="mock-turn">
+            <div class="who">Interviewer</div>
+            <p>How would you explain physical vs logical deployment to a stakeholder?</p>
+          </div>
+          <div class="mock-turn you">
+            <div class="who">You</div>
+            <p>Logically: API edge → process orchestration → systems of record. Physically: APIM Premium multi-region, Logic Apps Standard with Storage for state, VNet + private endpoints so ERP isn’t on the public internet.</p>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="panel" id="diagramsPanel">
+      <h2>Enterprise diagrams</h2>
+      <p class="panel-lead">Reference architectures from your AIS prep folder — use these to narrate Hub &amp; Spoke, sync vs async paths, and cross-cutting platform services.</p>
+
+      <div class="diagram-block">
+        <h3>Enterprise Integration Platform (layered)</h3>
+        <p class="cap">Consumers → Front Door / Entra → APIM → sync (Functions / Logic Apps / Container Apps) vs async (Service Bus / Event Grid / Event Hubs / Durable) → systems of record, with security, observability, and CI/CD underneath.</p>
+        <div class="diagram-frame">
+          <img src="AIS%20interview%20realted/diagram-export-8-6-2026-12_05_40-AM.png" alt="Enterprise Integration Platform layered architecture diagram" width="1600" height="900" loading="lazy" />
+        </div>
+      </div>
+
+      <div class="diagram-block">
+        <h3>AIS Hub &amp; Spoke platform</h3>
+        <p class="cap">Identity &amp; edge, Hub RG (ExpressRoute / VPN / Firewall / Private Endpoints), APIM, Integration Services (Logic Apps, Functions, Event Hubs/Grid, Service Bus), Shared Services, Data RG, plus SaaS ERP and on-prem estates.</p>
+        <div class="diagram-frame">
+          <img src="AIS%20interview%20realted/diagram-export-8-6-2026-10_27_52-PM.png" alt="Enterprise Integration Platform using Azure Integration Services hub and spoke diagram" width="1600" height="900" loading="lazy" />
+        </div>
+      </div>
+
+      <div class="closing-banner">
+        <span>Talk track</span>
+        “External traffic lands at Front Door and Entra, APIM is the only public façade, AIS does routing/validation/transform/orchestration, hybrid systems hang off ExpressRoute or VPN, and Key Vault + Monitor are shared — never bolted on per integration.”
+      </div>
+    </div>
+
     <div class="panel" id="askPanel">
       <h2>Questions you should ask</h2>
       <p class="panel-lead">
-        Turn the interview into a two-way conversation — shows architectural judgment and contract mindset.
+        Turn the Infosys interview into a two-way conversation — shows architectural judgment and contract mindset.
         <button type="button" class="listen-btn sm" id="btnListenAskAll" style="margin-left:0.5rem;">🔊 Listen all</button>
       </p>
       <ul class="ask-list" id="askList">
-        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>What does the current integration landscape look like — greenfield, or existing APIM / Logic Apps / Service Bus to rationalise?</li>
-        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>What’s driving this engagement — new programme, legacy modernisation, or production troubleshooting?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>Is there an existing team of AIS developers this role would direct, or is hands-on build part of the day-to-day?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>What does the current integration landscape look like — mostly Logic Apps, or a mix with Service Bus and Event Grid?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>What’s driving this initiative — a specific transformation programme, or ongoing modernisation?</li>
         <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>How is integration governance handled today — design authority already in place, or part of establishing one?</li>
-        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>Who are the day-to-day stakeholders — architecture, delivery teams, or business functions (finance, HR)?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>Who are the day-to-day stakeholders — architecture, delivery teams, or business functions?</li>
         <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>What does success look like at the 3-month and 6-month mark?</li>
         <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>Is there an existing DevOps / CI-CD setup for integration assets, or is that in scope?</li>
+        <li><button type="button" class="listen-btn sm" data-speak-parent aria-label="Listen">🔊</button>Are multi-region DR expectations Active-Active across East Asia and Southeast Asia, or Active-Passive?</li>
       </ul>
     </div>
 
     <footer>
-      Azure Integration Architect Interview ·
+      Azure Integration Architect Interview · Infosys AIS prep ·
       <a href="index.html">← Back to Learning</a>
     </footer>
   </div>
@@ -1344,6 +1852,55 @@
         catLabel: "Stakeholder & Delivery",
         q: "How do you balance delivery speed with architecture governance?",
         a: "I treat governance as guardrails, not gates — the standards should make the fast path also the compliant path wherever possible, for example by providing pre-approved APIM policy templates and IaC modules so following the standard is less work than going around it. Where genuine tension exists, I make the trade-off visible to the sponsor rather than silently picking a side. Delivery teams respect governance that's been designed to help them."
+      },
+      {
+        id: 22,
+        cat: "apim",
+        catLabel: "API Management",
+        q: "In a large enterprise with distinct BUs (Finance, HR, Operations), how would you design an APIM governance model that balances developer autonomy with central security?",
+        a: "I'd use APIM Workspaces or federated product ownership so BU teams can publish and iterate locally, while Global Policies enforce non-negotiables — OAuth 2.0 validation, standard error schemas, correlation headers, and logging. API onboarding goes through CI/CD with IaC (Bicep or Terraform) so every API inherits the baseline instead of relying on tribal knowledge. Autonomy on the product surface; central control on identity, threat protection, and observability."
+      },
+      {
+        id: 23,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "How would you integrate a legacy on-prem Hong Kong ERP that only speaks synchronous SOAP and can't take high traffic with a cloud-native SaaS on Azure?",
+        a: "Connectivity first: On-Premises Data Gateway or ExpressRoute plus Private Endpoints — no inbound holes into the data centre. Then Queue-Based Load Leveling with Service Bus so SaaS spikes never hammer SOAP directly. Logic Apps (or Functions) transform JSON to SOAP/XML with Liquid or XSLT, apply timeouts/retries, and dead-letter poison messages. The ERP sees a smoothed, controlled request rate; the cloud side stays async and resilient."
+      },
+      {
+        id: 24,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "When designing event-driven Azure systems, how do you choose between Event Grid, Event Hubs, and Service Bus? Give a scenario for each.",
+        a: "Service Bus for high-value enterprise messaging — transactions, FIFO/sessions, DLQ — e.g. financial ledger posts. Event Grid for reactive, lightweight pub/sub — e.g. Blob created → trigger a Function. Event Hubs for massive streaming ingest with partition-level ordering — e.g. clickstream or IoT telemetry. Same 'something happened' language, different durability and throughput contracts."
+      },
+      {
+        id: 25,
+        cat: "arch",
+        catLabel: "Architecture & Design",
+        q: "How would you design Active-Active multi-region DR for AIS across East Asia (Hong Kong) and Southeast Asia (Singapore)?",
+        a: "Global entry with Front Door or Traffic Manager. APIM multi-region deployment so the façade fails over cleanly. Service Bus Premium with geo-disaster recovery or active replication for critical queues/topics. The hard part is stateful Logic Apps Standard — call out checkpoint storage affinity and how you avoid duplicate side effects on failover (idempotency keys, outbox, careful ownership of in-flight orchestrations). Never pretend stateful workflows magically dual-write without a plan."
+      },
+      {
+        id: 26,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "Logic Apps and APIM configs hold environment-specific URLs and secrets. How do you manage configuration and secret masking in Azure DevOps or GitHub Actions?",
+        a: "No secrets in repos or ARM parameters checked in clear text. Key Vault references from APIM named values and Logic App parameters; Managed Identity everywhere instead of connection strings. Parameterise backends per Dev/UAT/Prod with Bicep/Terraform or the APIM DevOps Resource Kit. Pipeline injects environment overlays at deploy time — same artifact, different config surface."
+      },
+      {
+        id: 27,
+        cat: "apim",
+        catLabel: "API Management",
+        q: "Design a headless checkout API with APIM and Logic Apps so clients don't timeout on a 30-second workflow.",
+        a: "Headless means presentation is decoupled — same REST contracts for web, mobile, partners. APIM owns auth, throttling, and response shaping. Backend is a stateful Logic App that acknowledges fast; APIM returns HTTP 202 Accepted with a Location polling URL and X-Correlation-ID. Client polls status until terminal success/failure while inventory, ERP, and notifications run durably with checkpoints. Conceptual goal, logical layers (edge / orchestrator / systems of record), physical: APIM Premium, Logic Apps Standard + Storage, VNet private endpoints."
+      },
+      {
+        id: 28,
+        cat: "ais",
+        catLabel: "AIS Technical",
+        q: "What's the difference between stateful and stateless Logic Apps, and when would you pick Durable Functions instead?",
+        a: "Stateful persists history externally — long-running, human approval, resume-after-failure; higher latency. Stateless keeps state in memory — low latency, short runs (~minutes), great for sync APIs/webhooks. Durable Functions solve the same orchestration problem but code-first (C#/JS); Logic Apps are designer/config-first with connectors. I'd pick Durable Functions when the team wants unit-tested orchestration code; Logic Apps when connector breadth and low-code velocity matter more."
       }
     ];
 
@@ -1355,7 +1912,7 @@
       { id: "stake", label: "Stakeholder" }
     ];
 
-    const STORAGE_KEY = "ais-interview-mastered-v1";
+    const STORAGE_KEY = "ais-interview-mastered-v2";
     const RATE_KEY = "ais-interview-tts-rate";
 
     let filter = "all";
@@ -1393,6 +1950,10 @@
       accordion: document.getElementById("accordion"),
       askPanel: document.getElementById("askPanel"),
       cloudPanel: document.getElementById("cloudPanel"),
+      briefPanel: document.getElementById("briefPanel"),
+      conceptsPanel: document.getElementById("conceptsPanel"),
+      patternsPanel: document.getElementById("patternsPanel"),
+      diagramsPanel: document.getElementById("diagramsPanel"),
       audioDock: document.getElementById("audioDock"),
       audioNow: document.getElementById("audioNow"),
       rateSlider: document.getElementById("rateSlider"),
@@ -1631,6 +2192,10 @@
       el.listView.classList.toggle("visible", mode === "list");
       el.askPanel.classList.toggle("visible", mode === "ask");
       el.cloudPanel.classList.toggle("visible", mode === "cloud");
+      el.briefPanel.classList.toggle("visible", mode === "brief");
+      el.conceptsPanel.classList.toggle("visible", mode === "concepts");
+      el.patternsPanel.classList.toggle("visible", mode === "patterns");
+      el.diagramsPanel.classList.toggle("visible", mode === "diagrams");
     }
 
     /* Events */

@@ -1,0 +1,108 @@
+<h2 class="sr-only">Interactive interview prep page for the Infosys Azure Integration Services Architect technical evaluation, covering honest positioning, core concepts to review, and talking points mapped from real experience</h2>
+
+<div style="padding: 1rem 0;">
+
+<div style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--surface-1); border-radius: 12px;">
+  <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 4px;">Today's technical evaluation</p>
+  <p style="font-size: 18px; font-weight: 500; margin: 0;">Azure Integration Services (AIS) Architect — Infosys</p>
+</div>
+
+<div id="nav" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem;">
+  <button onclick="jump('positioning')" style="font-size: 13px;">Positioning</button>
+  <button onclick="jump('concepts')" style="font-size: 13px;">Concepts to review</button>
+  <button onclick="jump('talking')" style="font-size: 13px;">Talking points</button>
+  <button onclick="jump('gap')" style="font-size: 13px;">The gap question</button>
+  <button onclick="jump('ask')" style="font-size: 13px;">Questions to ask</button>
+</div>
+
+<div id="positioning" style="margin-bottom: 2rem;">
+  <h3 style="margin: 0 0 12px;">Your honest opening line</h3>
+  <div style="background: var(--surface-1); border-radius: 12px; padding: 1rem 1.25rem; font-family: var(--font-voice); font-size: 16px; line-height: 1.7;">
+    "My Azure integration experience is grounded in enterprise data migration and integration architecture — leading a CDC-based ERP migration using Qlik Replicate, and defining cloud integration strategy at HSBC and CHANEL. I hold AZ-400, AZ-104 and AZ-900, and have completed focused training in Azure AI Foundry and Azure API Management. What I haven't done is build production Logic Apps or Service Bus solutions hands-on — that's the gap I'd want to be upfront about."
+  </div>
+</div>
+
+<div id="concepts" style="margin-bottom: 2rem;">
+  <h3 style="margin: 0 0 12px;">Core AIS concepts — review before the call</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+
+    <div style="background: var(--surface-1); border-radius: 12px; padding: 1rem;">
+      <p style="font-weight: 500; margin: 0 0 6px;"><i class="ti ti-git-branch" style="font-size:16px; margin-right:6px" aria-hidden="true"></i>Logic Apps</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.6;">Low-code workflow orchestrator. Consumption (serverless, pay-per-run) vs Standard (dedicated, stateful, VNet-integrated). Triggers + connectors + actions.</p>
+    </div>
+
+    <div style="background: var(--surface-1); border-radius: 12px; padding: 1rem;">
+      <p style="font-weight: 500; margin: 0 0 6px;"><i class="ti ti-topology-star-3" style="font-size:16px; margin-right:6px" aria-hidden="true"></i>Service Bus</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.6;">Enterprise message broker. Queues (point-to-point) vs Topics/Subscriptions (pub-sub). Sessions, dead-letter queues, at-least-once delivery.</p>
+    </div>
+
+    <div style="background: var(--surface-1); border-radius: 12px; padding: 1rem;">
+      <p style="font-weight: 500; margin: 0 0 6px;"><i class="ti ti-bolt" style="font-size:16px; margin-right:6px" aria-hidden="true"></i>Event Grid</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.6;">Event routing, not messaging — reactive, push-based. Good for event-driven architecture: "something happened" not "process this data".</p>
+    </div>
+
+    <div style="background: var(--surface-1); border-radius: 12px; padding: 1rem;">
+      <p style="font-weight: 500; margin: 0 0 6px;"><i class="ti ti-api" style="font-size:16px; margin-right:6px" aria-hidden="true"></i>API Management (APIM)</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.6;">API gateway: policies, rate limiting, versioning, developer portal, OAuth/subscription key auth. You completed training here — lean on it.</p>
+    </div>
+
+    <div style="background: var(--surface-1); border-radius: 12px; padding: 1rem;">
+      <p style="font-weight: 500; margin: 0 0 6px;"><i class="ti ti-function" style="font-size:16px; margin-right:6px" aria-hidden="true"></i>Functions</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.6;">Event-driven compute for custom logic Logic Apps can't express cleanly. Consumption vs Premium vs Dedicated hosting plans.</p>
+    </div>
+
+    <div style="background: var(--surface-1); border-radius: 12px; padding: 1rem;">
+      <p style="font-weight: 500; margin: 0 0 6px;"><i class="ti ti-plug-connected" style="font-size:16px; margin-right:6px" aria-hidden="true"></i>Hybrid connectivity</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.6;">On-premises Data Gateway (Logic Apps to on-prem), VPN Gateway vs ExpressRoute for network-level hybrid connectivity.</p>
+    </div>
+
+  </div>
+</div>
+
+<div id="talking" style="margin-bottom: 2rem;">
+  <h3 style="margin: 0 0 12px;">Map real experience to their questions</h3>
+
+  <div style="border-left: 3px solid var(--border-strong); border-radius: 0; padding: 0 0 0 16px; margin-bottom: 16px;">
+    <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 4px;">If asked: "Tell me about an integration project you led"</p>
+    <p style="font-size: 15px; margin: 0; line-height: 1.6;">CHANEL — led a CDC-based ERP integration using Qlik Replicate, migrating D365 from on-prem to Azure SQL. Owned schema mapping, source-to-target transformation design, and downstream Power BI reporting integration.</p>
+  </div>
+
+  <div style="border-left: 3px solid var(--border-strong); border-radius: 0; padding: 0 0 0 16px; margin-bottom: 16px;">
+    <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 4px;">If asked: "How do you approach integration architecture governance?"</p>
+    <p style="font-size: 15px; margin: 0; line-height: 1.6;">TOGAF 9.2 certified — 20 years defining architecture standards, leading design reviews, producing blueprints and technical specifications for governance sign-off.</p>
+  </div>
+
+  <div style="border-left: 3px solid var(--border-strong); border-radius: 0; padding: 0 0 0 16px; margin-bottom: 16px;">
+    <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 4px;">If asked: "How do you handle stakeholder alignment across teams?"</p>
+    <p style="font-size: 15px; margin: 0; line-height: 1.6;">Career-long pattern — primary technical interface at Cathay Pacific for 13 years, across Enterprise Architects, Business Analysts, and Infrastructure teams simultaneously.</p>
+  </div>
+
+  <div style="border-left: 3px solid var(--border-strong); border-radius: 0; padding: 0 0 0 16px;">
+    <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 4px;">If asked: "CI/CD and IaC experience?"</p>
+    <p style="font-size: 15px; margin: 0; line-height: 1.6;">AZ-400 certified. Real Git-based version control and structured release governance at Cathay Pacific across multi-environment deployments.</p>
+  </div>
+</div>
+
+<div id="gap" style="margin-bottom: 2rem;">
+  <h3 style="margin: 0 0 12px;">If pushed directly on hands-on AIS depth</h3>
+  <div style="background: var(--bg-accent); border-radius: 12px; padding: 1rem 1.25rem; font-family: var(--font-voice); font-size: 16px; line-height: 1.7; color: var(--text-primary);">
+    "I want to be direct rather than stretch this — I haven't personally built production Logic Apps or Service Bus solutions. My depth is in the architecture layer above that: designing the integration strategy, the data flow, the governance model, and directing delivery teams who implement the specific components. I've completed focused training on Foundry and APIM to close part of that gap, and given my TOGAF background and 20 years of enterprise integration architecture, I'd expect to ramp on the AIS-specific tooling quickly."
+  </div>
+</div>
+
+<div id="ask" style="margin-bottom: 1rem;">
+  <h3 style="margin: 0 0 12px;">Questions worth asking them</h3>
+  <ul style="font-size: 15px; line-height: 1.8; padding-left: 20px; margin: 0;">
+    <li>Is there an existing team of AIS developers this role would direct, or is hands-on build part of the day-to-day?</li>
+    <li>What does the current integration landscape look like — mostly Logic Apps, or a mix with Service Bus and Event Grid?</li>
+    <li>What's driving this integration initiative right now — a specific transformation programme, or ongoing modernisation?</li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+function jump(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
