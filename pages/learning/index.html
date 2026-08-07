@@ -40,7 +40,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,30,54,0.9
 section{padding:80px 5%;}
 .section-inner{max-width:1200px;margin:0 auto;}
 .section-tag{font-size:0.75rem;font-weight:600;letter-spacing:0.12em;color:var(--blue);text-transform:uppercase;margin-bottom:0.75rem;}
-.learning-bg{background:var(--white);}
 .learning-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;}
 .learning-card{background:var(--off);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
 .learning-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.1);}
@@ -57,6 +56,28 @@ footer{background:rgba(15,30,54,0.98);border-top:1px solid rgba(255,255,255,0.08
 footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
 @media(max-width:900px){.learning-grid{grid-template-columns:1fr 1fr;}.nav-links{display:none;}}
 @media(max-width:600px){.learning-grid{grid-template-columns:1fr;}}
+
+.page-hero{padding-bottom:48px;}
+.topic-nav{position:sticky;top:64px;z-index:90;background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0.75rem 5%;}
+.topic-nav-inner{max-width:1200px;margin:0 auto;display:flex;gap:0.5rem;overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch;}
+.topic-nav a{flex:0 0 auto;text-decoration:none;font-size:0.78rem;font-weight:600;color:var(--muted);padding:0.4rem 0.85rem;border-radius:6px;border:1px solid transparent;white-space:nowrap;transition:color 0.2s,background 0.2s,border-color 0.2s;}
+.topic-nav a:hover{color:var(--navy);background:var(--off);border-color:var(--border);}
+.topic-nav a.active{color:var(--navy);background:rgba(232,160,32,0.15);border-color:rgba(232,160,32,0.45);}
+.topic-section{padding:64px 5% 24px;scroll-margin-top:140px;background:var(--white);}
+.topic-section:nth-of-type(even){background:var(--off);}
+.topic-section .section-inner{max-width:1200px;margin:0 auto;}
+.topic-header{margin-bottom:1.75rem;max-width:720px;}
+.topic-header h2{font-family:'Syne',sans-serif;font-size:clamp(1.35rem,2.2vw,1.85rem);font-weight:700;color:var(--navy);margin:0.35rem 0 0.5rem;}
+.topic-header p{font-size:0.95rem;color:var(--muted);line-height:1.6;}
+.subtopic{margin-bottom:2rem;}
+.subtopic:last-child{margin-bottom:0;}
+.subtopic-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.85rem;padding-bottom:0.4rem;border-bottom:1px solid var(--border);}
+.learning-grid{margin-bottom:0;}
+footer{margin-top:40px;}
+@media(max-width:900px){
+  .topic-nav{top:64px;}
+  .topic-section{scroll-margin-top:128px;padding:48px 5% 16px;}
+}
 </style>
 <link rel="stylesheet" href="../../assets/theme-switcher.css">
 </head>
@@ -80,1069 +101,1246 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
 <header class="page-hero">
   <div class="section-tag">Learning Resources</div>
   <h1 class="section-title">Hands-on AI Learning Pages</h1>
-  <p class="section-subtitle">Interactive explainers and practical guides covering LLM foundations, fine-tuning, AI engineering workflows, architecture pattern simulations, and enterprise platform migration — from D365 and SSAS → Fabric modernisation to Cathay Cargo Terminal cloud migration.</p>
+  <p class="section-subtitle">Browse by topic — LLM foundations, RAG &amp; retrieval, agents, system architecture, enterprise migration, interview prep, and Claude tooling.</p>
 </header>
-<!-- LEARNING PAGES -->
-<section id="learning-pages" class="learning-bg" style="padding-top:0;">
+<nav class="topic-nav" aria-label="Learning topics">
+  <div class="topic-nav-inner">
+    <a href="#llm-foundations">LLM Foundations</a>
+    <a href="#rag-retrieval">RAG &amp; Retrieval</a>
+    <a href="#agents-frameworks">Agents &amp; Frameworks</a>
+    <a href="#system-architecture">System Architecture</a>
+    <a href="#enterprise-migration">Enterprise Migration</a>
+    <a href="#interview-career">Interview &amp; Career</a>
+    <a href="#tooling-claude">Tooling &amp; Claude</a>
+  </div>
+</nav>
+<section id="llm-foundations" class="topic-section">
   <div class="section-inner">
-    <div class="learning-grid">
-      <article class="learning-card">
-        <a href="../index.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Architecture Pattern Guides preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="arch-hub-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#080c14"/><stop offset="100%" stop-color="#111827"/>
-                </linearGradient>
-                <linearGradient id="arch-hub-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#8b5cf6"/><stop offset="50%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#38bdf8"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#arch-hub-bg)"/>
-              <ellipse cx="80" cy="40" rx="90" ry="50" fill="#8b5cf6" opacity="0.15"/>
-              <ellipse cx="330" cy="180" rx="100" ry="55" fill="#2dd4bf" opacity="0.12"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">INTERACTIVE INFOGRAPHICS</text>
-              <text x="200" y="96" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#f3f6fc">Architecture</text>
-              <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#8b5cf6">Pattern Guides</text>
-              <rect x="140" y="148" width="120" height="32" rx="16" fill="#1a2234" stroke="#2dd4bf" stroke-opacity="0.5"/>
-              <text x="200" y="169" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700" fill="#2dd4bf">6 GUIDES</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#arch-hub-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Architecture</span>
-            <h3>Architecture Pattern Guides</h3>
-            <p>Hub for animated ByteByteGo-style guides — AI agents, failure modes, events, async APIs, containers, and CRAG.</p>
-            <span class="learning-card-cta">Browse all guides →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-agent-architectures.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI Agent Architectures preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="agent-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0c1222"/><stop offset="100%" stop-color="#141d33"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#agent-bg)"/>
-              <ellipse cx="320" cy="50" rx="90" ry="50" fill="#8b5cf6" opacity="0.2"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#8b5cf6" letter-spacing="2">AI AGENTS</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">17 Workflow</text>
-              <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#2dd4bf">Patterns</text>
-              <rect x="50" y="148" width="70" height="36" rx="6" fill="#1a2744" stroke="#8b5cf6" stroke-opacity="0.5"/>
-              <text x="85" y="171" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#8b5cf6">ReAct</text>
-              <rect x="130" y="148" width="70" height="36" rx="6" fill="#1a2744" stroke="#2dd4bf" stroke-opacity="0.5"/>
-              <text x="165" y="171" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#2dd4bf">Reflect</text>
-              <rect x="210" y="148" width="70" height="36" rx="6" fill="#1a2744" stroke="#fbbf24" stroke-opacity="0.5"/>
-              <text x="245" y="171" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#fbbf24">Multi</text>
-              <rect x="290" y="148" width="60" height="36" rx="6" fill="#1a2744" stroke="#fb7185" stroke-opacity="0.5"/>
-              <text x="320" y="171" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#fb7185">+14</text>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Architecture</span>
-            <h3>AI Agent Architectures</h3>
-            <p>17 agent workflow patterns — ReAct, reflection, multi-agent, blackboard, and more with search and live flow demos.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../distributed-failure-modes.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Distributed Failure Modes preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="fail-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#140a0e"/><stop offset="100%" stop-color="#1f1218"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#fail-bg)"/>
-              <ellipse cx="200" cy="110" rx="120" ry="70" fill="#fb7185" opacity="0.1"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fb7185" letter-spacing="2">DISTRIBUTED SYSTEMS</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">Failure Modes</text>
-              <text x="200" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#94a3c4">Partitions · Split-brain · Cascades</text>
-              <rect x="60" y="158" width="280" height="36" rx="6" fill="#2a1520" stroke="#fb7185" stroke-opacity="0.45"/>
-              <text x="200" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fb7185">6 live simulations</text>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Architecture</span>
-            <h3>Distributed Failure Modes</h3>
-            <p>Partitions, split-brain, partial failures, gray failures, amplification, and cascade demos for resilient system design.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../event-driven-patterns.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Event-Driven Patterns preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="evt-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f0a1a"/><stop offset="100%" stop-color="#1a1230"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#evt-bg)"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#a371f7" letter-spacing="2">EVENT-DRIVEN</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">Messaging</text>
-              <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#a371f7">Patterns</text>
-              <circle cx="80" cy="168" r="14" fill="#1a2744" stroke="#a371f7"/><circle cx="160" cy="168" r="14" fill="#1a2744" stroke="#2dd4bf"/><circle cx="240" cy="168" r="14" fill="#1a2744" stroke="#fbbf24"/><circle cx="320" cy="168" r="14" fill="#1a2744" stroke="#fb7185"/>
-              <path d="M94 168h52M174 168h52M254 168h52" stroke="#4a5568" stroke-width="2" stroke-dasharray="4 4"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Architecture</span>
-            <h3>Event-Driven Patterns</h3>
-            <p>Competing consumers, projections, event sourcing, outbox, and saga orchestration with animated message flows.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../async-api-patterns.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Async API Patterns preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="async-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#081018"/><stop offset="100%" stop-color="#0f1c2e"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#async-bg)"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#38bdf8" letter-spacing="2">ASYNC APIs</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">Polling · SSE</text>
-              <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#38bdf8">WebSockets</text>
-              <rect x="70" y="152" width="260" height="40" rx="8" fill="#142033" stroke="#38bdf8" stroke-opacity="0.4"/>
-              <text x="200" y="177" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#7dd3fc">Sequence player · 6 patterns</text>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Architecture</span>
-            <h3>Async API Patterns</h3>
-            <p>Short/long polling, SSE, webhooks, WebSockets, and async job APIs with step-by-step sequence playback.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../container-design-patterns.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Container Design Patterns preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="k8s-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#141008"/><stop offset="100%" stop-color="#221a10"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#k8s-bg)"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fb923c" letter-spacing="2">KUBERNETES / PODS</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">Container</text>
-              <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#fb923c">Design Patterns</text>
-              <rect x="110" y="148" width="180" height="44" rx="10" fill="#2a2010" stroke="#fb923c" stroke-opacity="0.45" stroke-dasharray="6 4"/>
-              <rect x="130" y="158" width="50" height="24" rx="4" fill="#fb923c" opacity="0.25"/><rect x="190" y="158" width="50" height="24" rx="4" fill="#38bdf8" opacity="0.25"/><rect x="250" y="158" width="20" height="24" rx="4" fill="#4ade80" opacity="0.25"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Architecture</span>
-            <h3>Container Design Patterns</h3>
-            <p>Sidecar, adapter, ambassador, leader election, work queue, and scatter/gather with interactive pod diagrams.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/ai_pioneers_page.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI Pioneers course preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="ap-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0A1628"/><stop offset="100%" stop-color="#0D1F35"/>
-                </linearGradient>
-                <linearGradient id="ap-accent" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0D9488"/><stop offset="100%" stop-color="#F59E0B"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#ap-bg)"/>
-              <ellipse cx="320" cy="40" rx="100" ry="60" fill="#0D9488" opacity="0.15"/>
-              <ellipse cx="80" cy="190" rx="90" ry="50" fill="#F59E0B" opacity="0.1"/>
-              <text x="200" y="72" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="600" fill="#5EEAD4" letter-spacing="3">AI PIONEERS · COHORT 1</text>
-              <text x="200" y="108" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#FFFFFF">GenAI &amp; RAG</text>
-              <text x="200" y="134" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#FCD34D">Engineering</text>
-              <rect x="130" y="158" width="140" height="32" rx="16" fill="url(#ap-accent)" opacity="0.9"/>
-              <text x="200" y="179" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#0A1628">8-WEEK COHORT</text>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Course</span>
-            <h3>AI Pioneers — GenAI &amp; RAG Engineering</h3>
-            <p>Practitioner-led 8-week programme: Python, prompt engineering, LangChain, RAG pipelines, agents, and a deployed capstone app.</p>
-            <span class="learning-card-cta">View programme →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/ai-ml-systems-part2.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI ML Systems Part 2 preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="aimlcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0c1222"/><stop offset="100%" stop-color="#141d33"/>
-                </linearGradient>
-                <linearGradient id="aimlcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#8b5cf6"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#aimlcard-bg)"/>
-              <ellipse cx="70" cy="45" rx="75" ry="42" fill="#8b5cf6" opacity="0.14"/>
-              <ellipse cx="330" cy="175" rx="85" ry="48" fill="#2dd4bf" opacity="0.1"/>
-              <text x="200" y="46" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">AI/ML SYSTEMS · PART 2</text>
-              <text x="200" y="82" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">RAG &amp; Agents</text>
-              <rect x="48" y="102" width="88" height="40" rx="8" fill="#1a2744" stroke="#2dd4bf" stroke-opacity="0.5"/>
-              <text x="92" y="127" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#2dd4bf">Retrieve</text>
-              <line x1="140" y1="122" x2="158" y2="122" stroke="#8b5cf6" stroke-width="2"/>
-              <rect x="162" y="102" width="76" height="40" rx="8" fill="#1a2744" stroke="#8b5cf6" stroke-opacity="0.5"/>
-              <text x="200" y="127" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#8b5cf6">Evaluate</text>
-              <line x1="242" y1="122" x2="260" y2="122" stroke="#fbbf24" stroke-width="2"/>
-              <rect x="264" y="102" width="88" height="40" rx="8" fill="#1a2744" stroke="#fbbf24" stroke-opacity="0.5"/>
-              <text x="308" y="127" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fbbf24">Agents</text>
-              <text x="200" y="168" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#94a3c4">Pipelines · evals · security · interview scenarios</text>
-              <text x="200" y="198" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#94a3c4">Building the system around the model</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#aimlcard-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">System Design</span>
-            <h3>AI/ML Systems — RAG &amp; Agents (Part 2)</h3>
-            <p>Comprehensive study guide: RAG pipeline decisions, retrieval and full-RAG evaluation, agents and tools, access control, and real-world interview scenarios with interactive widgets.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/CRAG.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/crag.svg" alt="CRAG Interactive Explainer preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">RAG</span>
-            <h3>CRAG Decision Guide</h3>
-            <p>Interactive explainer for Corrective RAG: when to add a retrieval quality gate, architecture flow, use cases, and scenario practice.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/agentic-rag-langgraph-guide.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Agentic RAG with LangGraph preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="arag-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1f1c"/><stop offset="100%" stop-color="#1a2e2a"/>
-                </linearGradient>
-                <linearGradient id="arag-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f766e"/><stop offset="50%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#b45309"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#arag-bg)"/>
-              <ellipse cx="70" cy="40" rx="90" ry="50" fill="#0f766e" opacity="0.2"/>
-              <ellipse cx="340" cy="190" rx="80" ry="45" fill="#b45309" opacity="0.12"/>
-              <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">LANGGRAPH · AGENTIC RAG</text>
-              <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">Decide · Retrieve</text>
-              <text x="200" y="104" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#2dd4bf">Grade · Rewrite</text>
-              <rect x="28" y="128" width="62" height="36" rx="7" fill="#1a2e2a" stroke="#0f766e" stroke-opacity="0.6"/>
-              <text x="59" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#2dd4bf">decide</text>
-              <line x1="94" y1="146" x2="106" y2="146" stroke="#2dd4bf" stroke-width="2"/>
-              <rect x="110" y="128" width="62" height="36" rx="7" fill="#1a2e2a" stroke="#2dd4bf" stroke-opacity="0.5"/>
-              <text x="141" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#2dd4bf">retrieve</text>
-              <line x1="176" y1="146" x2="188" y2="146" stroke="#2dd4bf" stroke-width="2"/>
-              <rect x="192" y="128" width="62" height="36" rx="7" fill="#1a2e2a" stroke="#b45309" stroke-opacity="0.55"/>
-              <text x="223" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#fbbf24">grade</text>
-              <line x1="258" y1="146" x2="270" y2="146" stroke="#b45309" stroke-width="2"/>
-              <rect x="274" y="128" width="98" height="36" rx="7" fill="#1a2e2a" stroke="#0f766e" stroke-opacity="0.6"/>
-              <text x="323" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#2dd4bf">rewrite → gen</text>
-              <text x="200" y="192" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb3">Control flow when classic RAG is not enough</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#arag-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">RAG</span>
-            <h3>Agentic RAG with LangGraph</h3>
-            <p>Step-by-step guide: decide, retrieve, grade, rewrite, and generate — with architecture, notebook walkthrough, and live demo paths.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/rag-architecture.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="RAG Architecture preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="ragcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1419"/><stop offset="100%" stop-color="#1a2332"/>
-                </linearGradient>
-                <linearGradient id="ragcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#38bdf8"/><stop offset="50%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#fbbf24"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#ragcard-bg)"/>
-              <ellipse cx="60" cy="40" rx="80" ry="45" fill="#38bdf8" opacity="0.12"/>
-              <ellipse cx="340" cy="180" rx="90" ry="50" fill="#fbbf24" opacity="0.1"/>
-              <text x="200" y="52" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#38bdf8" letter-spacing="2">RETRIEVAL-AUGMENTED GENERATION</text>
-              <text x="200" y="88" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="#e8edf4">RAG Architecture</text>
-              <rect x="40" y="112" width="100" height="44" rx="8" fill="#1a2332" stroke="#38bdf8" stroke-opacity="0.5"/>
-              <text x="90" y="139" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#38bdf8">Ingest</text>
-              <line x1="148" y1="134" x2="172" y2="134" stroke="#2dd4bf" stroke-width="2"/>
-              <rect x="176" y="112" width="100" height="44" rx="8" fill="#1a2332" stroke="#2dd4bf" stroke-opacity="0.5"/>
-              <text x="226" y="139" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf">Index</text>
-              <line x1="284" y1="134" x2="308" y2="134" stroke="#fbbf24" stroke-width="2"/>
-              <rect x="260" y="112" width="100" height="44" rx="8" fill="#1a2332" stroke="#fbbf24" stroke-opacity="0.5"/>
-              <text x="310" y="139" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fbbf24">Query</text>
-              <text x="200" y="188" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb3">Offline pipeline / Online pipeline</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#ragcard-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">RAG</span>
-            <h3>RAG Architecture</h3>
-            <p>Interactive guide to offline indexing and online query pipelines — loaders, chunking, embedding, retrieval, and generation with a step-by-step walkthrough.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/retriever-guide.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Retriever Guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="retcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
-                </linearGradient>
-                <linearGradient id="retcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#e8a020"/><stop offset="45%" stop-color="#1d6fa4"/><stop offset="100%" stop-color="#0f7b55"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#retcard-bg)"/>
-              <ellipse cx="70" cy="45" rx="90" ry="50" fill="#e8a020" opacity="0.14"/>
-              <ellipse cx="340" cy="185" rx="85" ry="48" fill="#0f7b55" opacity="0.12"/>
-              <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#f0c060" letter-spacing="2">RAG · RETRIEVAL</text>
-              <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#e8edf4">Retriever Guide</text>
-              <rect x="28" y="108" width="72" height="36" rx="7" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.65"/>
-              <text x="64" y="131" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fbbf24">Filter</text>
-              <line x1="104" y1="126" x2="118" y2="126" stroke="#8b9cb8" stroke-width="2"/>
-              <rect x="122" y="108" width="78" height="36" rx="7" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.7"/>
-              <text x="161" y="131" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#38bdf8">Retrieve</text>
-              <line x1="204" y1="126" x2="218" y2="126" stroke="#8b9cb8" stroke-width="2"/>
-              <rect x="222" y="108" width="72" height="36" rx="7" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.7"/>
-              <text x="258" y="131" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#34d399">Rerank</text>
-              <line x1="298" y1="126" x2="312" y2="126" stroke="#8b9cb8" stroke-width="2"/>
-              <rect x="316" y="108" width="56" height="36" rx="7" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.55"/>
-              <text x="344" y="131" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#f0c060">LLM</text>
-              <text x="200" y="178" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">MMR · hybrid · metadata · transforms</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#retcard-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">RAG</span>
-            <h3>Retriever Guide</h3>
-            <p>Deep dive into RAG retrieval: LangChain knobs, similarity metrics, metadata filters, hybrid search, query transforms, and reranking — with an interactive search-type demo.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/rrf_vs_reranker_pipeline.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="RRF vs Reranker pipeline preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="rrfcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
-                </linearGradient>
-                <linearGradient id="rrfcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#b45309"/><stop offset="35%" stop-color="#1d6fa4"/><stop offset="70%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#0f7b55"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#rrfcard-bg)"/>
-              <ellipse cx="60" cy="50" rx="80" ry="45" fill="#1d6fa4" opacity="0.18"/>
-              <ellipse cx="340" cy="180" rx="90" ry="50" fill="#0f7b55" opacity="0.14"/>
-              <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#f0c060" letter-spacing="2">HYBRID RAG</text>
-              <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">RRF vs Reranker</text>
-              <rect x="22" y="108" width="62" height="34" rx="7" fill="#1a2f4e" stroke="#b45309" stroke-opacity="0.7"/>
-              <text x="53" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fbbf24">BM25</text>
-              <text x="95" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">+</text>
-              <rect x="108" y="108" width="62" height="34" rx="7" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.7"/>
-              <text x="139" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#38bdf8">Dense</text>
-              <text x="181" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
-              <rect x="194" y="108" width="54" height="34" rx="7" fill="#1a2f4e" stroke="#7c3aed" stroke-opacity="0.7"/>
-              <text x="221" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#a78bfa">RRF</text>
-              <text x="259" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
-              <rect x="272" y="108" width="72" height="34" rx="7" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.7"/>
-              <text x="308" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#34d399">Rerank</text>
-              <text x="356" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
-              <rect x="366" y="108" width="22" height="34" rx="7" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.55"/>
-              <text x="377" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#f0c060">LLM</text>
-              <text x="200" y="178" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">Fuse ranks · then score relevance</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#rrfcard-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">RAG</span>
-            <h3>RRF vs Reranker Pipeline</h3>
-            <p>Interactive walkthrough of hybrid retrieval: BM25 + dense → Reciprocal Rank Fusion → cross-encoder rerank → LLM — and why you need both steps.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/vector-store-vs-database.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Vector Store vs Database preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="vscard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0a0e18"/><stop offset="100%" stop-color="#121a2e"/>
-                </linearGradient>
-                <linearGradient id="vscard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#38bdf8"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#vscard-bg)"/>
-              <ellipse cx="90" cy="50" rx="70" ry="40" fill="#a78bfa" opacity="0.15"/>
-              <ellipse cx="310" cy="170" rx="80" ry="45" fill="#38bdf8" opacity="0.12"/>
-              <text x="200" y="48" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#a78bfa" letter-spacing="2">ULTIMATE RAG BOOTCAMP · §6</text>
-              <text x="200" y="82" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#eef2ff">Vector Store</text>
-              <text x="200" y="108" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#38bdf8">vs Database</text>
-              <rect x="55" y="128" width="130" height="52" rx="10" fill="#1a2540" stroke="#a78bfa" stroke-opacity="0.5"/>
-              <text x="120" y="152" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#a78bfa">FAISS / Chroma</text>
-              <text x="120" y="168" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb8">prototype scale</text>
-              <rect x="215" y="128" width="130" height="52" rx="10" fill="#1a2540" stroke="#38bdf8" stroke-opacity="0.5"/>
-              <text x="280" y="152" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#38bdf8">Pinecone / Qdrant</text>
-              <text x="280" y="168" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb8">production scale</text>
-              <text x="200" y="200" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">When to graduate from store to database</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#vscard-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">RAG</span>
-            <h3>Vector Store vs Vector Database</h3>
-            <p>Interactive guide comparing FAISS-style stores with production vector databases — scale, cost, filtering, and a decision checklist with search simulator.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/01_landscape_student_notes.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="LangChain Ecosystem student notes preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="lscape-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
-                </linearGradient>
-                <linearGradient id="lscape-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#1d6fa4"/><stop offset="50%" stop-color="#0f7b55"/><stop offset="100%" stop-color="#e8a020"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#lscape-bg)"/>
-              <ellipse cx="340" cy="40" rx="90" ry="55" fill="#e8a020" opacity="0.14"/>
-              <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#f0c060" letter-spacing="2">BOOTCAMP · PART 1</text>
-              <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">LangChain Ecosystem</text>
-              <text x="200" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#8b9cb8">Map · Agent vs harness · Timeline</text>
-              <rect x="28" y="128" width="80" height="36" rx="7" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.65"/>
-              <text x="68" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#38bdf8">LangGraph</text>
-              <rect x="116" y="128" width="80" height="36" rx="7" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.65"/>
-              <text x="156" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#34d399">LangChain</text>
-              <rect x="204" y="128" width="80" height="36" rx="7" fill="#1a2f4e" stroke="#b45309" stroke-opacity="0.65"/>
-              <text x="244" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#fbbf24">Deep Agents</text>
-              <rect x="292" y="128" width="80" height="36" rx="7" fill="#1a2f4e" stroke="#7c3aed" stroke-opacity="0.65"/>
-              <text x="332" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#a78bfa">LangSmith</text>
-              <text x="200" y="192" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">Student notes · no code yet</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#lscape-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">LangChain</span>
-            <h3>LangChain Ecosystem — Part 1</h3>
-            <p>Student notes mapping LangGraph, LangChain, Deep Agents, and LangSmith — agents vs harnesses, the v1.0 timeline, and a quick self-check.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/langchain-document-components.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="LangChain Document Model preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="lccard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1419"/><stop offset="100%" stop-color="#1a2332"/>
-                </linearGradient>
-                <linearGradient id="lccard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#a78bfa"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#lccard-bg)"/>
-              <ellipse cx="320" cy="36" rx="90" ry="50" fill="#a78bfa" opacity="0.12"/>
-              <text x="200" y="52" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">LANGCHAIN / WEEK 05</text>
-              <text x="200" y="86" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">Document Model</text>
-              <rect x="55" y="108" width="130" height="56" rx="8" fill="#243044" stroke="#fb7185" stroke-opacity="0.45"/>
-              <text x="120" y="132" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fb7185">page_content</text>
-              <text x="120" y="150" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb3">raw text body</text>
-              <rect x="215" y="108" width="130" height="56" rx="8" fill="#243044" stroke="#2dd4bf" stroke-opacity="0.45"/>
-              <text x="280" y="132" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#2dd4bf">metadata</text>
-              <text x="280" y="150" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb3">source / page / id</text>
-              <text x="200" y="192" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb3">Loaders / splitters / transformers</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#lccard-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">LangChain</span>
-            <h3>LangChain Document Model</h3>
-            <p>Interactive explainer for Document, page_content, metadata, loaders, splitters, and transformers across the RAG ingestion pipeline.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../migration/cct_weblogic_jboss_aws_migration_guide.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="CCT Migration Guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="cct1-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1117"/><stop offset="50%" stop-color="#161b27"/><stop offset="100%" stop-color="#0f1117"/>
-                </linearGradient>
-                <linearGradient id="cct1-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#38c9a8"/><stop offset="100%" stop-color="#ff8c42"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#cct1-bg)"/>
-              <ellipse cx="200" cy="32" rx="150" ry="55" fill="#38c9a8" opacity="0.12"/>
-              <rect x="76" y="20" width="248" height="22" rx="11" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.35"/>
-              <text x="200" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#e8eaf0">Cathay Cargo Terminal</text>
-              <text x="200" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#38c9a8">Cloud Migration Guide</text>
-              <rect x="28" y="146" width="84" height="38" rx="6" fill="#1e2535" stroke="#f6ad55" stroke-opacity="0.4"/>
-              <text x="70" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#f6ad55">WebLogic</text>
-              <path d="M120 165h12M128 165l-4-4M128 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="136" y="146" width="76" height="38" rx="6" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.4"/>
-              <text x="174" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#38c9a8">JBoss 8</text>
-              <path d="M220 165h12M228 165l-4-4M228 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="236" y="146" width="136" height="38" rx="6" fill="#1e2535" stroke="#ff8c42" stroke-opacity="0.4"/>
-              <text x="304" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#ff8c42">AWS + PostgreSQL</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#cct1-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Cloud Architecture</span>
-            <h3>CCT Migration Guide</h3>
-            <p>WebLogic 12.x → JBoss EAP 8, Oracle → Aurora PostgreSQL, on-prem → AWS — cargo terminal apps, SITA/ACCS integrations, and Entra ID SSO.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../migration/cct_migration_guide_v2.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="CCT Migration Guide v2 preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="cct2-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1117"/><stop offset="50%" stop-color="#161b27"/><stop offset="100%" stop-color="#0f1117"/>
-                </linearGradient>
-                <linearGradient id="cct2-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#38c9a8"/><stop offset="100%" stop-color="#ff8c42"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#cct2-bg)"/>
-              <ellipse cx="200" cy="32" rx="150" ry="55" fill="#38c9a8" opacity="0.12"/>
-              <rect x="76" y="20" width="248" height="22" rx="11" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.35"/>
-              <text x="200" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#e8eaf0">Cathay Cargo Terminal</text>
-              <text x="200" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#38c9a8">Migration Guide v2</text>
-              <rect x="28" y="146" width="84" height="38" rx="6" fill="#1e2535" stroke="#f6ad55" stroke-opacity="0.4"/>
-              <text x="70" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#f6ad55">WebLogic</text>
-              <path d="M120 165h12M128 165l-4-4M128 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="136" y="146" width="76" height="38" rx="6" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.4"/>
-              <text x="174" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#38c9a8">JBoss 8</text>
-              <path d="M220 165h12M228 165l-4-4M228 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="236" y="146" width="136" height="38" rx="6" fill="#1e2535" stroke="#ff8c42" stroke-opacity="0.4"/>
-              <text x="304" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#ff8c42">AWS + PostgreSQL</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#cct2-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Cloud Architecture</span>
-            <h3>CCT Migration Guide v2</h3>
-            <p>Expanded programme reference — CI/CD, observability, RACI, security, EKS, and detailed cutover runbooks for the Cathay Cargo Terminal AWS modernisation.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../migration/d365_migration_guide.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="D365 Migration Guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="d365card-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1117"/><stop offset="50%" stop-color="#161b27"/><stop offset="100%" stop-color="#0f1117"/>
-                </linearGradient>
-                <linearGradient id="d365card-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#4f9cf9"/><stop offset="100%" stop-color="#38c9a8"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#d365card-bg)"/>
-              <ellipse cx="200" cy="32" rx="150" ry="55" fill="#4f9cf9" opacity="0.12"/>
-              <rect x="88" y="20" width="224" height="22" rx="11" fill="#1e2535" stroke="#4f9cf9" stroke-opacity="0.35"/>
-              <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#e8eaf0">Dynamics 365</text>
-              <text x="200" y="108" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#4f9cf9">Migration Guide</text>
-              <rect x="40" y="152" width="76" height="38" rx="6" fill="#1e2535" stroke="#4f9cf9" stroke-opacity="0.4"/>
-              <text x="78" y="176" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#8b93a8">SSIS</text>
-              <path d="M124 171h12M132 171l-4-4M132 171l-4 4" fill="none" stroke="#4f9cf9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="144" y="152" width="76" height="38" rx="6" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.4"/>
-              <text x="182" y="176" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#38c9a8">ADF</text>
-              <path d="M228 171h12M236 171l-4-4M236 171l-4 4" fill="none" stroke="#4f9cf9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="248" y="152" width="112" height="38" rx="6" fill="#1e2535" stroke="#9f7aea" stroke-opacity="0.4"/>
-              <text x="304" y="176" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#9f7aea">Fabric</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#d365card-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Data Engineering</span>
-            <h3>D365 Migration Guide</h3>
-            <p>From legacy SSIS/SSAS/SSRS to Azure — ADF, Fabric, Qlik CDC, Dataverse, and enterprise BI notes for HK &amp; India deployments.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="Sales_SSBI_Interview_Drill.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Sales SSBI Interview Drill preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="ssbi-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0B1E33"/><stop offset="100%" stop-color="#0F2A44"/>
-                </linearGradient>
-                <linearGradient id="ssbi-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#1C7293"/><stop offset="50%" stop-color="#3FB8AF"/><stop offset="100%" stop-color="#E8B84B"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#ssbi-bg)"/>
-              <ellipse cx="70" cy="40" rx="90" ry="50" fill="#3FB8AF" opacity="0.14"/>
-              <ellipse cx="340" cy="190" rx="80" ry="45" fill="#E8B84B" opacity="0.1"/>
-              <text x="200" y="48" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#3FB8AF" letter-spacing="2">INTERVIEW DRILL</text>
-              <text x="200" y="86" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#EAF4FB">Sales SSBI</text>
-              <text x="200" y="114" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#E8B84B">Trainer Prep</text>
-              <rect x="48" y="140" width="88" height="36" rx="7" fill="#11314F" stroke="#1C7293" stroke-opacity="0.55"/>
-              <text x="92" y="163" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#9FC1D9">DAX</text>
-              <rect x="156" y="140" width="88" height="36" rx="7" fill="#11314F" stroke="#3FB8AF" stroke-opacity="0.55"/>
-              <text x="200" y="163" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#3FB8AF">Fabric</text>
-              <rect x="264" y="140" width="88" height="36" rx="7" fill="#11314F" stroke="#E8B84B" stroke-opacity="0.55"/>
-              <text x="308" y="163" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#E8B84B">29 Qs</text>
-              <text x="200" y="200" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#9FC1D9">Semantic models · training · stakeholders</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#ssbi-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Career</span>
-            <h3>Sales SSBI Interview Drill</h3>
-            <p>29 practiced answers across semantic models, Direct Lake, DAX filter context, training design, and stakeholder communication — with search and progress tracking.</p>
-            <span class="learning-card-cta">Open drill →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="Azure_Integration_Architect_Interview.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Azure Integration Architect Interview preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="azia-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0a1628"/><stop offset="100%" stop-color="#12253f"/>
-                </linearGradient>
-                <linearGradient id="azia-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#3db8f5"/><stop offset="50%" stop-color="#5eead4"/><stop offset="100%" stop-color="#7dd3fc"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#azia-bg)"/>
-              <ellipse cx="60" cy="30" rx="100" ry="55" fill="#3db8f5" opacity="0.18"/>
-              <ellipse cx="350" cy="200" rx="90" ry="50" fill="#5eead4" opacity="0.1"/>
-              <text x="200" y="46" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#7dd3fc" letter-spacing="2">INTERVIEW PREP</text>
-              <text x="200" y="84" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8f1fb">Azure Integration</text>
-              <text x="200" y="112" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#3db8f5">Architect</text>
-              <rect x="40" y="138" width="96" height="34" rx="7" fill="#163056" stroke="#3db8f5" stroke-opacity="0.5"/>
-              <text x="88" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#7dd3fc">APIM</text>
-              <rect x="152" y="138" width="96" height="34" rx="7" fill="#163056" stroke="#5eead4" stroke-opacity="0.5"/>
-              <text x="200" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#5eead4">Logic Apps</text>
-              <rect x="264" y="138" width="96" height="34" rx="7" fill="#163056" stroke="#fb923c" stroke-opacity="0.5"/>
-              <text x="312" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fb923c">21 Qs</text>
-              <text x="200" y="198" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#94a8c4">Service Bus · Event Grid · flashcards</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#azia-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Career</span>
-            <h3>Azure Integration Architect Interview</h3>
-            <p>Infosys AIS prep — 28 Q&amp;As, honest briefing, concept analogies, headless/async patterns, and enterprise architecture diagrams with audio practice.</p>
-            <span class="learning-card-cta">Open drill →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../migration/ssas_migration_proposal.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="SSAS Migration Proposal preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="ssas-prop-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0e1e35"/><stop offset="50%" stop-color="#1a3454"/><stop offset="100%" stop-color="#0e1e35"/>
-                </linearGradient>
-                <linearGradient id="ssas-prop-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#7c3aed"/><stop offset="50%" stop-color="#4f8ec9"/><stop offset="100%" stop-color="#047857"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#ssas-prop-bg)"/>
-              <ellipse cx="200" cy="32" rx="150" ry="55" fill="#4f8ec9" opacity="0.12"/>
-              <rect x="72" y="20" width="256" height="22" rx="11" fill="#1a3454" stroke="#7dd3fc" stroke-opacity="0.35"/>
-              <text x="200" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#e8eaf0">SSAS Multidimensional</text>
-              <text x="200" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#7dd3fc">Migration Proposal</text>
-              <rect x="28" y="146" width="88" height="38" rx="6" fill="#1a3454" stroke="#7c3aed" stroke-opacity="0.5"/>
-              <text x="72" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#c4b5fd">MDX Cube</text>
-              <path d="M124 165h12M132 165l-4-4M132 165l-4 4" fill="none" stroke="#4f8ec9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="144" y="146" width="88" height="38" rx="6" fill="#1a3454" stroke="#4f8ec9" stroke-opacity="0.5"/>
-              <text x="188" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#7dd3fc">Tabular / DAX</text>
-              <path d="M240 165h12M248 165l-4-4M248 165l-4 4" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="256" y="146" width="116" height="38" rx="6" fill="#1a3454" stroke="#6ee7b7" stroke-opacity="0.5"/>
-              <text x="314" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#6ee7b7">Fabric Semantic</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#ssas-prop-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">BI Modernisation</span>
-            <h3>SSAS → Fabric Migration Proposal</h3>
-            <p>Two-phase path from SQL Server 2016 SSAS Multidimensional (MDX) to Microsoft Fabric Semantic Models — phased delivery, MDX→DAX translation, and zero-disruption cutover.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../migration/ssas_migration_costing.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="SSAS Migration Costing preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="ssas-cost-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0e1e35"/><stop offset="50%" stop-color="#1a3454"/><stop offset="100%" stop-color="#0e1e35"/>
-                </linearGradient>
-                <linearGradient id="ssas-cost-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#c9922a"/><stop offset="100%" stop-color="#0f7b55"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#ssas-cost-bg)"/>
-              <ellipse cx="320" cy="40" rx="100" ry="60" fill="#c9922a" opacity="0.12"/>
-              <text x="200" y="68" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="600" fill="#e8c87a" letter-spacing="2">COSTING &amp; RESOURCING</text>
-              <text x="200" y="104" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#ffffff">SSAS Migration</text>
-              <text x="200" y="130" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f5e8d0">Investment Plan</text>
-              <rect x="60" y="152" width="80" height="36" rx="6" fill="#1a3454" stroke="#c9922a" stroke-opacity="0.5"/>
-              <text x="100" y="174" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#e8c87a">0% AI</text>
-              <rect x="160" y="152" width="80" height="36" rx="6" fill="#1a3454" stroke="#0f7b55" stroke-opacity="0.5"/>
-              <text x="200" y="174" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#6fcfa8">25% AI</text>
-              <rect x="260" y="152" width="80" height="36" rx="6" fill="#1a3454" stroke="#6d28d9" stroke-opacity="0.5"/>
-              <text x="300" y="174" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#c4b5fd">50% AI</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#ssas-cost-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Migration Planning</span>
-            <h3>SSAS Migration Costing</h3>
-            <p>Interactive cost model with rate card, labour breakdown, AI leverage calculator, three budget scenarios, Gantt schedule, and resourcing notes for a 9-month programme.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/AI-Enginee-Job-Portals.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/ai-job-portals.svg" alt="AI Engineer Job Portals preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Career</span>
-            <h3>AI Engineer Job Portals</h3>
-            <p>Curated AI and ML hiring portals with practical focus for active job search.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/claude_code_tutorial.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/claude-code.svg" alt="Claude Code Tutorial preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Tooling</span>
-            <h3>Claude Code Tutorial</h3>
-            <p>Beginner-friendly walkthrough for using Claude Code effectively in real projects.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="https://mayankchugh-learning.github.io/claude-tutorial/" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/learn-claude.svg" alt="Learn Claude course preview" width="400" height="225" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/learning/claude-code.svg';">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Claude</span>
-            <h3>Learn Claude — Full Course</h3>
-            <p>15-module path from Claude fundamentals to agentic workflows, MCP, skills, hooks, and capstone project.</p>
-            <span class="learning-card-cta">Open course →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/fineTuning.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/fine-tuning.svg" alt="Fine-Tuning LLMs preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">LLM</span>
-            <h3>Fine-Tuning LLMs</h3>
-            <p>Practical notes and examples for adapting base models to specific tasks.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/LLM%20Fine-Tuning.dc.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/fine-tuning.svg" alt="Fine-tuning from base to aligned preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">LLM</span>
-            <h3>Fine-Tuning: Base to Aligned</h3>
-            <p>End-to-end Hugging Face + TRL guide through non-instruction tuning, SFT, and DPO with LoRA adapters.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/LLM-Explorer-Standalone.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/llm-explorer.svg" alt="LLM Explorer preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Explorer</span>
-            <h3>LLM Explorer (Standalone)</h3>
-            <p>Standalone page to explore LLM concepts and behavior in an approachable format.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/positional-encoding-standalone.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/positional-encoding.svg" alt="Positional Encoding standalone preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Embeddings</span>
-            <h3>Positional Encoding (Standalone)</h3>
-            <p>Visual, standalone explainer for how positional information is added in transformers.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/positional_encoding.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/positional-encoding.svg" alt="Positional Encoding in-depth preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Transformers</span>
-            <h3>Positional Encoding (In-Depth)</h3>
-            <p>Detailed intuition and deeper explanation of positional encoding mechanisms.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="venv_comprehensive_guide.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Python venv guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="venv-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
-                </linearGradient>
-                <linearGradient id="venv-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#1d6fa4"/><stop offset="100%" stop-color="#0f7b55"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#venv-bg)"/>
-              <ellipse cx="320" cy="40" rx="90" ry="50" fill="#0f7b55" opacity="0.15"/>
-              <ellipse cx="60" cy="180" rx="80" ry="45" fill="#1d6fa4" opacity="0.12"/>
-              <text x="200" y="48" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#7dd3fc" letter-spacing="2">FOR JAVA DEVELOPERS</text>
-              <text x="200" y="88" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#f4f6f9">Python venv</text>
-              <text x="200" y="116" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#e8a020">Maven-style isolation</text>
-              <rect x="55" y="142" width="110" height="40" rx="8" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.5"/>
-              <text x="110" y="167" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#7dd3fc">activate</text>
-              <rect x="185" y="142" width="70" height="40" rx="8" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.5"/>
-              <text x="220" y="167" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#f0c060">pip</text>
-              <rect x="275" y="142" width="70" height="40" rx="8" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.5"/>
-              <text x="310" y="167" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#6ee7b7">freeze</text>
-              <text x="200" y="204" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#94a3b8">Windows · VS Code · Cursor</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#venv-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Python</span>
-            <h3>Python venv Explained</h3>
-            <p>Virtual environments mapped to Maven/Gradle for Java developers on Windows — setup, IDE wiring, troubleshooting, and a reproducible project walkthrough.</p>
-            <span class="learning-card-cta">Open guide →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/PythonBasicsOffline.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/python-basics.svg" alt="Python Basics preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Python</span>
-            <h3>Python Basics (Offline)</h3>
-            <p>Fast refresher on core Python fundamentals for AI and automation workflows.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/PythonBasics-v1.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Pydantic and Agents preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="pyv1-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#16162a"/><stop offset="100%" stop-color="#1e1e38"/>
-                </linearGradient>
-                <linearGradient id="pyv1-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#5b5ef4"/><stop offset="100%" stop-color="#10b981"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#pyv1-bg)"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#7c7ff7" letter-spacing="2">PYTHON</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f5f6fa">Pydantic &amp; Agents</text>
-              <text x="200" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#94a3c4">Interactive week-1 follow-on guide</text>
-              <rect x="70" y="158" width="110" height="36" rx="6" fill="#2a2a48" stroke="#5b5ef4" stroke-opacity="0.5"/>
-              <text x="125" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#a5b4fc">Models</text>
-              <rect x="220" y="158" width="110" height="36" rx="6" fill="#2a2a48" stroke="#10b981" stroke-opacity="0.5"/>
-              <text x="275" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#6ee7b7">Agents</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#pyv1-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Python</span>
-            <h3>Pydantic &amp; Agents</h3>
-            <p>Interactive follow-on from Python basics covering Pydantic models and building simple agents.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../pydantic_app/index.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Mastering Pydantic preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="pyd-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e293b"/>
-                </linearGradient>
-                <linearGradient id="pyd-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#e11d48"/><stop offset="100%" stop-color="#f59e0b"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#pyd-bg)"/>
-              <ellipse cx="320" cy="40" rx="90" ry="50" fill="#e11d48" opacity="0.15"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fb7185" letter-spacing="2">VALIDATION</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f8fafc">Mastering Pydantic</text>
-              <text x="200" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#94a3b8">Models · Settings · Structured outputs</text>
-              <rect x="50" y="158" width="90" height="36" rx="6" fill="#1e293b" stroke="#e11d48" stroke-opacity="0.45"/>
-              <text x="95" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#fb7185">BaseModel</text>
-              <rect x="155" y="158" width="90" height="36" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-opacity="0.45"/>
-              <text x="200" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#fbbf24">Settings</text>
-              <rect x="260" y="158" width="90" height="36" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-opacity="0.45"/>
-              <text x="305" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#7dd3fc">LLM I/O</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#pyd-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Python</span>
-            <h3>Mastering Pydantic</h3>
-            <p>Interactive reference for models, validation, settings, and LLM structured outputs.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../python_agents_app/index.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Agents With Just Python preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="agpy-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#0c1222"/><stop offset="100%" stop-color="#141d33"/>
-                </linearGradient>
-                <linearGradient id="agpy-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#2dd4bf"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#agpy-bg)"/>
-              <ellipse cx="80" cy="50" rx="90" ry="50" fill="#8b5cf6" opacity="0.18"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#a78bfa" letter-spacing="2">NO FRAMEWORK</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#eef2ff">Agents, With Just</text>
-              <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#2dd4bf">Python</text>
-              <rect x="60" y="158" width="280" height="36" rx="6" fill="#1a2744" stroke="#2dd4bf" stroke-opacity="0.45"/>
-              <text x="200" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf">Tools · loops · structured output</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#agpy-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Agents</span>
-            <h3>Agents, With Just Python</h3>
-            <p>Build AI agents from scratch in plain Python — tools, loops, and structured outputs without a framework.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../resilient_marzipan_app/index.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI Terms glossary preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="gloss-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#111827"/><stop offset="100%" stop-color="#1f2937"/>
-                </linearGradient>
-                <linearGradient id="gloss-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#a3e635"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="225" fill="url(#gloss-bg)"/>
-              <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#38bdf8" letter-spacing="2">GLOSSARY</text>
-              <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#f3f4f6">AI Terms, Properly</text>
-              <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#a3e635">Explained</text>
-              <text x="200" y="172" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#9ca3af">LLMs · attention · agents · fine-tuning</text>
-              <rect x="0" y="223" width="400" height="2" fill="url(#gloss-bar)"/>
-            </svg>
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Glossary</span>
-            <h3>AI Terms, Properly Explained</h3>
-            <p>Plain-language glossary of AI terms — LLMs, attention, context windows, fine-tuning, and agents.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
-      <article class="learning-card">
-        <a href="../ai-learning/SelfAttentionExplainerOffline.html" class="learning-card-link">
-          <div class="learning-card-thumb">
-            <img src="../../assets/learning/self-attention.svg" alt="Self-Attention Explainer preview" width="400" height="225" loading="lazy">
-          </div>
-          <div class="learning-card-body">
-            <span class="learning-card-tag">Transformers</span>
-            <h3>Self-Attention Explainer (Offline)</h3>
-            <p>Simple offline explainer of self-attention concepts with practical intuition.</p>
-            <span class="learning-card-cta">Open page →</span>
-          </div>
-        </a>
-      </article>
+    <header class="topic-header">
+      <div class="section-tag">Topic 01</div>
+      <h2>LLM Foundations</h2>
+      <p>Core LLM concepts, transformers, fine-tuning, and Python foundations for AI work.</p>
+    </header>
+    <div class="subtopic">
+      <div class="subtopic-label">Core concepts</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/LLM-Explorer-Standalone.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/llm-explorer.svg" alt="LLM Explorer preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Explorer</span>
+                    <h3>LLM Explorer (Standalone)</h3>
+                    <p>Standalone page to explore LLM concepts and behavior in an approachable format.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../resilient_marzipan_app/index.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI Terms glossary preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="gloss-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#111827"/><stop offset="100%" stop-color="#1f2937"/>
+                        </linearGradient>
+                        <linearGradient id="gloss-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#a3e635"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#gloss-bg)"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#38bdf8" letter-spacing="2">GLOSSARY</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#f3f4f6">AI Terms, Properly</text>
+                      <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#a3e635">Explained</text>
+                      <text x="200" y="172" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#9ca3af">LLMs · attention · agents · fine-tuning</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#gloss-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Glossary</span>
+                    <h3>AI Terms, Properly Explained</h3>
+                    <p>Plain-language glossary of AI terms — LLMs, attention, context windows, fine-tuning, and agents.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/SelfAttentionExplainerOffline.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/self-attention.svg" alt="Self-Attention Explainer preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Transformers</span>
+                    <h3>Self-Attention Explainer (Offline)</h3>
+                    <p>Simple offline explainer of self-attention concepts with practical intuition.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">Transformers &amp; embeddings</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/positional-encoding-standalone.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/positional-encoding.svg" alt="Positional Encoding standalone preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Embeddings</span>
+                    <h3>Positional Encoding (Standalone)</h3>
+                    <p>Visual, standalone explainer for how positional information is added in transformers.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/positional_encoding.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/positional-encoding.svg" alt="Positional Encoding in-depth preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Transformers</span>
+                    <h3>Positional Encoding (In-Depth)</h3>
+                    <p>Detailed intuition and deeper explanation of positional encoding mechanisms.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">Fine-tuning</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/fineTuning.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/fine-tuning.svg" alt="Fine-Tuning LLMs preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">LLM</span>
+                    <h3>Fine-Tuning LLMs</h3>
+                    <p>Practical notes and examples for adapting base models to specific tasks.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/LLM%20Fine-Tuning.dc.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/fine-tuning.svg" alt="Fine-tuning from base to aligned preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">LLM</span>
+                    <h3>Fine-Tuning: Base to Aligned</h3>
+                    <p>End-to-end Hugging Face + TRL guide through non-instruction tuning, SFT, and DPO with LoRA adapters.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">Python for AI</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/PythonBasicsOffline.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/python-basics.svg" alt="Python Basics preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Python</span>
+                    <h3>Python Basics (Offline)</h3>
+                    <p>Fast refresher on core Python fundamentals for AI and automation workflows.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="venv_comprehensive_guide.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Python venv guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="venv-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
+                        </linearGradient>
+                        <linearGradient id="venv-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#1d6fa4"/><stop offset="100%" stop-color="#0f7b55"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#venv-bg)"/>
+                      <ellipse cx="320" cy="40" rx="90" ry="50" fill="#0f7b55" opacity="0.15"/>
+                      <ellipse cx="60" cy="180" rx="80" ry="45" fill="#1d6fa4" opacity="0.12"/>
+                      <text x="200" y="48" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#7dd3fc" letter-spacing="2">FOR JAVA DEVELOPERS</text>
+                      <text x="200" y="88" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#f4f6f9">Python venv</text>
+                      <text x="200" y="116" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#e8a020">Maven-style isolation</text>
+                      <rect x="55" y="142" width="110" height="40" rx="8" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.5"/>
+                      <text x="110" y="167" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#7dd3fc">activate</text>
+                      <rect x="185" y="142" width="70" height="40" rx="8" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.5"/>
+                      <text x="220" y="167" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#f0c060">pip</text>
+                      <rect x="275" y="142" width="70" height="40" rx="8" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.5"/>
+                      <text x="310" y="167" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#6ee7b7">freeze</text>
+                      <text x="200" y="204" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#94a3b8">Windows · VS Code · Cursor</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#venv-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Python</span>
+                    <h3>Python venv Explained</h3>
+                    <p>Virtual environments mapped to Maven/Gradle for Java developers on Windows — setup, IDE wiring, troubleshooting, and a reproducible project walkthrough.</p>
+                    <span class="learning-card-cta">Open guide →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/PythonBasics-v1.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Pydantic and Agents preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="pyv1-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#16162a"/><stop offset="100%" stop-color="#1e1e38"/>
+                        </linearGradient>
+                        <linearGradient id="pyv1-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#5b5ef4"/><stop offset="100%" stop-color="#10b981"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#pyv1-bg)"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#7c7ff7" letter-spacing="2">PYTHON</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f5f6fa">Pydantic &amp; Agents</text>
+                      <text x="200" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#94a3c4">Interactive week-1 follow-on guide</text>
+                      <rect x="70" y="158" width="110" height="36" rx="6" fill="#2a2a48" stroke="#5b5ef4" stroke-opacity="0.5"/>
+                      <text x="125" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#a5b4fc">Models</text>
+                      <rect x="220" y="158" width="110" height="36" rx="6" fill="#2a2a48" stroke="#10b981" stroke-opacity="0.5"/>
+                      <text x="275" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#6ee7b7">Agents</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#pyv1-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Python</span>
+                    <h3>Pydantic &amp; Agents</h3>
+                    <p>Interactive follow-on from Python basics covering Pydantic models and building simple agents.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../pydantic_app/index.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Mastering Pydantic preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="pyd-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e293b"/>
+                        </linearGradient>
+                        <linearGradient id="pyd-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#e11d48"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#pyd-bg)"/>
+                      <ellipse cx="320" cy="40" rx="90" ry="50" fill="#e11d48" opacity="0.15"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fb7185" letter-spacing="2">VALIDATION</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f8fafc">Mastering Pydantic</text>
+                      <text x="200" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#94a3b8">Models · Settings · Structured outputs</text>
+                      <rect x="50" y="158" width="90" height="36" rx="6" fill="#1e293b" stroke="#e11d48" stroke-opacity="0.45"/>
+                      <text x="95" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#fb7185">BaseModel</text>
+                      <rect x="155" y="158" width="90" height="36" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-opacity="0.45"/>
+                      <text x="200" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#fbbf24">Settings</text>
+                      <rect x="260" y="158" width="90" height="36" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-opacity="0.45"/>
+                      <text x="305" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#7dd3fc">LLM I/O</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#pyd-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Python</span>
+                    <h3>Mastering Pydantic</h3>
+                    <p>Interactive reference for models, validation, settings, and LLM structured outputs.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="rag-retrieval" class="topic-section">
+  <div class="section-inner">
+    <header class="topic-header">
+      <div class="section-tag">Topic 02</div>
+      <h2>RAG & Retrieval</h2>
+      <p>Indexing, retrieval, hybrid search, and advanced RAG patterns from architecture to production decisions.</p>
+    </header>
+    <div class="subtopic">
+      <div class="subtopic-label">Architecture</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/rag-architecture.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="RAG Architecture preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="ragcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1419"/><stop offset="100%" stop-color="#1a2332"/>
+                        </linearGradient>
+                        <linearGradient id="ragcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#38bdf8"/><stop offset="50%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#fbbf24"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#ragcard-bg)"/>
+                      <ellipse cx="60" cy="40" rx="80" ry="45" fill="#38bdf8" opacity="0.12"/>
+                      <ellipse cx="340" cy="180" rx="90" ry="50" fill="#fbbf24" opacity="0.1"/>
+                      <text x="200" y="52" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#38bdf8" letter-spacing="2">RETRIEVAL-AUGMENTED GENERATION</text>
+                      <text x="200" y="88" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="#e8edf4">RAG Architecture</text>
+                      <rect x="40" y="112" width="100" height="44" rx="8" fill="#1a2332" stroke="#38bdf8" stroke-opacity="0.5"/>
+                      <text x="90" y="139" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#38bdf8">Ingest</text>
+                      <line x1="148" y1="134" x2="172" y2="134" stroke="#2dd4bf" stroke-width="2"/>
+                      <rect x="176" y="112" width="100" height="44" rx="8" fill="#1a2332" stroke="#2dd4bf" stroke-opacity="0.5"/>
+                      <text x="226" y="139" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf">Index</text>
+                      <line x1="284" y1="134" x2="308" y2="134" stroke="#fbbf24" stroke-width="2"/>
+                      <rect x="260" y="112" width="100" height="44" rx="8" fill="#1a2332" stroke="#fbbf24" stroke-opacity="0.5"/>
+                      <text x="310" y="139" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fbbf24">Query</text>
+                      <text x="200" y="188" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb3">Offline pipeline / Online pipeline</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#ragcard-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">RAG</span>
+                    <h3>RAG Architecture</h3>
+                    <p>Interactive guide to offline indexing and online query pipelines — loaders, chunking, embedding, retrieval, and generation with a step-by-step walkthrough.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/vector-store-vs-database.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Vector Store vs Database preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="vscard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0a0e18"/><stop offset="100%" stop-color="#121a2e"/>
+                        </linearGradient>
+                        <linearGradient id="vscard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#38bdf8"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#vscard-bg)"/>
+                      <ellipse cx="90" cy="50" rx="70" ry="40" fill="#a78bfa" opacity="0.15"/>
+                      <ellipse cx="310" cy="170" rx="80" ry="45" fill="#38bdf8" opacity="0.12"/>
+                      <text x="200" y="48" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#a78bfa" letter-spacing="2">ULTIMATE RAG BOOTCAMP · §6</text>
+                      <text x="200" y="82" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#eef2ff">Vector Store</text>
+                      <text x="200" y="108" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#38bdf8">vs Database</text>
+                      <rect x="55" y="128" width="130" height="52" rx="10" fill="#1a2540" stroke="#a78bfa" stroke-opacity="0.5"/>
+                      <text x="120" y="152" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#a78bfa">FAISS / Chroma</text>
+                      <text x="120" y="168" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb8">prototype scale</text>
+                      <rect x="215" y="128" width="130" height="52" rx="10" fill="#1a2540" stroke="#38bdf8" stroke-opacity="0.5"/>
+                      <text x="280" y="152" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#38bdf8">Pinecone / Qdrant</text>
+                      <text x="280" y="168" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb8">production scale</text>
+                      <text x="200" y="200" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">When to graduate from store to database</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#vscard-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">RAG</span>
+                    <h3>Vector Store vs Vector Database</h3>
+                    <p>Interactive guide comparing FAISS-style stores with production vector databases — scale, cost, filtering, and a decision checklist with search simulator.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">Retrieval techniques</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/retriever-guide.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Retriever Guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="retcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
+                        </linearGradient>
+                        <linearGradient id="retcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#e8a020"/><stop offset="45%" stop-color="#1d6fa4"/><stop offset="100%" stop-color="#0f7b55"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#retcard-bg)"/>
+                      <ellipse cx="70" cy="45" rx="90" ry="50" fill="#e8a020" opacity="0.14"/>
+                      <ellipse cx="340" cy="185" rx="85" ry="48" fill="#0f7b55" opacity="0.12"/>
+                      <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#f0c060" letter-spacing="2">RAG · RETRIEVAL</text>
+                      <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#e8edf4">Retriever Guide</text>
+                      <rect x="28" y="108" width="72" height="36" rx="7" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.65"/>
+                      <text x="64" y="131" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fbbf24">Filter</text>
+                      <line x1="104" y1="126" x2="118" y2="126" stroke="#8b9cb8" stroke-width="2"/>
+                      <rect x="122" y="108" width="78" height="36" rx="7" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.7"/>
+                      <text x="161" y="131" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#38bdf8">Retrieve</text>
+                      <line x1="204" y1="126" x2="218" y2="126" stroke="#8b9cb8" stroke-width="2"/>
+                      <rect x="222" y="108" width="72" height="36" rx="7" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.7"/>
+                      <text x="258" y="131" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#34d399">Rerank</text>
+                      <line x1="298" y1="126" x2="312" y2="126" stroke="#8b9cb8" stroke-width="2"/>
+                      <rect x="316" y="108" width="56" height="36" rx="7" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.55"/>
+                      <text x="344" y="131" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#f0c060">LLM</text>
+                      <text x="200" y="178" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">MMR · hybrid · metadata · transforms</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#retcard-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">RAG</span>
+                    <h3>Retriever Guide</h3>
+                    <p>Deep dive into RAG retrieval: LangChain knobs, similarity metrics, metadata filters, hybrid search, query transforms, and reranking — with an interactive search-type demo.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/rrf_vs_reranker_pipeline.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="RRF vs Reranker pipeline preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="rrfcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
+                        </linearGradient>
+                        <linearGradient id="rrfcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#b45309"/><stop offset="35%" stop-color="#1d6fa4"/><stop offset="70%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#0f7b55"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#rrfcard-bg)"/>
+                      <ellipse cx="60" cy="50" rx="80" ry="45" fill="#1d6fa4" opacity="0.18"/>
+                      <ellipse cx="340" cy="180" rx="90" ry="50" fill="#0f7b55" opacity="0.14"/>
+                      <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#f0c060" letter-spacing="2">HYBRID RAG</text>
+                      <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">RRF vs Reranker</text>
+                      <rect x="22" y="108" width="62" height="34" rx="7" fill="#1a2f4e" stroke="#b45309" stroke-opacity="0.7"/>
+                      <text x="53" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fbbf24">BM25</text>
+                      <text x="95" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">+</text>
+                      <rect x="108" y="108" width="62" height="34" rx="7" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.7"/>
+                      <text x="139" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#38bdf8">Dense</text>
+                      <text x="181" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
+                      <rect x="194" y="108" width="54" height="34" rx="7" fill="#1a2f4e" stroke="#7c3aed" stroke-opacity="0.7"/>
+                      <text x="221" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#a78bfa">RRF</text>
+                      <text x="259" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
+                      <rect x="272" y="108" width="72" height="34" rx="7" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.7"/>
+                      <text x="308" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#34d399">Rerank</text>
+                      <text x="356" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#8b9cb8">→</text>
+                      <rect x="366" y="108" width="22" height="34" rx="7" fill="#1a2f4e" stroke="#e8a020" stroke-opacity="0.55"/>
+                      <text x="377" y="129" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#f0c060">LLM</text>
+                      <text x="200" y="178" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">Fuse ranks · then score relevance</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#rrfcard-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">RAG</span>
+                    <h3>RRF vs Reranker Pipeline</h3>
+                    <p>Interactive walkthrough of hybrid retrieval: BM25 + dense → Reciprocal Rank Fusion → cross-encoder rerank → LLM — and why you need both steps.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">Advanced RAG</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/CRAG.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/crag.svg" alt="CRAG Interactive Explainer preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">RAG</span>
+                    <h3>CRAG Decision Guide</h3>
+                    <p>Interactive explainer for Corrective RAG: when to add a retrieval quality gate, architecture flow, use cases, and scenario practice.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/agentic-rag-langgraph-guide.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Agentic RAG with LangGraph preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="arag-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1f1c"/><stop offset="100%" stop-color="#1a2e2a"/>
+                        </linearGradient>
+                        <linearGradient id="arag-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f766e"/><stop offset="50%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#b45309"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#arag-bg)"/>
+                      <ellipse cx="70" cy="40" rx="90" ry="50" fill="#0f766e" opacity="0.2"/>
+                      <ellipse cx="340" cy="190" rx="80" ry="45" fill="#b45309" opacity="0.12"/>
+                      <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">LANGGRAPH · AGENTIC RAG</text>
+                      <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">Decide · Retrieve</text>
+                      <text x="200" y="104" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#2dd4bf">Grade · Rewrite</text>
+                      <rect x="28" y="128" width="62" height="36" rx="7" fill="#1a2e2a" stroke="#0f766e" stroke-opacity="0.6"/>
+                      <text x="59" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#2dd4bf">decide</text>
+                      <line x1="94" y1="146" x2="106" y2="146" stroke="#2dd4bf" stroke-width="2"/>
+                      <rect x="110" y="128" width="62" height="36" rx="7" fill="#1a2e2a" stroke="#2dd4bf" stroke-opacity="0.5"/>
+                      <text x="141" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#2dd4bf">retrieve</text>
+                      <line x1="176" y1="146" x2="188" y2="146" stroke="#2dd4bf" stroke-width="2"/>
+                      <rect x="192" y="128" width="62" height="36" rx="7" fill="#1a2e2a" stroke="#b45309" stroke-opacity="0.55"/>
+                      <text x="223" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#fbbf24">grade</text>
+                      <line x1="258" y1="146" x2="270" y2="146" stroke="#b45309" stroke-width="2"/>
+                      <rect x="274" y="128" width="98" height="36" rx="7" fill="#1a2e2a" stroke="#0f766e" stroke-opacity="0.6"/>
+                      <text x="323" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#2dd4bf">rewrite → gen</text>
+                      <text x="200" y="192" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb3">Control flow when classic RAG is not enough</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#arag-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">RAG</span>
+                    <h3>Agentic RAG with LangGraph</h3>
+                    <p>Step-by-step guide: decide, retrieve, grade, rewrite, and generate — with architecture, notebook walkthrough, and live demo paths.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">System design</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/ai-ml-systems-part2.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI ML Systems Part 2 preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="aimlcard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0c1222"/><stop offset="100%" stop-color="#141d33"/>
+                        </linearGradient>
+                        <linearGradient id="aimlcard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#aimlcard-bg)"/>
+                      <ellipse cx="70" cy="45" rx="75" ry="42" fill="#8b5cf6" opacity="0.14"/>
+                      <ellipse cx="330" cy="175" rx="85" ry="48" fill="#2dd4bf" opacity="0.1"/>
+                      <text x="200" y="46" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">AI/ML SYSTEMS · PART 2</text>
+                      <text x="200" y="82" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">RAG &amp; Agents</text>
+                      <rect x="48" y="102" width="88" height="40" rx="8" fill="#1a2744" stroke="#2dd4bf" stroke-opacity="0.5"/>
+                      <text x="92" y="127" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#2dd4bf">Retrieve</text>
+                      <line x1="140" y1="122" x2="158" y2="122" stroke="#8b5cf6" stroke-width="2"/>
+                      <rect x="162" y="102" width="76" height="40" rx="8" fill="#1a2744" stroke="#8b5cf6" stroke-opacity="0.5"/>
+                      <text x="200" y="127" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#8b5cf6">Evaluate</text>
+                      <line x1="242" y1="122" x2="260" y2="122" stroke="#fbbf24" stroke-width="2"/>
+                      <rect x="264" y="102" width="88" height="40" rx="8" fill="#1a2744" stroke="#fbbf24" stroke-opacity="0.5"/>
+                      <text x="308" y="127" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fbbf24">Agents</text>
+                      <text x="200" y="168" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#94a3c4">Pipelines · evals · security · interview scenarios</text>
+                      <text x="200" y="198" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#94a3c4">Building the system around the model</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#aimlcard-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">System Design</span>
+                    <h3>AI/ML Systems — RAG &amp; Agents (Part 2)</h3>
+                    <p>Comprehensive study guide: RAG pipeline decisions, retrieval and full-RAG evaluation, agents and tools, access control, and real-world interview scenarios with interactive widgets.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="agents-frameworks" class="topic-section">
+  <div class="section-inner">
+    <header class="topic-header">
+      <div class="section-tag">Topic 03</div>
+      <h2>Agents & Frameworks</h2>
+      <p>Agent workflows, courses, and LangChain ecosystem notes for building agentic systems.</p>
+    </header>
+    <div class="subtopic">
+      <div class="subtopic-label">Courses</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/ai_pioneers_page.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI Pioneers course preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="ap-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0A1628"/><stop offset="100%" stop-color="#0D1F35"/>
+                        </linearGradient>
+                        <linearGradient id="ap-accent" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0D9488"/><stop offset="100%" stop-color="#F59E0B"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#ap-bg)"/>
+                      <ellipse cx="320" cy="40" rx="100" ry="60" fill="#0D9488" opacity="0.15"/>
+                      <ellipse cx="80" cy="190" rx="90" ry="50" fill="#F59E0B" opacity="0.1"/>
+                      <text x="200" y="72" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="600" fill="#5EEAD4" letter-spacing="3">AI PIONEERS · COHORT 1</text>
+                      <text x="200" y="108" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#FFFFFF">GenAI &amp; RAG</text>
+                      <text x="200" y="134" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#FCD34D">Engineering</text>
+                      <rect x="130" y="158" width="140" height="32" rx="16" fill="url(#ap-accent)" opacity="0.9"/>
+                      <text x="200" y="179" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#0A1628">8-WEEK COHORT</text>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Course</span>
+                    <h3>AI Pioneers — GenAI &amp; RAG Engineering</h3>
+                    <p>Practitioner-led 8-week programme: Python, prompt engineering, LangChain, RAG pipelines, agents, and a deployed capstone app.</p>
+                    <span class="learning-card-cta">View programme →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">Agent patterns</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-agent-architectures.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="AI Agent Architectures preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="agent-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0c1222"/><stop offset="100%" stop-color="#141d33"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#agent-bg)"/>
+                      <ellipse cx="320" cy="50" rx="90" ry="50" fill="#8b5cf6" opacity="0.2"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#8b5cf6" letter-spacing="2">AI AGENTS</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">17 Workflow</text>
+                      <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#2dd4bf">Patterns</text>
+                      <rect x="50" y="148" width="70" height="36" rx="6" fill="#1a2744" stroke="#8b5cf6" stroke-opacity="0.5"/>
+                      <text x="85" y="171" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#8b5cf6">ReAct</text>
+                      <rect x="130" y="148" width="70" height="36" rx="6" fill="#1a2744" stroke="#2dd4bf" stroke-opacity="0.5"/>
+                      <text x="165" y="171" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#2dd4bf">Reflect</text>
+                      <rect x="210" y="148" width="70" height="36" rx="6" fill="#1a2744" stroke="#fbbf24" stroke-opacity="0.5"/>
+                      <text x="245" y="171" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#fbbf24">Multi</text>
+                      <rect x="290" y="148" width="60" height="36" rx="6" fill="#1a2744" stroke="#fb7185" stroke-opacity="0.5"/>
+                      <text x="320" y="171" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#fb7185">+14</text>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Architecture</span>
+                    <h3>AI Agent Architectures</h3>
+                    <p>17 agent workflow patterns — ReAct, reflection, multi-agent, blackboard, and more with search and live flow demos.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../python_agents_app/index.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Agents With Just Python preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="agpy-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0c1222"/><stop offset="100%" stop-color="#141d33"/>
+                        </linearGradient>
+                        <linearGradient id="agpy-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#2dd4bf"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#agpy-bg)"/>
+                      <ellipse cx="80" cy="50" rx="90" ry="50" fill="#8b5cf6" opacity="0.18"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#a78bfa" letter-spacing="2">NO FRAMEWORK</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#eef2ff">Agents, With Just</text>
+                      <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#2dd4bf">Python</text>
+                      <rect x="60" y="158" width="280" height="36" rx="6" fill="#1a2744" stroke="#2dd4bf" stroke-opacity="0.45"/>
+                      <text x="200" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf">Tools · loops · structured output</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#agpy-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Agents</span>
+                    <h3>Agents, With Just Python</h3>
+                    <p>Build AI agents from scratch in plain Python — tools, loops, and structured outputs without a framework.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">LangChain</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/01_landscape_student_notes.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="LangChain Ecosystem student notes preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="lscape-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
+                        </linearGradient>
+                        <linearGradient id="lscape-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#1d6fa4"/><stop offset="50%" stop-color="#0f7b55"/><stop offset="100%" stop-color="#e8a020"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#lscape-bg)"/>
+                      <ellipse cx="340" cy="40" rx="90" ry="55" fill="#e8a020" opacity="0.14"/>
+                      <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#f0c060" letter-spacing="2">BOOTCAMP · PART 1</text>
+                      <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">LangChain Ecosystem</text>
+                      <text x="200" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#8b9cb8">Map · Agent vs harness · Timeline</text>
+                      <rect x="28" y="128" width="80" height="36" rx="7" fill="#1a2f4e" stroke="#1d6fa4" stroke-opacity="0.65"/>
+                      <text x="68" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#38bdf8">LangGraph</text>
+                      <rect x="116" y="128" width="80" height="36" rx="7" fill="#1a2f4e" stroke="#0f7b55" stroke-opacity="0.65"/>
+                      <text x="156" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#34d399">LangChain</text>
+                      <rect x="204" y="128" width="80" height="36" rx="7" fill="#1a2f4e" stroke="#b45309" stroke-opacity="0.65"/>
+                      <text x="244" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#fbbf24">Deep Agents</text>
+                      <rect x="292" y="128" width="80" height="36" rx="7" fill="#1a2f4e" stroke="#7c3aed" stroke-opacity="0.65"/>
+                      <text x="332" y="151" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#a78bfa">LangSmith</text>
+                      <text x="200" y="192" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb8">Student notes · no code yet</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#lscape-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">LangChain</span>
+                    <h3>LangChain Ecosystem — Part 1</h3>
+                    <p>Student notes mapping LangGraph, LangChain, Deep Agents, and LangSmith — agents vs harnesses, the v1.0 timeline, and a quick self-check.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/langchain-document-components.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="LangChain Document Model preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="lccard-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1419"/><stop offset="100%" stop-color="#1a2332"/>
+                        </linearGradient>
+                        <linearGradient id="lccard-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#a78bfa"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#lccard-bg)"/>
+                      <ellipse cx="320" cy="36" rx="90" ry="50" fill="#a78bfa" opacity="0.12"/>
+                      <text x="200" y="52" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">LANGCHAIN / WEEK 05</text>
+                      <text x="200" y="86" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8edf4">Document Model</text>
+                      <rect x="55" y="108" width="130" height="56" rx="8" fill="#243044" stroke="#fb7185" stroke-opacity="0.45"/>
+                      <text x="120" y="132" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fb7185">page_content</text>
+                      <text x="120" y="150" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb3">raw text body</text>
+                      <rect x="215" y="108" width="130" height="56" rx="8" fill="#243044" stroke="#2dd4bf" stroke-opacity="0.45"/>
+                      <text x="280" y="132" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#2dd4bf">metadata</text>
+                      <text x="280" y="150" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" fill="#8b9cb3">source / page / id</text>
+                      <text x="200" y="192" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#8b9cb3">Loaders / splitters / transformers</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#lccard-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">LangChain</span>
+                    <h3>LangChain Document Model</h3>
+                    <p>Interactive explainer for Document, page_content, metadata, loaders, splitters, and transformers across the RAG ingestion pipeline.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="system-architecture" class="topic-section">
+  <div class="section-inner">
+    <header class="topic-header">
+      <div class="section-tag">Topic 04</div>
+      <h2>System Architecture</h2>
+      <p>Interactive architecture pattern guides — agents hub, failures, events, async APIs, and containers.</p>
+    </header>
+    <div class="subtopic">
+      <div class="subtopic-label">Hub</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../index.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Architecture Pattern Guides preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="arch-hub-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#080c14"/><stop offset="100%" stop-color="#111827"/>
+                        </linearGradient>
+                        <linearGradient id="arch-hub-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#8b5cf6"/><stop offset="50%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#38bdf8"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#arch-hub-bg)"/>
+                      <ellipse cx="80" cy="40" rx="90" ry="50" fill="#8b5cf6" opacity="0.15"/>
+                      <ellipse cx="330" cy="180" rx="100" ry="55" fill="#2dd4bf" opacity="0.12"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" letter-spacing="2">INTERACTIVE INFOGRAPHICS</text>
+                      <text x="200" y="96" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#f3f6fc">Architecture</text>
+                      <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#8b5cf6">Pattern Guides</text>
+                      <rect x="140" y="148" width="120" height="32" rx="16" fill="#1a2234" stroke="#2dd4bf" stroke-opacity="0.5"/>
+                      <text x="200" y="169" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700" fill="#2dd4bf">6 GUIDES</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#arch-hub-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Architecture</span>
+                    <h3>Architecture Pattern Guides</h3>
+                    <p>Hub for animated ByteByteGo-style guides — AI agents, failure modes, events, async APIs, containers, and CRAG.</p>
+                    <span class="learning-card-cta">Browse all guides →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">Patterns</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../distributed-failure-modes.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Distributed Failure Modes preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="fail-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#140a0e"/><stop offset="100%" stop-color="#1f1218"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#fail-bg)"/>
+                      <ellipse cx="200" cy="110" rx="120" ry="70" fill="#fb7185" opacity="0.1"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fb7185" letter-spacing="2">DISTRIBUTED SYSTEMS</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">Failure Modes</text>
+                      <text x="200" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#94a3c4">Partitions · Split-brain · Cascades</text>
+                      <rect x="60" y="158" width="280" height="36" rx="6" fill="#2a1520" stroke="#fb7185" stroke-opacity="0.45"/>
+                      <text x="200" y="181" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fb7185">6 live simulations</text>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Architecture</span>
+                    <h3>Distributed Failure Modes</h3>
+                    <p>Partitions, split-brain, partial failures, gray failures, amplification, and cascade demos for resilient system design.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../event-driven-patterns.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Event-Driven Patterns preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="evt-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f0a1a"/><stop offset="100%" stop-color="#1a1230"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#evt-bg)"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#a371f7" letter-spacing="2">EVENT-DRIVEN</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">Messaging</text>
+                      <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#a371f7">Patterns</text>
+                      <circle cx="80" cy="168" r="14" fill="#1a2744" stroke="#a371f7"/><circle cx="160" cy="168" r="14" fill="#1a2744" stroke="#2dd4bf"/><circle cx="240" cy="168" r="14" fill="#1a2744" stroke="#fbbf24"/><circle cx="320" cy="168" r="14" fill="#1a2744" stroke="#fb7185"/>
+                      <path d="M94 168h52M174 168h52M254 168h52" stroke="#4a5568" stroke-width="2" stroke-dasharray="4 4"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Architecture</span>
+                    <h3>Event-Driven Patterns</h3>
+                    <p>Competing consumers, projections, event sourcing, outbox, and saga orchestration with animated message flows.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../async-api-patterns.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Async API Patterns preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="async-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#081018"/><stop offset="100%" stop-color="#0f1c2e"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#async-bg)"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#38bdf8" letter-spacing="2">ASYNC APIs</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">Polling · SSE</text>
+                      <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#38bdf8">WebSockets</text>
+                      <rect x="70" y="152" width="260" height="40" rx="8" fill="#142033" stroke="#38bdf8" stroke-opacity="0.4"/>
+                      <text x="200" y="177" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#7dd3fc">Sequence player · 6 patterns</text>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Architecture</span>
+                    <h3>Async API Patterns</h3>
+                    <p>Short/long polling, SSE, webhooks, WebSockets, and async job APIs with step-by-step sequence playback.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../container-design-patterns.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Container Design Patterns preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="k8s-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#141008"/><stop offset="100%" stop-color="#221a10"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#k8s-bg)"/>
+                      <text x="200" y="58" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#fb923c" letter-spacing="2">KUBERNETES / PODS</text>
+                      <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#eef2ff">Container</text>
+                      <text x="200" y="126" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#fb923c">Design Patterns</text>
+                      <rect x="110" y="148" width="180" height="44" rx="10" fill="#2a2010" stroke="#fb923c" stroke-opacity="0.45" stroke-dasharray="6 4"/>
+                      <rect x="130" y="158" width="50" height="24" rx="4" fill="#fb923c" opacity="0.25"/><rect x="190" y="158" width="50" height="24" rx="4" fill="#38bdf8" opacity="0.25"/><rect x="250" y="158" width="20" height="24" rx="4" fill="#4ade80" opacity="0.25"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Architecture</span>
+                    <h3>Container Design Patterns</h3>
+                    <p>Sidecar, adapter, ambassador, leader election, work queue, and scatter/gather with interactive pod diagrams.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="enterprise-migration" class="topic-section">
+  <div class="section-inner">
+    <header class="topic-header">
+      <div class="section-tag">Topic 05</div>
+      <h2>Enterprise Migration</h2>
+      <p>Cloud and BI modernisation guides — Cathay Cargo Terminal, Dynamics 365, and SSAS to Fabric.</p>
+    </header>
+    <div class="subtopic">
+      <div class="subtopic-label">Cloud / CCT</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../migration/cct_weblogic_jboss_aws_migration_guide.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="CCT Migration Guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="cct1-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1117"/><stop offset="50%" stop-color="#161b27"/><stop offset="100%" stop-color="#0f1117"/>
+                        </linearGradient>
+                        <linearGradient id="cct1-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#38c9a8"/><stop offset="100%" stop-color="#ff8c42"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#cct1-bg)"/>
+                      <ellipse cx="200" cy="32" rx="150" ry="55" fill="#38c9a8" opacity="0.12"/>
+                      <rect x="76" y="20" width="248" height="22" rx="11" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.35"/>
+                      <text x="200" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#e8eaf0">Cathay Cargo Terminal</text>
+                      <text x="200" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#38c9a8">Cloud Migration Guide</text>
+                      <rect x="28" y="146" width="84" height="38" rx="6" fill="#1e2535" stroke="#f6ad55" stroke-opacity="0.4"/>
+                      <text x="70" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#f6ad55">WebLogic</text>
+                      <path d="M120 165h12M128 165l-4-4M128 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="136" y="146" width="76" height="38" rx="6" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.4"/>
+                      <text x="174" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#38c9a8">JBoss 8</text>
+                      <path d="M220 165h12M228 165l-4-4M228 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="236" y="146" width="136" height="38" rx="6" fill="#1e2535" stroke="#ff8c42" stroke-opacity="0.4"/>
+                      <text x="304" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#ff8c42">AWS + PostgreSQL</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#cct1-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Cloud Architecture</span>
+                    <h3>CCT Migration Guide</h3>
+                    <p>WebLogic 12.x → JBoss EAP 8, Oracle → Aurora PostgreSQL, on-prem → AWS — cargo terminal apps, SITA/ACCS integrations, and Entra ID SSO.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../migration/cct_migration_guide_v2.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="CCT Migration Guide v2 preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="cct2-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1117"/><stop offset="50%" stop-color="#161b27"/><stop offset="100%" stop-color="#0f1117"/>
+                        </linearGradient>
+                        <linearGradient id="cct2-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#38c9a8"/><stop offset="100%" stop-color="#ff8c42"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#cct2-bg)"/>
+                      <ellipse cx="200" cy="32" rx="150" ry="55" fill="#38c9a8" opacity="0.12"/>
+                      <rect x="76" y="20" width="248" height="22" rx="11" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.35"/>
+                      <text x="200" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#e8eaf0">Cathay Cargo Terminal</text>
+                      <text x="200" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#38c9a8">Migration Guide v2</text>
+                      <rect x="28" y="146" width="84" height="38" rx="6" fill="#1e2535" stroke="#f6ad55" stroke-opacity="0.4"/>
+                      <text x="70" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#f6ad55">WebLogic</text>
+                      <path d="M120 165h12M128 165l-4-4M128 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="136" y="146" width="76" height="38" rx="6" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.4"/>
+                      <text x="174" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#38c9a8">JBoss 8</text>
+                      <path d="M220 165h12M228 165l-4-4M228 165l-4 4" fill="none" stroke="#38c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="236" y="146" width="136" height="38" rx="6" fill="#1e2535" stroke="#ff8c42" stroke-opacity="0.4"/>
+                      <text x="304" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#ff8c42">AWS + PostgreSQL</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#cct2-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Cloud Architecture</span>
+                    <h3>CCT Migration Guide v2</h3>
+                    <p>Expanded programme reference — CI/CD, observability, RACI, security, EKS, and detailed cutover runbooks for the Cathay Cargo Terminal AWS modernisation.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+    <div class="subtopic">
+      <div class="subtopic-label">Data &amp; BI</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../migration/d365_migration_guide.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="D365 Migration Guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="d365card-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0f1117"/><stop offset="50%" stop-color="#161b27"/><stop offset="100%" stop-color="#0f1117"/>
+                        </linearGradient>
+                        <linearGradient id="d365card-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#4f9cf9"/><stop offset="100%" stop-color="#38c9a8"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#d365card-bg)"/>
+                      <ellipse cx="200" cy="32" rx="150" ry="55" fill="#4f9cf9" opacity="0.12"/>
+                      <rect x="88" y="20" width="224" height="22" rx="11" fill="#1e2535" stroke="#4f9cf9" stroke-opacity="0.35"/>
+                      <text x="200" y="78" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#e8eaf0">Dynamics 365</text>
+                      <text x="200" y="108" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#4f9cf9">Migration Guide</text>
+                      <rect x="40" y="152" width="76" height="38" rx="6" fill="#1e2535" stroke="#4f9cf9" stroke-opacity="0.4"/>
+                      <text x="78" y="176" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#8b93a8">SSIS</text>
+                      <path d="M124 171h12M132 171l-4-4M132 171l-4 4" fill="none" stroke="#4f9cf9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="144" y="152" width="76" height="38" rx="6" fill="#1e2535" stroke="#38c9a8" stroke-opacity="0.4"/>
+                      <text x="182" y="176" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#38c9a8">ADF</text>
+                      <path d="M228 171h12M236 171l-4-4M236 171l-4 4" fill="none" stroke="#4f9cf9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="248" y="152" width="112" height="38" rx="6" fill="#1e2535" stroke="#9f7aea" stroke-opacity="0.4"/>
+                      <text x="304" y="176" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#9f7aea">Fabric</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#d365card-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Data Engineering</span>
+                    <h3>D365 Migration Guide</h3>
+                    <p>From legacy SSIS/SSAS/SSRS to Azure — ADF, Fabric, Qlik CDC, Dataverse, and enterprise BI notes for HK &amp; India deployments.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../migration/ssas_migration_proposal.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="SSAS Migration Proposal preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="ssas-prop-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0e1e35"/><stop offset="50%" stop-color="#1a3454"/><stop offset="100%" stop-color="#0e1e35"/>
+                        </linearGradient>
+                        <linearGradient id="ssas-prop-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#7c3aed"/><stop offset="50%" stop-color="#4f8ec9"/><stop offset="100%" stop-color="#047857"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#ssas-prop-bg)"/>
+                      <ellipse cx="200" cy="32" rx="150" ry="55" fill="#4f8ec9" opacity="0.12"/>
+                      <rect x="72" y="20" width="256" height="22" rx="11" fill="#1a3454" stroke="#7dd3fc" stroke-opacity="0.35"/>
+                      <text x="200" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#e8eaf0">SSAS Multidimensional</text>
+                      <text x="200" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#7dd3fc">Migration Proposal</text>
+                      <rect x="28" y="146" width="88" height="38" rx="6" fill="#1a3454" stroke="#7c3aed" stroke-opacity="0.5"/>
+                      <text x="72" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#c4b5fd">MDX Cube</text>
+                      <path d="M124 165h12M132 165l-4-4M132 165l-4 4" fill="none" stroke="#4f8ec9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="144" y="146" width="88" height="38" rx="6" fill="#1a3454" stroke="#4f8ec9" stroke-opacity="0.5"/>
+                      <text x="188" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#7dd3fc">Tabular / DAX</text>
+                      <path d="M240 165h12M248 165l-4-4M248 165l-4 4" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <rect x="256" y="146" width="116" height="38" rx="6" fill="#1a3454" stroke="#6ee7b7" stroke-opacity="0.5"/>
+                      <text x="314" y="170" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#6ee7b7">Fabric Semantic</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#ssas-prop-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">BI Modernisation</span>
+                    <h3>SSAS → Fabric Migration Proposal</h3>
+                    <p>Two-phase path from SQL Server 2016 SSAS Multidimensional (MDX) to Microsoft Fabric Semantic Models — phased delivery, MDX→DAX translation, and zero-disruption cutover.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../migration/ssas_migration_costing.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="SSAS Migration Costing preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="ssas-cost-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0e1e35"/><stop offset="50%" stop-color="#1a3454"/><stop offset="100%" stop-color="#0e1e35"/>
+                        </linearGradient>
+                        <linearGradient id="ssas-cost-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#c9922a"/><stop offset="100%" stop-color="#0f7b55"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#ssas-cost-bg)"/>
+                      <ellipse cx="320" cy="40" rx="100" ry="60" fill="#c9922a" opacity="0.12"/>
+                      <text x="200" y="68" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="600" fill="#e8c87a" letter-spacing="2">COSTING &amp; RESOURCING</text>
+                      <text x="200" y="104" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#ffffff">SSAS Migration</text>
+                      <text x="200" y="130" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f5e8d0">Investment Plan</text>
+                      <rect x="60" y="152" width="80" height="36" rx="6" fill="#1a3454" stroke="#c9922a" stroke-opacity="0.5"/>
+                      <text x="100" y="174" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#e8c87a">0% AI</text>
+                      <rect x="160" y="152" width="80" height="36" rx="6" fill="#1a3454" stroke="#0f7b55" stroke-opacity="0.5"/>
+                      <text x="200" y="174" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#6fcfa8">25% AI</text>
+                      <rect x="260" y="152" width="80" height="36" rx="6" fill="#1a3454" stroke="#6d28d9" stroke-opacity="0.5"/>
+                      <text x="300" y="174" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="600" fill="#c4b5fd">50% AI</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#ssas-cost-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Migration Planning</span>
+                    <h3>SSAS Migration Costing</h3>
+                    <p>Interactive cost model with rate card, labour breakdown, AI leverage calculator, three budget scenarios, Gantt schedule, and resourcing notes for a 9-month programme.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="interview-career" class="topic-section">
+  <div class="section-inner">
+    <header class="topic-header">
+      <div class="section-tag">Topic 06</div>
+      <h2>Interview & Career</h2>
+      <p>Interview drills and curated job-search resources for AI and integration architecture roles.</p>
+    </header>
+    <div class="subtopic">
+      <div class="subtopic-label">Prep &amp; search</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="Sales_SSBI_Interview_Drill.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Sales SSBI Interview Drill preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="ssbi-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0B1E33"/><stop offset="100%" stop-color="#0F2A44"/>
+                        </linearGradient>
+                        <linearGradient id="ssbi-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#1C7293"/><stop offset="50%" stop-color="#3FB8AF"/><stop offset="100%" stop-color="#E8B84B"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#ssbi-bg)"/>
+                      <ellipse cx="70" cy="40" rx="90" ry="50" fill="#3FB8AF" opacity="0.14"/>
+                      <ellipse cx="340" cy="190" rx="80" ry="45" fill="#E8B84B" opacity="0.1"/>
+                      <text x="200" y="48" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#3FB8AF" letter-spacing="2">INTERVIEW DRILL</text>
+                      <text x="200" y="86" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#EAF4FB">Sales SSBI</text>
+                      <text x="200" y="114" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#E8B84B">Trainer Prep</text>
+                      <rect x="48" y="140" width="88" height="36" rx="7" fill="#11314F" stroke="#1C7293" stroke-opacity="0.55"/>
+                      <text x="92" y="163" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#9FC1D9">DAX</text>
+                      <rect x="156" y="140" width="88" height="36" rx="7" fill="#11314F" stroke="#3FB8AF" stroke-opacity="0.55"/>
+                      <text x="200" y="163" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#3FB8AF">Fabric</text>
+                      <rect x="264" y="140" width="88" height="36" rx="7" fill="#11314F" stroke="#E8B84B" stroke-opacity="0.55"/>
+                      <text x="308" y="163" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#E8B84B">29 Qs</text>
+                      <text x="200" y="200" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#9FC1D9">Semantic models · training · stakeholders</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#ssbi-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Career</span>
+                    <h3>Sales SSBI Interview Drill</h3>
+                    <p>29 practiced answers across semantic models, Direct Lake, DAX filter context, training design, and stakeholder communication — with search and progress tracking.</p>
+                    <span class="learning-card-cta">Open drill →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="Azure_Integration_Architect_Interview.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Azure Integration Architect Interview preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="azia-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#0a1628"/><stop offset="100%" stop-color="#12253f"/>
+                        </linearGradient>
+                        <linearGradient id="azia-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#3db8f5"/><stop offset="50%" stop-color="#5eead4"/><stop offset="100%" stop-color="#7dd3fc"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="400" height="225" fill="url(#azia-bg)"/>
+                      <ellipse cx="60" cy="30" rx="100" ry="55" fill="#3db8f5" opacity="0.18"/>
+                      <ellipse cx="350" cy="200" rx="90" ry="50" fill="#5eead4" opacity="0.1"/>
+                      <text x="200" y="46" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#7dd3fc" letter-spacing="2">INTERVIEW PREP</text>
+                      <text x="200" y="84" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#e8f1fb">Azure Integration</text>
+                      <text x="200" y="112" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#3db8f5">Architect</text>
+                      <rect x="40" y="138" width="96" height="34" rx="7" fill="#163056" stroke="#3db8f5" stroke-opacity="0.5"/>
+                      <text x="88" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#7dd3fc">APIM</text>
+                      <rect x="152" y="138" width="96" height="34" rx="7" fill="#163056" stroke="#5eead4" stroke-opacity="0.5"/>
+                      <text x="200" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#5eead4">Logic Apps</text>
+                      <rect x="264" y="138" width="96" height="34" rx="7" fill="#163056" stroke="#fb923c" stroke-opacity="0.5"/>
+                      <text x="312" y="160" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fb923c">21 Qs</text>
+                      <text x="200" y="198" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#94a8c4">Service Bus · Event Grid · flashcards</text>
+                      <rect x="0" y="223" width="400" height="2" fill="url(#azia-bar)"/>
+                    </svg>
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Career</span>
+                    <h3>Azure Integration Architect Interview</h3>
+                    <p>Infosys AIS prep — 28 Q&amp;As, honest briefing, concept analogies, headless/async patterns, and enterprise architecture diagrams with audio practice.</p>
+                    <span class="learning-card-cta">Open drill →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="../ai-learning/AI-Enginee-Job-Portals.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/ai-job-portals.svg" alt="AI Engineer Job Portals preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Career</span>
+                    <h3>AI Engineer Job Portals</h3>
+                    <p>Curated AI and ML hiring portals with practical focus for active job search.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="tooling-claude" class="topic-section">
+  <div class="section-inner">
+    <header class="topic-header">
+      <div class="section-tag">Topic 07</div>
+      <h2>Tooling & Claude</h2>
+      <p>Practical Claude tooling — from Claude Code walkthroughs to the full Learn Claude course.</p>
+    </header>
+    <div class="subtopic">
+      <div class="subtopic-label">Claude</div>
+      <div class="learning-grid">
+        <article class="learning-card">
+                <a href="../ai-learning/claude_code_tutorial.html" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/claude-code.svg" alt="Claude Code Tutorial preview" width="400" height="225" loading="lazy">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Tooling</span>
+                    <h3>Claude Code Tutorial</h3>
+                    <p>Beginner-friendly walkthrough for using Claude Code effectively in real projects.</p>
+                    <span class="learning-card-cta">Open page →</span>
+                  </div>
+                </a>
+              </article>
+        <article class="learning-card">
+                <a href="https://mayankchugh-learning.github.io/claude-tutorial/" class="learning-card-link">
+                  <div class="learning-card-thumb">
+                    <img src="../../assets/learning/learn-claude.svg" alt="Learn Claude course preview" width="400" height="225" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/learning/claude-code.svg';">
+                  </div>
+                  <div class="learning-card-body">
+                    <span class="learning-card-tag">Claude</span>
+                    <h3>Learn Claude — Full Course</h3>
+                    <p>15-module path from Claude fundamentals to agentic workflows, MCP, skills, hooks, and capstone project.</p>
+                    <span class="learning-card-cta">Open course →</span>
+                  </div>
+                </a>
+              </article>
+      </div>
     </div>
   </div>
 </section>
 <footer>
   <p>© 2026 Mayank Chugh · <a href="../../index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">← Back to Portfolio</a></p>
 </footer>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.topic-nav a'));
+  if (!links.length) return;
+  var sections = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  }).filter(Boolean);
+  function setActive(id) {
+    links.forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+    });
+  }
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+    sections.forEach(function (s) { observer.observe(s); });
+  }
+  if (location.hash) setActive(location.hash.slice(1));
+  else if (sections[0]) setActive(sections[0].id);
+})();
+</script>
 </body>
 </html>
