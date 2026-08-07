@@ -523,8 +523,36 @@ td:first-child {
 }
 .page-footer a { color: var(--blue); text-decoration: none; }
 .page-footer a:hover { text-decoration: underline; }
+.img-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.15rem 0 0.25rem;
+}
+.img-row figure {
+  margin: 0;
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.65rem;
+  overflow: hidden;
+}
+.img-row img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+}
+.img-row figcaption {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  line-height: 1.45;
+}
 @media (max-width: 800px) {
   .compare, .compare-3 { grid-template-columns: 1fr; }
+  .img-row { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .shell { width: calc(100% - 1.5rem); }
@@ -637,6 +665,16 @@ td:first-child {
           <h3>Sous-chef + head chef</h3>
           <p>User = customer · Documents = pantry · Retriever = chef’s assistant · LLM = head chef. The retriever gathers ingredients; it does not cook.</p>
         </div>
+      </div>
+      <div class="img-row">
+        <figure>
+          <img src="ChatGPT%20Image%20Jul%2030,%202026,%2005_23_09%20AM.png" alt="Library analogy: user as student, documents as books, retriever as librarian, LLM as teacher">
+          <figcaption>Library analogy — retriever finds pages; LLM teaches</figcaption>
+        </figure>
+        <figure>
+          <img src="ChatGPT%20Image%20Jul%2030,%202026,%2005_22_56%20AM.png" alt="Restaurant analogy: user as customer, documents as pantry, retriever as chef’s assistant, LLM as head chef">
+          <figcaption>Restaurant analogy — retriever gathers ingredients; LLM cooks</figcaption>
+        </figure>
       </div>
       <div class="callout">
         <strong>Check yourself:</strong> In one sentence, what does a retriever do — and what must it never claim to do?
