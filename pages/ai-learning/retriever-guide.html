@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Retriever Guide — RAG Retrieval Deep Dive</title>
-<meta name="description" content="Self-learning guide to RAG retrievers: LangChain knobs, similarity metrics, metadata filters, hybrid search, query transforms, reranking, and multimodal retrieval.">
+<meta name="description" content="Updated Retriever Guide from retriever-updated.pdf: LangChain knobs, filters, hybrid fusion, HyDE, multi-query, parent/sentence window, multi-hop, MMR, contextual compression, and reranking.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <style>
@@ -574,22 +574,24 @@ td:first-child {
 
 <header class="hero">
   <div class="shell">
-    <p class="eyebrow">RAG · Retrieval deep dive</p>
+    <p class="eyebrow">RAG · Updated from retriever-updated.pdf · Class 41 · 08 Aug 2026</p>
     <h1>Retriever <span>Guide</span></h1>
     <p class="subtitle">
       The retriever finds evidence for the LLM — it does not write the answer.
-      Master search types, filters, hybrid fusion, query transforms, and reranking.
+      Covers transforms (HyDE, multi-query), retrieval patterns, fusion, MMR, reranking, and contextual compression.
     </p>
     <div class="hero-flow" aria-label="Pipeline overview">
-      <span>Docs</span>
+      <span>Query</span>
       <span class="arrow">→</span>
-      <span>Chunk</span>
-      <span class="arrow">→</span>
-      <span>Embed</span>
+      <span>Transform</span>
       <span class="arrow">→</span>
       <span class="hl">Retrieve</span>
       <span class="arrow">→</span>
+      <span>Fuse</span>
+      <span class="arrow">→</span>
       <span>Rerank</span>
+      <span class="arrow">→</span>
+      <span>Compress</span>
       <span class="arrow">→</span>
       <span>LLM</span>
     </div>
@@ -604,12 +606,18 @@ td:first-child {
       <a href="#langchain-knobs">Knobs</a>
       <a href="#similarity">Metrics</a>
       <a href="#metadata">Metadata</a>
-      <a href="#pre-post">Filter timing</a>
+      <a href="#pre-post">Filters</a>
       <a href="#retrieval-types">Hybrid</a>
       <a href="#query-transform">Transforms</a>
+      <a href="#hyde">HyDE</a>
+      <a href="#multi-query">Multi-query</a>
+      <a href="#parent-sentence">Parent / window</a>
+      <a href="#multi-hop">Multi-hop</a>
+      <a href="#fusion">Fusion</a>
+      <a href="#mmr">MMR</a>
       <a href="#reranking">Rerank</a>
-      <a href="#bi-cross">Encoders</a>
-      <a href="#rrf">RRF</a>
+      <a href="#compression">Compression</a>
+      <a href="#langchain-map">LangChain map</a>
       <a href="#practice">Practice</a>
     </nav>
 
@@ -862,14 +870,15 @@ filtered = [
         </table>
       </div>
       <div class="callout">
-        Hybrid often wins when queries mix precise identifiers (years, codes, names) with natural language. Fusion methods (weighted scores, RRF) are the next layer — see <a href="rrf_vs_reranker_pipeline.html">RRF vs Reranker</a>.
+        Hybrid often wins when queries mix precise identifiers (years, codes, names) with natural language.
+        How you merge lists matters — see <a href="#fusion">Result fusion</a> and <a href="rrf_vs_reranker_pipeline.html">RRF vs Reranker</a>.
       </div>
     </article>
 
     <article class="section" id="query-transform">
       <div class="section-label">07 · Query transforms</div>
       <h2>Query transformation</h2>
-      <p>Improve the user’s query <em>before</em> retrieval: rewrite, expand, or decompose.</p>
+      <p>Improve the user’s query <em>before</em> retrieval so the system can find more relevant information. Rewrite, expand, decompose — or use HyDE / multi-query (next sections).</p>
       <div class="method-block">
         <div class="method-header"><span class="method-badge">1</span><div class="method-name">Query rewriting</div></div>
         <div class="method-body">
@@ -881,19 +890,220 @@ filtered = [
       <div class="method-block">
         <div class="method-header"><span class="method-badge">2</span><div class="method-name">Query expansion</div></div>
         <div class="method-body">
-          Add synonyms / acronyms / variants: <em>employee leave policy</em> → also <em>vacation policy</em>, <em>annual leave guidelines</em>. Broadens recall when documents use different wording.
+          Add synonyms / acronyms / variants: <em>employee leave policy</em> → <em>vacation policy</em>, <em>annual leave guidelines</em>. Also: <em>car</em> → automobile, vehicle.
         </div>
       </div>
       <div class="method-block">
         <div class="method-header"><span class="method-badge">3</span><div class="method-name">Query decomposition</div></div>
         <div class="method-body">
-          Complex question → atomic sub-queries → retrieve per sub-query → merge evidence. Ideal for comparisons and multi-hop questions.
+          Complex question → atomic sub-queries → retrieve per sub-query → merge evidence.
+          Example: compare Company A vs B revenue + growth factors → four focused sub-queries.
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Production stack (PDF summary):</strong>
+        Query understanding (intent, metadata, security) → transform (rewrite / expand / multi-query / HyDE / decompose) →
+        optional routing (vector / SQL / graph / web / APIs) → retrieve → fuse → rerank → contextual compression → LLM.
+      </div>
+    </article>
+
+    <article class="section" id="hyde">
+      <div class="section-label">08 · HyDE</div>
+      <h2>Hypothetical Document Embeddings (HyDE)</h2>
+      <p><strong>HyDE = generate a hypothetical answer first, then use its embedding to retrieve real documents.</strong></p>
+      <div class="pipeline">
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num gold">1</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">User query</div><div class="pipeline-desc">e.g. “How does Llama 2 improve safety?”</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num teal">2</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content">
+            <div class="pipeline-title">LLM creates a hypothetical answer/document</div>
+            <div class="pipeline-desc">“Llama 2 improves safety using supervised safety fine-tuning, RLHF, red teaming, and safety evaluation.”</div>
+          </div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num coral">3</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Embed that hypothetical text</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num gold">4</div></div>
+          <div class="pipeline-content">
+            <div class="pipeline-title">Vector search for real documents similar to it</div>
+            <div class="pipeline-desc">A full hypothetical answer is often closer to document wording than a short question.</div>
+          </div>
         </div>
       </div>
     </article>
 
+    <article class="section" id="multi-query">
+      <div class="section-label">09 · Multi-query</div>
+      <h2>Multi-Query Retriever</h2>
+      <p>Creates multiple versions of the same user query, runs retrieval for each, then merges and deduplicates.</p>
+      <div class="pipeline">
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num gold">1</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">User query → generate variations</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num teal">2</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Search for each variation</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num coral">3</div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Merge + remove duplicates → final docs</div></div>
+        </div>
+      </div>
+      <p>Example variations for “How does Llama 2 improve safety?”:</p>
+      <ol>
+        <li>What safety techniques are used in Llama 2?</li>
+        <li>How was Llama 2 safety fine-tuned?</li>
+        <li>How does Llama 2 reduce unsafe responses?</li>
+      </ol>
+      <div class="compare">
+        <div class="compare-card blue">
+          <p class="label">Multi-query</p>
+          <h3>Several questions</h3>
+          <p>Generates multiple query versions and searches with each. Main goal: improve recall.</p>
+        </div>
+        <div class="compare-card teal">
+          <p class="label">HyDE</p>
+          <h3>One hypothetical answer</h3>
+          <p>Does <em>not</em> create multiple questions. Embeds a hypothetical answer and searches with that. Main goal: improve semantic matching.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="section" id="parent-sentence">
+      <div class="section-label">10 · Chunk strategies</div>
+      <h2>Parent Document vs Sentence Window</h2>
+      <div class="compare">
+        <div class="compare-card gold">
+          <p class="label">Parent Document</p>
+          <h3>Search small, return big</h3>
+          <p>Embed child chunks (~300 tokens) for precise matching, but return the larger parent section (~1,500–2,000 tokens) that contains the hit.</p>
+        </div>
+        <div class="compare-card teal">
+          <p class="label">Sentence Window</p>
+          <h3>Search sentence, return neighbors</h3>
+          <p>Embed single sentences for precision; when one matches, return that sentence plus nearby sentences as context.</p>
+        </div>
+      </div>
+      <h3>Parent Document flow</h3>
+      <p>Large doc → child chunks → embed children → query hits child → return its parent section. Small chunks retrieve accurately; parents give the LLM enough context.</p>
+      <h3>Sentence Window example</h3>
+      <p>Query: <em>How is Llama 2 aligned using human feedback?</em> may match Sentence 10 (“RLHF is used…”). Return Sentences 8–12 so the LLM sees SFT → preference data → RLHF → reward model → PPO.</p>
+      <div class="callout warn">
+        LangChain has <code>ParentDocumentRetriever</code> built in. Sentence-window style retrieval needs custom metadata + replacement logic (LlamaIndex has a more direct built-in).
+      </div>
+    </article>
+
+    <article class="section" id="multi-hop">
+      <div class="section-label">11 · Multi-hop</div>
+      <h2>Multi-Hop Retrieval</h2>
+      <p><strong>Retrieve → use the result to retrieve again → combine evidence.</strong> Used when one retrieval pass cannot answer the question.</p>
+      <div class="pipeline">
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num gold">1</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">User query</div><div class="pipeline-desc">“Who founded the company that developed Llama 2?”</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num teal">2</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Hop 1</div><div class="pipeline-desc">Which company developed Llama 2? → Meta</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num coral">3</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Hop 2</div><div class="pipeline-desc">Who founded Meta? → Mark Zuckerberg and co-founders</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num gold">4</div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Combine evidence → final answer</div></div>
+        </div>
+      </div>
+      <div class="callout">
+        No universal <code>MultiHopRetriever</code> in LangChain — implement with LangGraph (retriever + LLM + state), or use <code>GraphVectorStoreRetriever</code> with <code>search_type="traversal"</code> for graph corpora.
+      </div>
+    </article>
+
+    <article class="section" id="fusion">
+      <div class="section-label">12 · Result fusion</div>
+      <h2>Hybrid merge strategies &amp; Result Fusion</h2>
+      <p>Hybrid retrieval = use multiple retrievers. It does <em>not</em> by itself define how to merge outputs. Common merge options:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Approach</th><th>How it merges</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Simple merge</td><td>Concatenate lists</td><td>No proper ranking; BM25 may dominate — weak for production</td></tr>
+            <tr><td>Weighted fusion</td><td>Combine normalized scores with weights</td><td>Score-based; normalize first if scales differ</td></tr>
+            <tr><td>RRF</td><td>Combine rank positions</td><td>Rank-based; scales need not match</td></tr>
+            <tr><td>Rerank after merge</td><td>Union candidates → cross-encoder</td><td>Common: top 50 → rerank → top 5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="compare">
+        <div class="compare-card blue">
+          <p class="label">Weighted Fusion</p>
+          <h3>Score-based</h3>
+          <p>Final = (0.4 × BM25) + (0.6 × vector). Example: 0.4×0.8 + 0.6×0.9 = 0.86. Normalize scores when scales differ.</p>
+        </div>
+        <div class="compare-card teal">
+          <p class="label">RRF</p>
+          <h3>Rank-based</h3>
+          <p>Points from rank positions across lists. Docs near the top in multiple lists win. Original RRF needs no weights.</p>
+        </div>
+      </div>
+      <div class="callout ok">
+        <strong>Memory trick:</strong> Weighted Fusion = score-based fusion · RRF = rank-based fusion.
+        Interactive walkthrough: <a href="rrf_vs_reranker_pipeline.html">RRF vs Reranker Pipeline</a>.
+      </div>
+      <div class="callout warn">
+        LangChain <code>EnsembleRetriever(weights=[...])</code> does <em>weighted RRF</em>, not raw score-weighted addition. For pure score fusion, normalize and combine yourself (or use DB-native hybrid).
+      </div>
+    </article>
+
+    <article class="section" id="mmr">
+      <div class="section-label">13 · Diversity</div>
+      <h2>Maximal Marginal Relevance (MMR)</h2>
+      <p>MMR first takes the most relevant document, then picks remaining docs by balancing query relevance against diversity — avoiding near-duplicates of what is already selected.</p>
+      <div class="callout">
+        <strong>Goal:</strong> relevant results without redundant / highly repetitive chunks for the LLM.
+      </div>
+      <h3>Worked example (from PDF)</h3>
+      <p>Query: <em>How does Llama 2 improve safety?</em> · <code>fetch_k=5</code> · <code>k=2</code> · λ = 0.5</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Doc</th><th>Query similarity</th><th>Sim with Doc A</th><th>MMR score (λ=0.5)</th></tr></thead>
+          <tbody>
+            <tr><td>Doc A</td><td>0.95</td><td>—</td><td>Selected first (highest relevance)</td></tr>
+            <tr><td>Doc B</td><td>0.90</td><td>0.95</td><td>−0.025 (too similar to A)</td></tr>
+            <tr><td>Doc C</td><td>0.88</td><td>0.40</td><td>0.24</td></tr>
+            <tr><td>Doc D</td><td>0.84</td><td>0.20</td><td>0.32</td></tr>
+            <tr><td>Doc E</td><td>0.80</td><td>0.10</td><td>0.35 ← chosen next</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="compare">
+        <div class="compare-card coral">
+          <p class="label">Similarity only</p>
+          <h3>Doc A, Doc B</h3>
+          <p>Both may say almost the same thing.</p>
+        </div>
+        <div class="compare-card teal">
+          <p class="label">MMR</p>
+          <h3>Doc A, Doc E</h3>
+          <p>E is slightly less relevant but adds new information.</p>
+        </div>
+      </div>
+      <p><strong>YouTube trick:</strong> without MMR you get “Python Tutorial Part 1–4”; with MMR you get Tutorial + Project + Interview + Best Practices.</p>
+<pre><code>retriever = vector_store.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 4, "fetch_k": 20, "lambda_mult": 0.5}
+)</code></pre>
+    </article>
+
     <article class="section" id="reranking">
-      <div class="section-label">08 · Second stage</div>
+      <div class="section-label">14 · Second stage</div>
       <h2>Reranking</h2>
       <p>Reranking takes the initial candidate set, scores each document more carefully against the query, and reorders so the best evidence reaches the LLM.</p>
       <div class="pipeline">
@@ -923,86 +1133,110 @@ filtered = [
       <p>
         <span class="pill pill-teal">better order</span>
         <span class="pill pill-blue">drop weak candidates</span>
-        <span class="pill pill-gold">less irrelevant context</span>
+        <span class="pill pill-gold">less irrelevant context / tokens</span>
         <span class="pill pill-coral">works on sparse, dense, or hybrid pools</span>
       </p>
       <div class="callout danger">
         <strong>Cost:</strong> extra latency, compute, and inference. Apply only to a limited candidate set — never the whole corpus.
       </div>
-      <h3>Production cascade</h3>
-      <ol>
-        <li>User submits query</li>
-        <li>Apply metadata + security filters</li>
-        <li>Retrieve a broad candidate set (BM25 / vector / hybrid)</li>
-        <li>Rerank candidates</li>
-        <li>Optional minimum-score threshold</li>
-        <li>Send best documents to the LLM</li>
-      </ol>
-      <p>Example scale: 1,000,000 chunks → retrieve 50 → rerank → pass top 5. Tune window size to accuracy, latency, token budget, and cost.</p>
-      <div class="callout">
-        Reranking is older than RAG. Cascade ranking (e.g. 2011) and BERT passage re-ranking (2019) popularized multi-stage IR; RAG reused the pattern: search first, rerank, then generate.
-      </div>
-    </article>
-
-    <article class="section" id="bi-cross">
-      <div class="section-label">09 · Encoders</div>
-      <h2>Bi-encoder vs cross-encoder</h2>
+      <h3>Bi-encoder vs cross-encoder</h3>
       <div class="table-wrap">
         <table>
           <thead><tr><th></th><th>Bi-encoder (retrieval)</th><th>Cross-encoder (rerank)</th></tr></thead>
           <tbody>
             <tr><td>Encoding</td><td>Query and documents encoded separately; doc vectors stored ahead of time</td><td>Query + candidate processed together each time</td></tr>
             <tr><td>Strength</td><td>Fast search over large collections</td><td>Fine-grained query–document interactions</td></tr>
-            <tr><td>Cost</td><td>Cheap at query time for millions of docs</td><td>Expensive — score each pair separately</td></tr>
+            <tr><td>Cost</td><td>Cheap at query time for millions of docs</td><td>Expensive — score each pair separately (20 candidates ⇒ 20 forwards)</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Retrieval</th><th>Reranking</th></tr></thead>
-          <tbody>
-            <tr><td>Searches the complete collection</td><td>Processes only retrieved candidates</td></tr>
-            <tr><td>Optimized for speed and recall</td><td>Optimized for ranking precision</td></tr>
-            <tr><td>Returns an initial candidate set</td><td>Reorders that set</td></tr>
-            <tr><td>BM25 or embeddings (bi-encoder)</td><td>Often a cross-encoder / ranking model</td></tr>
-            <tr><td>First stage</td><td>Second stage</td></tr>
-          </tbody>
-        </table>
+      <h3>Production cascade</h3>
+      <ol>
+        <li>User submits query → apply metadata + security filters</li>
+        <li>Retrieve a broad candidate set (BM25 / vector / hybrid)</li>
+        <li>Rerank → optional minimum-score threshold</li>
+        <li>Send best documents to the LLM</li>
+      </ol>
+      <p>Example scale: 1,000,000 chunks → retrieve 50 → rerank → pass top 5. Elasticsearch exposes the window as <code>rank_window_size</code>.</p>
+      <h3>Ranking families</h3>
+      <div class="hier">
+        <div class="hier-item"><span class="label">Pointwise</span> Score each candidate alone (A→0.91, B→0.67), then sort. (monoBERT-style)</div>
+        <div class="hier-item"><span class="label">Pairwise</span> Compare two docs: for this query, is A or B better? (duoBERT-style)</div>
+        <div class="hier-item"><span class="label">Listwise</span> Consider several candidates together and emit an ordered list.</div>
+      </div>
+      <div class="callout">
+        Reranking is older than RAG. Cascade ranking (2011) and BERT passage re-ranking (2019) popularized multi-stage IR; RAG reused: search → rerank → generate.
       </div>
     </article>
 
-    <article class="section" id="rrf">
-      <div class="section-label">10 · Fusion</div>
-      <h2>RRF vs semantic rerank</h2>
-      <p>They are <em>not</em> the same.</p>
-      <div class="compare">
+    <article class="section" id="compression">
+      <div class="section-label">15 · Trim context</div>
+      <h2>Contextual Compression</h2>
+      <p><strong>First retrieve relevant documents, then remove parts that are not useful for the current query.</strong></p>
+      <div class="pipeline">
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num gold">1</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Retriever gets relevant documents</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num teal">2</div><div class="pipeline-line"></div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Compressor checks them against the query</div></div>
+        </div>
+        <div class="pipeline-item">
+          <div class="pipeline-left"><div class="pipeline-num coral">3</div></div>
+          <div class="pipeline-content"><div class="pipeline-title">Irrelevant text removed → only useful context to the LLM</div></div>
+        </div>
+      </div>
+      <p>Example: a 1,000-token HR chunk covers leave, dress code, WFH, travel, holidays. Query “How many annual leave days?” keeps only the leave sentences.</p>
+      <div class="compare compare-3">
         <div class="compare-card blue">
-          <p class="label">Fusion</p>
-          <h3>Reciprocal Rank Fusion</h3>
-          <p>Merges ranked lists from multiple retrievers (BM25 + vector) using <em>positions</em>. Does not jointly score every query–document pair.</p>
+          <p class="label">Retriever</p>
+          <h3>Finds docs</h3>
+          <p>Brings candidates into the window.</p>
+        </div>
+        <div class="compare-card gold">
+          <p class="label">Reranker</p>
+          <h3>Orders docs</h3>
+          <p>Same content, better ranking. 1000 words stay 1000 words.</p>
         </div>
         <div class="compare-card teal">
-          <p class="label">Relevance</p>
-          <h3>Semantic reranking</h3>
-          <p>A query–document model assigns new relevance scores and reorders the combined candidates.</p>
+          <p class="label">Compression</p>
+          <h3>Trims content</h3>
+          <p>1000 words → ~120 useful words. Content changes.</p>
         </div>
       </div>
-      <div class="callout ok">
-        <strong>Full hybrid pattern:</strong> BM25 + Vector → RRF → Cross-encoder reranker → best context for the LLM.
-        Walk it interactively in <a href="rrf_vs_reranker_pipeline.html">RRF vs Reranker Pipeline</a>.
+      <div class="callout warn">
+        Reducing <code>k</code> is not the same: you may still send a 1000-token chunk where only 20 tokens matter. Compression shortens each document.
       </div>
-      <h3>Ranking families</h3>
-      <div class="hier">
-        <div class="hier-item"><span class="label">Pointwise</span> Score each candidate alone (A→0.91, B→0.67), then sort.</div>
-        <div class="hier-item"><span class="label">Pairwise</span> Compare two docs: for this query, is A or B better?</div>
-        <div class="hier-item"><span class="label">Listwise</span> Consider several candidates together and emit an ordered list.</div>
+      <h3>Compressor types</h3>
+      <div class="method-block">
+        <div class="method-header"><span class="method-badge">1</span><div class="method-name">LLMChainExtractor</div></div>
+        <div class="method-body">LLM reads query + document and extracts only relevant sentences. Highest quality; costs an LLM call.</div>
       </div>
+      <div class="method-block">
+        <div class="method-header"><span class="method-badge">2</span><div class="method-name">EmbeddingsFilter</div></div>
+        <div class="method-body">Keep / discard docs (or sub-chunks) by embedding similarity threshold. Faster and cheaper — no LLM call.</div>
+      </div>
+      <div class="method-block">
+        <div class="method-header"><span class="method-badge">3</span><div class="method-name">CrossEncoderReranker</div></div>
+        <div class="method-body">Can act as a compressor: drop low-relevance documents from the candidate set (reorder + filter).</div>
+      </div>
+<pre><code>from langchain_classic.retrievers.contextual_compression import (
+    ContextualCompressionRetriever,
+)
+from langchain_classic.retrievers.document_compressors import LLMChainExtractor
+
+compressor = LLMChainExtractor.from_llm(llm)
+compression_retriever = ContextualCompressionRetriever(
+    base_retriever=dense_retriever,
+    base_compressor=compressor,
+)</code></pre>
     </article>
 
     <article class="section" id="multimodal">
-      <div class="section-label">11 · Beyond text</div>
+      <div class="section-label">16 · Beyond text</div>
       <h2>Multimodal retriever</h2>
-      <p>A multimodal retriever finds relevant items across modalities (text ↔ image) by embedding compatible modalities into a shared vector space.</p>
+      <p>Retrieves across modalities (text ↔ image) via multimodal embeddings in a shared vector space — text-to-image, image-to-text, and image-to-image.</p>
       <div class="compare">
         <div class="compare-card blue">
           <p class="label">Cross-modal</p>
@@ -1017,16 +1251,56 @@ filtered = [
       </div>
     </article>
 
+    <article class="section" id="langchain-map">
+      <div class="section-label">17 · LangChain map</div>
+      <h2>Concept → LangChain class</h2>
+      <p>From the updated PDF (langchain_classic / community imports — check your package versions).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Concept</th><th>Class / API</th></tr></thead>
+          <tbody>
+            <tr><td>MMR</td><td><code>vector_store.as_retriever(search_type="mmr")</code></td></tr>
+            <tr><td>Multi-Query</td><td><code>MultiQueryRetriever</code></td></tr>
+            <tr><td>HyDE</td><td><code>HypotheticalDocumentEmbedder</code> (or LCEL: prompt → LLM → embed → search)</td></tr>
+            <tr><td>Parent Document</td><td><code>ParentDocumentRetriever</code></td></tr>
+            <tr><td>Hybrid / RRF</td><td><code>EnsembleRetriever</code> + <code>BM25Retriever</code> + vector retriever</td></tr>
+            <tr><td>Contextual Compression</td><td><code>ContextualCompressionRetriever</code></td></tr>
+            <tr><td>LLM extract</td><td><code>LLMChainExtractor</code></td></tr>
+            <tr><td>Embedding filter</td><td><code>EmbeddingsFilter</code></td></tr>
+            <tr><td>Cross-encoder rerank</td><td><code>CrossEncoderReranker</code> + <code>HuggingFaceCrossEncoder</code></td></tr>
+            <tr><td>Listwise LLM rerank</td><td><code>LLMListwiseRerank</code></td></tr>
+            <tr><td>Sentence window</td><td>Custom (metadata window + replace)</td></tr>
+            <tr><td>Multi-hop</td><td>LangGraph / iterative calls; graph: <code>GraphVectorStoreRetriever</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+<pre><code># Hybrid via EnsembleRetriever (weighted RRF internally)
+from langchain_community.retrievers import BM25Retriever
+from langchain_classic.retrievers import EnsembleRetriever
+
+bm25 = BM25Retriever.from_documents(chunks); bm25.k = 5
+dense = vector_store.as_retriever(search_kwargs={"k": 5})
+hybrid = EnsembleRetriever(retrievers=[bm25, dense], weights=[0.5, 0.5])
+docs = hybrid.invoke("Llama 2 grouped query attention")</code></pre>
+<pre><code># Multi-query
+from langchain_classic.retrievers.multi_query import MultiQueryRetriever
+mq = MultiQueryRetriever.from_llm(
+    retriever=vector_store.as_retriever(), llm=llm, include_original=True
+)</code></pre>
+    </article>
+
     <article class="section" id="practice">
-      <div class="section-label">12 · Practice</div>
+      <div class="section-label">18 · Practice</div>
       <h2>Practice checklist</h2>
       <ol>
         <li>Define a retriever in one sentence; mark where it sits in the RAG pipeline.</li>
-        <li>Compare <code>similarity</code> vs <code>mmr</code> vs score-threshold on the same query (use the demo above).</li>
+        <li>Compare <code>similarity</code> vs <code>mmr</code> vs score-threshold (use the demo above). Walk the MMR Doc A / Doc E example.</li>
         <li>Explain <code>k</code>, <code>fetch_k</code>, <code>lambda_mult</code>, and when pre-filter beats post-filter.</li>
-        <li>Contrast sparse / dense / hybrid; sketch BM25 + vector → RRF → rerank.</li>
-        <li>Give one example each of rewrite, expansion, and decomposition.</li>
-        <li>State why a cross-encoder is second-stage only.</li>
+        <li>Contrast sparse / dense / hybrid; sketch simple merge vs weighted fusion vs RRF vs rerank-after-merge.</li>
+        <li>Contrast HyDE vs Multi-Query; give one rewrite / expansion / decomposition example.</li>
+        <li>Explain Parent Document vs Sentence Window; when you’d use multi-hop.</li>
+        <li>State why a cross-encoder is second-stage only; how compression differs from reranking.</li>
+        <li>Map three concepts to LangChain classes from the table above.</li>
       </ol>
       <p class="related">
         <a href="rag-architecture.html">RAG Architecture</a>
@@ -1035,6 +1309,9 @@ filtered = [
         <a href="CRAG.html">CRAG Decision Guide</a>
         <a href="agentic-rag-langgraph-guide.html">Agentic RAG</a>
         <a href="../learning/index.html">All learning pages</a>
+      </p>
+      <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
+        Source: <code>retriever-updated.pdf</code> · 41-Day-08Aug26 · Full-Stack GenAI Bootcamp
       </p>
     </article>
 
