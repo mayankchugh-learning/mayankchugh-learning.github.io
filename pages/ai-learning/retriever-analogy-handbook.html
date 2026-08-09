@@ -257,7 +257,8 @@ code{font-family:"JetBrains Mono",Consolas,monospace;font-size:.84em;background:
 <span class="hero-chip">Find · Order · Trim</span>
 </div>
 <div class="hero-actions">
-<a class="primary" href="#pipeline">Jump to concepts</a>
+<a class="primary" href="#chooser">Choose a technique</a>
+<a class="ghost" href="#pipeline">Browse concepts</a>
 <a class="ghost" href="retriever-guide.html">Technical guide</a>
 </div>
 </div></header>
@@ -265,6 +266,7 @@ code{font-family:"JetBrains Mono",Consolas,monospace;font-size:.84em;background:
 <div class="toc" aria-label="Table of contents">
 <strong>Jump</strong>
 <div class="toc-parts">
+<a href="#chooser">Chooser</a>
 <a href="#pipeline">Foundations</a>
 <a href="#metadata">Narrowing</a>
 <a href="#sparse">Search</a>
@@ -276,7 +278,7 @@ code{font-family:"JetBrains Mono",Consolas,monospace;font-size:.84em;background:
 </div>
 <details class="toc-all"><summary>All 26 concepts</summary>
 <div class="toc-links">
-<a href="#pipeline">01 RAG Pipeline</a><a href="#what-is">02 Retriever</a><a href="#knobs">03 search_type</a><a href="#similarity">04 Similarity</a><a href="#metadata">05 Metadata</a><a href="#pre-post">06 Pre vs Post</a><a href="#sparse">07 Sparse</a><a href="#dense">08 Dense</a><a href="#hybrid">09 Hybrid</a><a href="#rewriting">10 Rewriting</a><a href="#expansion">11 Expansion</a><a href="#decomposition">12 Decomposition</a><a href="#hyde">13 HyDE</a><a href="#multi-query">14 Multi-Query</a><a href="#parent-doc">15 Parent Doc</a><a href="#sentence-window">16 Sentence Window</a><a href="#multi-hop">17 Multi-Hop</a><a href="#weighted-fusion">18 Weighted Fusion</a><a href="#rrf">19 RRF</a><a href="#mmr">20 MMR</a><a href="#reranking">21 Reranking</a><a href="#cross-encoder">22 Bi vs Cross</a><a href="#rank-families">23 Rank families</a><a href="#compression">24 Compression</a><a href="#multimodal">25 Multimodal</a><a href="#routing">26 Routing</a><a href="#cheatsheet">Cheat sheet</a>
+<a href="#pipeline">01 RAG Pipeline</a><a href="#what-is">02 Retriever</a><a href="#knobs">03 search_type</a><a href="#similarity">04 Similarity</a><a href="#metadata">05 Metadata</a><a href="#pre-post">06 Pre vs Post</a><a href="#sparse">07 Sparse</a><a href="#dense">08 Dense</a><a href="#hybrid">09 Hybrid</a><a href="#rewriting">10 Rewriting</a><a href="#expansion">11 Expansion</a><a href="#decomposition">12 Decomposition</a><a href="#hyde">13 HyDE</a><a href="#multi-query">14 Multi-Query</a><a href="#parent-doc">15 Parent Doc</a><a href="#sentence-window">16 Sentence Window</a><a href="#multi-hop">17 Multi-Hop</a><a href="#weighted-fusion">18 Weighted Fusion</a><a href="#rrf">19 RRF</a><a href="#mmr">20 MMR</a><a href="#reranking">21 Reranking</a><a href="#cross-encoder">22 Bi vs Cross</a><a href="#rank-families">23 Rank families</a><a href="#compression">24 Compression</a><a href="#multimodal">25 Multimodal</a><a href="#routing">26 Routing</a><a href="#chooser">Use-case chooser</a><a href="#cheatsheet">Cheat sheet</a>
 </div></details>
 </div>
 <div class="toolbar" aria-label="Reading controls">
@@ -284,7 +286,7 @@ code{font-family:"JetBrains Mono",Consolas,monospace;font-size:.84em;background:
 <button type="button" id="btn-collapse-visuals">Collapse visuals</button>
 <button type="button" id="btn-expand-code">Expand code</button>
 </div>
-<section class="section" id="how-to-use"><div class="section-label">Start here</div><h2>How to use this handbook</h2><h3>Why analogies</h3><p>Retrieval is unusually hard to teach because nothing in it is visible. Chunks, vectors, ranks and scores are all abstractions with no physical form, so learners nod along and then cannot tell you why a reranker is not a retriever. An analogy gives the abstraction a body. Once you can picture a sous-chef walking to a shelf, you can reason about what happens when the shelf is badly organised.</p><h3>How this handbook works</h3><p>Every concept gets one analogy chosen specifically for it, rather than one metaphor stretched across all twenty-six. A stretched metaphor starts lying quickly. Each section then gives you the mapping table (analogy element to technical element), the flow, the LangChain code, and — the part most guides skip — an explicit note on where the analogy breaks down. An analogy you cannot see the edges of is a future misconception.</p><h3>How to read it</h3><p>If you are learning: read the story, then the mapping, then the code. If you are teaching: the story and mapping are your slide, the code is your notebook cell, and the 'where it breaks' box is the question a sharp student will ask you. If you are revising: skip to the cheat sheet at the end and use each analogy as the retrieval cue.</p><h3>The two anchor analogies</h3>
+<section class="section" id="how-to-use"><div class="section-label">Start here</div><h2>How to use this handbook</h2><h3>Why analogies</h3><p>Retrieval is unusually hard to teach because nothing in it is visible. Chunks, vectors, ranks and scores are all abstractions with no physical form, so learners nod along and then cannot tell you why a reranker is not a retriever. An analogy gives the abstraction a body. Once you can picture a sous-chef walking to a shelf, you can reason about what happens when the shelf is badly organised.</p><h3>How this handbook works</h3><p>Every concept gets one analogy chosen specifically for it, rather than one metaphor stretched across all twenty-six. A stretched metaphor starts lying quickly. Each section then gives you the mapping table (analogy element to technical element), the flow, the LangChain code, and — the part most guides skip — an explicit note on where the analogy breaks down. An analogy you cannot see the edges of is a future misconception.</p><h3>How to read it</h3><p><strong>Diagnose first.</strong> If you already have a broken RAG answer, start at the <a href="#chooser">use-case chooser</a>: match the symptom, jump to that concept, then open the visual. If you are learning cold: read the story, then the mapping, then the code. If you are teaching: the story and mapping are your slide, the code is your notebook cell, and the 'where it breaks' box is the question a sharp student will ask you. If you are revising: use the cheat sheet, then re-run the matching practical in <a href="retriever-analogy-images/retriever_advance_colab.ipynb">retriever_advance_colab.ipynb</a>.</p><h3>The two anchor analogies</h3>
 <p>Start with these two pictures of the same idea — then open each concept's visual only when you want the full infographic.</p>
 <div class="anchor-cards">
 <a class="anchor-card" href="#pipeline">
@@ -296,6 +298,39 @@ code{font-family:"JetBrains Mono",Consolas,monospace;font-size:.84em;background:
 <span>02 · Librarian →</span>
 </a>
 </div></section>
+<section class="section" id="chooser">
+<div class="section-label">Start here · from the advanced lab</div>
+<h2>Use-case chooser</h2>
+<p class="hook">Name the failure mode first. Then pick the technique — do not start from a favourite algorithm.</p>
+<p>This table comes from the advanced Colab lab. Read left to right: <em>symptom → technique → why</em>. Each technique links to the analogy section below; after you understand the picture, run the matching practical in the notebook.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Problem you are seeing</th><th>Best technique to try first</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Exact names, IDs, codes, dates are missed</td><td><a href="#sparse">BM25 / Sparse</a></td><td>Exact lexical matching</td></tr>
+<tr><td>User uses different words than documents</td><td><a href="#dense">Dense Retrieval</a></td><td>Semantic matching</td></tr>
+<tr><td>Both exact terms + semantic intent matter</td><td><a href="#hybrid">Hybrid Retrieval</a></td><td>BM25 + dense complement each other</td></tr>
+<tr><td>BM25/dense result lists need merging</td><td><a href="#rrf">RRF</a></td><td>Rank-based fusion avoids score-scale problems</td></tr>
+<tr><td>You know one retriever should matter more</td><td><a href="#weighted-fusion">Weighted Fusion</a></td><td>Explicitly control contribution</td></tr>
+<tr><td>Retrieved chunks are repetitive</td><td><a href="#mmr">MMR</a></td><td>Relevance + diversity</td></tr>
+<tr><td>Conversational query is incomplete</td><td><a href="#rewriting">Query Rewriting</a></td><td>Makes query standalone</td></tr>
+<tr><td>Different wording causes poor recall</td><td><a href="#multi-query">Multi-Query</a></td><td>Searches multiple formulations</td></tr>
+<tr><td>Very short/abstract query does not match document language</td><td><a href="#hyde">HyDE</a></td><td>Converts query into document-like representation</td></tr>
+<tr><td>One question contains multiple independent questions</td><td><a href="#decomposition">Query Decomposition</a></td><td>Retrieve each sub-question separately</td></tr>
+<tr><td>Next search depends on information found in first search</td><td><a href="#multi-hop">Multi-Hop Retrieval</a></td><td>Sequential dependent retrieval</td></tr>
+<tr><td>Small chunks retrieve well but lack context</td><td><a href="#parent-doc">Parent Document Retrieval</a></td><td>Search small → return larger parent</td></tr>
+<tr><td>Exact sentence retrieves well but needs nearby context</td><td><a href="#sentence-window">Sentence Window</a></td><td>Search sentence → expand locally</td></tr>
+<tr><td>Correct docs retrieved but wrong one ranks first</td><td><a href="#reranking">Reranking</a></td><td>More accurate second-stage ranking</td></tr>
+<tr><td>Correct docs contain lots of irrelevant text</td><td><a href="#compression">Contextual Compression</a></td><td>Remove irrelevant context</td></tr>
+<tr><td>Tenant/role/year/version restrictions exist</td><td><a href="#metadata">Metadata Pre-filtering</a></td><td>Restrict search before retrieval</td></tr>
+<tr><td>Data exists in SQL + vector DB + web + APIs</td><td><a href="#routing">Query Routing</a></td><td>Select correct source</td></tr>
+<tr><td>Answer exists in image/table/diagram</td><td><a href="#multimodal">Multimodal retrieval</a></td><td>Text retrieval alone is insufficient</td></tr>
+</tbody></table></div>
+<div class="callout blue"><strong>Practice loop &mdash;</strong> Choose a row → read the analogy → open the visual → run the same technique in
+<a href="retriever-analogy-images/retriever_advance_colab.ipynb">retriever_advance_colab.ipynb</a>
+(foundations / filters also covered in
+<a href="retriever-analogy-images/retriever.ipynb">retriever.ipynb</a>).
+Ask after each run: <em>Did this fix the failure mode, or only reshuffle noise?</em></div>
+</section>
 <div class="part-head"><span>Foundations</span><div class="rule"></div></div><section class="section tone-blue" id="pipeline"><div class="section-label">Concept 01 &middot; Foundations</div><h2>The RAG Pipeline, End to End</h2><div class="analogy-band"><span class="tag">ANALOGY</span><span class="name">The Restaurant Kitchen</span></div><p class="hook">Nobody hands the head chef the entire pantry.</p><details class="visual"><summary><span>The Restaurant Kitchen</span><span class="cta" aria-hidden="true"></span></summary><figure class="analogy-figure"><img src="retriever-analogy-images/01-restaurant-kitchen.jpg" alt="Restaurant kitchen analogy: customer order, pantry, sous-chef retriever, head-chef LLM" loading="lazy" decoding="async"><figcaption>The Restaurant Kitchen — Concept 01</figcaption></figure></details><p>A customer orders pasta with tomato basil sauce. Behind the door, that order does not go straight to the stove. Raw deliveries arrive at the back and get unpacked and inspected. Vegetables are chopped into usable portions. Everything is put into labelled jars and arranged on organised shelves — because a pantry where nothing is labelled is the same as no pantry at all.</p><p>Only when the order ticket lands does the sous-chef walk the shelves and bring back exactly the jars and the one recipe card this dish needs. The head chef then cooks. The chef never sees the other four hundred jars, and does not need to.</p><h3>The mapping</h3><div class="table-wrap"><table><thead><tr><th>In the kitchen</th><th>In the pipeline</th><th>Why it matches</th></tr></thead><tbody><tr><td>Raw deliveries at the back door</td><td>Documents</td><td>Unstructured source material, exactly as it arrives</td></tr><tr><td>Unpacking and inspecting</td><td>Parsing / loading</td><td>Getting usable text out of PDFs, HTML, Word, scans</td></tr><tr><td>Chopping into portions</td><td>Chunking</td><td>Whole documents are too big to use as a unit</td></tr><tr><td>Labelled jars</td><td>Embeddings</td><td>Each chunk gets a numeric label describing its meaning</td></tr><tr><td>Organised shelves</td><td>Vector store</td><td>Storage arranged for fast lookup by that label</td></tr><tr><td>The sous-chef</td><td>Retriever</td><td>Fetches only what this specific order needs</td></tr><tr><td>The head chef</td><td>LLM</td><td>Turns retrieved ingredients into the finished dish</td></tr><tr><td>The plated dish</td><td>Final answer</td><td>What the customer actually receives</td></tr></tbody></table></div><h3>The flow</h3><div class="pipeline"><div class="pipeline-item"><div class="pipeline-left"><div class="pipeline-num">1</div><div class="pipeline-line"></div></div><div class="pipeline-content"><div class="pipeline-title">Order placed</div><div class="pipeline-desc">The user asks a question</div></div></div><div class="pipeline-item"><div class="pipeline-left"><div class="pipeline-num">2</div><div class="pipeline-line"></div></div><div class="pipeline-content"><div class="pipeline-title">Sous-chef fetches</div><div class="pipeline-desc">The retriever pulls the relevant chunks and nothing else</div></div></div><div class="pipeline-item"><div class="pipeline-left"><div class="pipeline-num">3</div><div class="pipeline-line"></div></div><div class="pipeline-content"><div class="pipeline-title">Head chef cooks</div><div class="pipeline-desc">The LLM generates using only what it was handed</div></div></div><div class="pipeline-item"><div class="pipeline-left"><div class="pipeline-num">4</div></div><div class="pipeline-content"><div class="pipeline-title">Dish served</div><div class="pipeline-desc">The answer is returned, grounded in those chunks</div></div></div></div><details class="code-panel"><summary>The whole kitchen, in six lines</summary><pre><code>docs      = loader.load()                                  # deliveries
 chunks    = splitter.split_documents(docs)                # prep work
 store     = Chroma.from_documents(chunks, embeddings)     # labelled jars on shelves
@@ -521,6 +556,9 @@ documents = ROUTES.get(route, vector_retriever).invoke(question)</code></pre></d
 <section class="related" aria-label="Related guides">
 <h3>Continue learning</h3>
 <p>
+<a href="#chooser">Use-case chooser</a> ·
+<a href="retriever-analogy-images/retriever_advance_colab.ipynb">Advanced Colab lab</a> ·
+<a href="retriever-analogy-images/retriever.ipynb">Retriever notebook</a> ·
 <a href="retriever-guide.html">Technical Retriever Guide</a> ·
 <a href="rrf_vs_reranker_pipeline.html">RRF vs Reranker</a> ·
 <a href="vector-store-vs-database.html">Vector Store vs Database</a> ·
