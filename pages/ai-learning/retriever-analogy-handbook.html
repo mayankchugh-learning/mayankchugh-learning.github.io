@@ -205,6 +205,7 @@ code{font-family:"JetBrains Mono",Consolas,monospace;font-size:.84em;background:
 .related p{margin:0;color:var(--muted);font-size:.86rem}
 .related a{color:var(--blue);text-decoration:none;font-weight:600}
 .related a:hover{text-decoration:underline}
+.muted{color:var(--muted);font-size:.82rem}
 .page-footer{text-align:center;color:var(--muted);font-size:.8rem;margin:6px 0 0;padding-bottom:24px}
 .page-footer a{color:var(--blue);text-decoration:none;font-weight:600}
 .page-footer a:hover{text-decoration:underline}
@@ -299,36 +300,40 @@ code{font-family:"JetBrains Mono",Consolas,monospace;font-size:.84em;background:
 </a>
 </div></section>
 <section class="section" id="chooser">
-<div class="section-label">Start here · from the advanced lab</div>
+<div class="section-label">Start here · diagnose then practice</div>
 <h2>Use-case chooser</h2>
 <p class="hook">Name the failure mode first. Then pick the technique — do not start from a favourite algorithm.</p>
-<p>This table comes from the advanced Colab lab. Read left to right: <em>symptom → technique → why</em>. Each technique links to the analogy section below; after you understand the picture, run the matching practical in the notebook.</p>
+<p>Read left to right: <em>symptom → technique → why → notebook</em>. Start with
+<a href="retriever-analogy-images/method-notebooks/00_basics_concepts.ipynb">00_basics_concepts.ipynb</a>
+once, then open the method notebook for the row you chose. Full originals remain available as
+<a href="retriever-analogy-images/retriever.ipynb">retriever.ipynb</a> and
+<a href="retriever-analogy-images/retriever_advance_colab.ipynb">retriever_advance_colab.ipynb</a>.
+All <strong>26 concepts</strong> now have a notebook (lab or theory-only) —
+see <a href="retriever-analogy-images/method-notebooks/README_INDEX.ipynb">method-notebooks/README_INDEX.ipynb</a>.</p>
 <div class="table-wrap"><table>
-<thead><tr><th>Problem you are seeing</th><th>Best technique to try first</th><th>Why</th></tr></thead>
+<thead><tr><th>Problem you are seeing</th><th>Best technique to try first</th><th>Why</th><th>Notebook</th></tr></thead>
 <tbody>
-<tr><td>Exact names, IDs, codes, dates are missed</td><td><a href="#sparse">BM25 / Sparse</a></td><td>Exact lexical matching</td></tr>
-<tr><td>User uses different words than documents</td><td><a href="#dense">Dense Retrieval</a></td><td>Semantic matching</td></tr>
-<tr><td>Both exact terms + semantic intent matter</td><td><a href="#hybrid">Hybrid Retrieval</a></td><td>BM25 + dense complement each other</td></tr>
-<tr><td>BM25/dense result lists need merging</td><td><a href="#rrf">RRF</a></td><td>Rank-based fusion avoids score-scale problems</td></tr>
-<tr><td>You know one retriever should matter more</td><td><a href="#weighted-fusion">Weighted Fusion</a></td><td>Explicitly control contribution</td></tr>
-<tr><td>Retrieved chunks are repetitive</td><td><a href="#mmr">MMR</a></td><td>Relevance + diversity</td></tr>
-<tr><td>Conversational query is incomplete</td><td><a href="#rewriting">Query Rewriting</a></td><td>Makes query standalone</td></tr>
-<tr><td>Different wording causes poor recall</td><td><a href="#multi-query">Multi-Query</a></td><td>Searches multiple formulations</td></tr>
-<tr><td>Very short/abstract query does not match document language</td><td><a href="#hyde">HyDE</a></td><td>Converts query into document-like representation</td></tr>
-<tr><td>One question contains multiple independent questions</td><td><a href="#decomposition">Query Decomposition</a></td><td>Retrieve each sub-question separately</td></tr>
-<tr><td>Next search depends on information found in first search</td><td><a href="#multi-hop">Multi-Hop Retrieval</a></td><td>Sequential dependent retrieval</td></tr>
-<tr><td>Small chunks retrieve well but lack context</td><td><a href="#parent-doc">Parent Document Retrieval</a></td><td>Search small → return larger parent</td></tr>
-<tr><td>Exact sentence retrieves well but needs nearby context</td><td><a href="#sentence-window">Sentence Window</a></td><td>Search sentence → expand locally</td></tr>
-<tr><td>Correct docs retrieved but wrong one ranks first</td><td><a href="#reranking">Reranking</a></td><td>More accurate second-stage ranking</td></tr>
-<tr><td>Correct docs contain lots of irrelevant text</td><td><a href="#compression">Contextual Compression</a></td><td>Remove irrelevant context</td></tr>
-<tr><td>Tenant/role/year/version restrictions exist</td><td><a href="#metadata">Metadata Pre-filtering</a></td><td>Restrict search before retrieval</td></tr>
-<tr><td>Data exists in SQL + vector DB + web + APIs</td><td><a href="#routing">Query Routing</a></td><td>Select correct source</td></tr>
-<tr><td>Answer exists in image/table/diagram</td><td><a href="#multimodal">Multimodal retrieval</a></td><td>Text retrieval alone is insufficient</td></tr>
+<tr><td>Exact names, IDs, codes, dates are missed</td><td><a href="#sparse">BM25 / Sparse</a></td><td>Exact lexical matching</td><td><a href="retriever-analogy-images/method-notebooks/01_sparse_bm25.ipynb">01</a></td></tr>
+<tr><td>User uses different words than documents</td><td><a href="#dense">Dense Retrieval</a></td><td>Semantic matching</td><td><a href="retriever-analogy-images/method-notebooks/02_dense_similarity.ipynb">02</a></td></tr>
+<tr><td>Both exact terms + semantic intent matter</td><td><a href="#hybrid">Hybrid Retrieval</a></td><td>BM25 + dense complement each other</td><td><a href="retriever-analogy-images/method-notebooks/06_hybrid_retrieval.ipynb">06</a></td></tr>
+<tr><td>BM25/dense result lists need merging</td><td><a href="#rrf">RRF</a></td><td>Rank-based fusion avoids score-scale problems</td><td><a href="retriever-analogy-images/method-notebooks/07_rrf.ipynb">07</a></td></tr>
+<tr><td>You know one retriever should matter more</td><td><a href="#weighted-fusion">Weighted Fusion</a></td><td>Explicitly control contribution</td><td><a href="retriever-analogy-images/method-notebooks/08_weighted_fusion.ipynb">08</a></td></tr>
+<tr><td>Retrieved chunks are repetitive</td><td><a href="#mmr">MMR</a></td><td>Relevance + diversity</td><td><a href="retriever-analogy-images/method-notebooks/03_mmr.ipynb">03</a></td></tr>
+<tr><td>Conversational query is incomplete</td><td><a href="#rewriting">Query Rewriting</a></td><td>Makes query standalone</td><td><a href="retriever-analogy-images/method-notebooks/09_query_rewriting.ipynb">09</a></td></tr>
+<tr><td>Different wording causes poor recall</td><td><a href="#multi-query">Multi-Query</a></td><td>Searches multiple formulations</td><td><a href="retriever-analogy-images/method-notebooks/11_multi_query.ipynb">11</a></td></tr>
+<tr><td>Very short/abstract query does not match document language</td><td><a href="#hyde">HyDE</a></td><td>Converts query into document-like representation</td><td><a href="retriever-analogy-images/method-notebooks/12_hyde.ipynb">12</a></td></tr>
+<tr><td>One question contains multiple independent questions</td><td><a href="#decomposition">Query Decomposition</a></td><td>Retrieve each sub-question separately</td><td><a href="retriever-analogy-images/method-notebooks/13_query_decomposition.ipynb">13</a></td></tr>
+<tr><td>Next search depends on information found in first search</td><td><a href="#multi-hop">Multi-Hop Retrieval</a></td><td>Sequential dependent retrieval</td><td><a href="retriever-analogy-images/method-notebooks/16_multi_hop.ipynb">16</a></td></tr>
+<tr><td>Small chunks retrieve well but lack context</td><td><a href="#parent-doc">Parent Document Retrieval</a></td><td>Search small → return larger parent</td><td><a href="retriever-analogy-images/method-notebooks/14_parent_document.ipynb">14</a></td></tr>
+<tr><td>Exact sentence retrieves well but needs nearby context</td><td><a href="#sentence-window">Sentence Window</a></td><td>Search sentence → expand locally</td><td><a href="retriever-analogy-images/method-notebooks/15_sentence_window.ipynb">15</a></td></tr>
+<tr><td>Correct docs retrieved but wrong one ranks first</td><td><a href="#reranking">Reranking</a></td><td>More accurate second-stage ranking</td><td><a href="retriever-analogy-images/method-notebooks/17_reranking.ipynb">17</a></td></tr>
+<tr><td>Correct docs contain lots of irrelevant text</td><td><a href="#compression">Contextual Compression</a></td><td>Remove irrelevant context</td><td><a href="retriever-analogy-images/method-notebooks/18_contextual_compression.ipynb">18</a></td></tr>
+<tr><td>Tenant/role/year/version restrictions exist</td><td><a href="#metadata">Metadata Pre-filtering</a></td><td>Restrict search before retrieval</td><td><a href="retriever-analogy-images/method-notebooks/05_metadata_filtering.ipynb">05</a></td></tr>
+<tr><td>Data exists in SQL + vector DB + web + APIs</td><td><a href="#routing">Query Routing</a></td><td>Select correct source</td><td><a href="retriever-analogy-images/method-notebooks/26_query_routing_theory.ipynb">26 theory</a></td></tr>
+<tr><td>Answer exists in image/table/diagram</td><td><a href="#multimodal">Multimodal retrieval</a></td><td>Text retrieval alone is insufficient</td><td><a href="retriever-analogy-images/method-notebooks/25_multimodal_retrieval_theory.ipynb">25 theory</a></td></tr>
 </tbody></table></div>
-<div class="callout blue"><strong>Practice loop &mdash;</strong> Choose a row → read the analogy → open the visual → run the same technique in
-<a href="retriever-analogy-images/retriever_advance_colab.ipynb">retriever_advance_colab.ipynb</a>
-(foundations / filters also covered in
-<a href="retriever-analogy-images/retriever.ipynb">retriever.ipynb</a>).
+<div class="callout blue"><strong>Practice loop &mdash;</strong> Choose a row → read the analogy → open the visual → run the linked method notebook
+(start with <a href="retriever-analogy-images/method-notebooks/00_basics_concepts.ipynb">00 basics</a> if the index is not built yet).
 Ask after each run: <em>Did this fix the failure mode, or only reshuffle noise?</em></div>
 </section>
 <div class="part-head"><span>Foundations</span><div class="rule"></div></div><section class="section tone-blue" id="pipeline"><div class="section-label">Concept 01 &middot; Foundations</div><h2>The RAG Pipeline, End to End</h2><div class="analogy-band"><span class="tag">ANALOGY</span><span class="name">The Restaurant Kitchen</span></div><p class="hook">Nobody hands the head chef the entire pantry.</p><details class="visual"><summary><span>The Restaurant Kitchen</span><span class="cta" aria-hidden="true"></span></summary><figure class="analogy-figure"><img src="retriever-analogy-images/01-restaurant-kitchen.jpg" alt="Restaurant kitchen analogy: customer order, pantry, sous-chef retriever, head-chef LLM" loading="lazy" decoding="async"><figcaption>The Restaurant Kitchen — Concept 01</figcaption></figure></details><p>A customer orders pasta with tomato basil sauce. Behind the door, that order does not go straight to the stove. Raw deliveries arrive at the back and get unpacked and inspected. Vegetables are chopped into usable portions. Everything is put into labelled jars and arranged on organised shelves — because a pantry where nothing is labelled is the same as no pantry at all.</p><p>Only when the order ticket lands does the sous-chef walk the shelves and bring back exactly the jars and the one recipe card this dish needs. The head chef then cooks. The chef never sees the other four hundred jars, and does not need to.</p><h3>The mapping</h3><div class="table-wrap"><table><thead><tr><th>In the kitchen</th><th>In the pipeline</th><th>Why it matches</th></tr></thead><tbody><tr><td>Raw deliveries at the back door</td><td>Documents</td><td>Unstructured source material, exactly as it arrives</td></tr><tr><td>Unpacking and inspecting</td><td>Parsing / loading</td><td>Getting usable text out of PDFs, HTML, Word, scans</td></tr><tr><td>Chopping into portions</td><td>Chunking</td><td>Whole documents are too big to use as a unit</td></tr><tr><td>Labelled jars</td><td>Embeddings</td><td>Each chunk gets a numeric label describing its meaning</td></tr><tr><td>Organised shelves</td><td>Vector store</td><td>Storage arranged for fast lookup by that label</td></tr><tr><td>The sous-chef</td><td>Retriever</td><td>Fetches only what this specific order needs</td></tr><tr><td>The head chef</td><td>LLM</td><td>Turns retrieved ingredients into the finished dish</td></tr><tr><td>The plated dish</td><td>Final answer</td><td>What the customer actually receives</td></tr></tbody></table></div><h3>The flow</h3><div class="pipeline"><div class="pipeline-item"><div class="pipeline-left"><div class="pipeline-num">1</div><div class="pipeline-line"></div></div><div class="pipeline-content"><div class="pipeline-title">Order placed</div><div class="pipeline-desc">The user asks a question</div></div></div><div class="pipeline-item"><div class="pipeline-left"><div class="pipeline-num">2</div><div class="pipeline-line"></div></div><div class="pipeline-content"><div class="pipeline-title">Sous-chef fetches</div><div class="pipeline-desc">The retriever pulls the relevant chunks and nothing else</div></div></div><div class="pipeline-item"><div class="pipeline-left"><div class="pipeline-num">3</div><div class="pipeline-line"></div></div><div class="pipeline-content"><div class="pipeline-title">Head chef cooks</div><div class="pipeline-desc">The LLM generates using only what it was handed</div></div></div><div class="pipeline-item"><div class="pipeline-left"><div class="pipeline-num">4</div></div><div class="pipeline-content"><div class="pipeline-title">Dish served</div><div class="pipeline-desc">The answer is returned, grounded in those chunks</div></div></div></div><details class="code-panel"><summary>The whole kitchen, in six lines</summary><pre><code>docs      = loader.load()                                  # deliveries
@@ -557,8 +562,10 @@ documents = ROUTES.get(route, vector_retriever).invoke(question)</code></pre></d
 <h3>Continue learning</h3>
 <p>
 <a href="#chooser">Use-case chooser</a> ·
-<a href="retriever-analogy-images/retriever_advance_colab.ipynb">Advanced Colab lab</a> ·
-<a href="retriever-analogy-images/retriever.ipynb">Retriever notebook</a> ·
+<a href="retriever-analogy-images/method-notebooks/00_basics_concepts.ipynb">Basics notebook</a> ·
+<a href="retriever-analogy-images/method-notebooks/README_INDEX.ipynb">All method notebooks</a> ·
+<a href="retriever-analogy-images/retriever_advance_colab.ipynb">Full advanced lab</a> ·
+<a href="retriever-analogy-images/retriever.ipynb">Full retriever notebook</a> ·
 <a href="retriever-guide.html">Technical Retriever Guide</a> ·
 <a href="rrf_vs_reranker_pipeline.html">RRF vs Reranker</a> ·
 <a href="vector-store-vs-database.html">Vector Store vs Database</a> ·
