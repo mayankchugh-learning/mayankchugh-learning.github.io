@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Data Engineering Interview Prep — Fabric, Snowflake, Spark & More</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas:#EDE6D8;
+    --swatch:#FBF8F1;
+    --ink:#2A241E;
+    --ink-soft:#5C5347;
+    --indigo:#2B3A67;
+    --mustard:#C98A2C;
+    --rust:#A63D2F;
+    --thread:#B8AC96;
+    --green:#4C6A4E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    background:
+      repeating-linear-gradient(0deg, rgba(184,172,150,0.18) 0px, rgba(184,172,150,0.18) 1px, transparent 1px, transparent 24px),
+      repeating-linear-gradient(90deg, rgba(184,172,150,0.12) 0px, rgba(184,172,150,0.12) 1px, transparent 1px, transparent 24px),
+      var(--canvas);
+    min-height:100vh;
+    padding:32px 20px 60px;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+  header{margin-bottom:28px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--rust);
+    margin-bottom:8px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(28px,5vw,42px);
+    margin:0 0 6px;
+    line-height:1.05;
+  }
+  .sub{color:var(--ink-soft);font-size:15px;max-width:52ch;}
+
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:24px 0 18px;
+  }
+  .chip{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    padding:7px 13px;
+    border-radius:999px;
+    border:1px solid var(--thread);
+    background:var(--swatch);
+    cursor:pointer;
+    color:var(--ink-soft);
+    transition:all .15s ease;
+  }
+  .chip:hover{border-color:var(--indigo);color:var(--indigo);}
+  .chip.active{background:var(--indigo);border-color:var(--indigo);color:#fff;}
+
+  .progress-row{
+    display:flex;align-items:center;gap:12px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;color:var(--ink-soft);
+    margin-bottom:18px;
+  }
+  .progress-track{
+    flex:1;height:6px;border-radius:3px;background:rgba(184,172,150,0.35);
+    overflow:hidden;position:relative;
+  }
+  .progress-fill{
+    height:100%;
+    background:repeating-linear-gradient(45deg,var(--mustard) 0 6px,var(--rust) 6px 12px);
+    width:0%;transition:width .3s ease;
+  }
+
+  .stage{position:relative;min-height:340px;perspective:1600px;margin-bottom:18px;}
+  .card{
+    position:absolute;inset:0;
+    cursor:pointer;
+    transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.4,.2,.2,1);
+  }
+  .card.flipped{transform:rotateY(180deg);}
+  .face{
+    position:absolute;inset:0;
+    backface-visibility:hidden;
+    background:var(--swatch);
+    border:1px solid var(--thread);
+    border-radius:2px;
+    padding:34px 30px;
+    display:flex;flex-direction:column;
+    box-shadow:0 1px 0 var(--thread), 0 12px 24px -12px rgba(42,36,30,0.25);
+  }
+  .face::before{
+    content:"";
+    position:absolute;inset:10px;
+    border:1px dashed rgba(184,172,150,0.7);
+    pointer-events:none;
+    border-radius:1px;
+  }
+  .face.back{transform:rotateY(180deg);}
+  .tag-row{display:flex;gap:8px;margin-bottom:16px;}
+  .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    padding:4px 9px;border-radius:3px;
+  }
+  .tag.level-F{background:rgba(76,106,78,0.15);color:var(--green);}
+  .tag.level-I{background:rgba(201,138,44,0.18);color:#8a611b;}
+  .tag.level-A{background:rgba(166,61,47,0.15);color:var(--rust);}
+  .tag.topic{background:rgba(43,58,103,0.1);color:var(--indigo);}
+  .qtext, .atext{
+    font-family:'Fraunces',serif;
+    font-size:20px;
+    line-height:1.4;
+    font-weight:600;
+    flex:1;
+    overflow-y:auto;
+  }
+  .atext{font-family:'Inter',sans-serif;font-weight:400;font-size:15.5px;line-height:1.6;}
+  .hint{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--ink-soft);
+    text-align:center;margin-top:14px;letter-spacing:.05em;
+  }
+
+  .nav-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}
+  .navbtn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    background:none;border:1px solid var(--ink);
+    color:var(--ink);
+    padding:9px 16px;border-radius:2px;cursor:pointer;
+  }
+  .navbtn:hover{background:var(--ink);color:var(--canvas);}
+  .navbtn:disabled{opacity:.3;cursor:default;}
+  .navbtn:disabled:hover{background:none;color:var(--ink);}
+  .counter{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-soft);}
+
+  .judge-row{display:flex;gap:10px;justify-content:center;margin-top:6px;}
+  .judge{
+    flex:1;max-width:220px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    padding:11px 14px;border-radius:2px;
+    cursor:pointer;border:1px solid var(--thread);
+    background:var(--swatch);
+    transition:all .15s;
+  }
+  .judge.know{color:var(--green);}
+  .judge.know:hover{background:var(--green);color:#fff;border-color:var(--green);}
+  .judge.review{color:var(--rust);}
+  .judge.review:hover{background:var(--rust);color:#fff;border-color:var(--rust);}
+  .judge.marked-know{background:var(--green);color:#fff;border-color:var(--green);}
+  .judge.marked-review{background:var(--rust);color:#fff;border-color:var(--rust);}
+
+  .summary{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;color:var(--ink-soft);
+    border-top:1px solid var(--thread);
+    padding-top:14px;margin-top:22px;
+    display:flex;gap:18px;flex-wrap:wrap;
+  }
+  .summary b{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Interview Prep — Woven for review</div>
+    <h1>Data Engineering &amp; Fabric</h1>
+    <p class="sub">Fabric, Snowflake, star schema, PySpark, Parquet, and debugging/incident questions, mixed difficulty. Click a card to pull the thread and reveal the answer.</p>
+    <p class="sub" style="margin-top:10px;"><a href="Sales_SSBI_Interview_Drill.html" style="color:var(--indigo);font-weight:600;">Open combined SSBI + Fabric drill →</a> · <a href="index.html" style="color:var(--indigo);">Learning hub</a></p>
+  </header>
+
+  <div class="controls" id="domainFilter">
+    <div class="chip active" data-domain="all">All topics</div>
+    <div class="chip" data-domain="Fabric">Fabric</div>
+    <div class="chip" data-domain="Snowflake">Snowflake</div>
+    <div class="chip" data-domain="Modeling">Star Schema</div>
+    <div class="chip" data-domain="Spark">PySpark</div>
+    <div class="chip" data-domain="Parquet">Parquet</div>
+    <div class="chip" data-domain="Debugging">Debugging / Incident</div>
+  </div>
+
+  <div class="controls" id="levelFilter">
+    <div class="chip active" data-level="all">All levels</div>
+    <div class="chip" data-level="F">Foundational</div>
+    <div class="chip" data-level="I">Intermediate</div>
+    <div class="chip" data-level="A">Advanced</div>
+  </div>
+
+  <div class="progress-row">
+    <span id="progressLabel">0 / 18 reviewed</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="stage">
+    <div class="card" id="card">
+      <div class="face front">
+        <div class="tag-row" id="tagRowFront"></div>
+        <div class="qtext" id="qText"></div>
+        <div class="hint">click to reveal answer</div>
+      </div>
+      <div class="face back">
+        <div class="tag-row" id="tagRowBack"></div>
+        <div class="atext" id="aText"></div>
+        <div class="hint">click to flip back</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="judge-row">
+    <button class="judge know" id="judgeKnow">✓ knew it</button>
+    <button class="judge review" id="judgeReview">↻ need review</button>
+  </div>
+
+  <div class="nav-row" style="margin-top:18px;">
+    <button class="navbtn" id="prevBtn">← prev</button>
+    <span class="counter" id="counter">1 / 18</span>
+    <button class="navbtn" id="nextBtn">next →</button>
+  </div>
+
+  <div class="summary">
+    <span>Knew it: <b id="sumKnow">0</b></span>
+    <span>Need review: <b id="sumReview">0</b></span>
+    <span>Unmarked: <b id="sumUnmarked">18</b></span>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  {domain:"Fabric", level:"F", topic:"OneLake", q:"What is OneLake, and how does it relate to the rest of Fabric's workloads?", a:"OneLake is Fabric's single, tenant-wide data lake — one copy of data in Delta/Parquet format that every workload (Lakehouse, Warehouse, Power BI, Real-Time Intelligence, Data Science) reads from directly. There's no separate storage account per workload; it's automatically provisioned per tenant and organized by workspace, similar conceptually to OneDrive but for data."},
+  {domain:"Fabric", level:"F", topic:"Lakehouse vs Warehouse", q:"What's the core difference between a Fabric Lakehouse and a Fabric Warehouse?", a:"A Lakehouse is Spark-first: schema-on-read, handles structured/semi-structured/unstructured data, and you interact with it via notebooks or a SQL analytics endpoint (read-only T-SQL). A Warehouse is SQL-first: full T-SQL DDL/DML with ACID transactions, built for relational, structured workloads. Both store data as Delta tables in OneLake underneath, so the choice is about engine and workflow, not storage format."},
+  {domain:"Fabric", level:"I", topic:"Direct Lake", q:"What is Direct Lake mode in Power BI, and why does it matter?", a:"Direct Lake lets Power BI query Delta tables in OneLake directly, loading data straight into memory without an Import refresh or a live DirectQuery round-trip to a SQL engine. You get Import-like performance without duplicating data or waiting on refresh cycles — the semantic model stays current with the lake."},
+  {domain:"Fabric", level:"I", topic:"OneLake format", q:"What storage format underlies OneLake, and why does that matter for interoperability?", a:"OneLake stores data as Delta Parquet. Because it's an open format, any Delta-compatible engine — Spark, DuckDB, Databricks, even non-Microsoft tools — can read the same files, and Fabric shortcuts can reference data in ADLS Gen2, S3, or other Delta lakes without copying it."},
+  {domain:"Fabric", level:"F", topic:"Shortcuts", q:"What are Fabric shortcuts?", a:"Shortcuts are virtual references inside OneLake that point to data stored elsewhere — another OneLake location, ADLS Gen2, S3, or Dataverse — without physically copying it. They let you unify data across workspaces or even clouds while it stays in its original location."},
+  {domain:"Fabric", level:"I", topic:"Data Factory", q:"What's the difference between Data Factory pipelines and Dataflows Gen2 in Fabric?", a:"Pipelines orchestrate — they move and sequence activities (copy data, run notebooks, trigger other pipelines) on a schedule or trigger, similar to ADF pipelines. Dataflows Gen2 are for low-code transformation using Power Query, producing curated tables you can land in a Lakehouse or Warehouse. You typically use a pipeline to orchestrate a dataflow, not one instead of the other."},
+  {domain:"Fabric", level:"A", topic:"Architecture", q:"Explain the medallion architecture and how you'd implement it in a Fabric Lakehouse.", a:"Bronze holds raw, ingested data as-is (often via pipelines or Eventstream). Silver applies cleaning, conformance, and joins — typically via Spark notebooks or dataflows, written back as Delta tables. Gold holds business-level aggregates and star schemas ready for the semantic model layer. In Fabric this maps naturally to three Lakehouses or three schemas within one, with pipelines/notebooks handling bronze→silver→gold promotion and a scheduled or event-driven trigger chaining the stages."},
+  {domain:"Fabric", level:"I", topic:"Real-Time Intelligence", q:"What is Real-Time Intelligence in Fabric, and what components make it up?", a:"Real-Time Intelligence (the current name — it replaced 'Real-Time Analytics') is Fabric's end-to-end streaming workload. It combines Eventstream (no-code ingestion/routing of streaming sources), Eventhouse with KQL databases (high-performance storage/query for time-series and log data), Real-Time dashboards, the Real-Time hub (a catalog of streaming sources), and Data Activator (rule-based alerting and action)."},
+  {domain:"Fabric", level:"A", topic:"Real-Time Intelligence", q:"How would you architect a low-latency IoT/sensor pipeline end to end in Fabric?", a:"Sensors publish to Event Hubs or MQTT, ingested via Eventstream, which can route/transform in-flight and land data into an Eventhouse (KQL database) for millisecond-latency queries, while also optionally writing a Delta copy to a Lakehouse via OneLake integration for downstream batch/ML use. Data Activator watches the Eventhouse or Power BI visuals for threshold breaches and triggers alerts or Power Automate actions. Real-Time dashboards give operators a live view without any scheduled refresh."},
+  {domain:"Fabric", level:"I", topic:"Data Activator", q:"What is Data Activator, and when would you use it instead of a standard Power BI alert?", a:"Data Activator is Fabric's no-code, rule-based automation engine — it watches data (from Power BI reports, Eventstreams, or KQL) for conditions and triggers actions like emails, Teams messages, or Power Automate flows. Use it over a basic Power BI data alert when you need pattern/threshold logic across streaming data, not just a static visual-level alert on a report."},
+  {domain:"Fabric", level:"F", topic:"Capacity/SKUs", q:"What is a Fabric capacity, and how does it differ from Power BI Premium?", a:"Fabric capacity (F-SKUs, F2 through F2048+) is a pool of compute capacity units shared across all Fabric workloads — Power BI, Data Engineering, Data Science, Real-Time Intelligence — billed by CU consumption rather than per-workload licensing. Power BI Premium (P-SKUs) was Power BI-only; Fabric capacity unifies billing and compute across the whole platform, and P-SKUs auto-map to equivalent F-SKUs."},
+  {domain:"Fabric", level:"A", topic:"Capacity/SKUs", q:"How do you manage cost and performance trade-offs with Fabric capacity throttling and smoothing?", a:"Fabric uses a bursting model: short spikes borrow against future capacity via smoothing (background operations smoothed over 24 hours, interactive ones over 5 minutes), so usage doesn't throttle instantly. If sustained overconsumption continues, Fabric throttles in stages — first background jobs, then interactive operations. Architecturally you manage this by right-sizing the SKU, scheduling heavy batch jobs off-peak, using autoscale for Spark, and monitoring the Capacity Metrics app to catch sustained overage before it throttles users."},
+  {domain:"Fabric", level:"I", topic:"Governance", q:"What's Fabric's approach to Git integration and deployment pipelines?", a:"Workspaces can sync bidirectionally with a Git repo (Azure DevOps or GitHub) at the item level, so notebooks, pipelines, and reports are version-controlled as source files. Deployment pipelines then let you promote content across Dev → Test → Prod workspaces with rule-based parameter overrides (e.g., swapping connection strings per stage), giving you a CI/CD flow without hand-rebuilding items in each environment."},
+  {domain:"Fabric", level:"A", topic:"Security", q:"How does Fabric's unified security model work across Lakehouse and Warehouse, and where would you apply row-level security?", a:"Because Lakehouse and Warehouse both sit on Delta tables in OneLake, Fabric applies OneLake security (including table-, row-, and column-level security policies) consistently regardless of which engine reads the data — a Spark notebook and a T-SQL query see the same enforced rules. You'd apply row-level security where, say, regional sales managers should each query the same gold table but only see rows for their own region, without maintaining separate filtered copies."},
+  {domain:"Fabric", level:"F", topic:"Copilot", q:"What can Copilot in Fabric do inside notebooks and pipelines?", a:"Copilot can generate and explain PySpark/Spark SQL code in notebooks from natural language, suggest data cleaning and transformation steps, help author Power Query steps in Dataflows Gen2, and generate DAX/explanations in Power BI. It's contextual to the item you're in rather than a single generic chat."},
+  {domain:"Fabric", level:"I", topic:"Lakehouse vs Warehouse", q:"When would you choose a Warehouse over a Lakehouse for a given workload?", a:"Choose Warehouse when you need full T-SQL DDL/DML, multi-table ACID transactions, and a team that thinks in SQL rather than Spark — e.g., a finance reporting layer needing stored procedures and strict schema enforcement. Choose Lakehouse when you need Spark for large-scale transformation, semi-structured/unstructured data, ML workloads, or Python/Scala pipelines."},
+  {domain:"Fabric", level:"A", topic:"Semantic models", q:"How do semantic models relate to Lakehouses/Warehouses, and what's the Direct Lake vs Import trade-off?", a:"A semantic model is the Power BI modeling layer (relationships, measures, DAX) built on top of Lakehouse/Warehouse tables. Import mode copies data into the model's own compressed store — fast but requires refresh and duplicates storage. Direct Lake reads Delta files in OneLake directly into memory on demand — near-Import speed with no refresh lag, but it can fall back to DirectQuery for very complex models or exceed guardrails on huge datasets, so for very large or highly complex models you sometimes still choose Import for predictability."},
+  {domain:"Fabric", level:"I", topic:"Ingestion patterns", q:"In a typical Fabric ingestion pattern, when do you reach for a notebook vs. a pipeline vs. a dataflow?", a:"Pipelines orchestrate and move data at scale (copy activities, scheduling, dependency chains) — use them as the backbone. Notebooks (PySpark/Spark SQL) are for custom, code-heavy transformation logic, especially complex joins or ML feature engineering. Dataflows Gen2 are for business-user-friendly, low-code transformation via Power Query when you don't want to write Spark code. A common pattern: pipeline triggers ingestion, notebook does heavy silver-layer transformation, dataflow handles a lighter gold-layer curation step for a specific report."},
+
+  {domain:"Snowflake", level:"F", topic:"Architecture", q:"What is Snowflake's core architecture, and what does 'separation of storage and compute' actually mean?", a:"Snowflake uses a multi-cluster shared-data architecture: a single copy of data sits in cloud storage (S3/Azure Blob/GCS) managed by Snowflake, while compute happens in independent 'virtual warehouses' that read that shared data. Because storage and compute scale separately, you can spin up more compute for a heavy job without duplicating data, and multiple teams can run isolated warehouses against the same tables without contending for the same compute."},
+  {domain:"Snowflake", level:"I", topic:"Virtual warehouses", q:"What are Snowflake virtual warehouses, and how do you control cost with them?", a:"A virtual warehouse is an independent compute cluster (T-shirt sized XS–6XL) you spin up to run queries; you're billed per-second while it's running. Cost control comes from auto-suspend (spin down after idle minutes), auto-resume (spin up on query), right-sizing per workload (small warehouse for BI dashboards, larger for heavy ETL), and separating warehouses by team/workload so a runaway query doesn't burn budget meant for another group."},
+  {domain:"Snowflake", level:"A", topic:"Fabric vs Snowflake", q:"How would you compare Snowflake to Fabric's Warehouse/Lakehouse when advising on platform choice?", a:"Snowflake is a mature, engine-agnostic cloud data warehouse with strong governance (Time Travel, zero-copy cloning, native semi-structured VARIANT support) and its own compute/storage model independent of any BI tool. Fabric's Warehouse/Lakehouse are part of a unified SaaS platform where storage (OneLake/Delta), Power BI, Spark, and Real-Time Intelligence share one governance and billing model — the pitch is fewer moving parts if you're already committed to the Microsoft/Power BI ecosystem. The trade-off is largely: Snowflake for best-of-breed warehouse performance and multi-cloud/multi-BI-tool flexibility, versus Fabric for tight, single-platform integration with Power BI and Microsoft's broader data estate."},
+
+  {domain:"Modeling", level:"F", topic:"Star Schema", q:"What is a star schema, and why is it the default choice for BI reporting?", a:"A star schema has a central fact table (transactional/measurable events — sales, clicks) surrounded by denormalized dimension tables (date, customer, product) it joins to directly, forming a star shape. It's preferred for BI because it minimizes joins, is intuitive for report authors, and engines like Power BI's VertiPaq/DAX are optimized to filter dimensions and aggregate facts efficiently against this shape."},
+  {domain:"Modeling", level:"I", topic:"Star vs Snowflake Schema", q:"What's the difference between a star schema and a snowflake schema, and when would you normalize a dimension?", a:"A snowflake schema normalizes dimension tables into sub-dimensions (e.g., Product → Category → Department as separate linked tables) instead of flattening them into one wide dimension. You'd snowflake a dimension when it has a large, frequently-changing hierarchy that's expensive to keep denormalized and duplicated, or when multiple fact tables need to share the exact same sub-dimension consistently — at the cost of more joins and slightly more complex DAX/SQL."},
+
+  {domain:"Debugging", level:"I", topic:"Debugging approach", q:"Walk through how you'd debug a failing or unexpectedly slow Spark/pipeline job in production.", a:"Start by isolating where it's failing: check the job's driver/executor logs and the Spark UI (or Fabric's Monitoring hub) for stage-level timing, skew, and spill to disk. Common culprits: data skew on a join key (look for one task taking far longer than others), an accidental cross join or non-broadcast join on a large table, too many small files causing task overhead, or a schema drift from upstream. I'd reproduce on a smaller data sample first to confirm the fix cheaply, check recent changes (code diff, upstream schema, data volume spike) before assuming it's a new bug, and add monitoring/alerting on the specific metric that broke so it surfaces earlier next time."},
+  {domain:"Debugging", level:"A", topic:"Incident (fill in yours)", q:"Describe a real production incident you handled — what happened, how you diagnosed it, and what changed afterward.", a:"This one needs your own specifics rather than a canned answer — interviewers probe follow-ups on real incidents and a generic answer falls apart fast. Use the STAR shape: Situation (what broke and its business impact — e.g. a RAG pipeline degrading for a financial client, or a stalled ingestion job blocking a report deadline), Task (what you were responsible for fixing and by when), Action (the specific diagnostic steps you took — logs, metrics, rollback vs. forward-fix decision), Result (resolution time, what you changed structurally afterward — added monitoring, changed a retry policy, documented a runbook). Pull a real one from your production RAG deployments or the 50,000+ document pipeline work and fill this card in before the interview, not during it."},
+
+  {domain:"Spark", level:"F", topic:"Lazy evaluation", q:"What is lazy evaluation in PySpark, and why does it matter?", a:"PySpark builds a logical execution plan (a DAG of transformations like select, filter, join) without actually computing anything until an action (count, collect, write) triggers it. This matters because Spark's Catalyst optimizer can look at the whole chain of transformations before executing and optimize it as one plan — reordering filters, pushing down predicates, avoiding unnecessary shuffles — rather than executing each line eagerly and naively."},
+  {domain:"Spark", level:"I", topic:"repartition vs coalesce", q:"What's the difference between repartition() and coalesce() in PySpark?", a:"repartition() does a full shuffle to redistribute data into N partitions of roughly equal size — use it when you need to increase partitions or fix skew. coalesce() merges existing partitions without a full shuffle, so it's cheaper but can only reduce partition count, and can leave partitions uneven since it just combines adjacent ones. Rule of thumb: coalesce() before writing output to reduce small files cheaply; repartition() when you need a real, balanced redistribution (e.g., before a wide join)."},
+  {domain:"Spark", level:"I", topic:"Broadcast join", q:"When would you use a broadcast join in PySpark, and what problem does it solve?", a:"A broadcast join sends a full copy of a small table to every executor so the join happens locally without shuffling the large table across the network. Use it when joining a large fact table to a small dimension table (small enough to fit in executor memory, typically under Spark's broadcast threshold, ~10MB-ish default but tunable). It avoids the expensive shuffle-based sort-merge join that would otherwise be needed, which is often the single biggest win available for a skewed or slow join."},
+  {domain:"Spark", level:"A", topic:"cache vs persist", q:"What's the difference between cache() and persist() in PySpark, and when could caching actually hurt performance?", a:"cache() is shorthand for persist() with the default storage level (MEMORY_AND_DISK in newer Spark versions). persist() lets you choose the storage level explicitly (MEMORY_ONLY, DISK_ONLY, MEMORY_AND_DISK_SER, with or without replication) to control the memory/CPU/disk trade-off. Caching hurts when you cache a DataFrame that's only used once (pure overhead with no reuse benefit), when it's too large and evicts other cached data or forces spill, or when you cache before a filter that would've shrunk the dataset — better to filter first, then cache the smaller result."},
+
+  {domain:"Parquet", level:"F", topic:"Why Parquet", q:"Why is Parquet preferred over CSV/JSON for big data and lakehouse storage?", a:"Parquet is columnar rather than row-based, so queries that only need a few columns read far less data off disk, and column-wise storage compresses much better since similar values sit together. It also stores schema and type information inline (no re-inferring types on every read like CSV), and supports efficient encoding (dictionary, run-length) that shrinks file size significantly compared to text formats."},
+  {domain:"Parquet", level:"I", topic:"Predicate pushdown", q:"What is predicate pushdown / column pruning with Parquet, and why does it matter for performance?", a:"Parquet files store column-level statistics (min/max, null counts) per row group in their footer metadata. Predicate pushdown lets the query engine read that metadata first and skip entire row groups that can't match a filter (e.g., date > '2026-01-01') without reading the actual data — combined with column pruning (only reading the columns a query references), this can cut I/O dramatically on large datasets without touching most of the file."},
+  {domain:"Parquet", level:"I", topic:"Schema evolution", q:"How does Parquet handle schema evolution, and what issues can come up merging files with different schemas?", a:"Parquet supports additive schema evolution — new files can add columns, and readers that support schema merging (like Spark's mergeSchema option) will union the schemas, filling missing columns with nulls in older files. Problems arise with incompatible changes: a column changing type (string to int) across files, column reordering combined with positional (not name-based) reads, or relying on schema merging across thousands of small files, which is slow and can silently produce nulls if the merge doesn't behave as expected — this is part of why Delta Lake layers a transaction log on top of Parquet to track schema changes explicitly rather than inferring them at read time."}
+];
+
+let state = DATA.map(d => ({...d, status:null})); // status: null | 'know' | 'review'
+let filterLevel = 'all';
+let filterDomain = 'all';
+let idx = 0;
+let flipped = false;
+
+function filtered(){
+  return state.filter(d =>
+    (filterLevel==='all' || d.level===filterLevel) &&
+    (filterDomain==='all' || d.domain===filterDomain)
+  );
+}
+
+function render(){
+  const list = filtered();
+  const stage = document.getElementById('card').parentElement;
+  const judgeRow = document.querySelector('.judge-row');
+  const navRow = document.querySelector('.nav-row');
+
+  if(list.length === 0){
+    document.getElementById('card').style.display = 'none';
+    judgeRow.style.display = 'none';
+    document.getElementById('counter').textContent = '0 / 0';
+    document.getElementById('prevBtn').disabled = true;
+    document.getElementById('nextBtn').disabled = true;
+    let empty = document.getElementById('emptyState');
+    if(!empty){
+      empty = document.createElement('div');
+      empty.id = 'emptyState';
+      empty.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:13px;color:var(--ink-soft);text-align:center;padding:60px 20px;border:1px dashed var(--thread);';
+      empty.textContent = 'No questions match this combination — try a different level or topic.';
+      stage.appendChild(empty);
+    }
+    empty.style.display = 'block';
+
+    const reviewed = state.filter(d=>d.status).length;
+    document.getElementById('progressLabel').textContent = `${reviewed} / ${state.length} reviewed`;
+    document.getElementById('progressFill').style.width = (reviewed/state.length*100)+'%';
+    document.getElementById('sumKnow').textContent = state.filter(d=>d.status==='know').length;
+    document.getElementById('sumReview').textContent = state.filter(d=>d.status==='review').length;
+    document.getElementById('sumUnmarked').textContent = state.filter(d=>!d.status).length;
+    return;
+  }
+
+  document.getElementById('card').style.display = '';
+  judgeRow.style.display = '';
+  const existingEmpty = document.getElementById('emptyState');
+  if(existingEmpty) existingEmpty.style.display = 'none';
+
+  if(idx >= list.length) idx = 0;
+  if(idx < 0) idx = list.length-1;
+  const item = list[idx];
+
+  document.getElementById('card').classList.toggle('flipped', flipped);
+
+  const levelName = {F:'Foundational', I:'Intermediate', A:'Advanced'}[item.level];
+  const tagsHtml = `<span class="tag level-${item.level}">${levelName}</span><span class="tag topic">${item.topic}</span>`;
+  document.getElementById('tagRowFront').innerHTML = tagsHtml;
+  document.getElementById('tagRowBack').innerHTML = tagsHtml;
+  document.getElementById('qText').textContent = item.q;
+  document.getElementById('aText').textContent = item.a;
+  document.getElementById('counter').textContent = `${idx+1} / ${list.length}`;
+
+  document.getElementById('prevBtn').disabled = list.length<=1;
+  document.getElementById('nextBtn').disabled = list.length<=1;
+
+  document.getElementById('judgeKnow').classList.toggle('marked-know', item.status==='know');
+  document.getElementById('judgeReview').classList.toggle('marked-review', item.status==='review');
+
+  const reviewed = state.filter(d=>d.status).length;
+  document.getElementById('progressLabel').textContent = `${reviewed} / ${state.length} reviewed`;
+  document.getElementById('progressFill').style.width = (reviewed/state.length*100)+'%';
+
+  document.getElementById('sumKnow').textContent = state.filter(d=>d.status==='know').length;
+  document.getElementById('sumReview').textContent = state.filter(d=>d.status==='review').length;
+  document.getElementById('sumUnmarked').textContent = state.filter(d=>!d.status).length;
+}
+
+document.getElementById('card').addEventListener('click', ()=>{
+  flipped = !flipped;
+  render();
+});
+
+document.getElementById('prevBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  flipped=false; idx--; render();
+});
+document.getElementById('nextBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  flipped=false; idx++; render();
+});
+
+document.getElementById('judgeKnow').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const item = filtered()[idx];
+  item.status = item.status==='know' ? null : 'know';
+  render();
+});
+document.getElementById('judgeReview').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const item = filtered()[idx];
+  item.status = item.status==='review' ? null : 'review';
+  render();
+});
+
+document.getElementById('levelFilter').addEventListener('click', (e)=>{
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  document.querySelectorAll('#levelFilter .chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  filterLevel = chip.dataset.level;
+  idx = 0; flipped = false;
+  render();
+});
+
+document.getElementById('domainFilter').addEventListener('click', (e)=>{
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  document.querySelectorAll('#domainFilter .chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  filterDomain = chip.dataset.domain;
+  idx = 0; flipped = false;
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
