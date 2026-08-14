@@ -294,6 +294,24 @@
   .detail-modal-body h3:first-child { margin-top: 0; }
   .detail-modal-body p { margin: 0 0 10px; color: var(--light-txt); }
   .detail-modal-body .muted { color: var(--sub-txt); }
+  .detail-figure {
+    margin: 0 0 16px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: #fff;
+  }
+  .detail-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .detail-figure figcaption {
+    font-size: 0.78rem;
+    color: var(--sub-txt);
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.35);
+  }
   .diag-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -488,6 +506,10 @@
       <a href="../migration/ssas_migration_proposal.html">SSAS → Fabric proposal</a>
       <a href="../migration/d365_migration_guide.html">D365 migration guide</a>
       <a href="Sales_SSBI_Architecture.html">Project architecture</a>
+      <a href="../../assets/learning/powerbi-data-modes.png" target="_blank" rel="noopener">Data modes infographic</a>
+      <a href="../../assets/learning/direct-lake-limitations.png" target="_blank" rel="noopener">Direct Lake limitations</a>
+      <a href="../../assets/learning/two-source-ingestion.png" target="_blank" rel="noopener">Two-source ingestion</a>
+      <a href="../../assets/learning/medallion-architecture-fabric.png" target="_blank" rel="noopener">Medallion architecture</a>
       <a href="fabric_interview_prep.html">Fabric flashcards</a>
       <a href="index.html">All learning pages</a>
     </div>
@@ -881,6 +903,292 @@ What calculation do I see?    │ Values area             │ Measure
   <strong>Key takeaway:</strong> Ask <em>“which slice am I looking at?”</em> (dimension) vs <em>“what number am I looking at?”</em> (measure). The same measure can produce a different number depending on which dimensions are filtering it — that is the point of DAX filter context, not a bug.
 </div>
 `
+  },
+  "platform-0": {
+    title: "Import vs DirectQuery vs Direct Lake — choose the storage mode",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/powerbi-data-modes.png" alt="Power BI data modes: Import vs DirectQuery vs Direct Lake infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full comparison infographic — Import (cache &amp; refresh), DirectQuery (live query), Direct Lake (Fabric / OneLake).</figcaption>
+</figure>
+
+<h3>The Restaurant Storage Analogy</h3>
+<p>Think of Power BI as a chef preparing meals (visuals) for customers (users). The data mode is how and where the chef gets ingredients.</p>
+<div class="tree-box">
+<pre>              DATA STORAGE MODES
+                      │
+     ┌────────────────┼────────────────┐
+     ▼                ▼                ▼
+ IMPORT MODE     DIRECTQUERY      DIRECT LAKE
+ (Kitchen fridge) (Fresh delivery) (Walk-in pantry)
+     │                │                │
+ Fast prep;       Fresh every time; Instant access
+ needs restock    slower per order  from OneLake</pre>
+</div>
+
+<h3>How the Modes Work Side-by-Side</h3>
+
+<div class="flow-box">
+  <div class="flow-title good">1. Import mode — the kitchen fridge</div>
+  <p><strong>How:</strong> Copy data from the source into Power BI’s fast in-memory cache.</p>
+  <ul>
+    <li><strong>Pro:</strong> Fastest query performance; full DAX; works offline in the service after load.</li>
+    <li><strong>Con:</strong> Freshness lags until a scheduled refresh; not ideal for extreme real-time.</li>
+    <li><strong>Best for:</strong> Dashboards where speed matters and slight delay is OK.</li>
+  </ul>
+</div>
+
+<div class="flow-box">
+  <div class="flow-title bad">2. DirectQuery — fresh delivery every order</div>
+  <p><strong>How:</strong> Power BI stores little/no data. Each slicer click sends a live query to the source.</p>
+  <ul>
+    <li><strong>Pro:</strong> 100% real-time; no data duplication.</li>
+    <li><strong>Con:</strong> Slower (source-bound); limited DAX; higher load on the source.</li>
+    <li><strong>Best for:</strong> Must-be-live scenarios with a strong source and moderate volume.</li>
+  </ul>
+</div>
+
+<div class="flow-box fixed">
+  <div class="flow-title good">3. Direct Lake — walk-in pantry (Microsoft Fabric)</div>
+  <p><strong>How:</strong> Reads Delta / Parquet tables in OneLake directly — no classic Import copy step.</p>
+  <ul>
+    <li><strong>Pro:</strong> Near-Import speed, near-real-time freshness, no duplicate Import storage.</li>
+    <li><strong>Con:</strong> OneLake / Fabric sources only.</li>
+    <li><strong>Best for:</strong> Fabric Lakehouse — default and recommended choice.</li>
+  </ul>
+</div>
+
+<h3>Decision matrix (from the infographic)</h3>
+<div class="flow-box">
+  <pre>Requirement     │ Import      │ DirectQuery   │ Direct Lake
+────────────────┼─────────────┼───────────────┼─────────────
+Speed           │ Best        │ Slow          │ Best
+Freshness       │ Delayed     │ Real-time     │ Near real-time
+Scalability     │ Limited     │ High          │ High
+DAX support     │ Full        │ Limited       │ Full</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Import = fastest but needs refresh. DirectQuery = always fresh but slower. Direct Lake = near-Import speed with near-real-time freshness on Fabric. <strong>Pro tip:</strong> if the data is in a Fabric Lakehouse, use Direct Lake.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/powerbi-data-modes.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "platform-1": {
+    title: "Direct Lake gotchas — no calculated columns; RLS falls back to DirectQuery",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/direct-lake-limitations.png" alt="Direct Lake mode real limitations infographic by Mayank Chugh: no calculated columns in modeling view; RLS falls back to DirectQuery" width="1400" height="900" loading="lazy">
+  <figcaption>Full limitations infographic — prepare keys upstream in Lakehouse / PySpark; RLS silently falls back to DirectQuery.</figcaption>
+</figure>
+
+<h3>The "Pre-Packaged Warehouse" Analogy</h3>
+<p>Think of Direct Lake as an <strong>automated fulfillment center</strong>. Instead of opening packages and customizing items in the store (Power BI modeling layer), Direct Lake expects goods to be completely prepared and standard-packaged before they hit the conveyor belt (OneLake Delta tables).</p>
+
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Upstream — Lakehouse / PySpark</div>
+    <pre>Data Factory / Notebooks
+
+• Create composite keys
+• Clean &amp; combine fields
+• Prepare schema for RLS
+
+        Instant delivery
+              │
+              ▼</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">Direct Lake — modeling view</div>
+    <pre>Power BI report / model
+
+✗ "New Column" DISABLED
+  (cannot patch data here)
+
+⚠ RLS forces fallback to
+  slower DirectQuery mode</pre>
+  </div>
+</div>
+
+<h3>Gotcha 1 — Disabled "New Column" (no patching at the store)</h3>
+<div class="flow-box broken">
+  <div class="flow-title bad">THE PROBLEM — Import habit fails in Direct Lake</div>
+  <p>In Import mode, if you need a quick combined field (e.g. <code>Region_Month = "US-202608"</code>) to connect two tables, you click <strong>New Column</strong> in Power BI. In Direct Lake that button is <strong>disabled</strong> — confirmed platform behavior, not a UI quirk you can work around.</p>
+  <p><strong>Why:</strong> Direct Lake reads raw Delta/Parquet from OneLake without loading them into a customizable local Import cache.</p>
+  <pre>✗ Modifying in Power BI:  [New Column]  ← DISABLED</pre>
+</div>
+
+<div class="flow-box fixed">
+  <div class="flow-title good">THE FIX — build the key upstream in PySpark</div>
+  <p>Create the concatenated key in the notebook (or pipeline) that writes the Delta table — the same place that creates the model-ready grain.</p>
+  <pre>df = df.withColumn(
+  "Region_Month",
+  concat(col("Region"), lit("-"), col("Month"))
+)</pre>
+</div>
+
+<h3>Gotcha 2 — RLS performance drop</h3>
+<div class="flow-box broken">
+  <div class="flow-title bad">THE CATCH — RLS silently changes the storage mode</div>
+  <p>Direct Lake is built for speed by reading standard Delta tables from OneLake. The moment you apply <strong>Row-Level Security (RLS)</strong> to filter rows per user role, Direct Lake <strong>automatically falls back to DirectQuery</strong> for those queries — introducing source-bound latency.</p>
+  <p>Worth knowing <em>before</em> you architect security around Direct Lake assuming Import-like in-memory speed.</p>
+</div>
+
+<h3>Quick summary — Import vs Direct Lake handling</h3>
+<div class="flow-box">
+  <pre>Capability                 │ Import              │ Direct Lake
+───────────────────────────┼─────────────────────┼──────────────────────────────
+Calculated columns in PBI  │ Allowed anytime     │ Disabled — build upstream
+Row-Level Security (RLS)   │ Fast (in-memory)    │ Falls back to DirectQuery
+Best practice              │ Patch where needed  │ Prepare schema/keys in Lakehouse</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Direct Lake is blazingly fast for open data exploration, but plan upstream for keys and be mindful of RLS performance — it is not Import with a faster fridge.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/direct-lake-limitations.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "platform-2": {
+    title: "Juice-factory ingestion — identical Bronze crates, then reconcile before Silver",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/two-source-ingestion.png" alt="Ingestion from Excel and SQL into one consistent model: identical Bronze, reconciliation check, unified Silver and Gold — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full architecture infographic — land raw, check counts, clean once, trust forever.</figcaption>
+</figure>
+
+<h3>The "Juice Factory" Analogy</h3>
+<p>Imagine a juice factory receiving oranges from two suppliers:</p>
+<ul>
+  <li><strong>Supplier A (SQL database):</strong> Clean, standardized crates on automated conveyor belts.</li>
+  <li><strong>Supplier B (Excel spreadsheet):</strong> Hand-packed boxes — sometimes the lid or packing slip gets mixed in with the fruit.</li>
+</ul>
+<p>Goal: blend both into one consistent juice batch without letting trash into the blender. Land both into <strong>identical Bronze crates</strong>, then audit before Silver.</p>
+
+<div class="tree-box">
+<pre>[ SQL Database ] ──► Raw Crate A ──┐
+                                   ├──► BRONZE (identical folder shape)
+[ Excel File ]   ──► Raw Crate B ──┘              │
+                                                  ▼
+                                       RECONCILIATION CHECK
+                                       (catches extra header row)
+                                                  │
+                                                  ▼
+                                       SILVER (clean &amp; unified)
+                                                  │
+                                                  ▼
+                                       GOLD (ready for reports)</pre>
+</div>
+
+<h3>1. Bronze — standardize the crates</h3>
+<div class="flow-box fixed">
+  <div class="flow-title good">LAND BOTH AS-IS, SAME SHAPE</div>
+  <p>Two separate <strong>Copy Data</strong> activities in one Fabric pipeline, running in parallel, writing to the <strong>same folder / schema shape</strong> — untouched raw landings.</p>
+  <p><strong>Why:</strong> Silver should not need to know or care whether a row came from Excel or SQL.</p>
+</div>
+
+<h3>2. Reconciliation check — the incident</h3>
+<div class="flow-box broken">
+  <div class="flow-title bad">BEFORE SILVER — EXPECTED vs ACTUAL ROW COUNT</div>
+  <pre>Source system count:     100 rows
+Ingested Bronze count:   101 rows   ← DISCREPANCY DETECTED
+
+Reason: Header row ("Region, Sales, Date") ingested as data
+        (connector setting silently let the header through)
+Action: Filter out header before proceeding to Silver</pre>
+  <p>That off-by-one catch prevented a corrupted Silver layer — a real header-parsing bug surfaced only because Bronze counts were compared before trust.</p>
+</div>
+
+<h3>3. Silver — clean, unified data</h3>
+<div class="flow-box fixed">
+  <div class="flow-title good">ONE TRUSTED DELTA TABLE</div>
+  <p>Clean, deduplicate, and conform both Bronze landings into a single unified Delta table. Business questions query that dataset — never "which system did this row come from?"</p>
+</div>
+
+<h3>Architecture checklist</h3>
+<div class="flow-box">
+  <pre>Step                 │ Real-world action                    │ Why it matters
+─────────────────────┼──────────────────────────────────────┼──────────────────────────────
+Parallel ingestion   │ Two Copy Data jobs → same Bronze     │ Independent, flexible sources
+Row-count audit      │ Compare counts before Silver         │ Catches silent header bugs early
+Unified Silver       │ Merge into identical Delta tables    │ Users ask business Qs, not source Qs</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Land raw. Check counts. Clean once. Trust forever — the business question should never depend on which system a row came from.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/two-source-ingestion.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "platform-3": {
+    title: "Gold refinery — Bronze/Silver/Gold mapped to Fabric items",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/medallion-architecture-fabric.png" alt="Medallion architecture in Microsoft Fabric: Bronze Copy Data, Silver PySpark Delta, Gold Direct Lake semantic model — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full medallion map — Bronze for capture, Silver for trust, Gold for value.</figcaption>
+</figure>
+
+<h3>The "Gold Refinery" Analogy</h3>
+<p>Raw data is like unrefined ore from the earth. You cannot make jewelry directly from rocks — you need a multi-stage refining process before business users wear the finished piece (reports).</p>
+
+<div class="tree-box">
+<pre>[ Raw sources: SQL, Excel, APIs ]
+              │
+              ▼
+   BRONZE (unrefined ore)  ──► Copy Data → Lakehouse Files / Tables
+              │
+              ▼
+   SILVER (pure ingot)     ──► PySpark notebook → clean Delta tables
+              │
+              ▼
+   GOLD (finished jewelry) ──► Aggregates → Power BI semantic model
+                              (ideally Direct Lake)</pre>
+</div>
+
+<h3>1. Bronze — raw, untouched (unrefined ore)</h3>
+<div class="flow-box fixed">
+  <div class="flow-title good">PRESERVE HISTORY &amp; AUDITABILITY</div>
+  <p><strong>What:</strong> Untouched landings stored exactly as they arrived from source systems.</p>
+  <ul>
+    <li><strong>Fabric items:</strong> Pipelines / Dataflows Gen2 — <strong>Copy Data</strong> activities.</li>
+    <li><strong>Storage:</strong> Lakehouse <code>Files/</code> or raw <code>Tables/</code> area.</li>
+  </ul>
+</div>
+
+<h3>2. Silver — cleaned, fixed grain (pure ingot)</h3>
+<div class="flow-box fixed">
+  <div class="flow-title good">CONFORMED + DE-DUPLICATED + JOINED TO DIMENSIONS</div>
+  <p><strong>What:</strong> Clean Delta tables at a consistent grain, linked to standard dimensions.</p>
+  <ul>
+    <li><strong>Fabric item:</strong> PySpark notebooks writing structured Delta / Parquet tables.</li>
+  </ul>
+  <p><strong>Best practice:</strong> After every join, verify <strong>row counts</strong> and <strong>null counts</strong> so a fan-out (accidental duplicates) is caught before it propagates.</p>
+</div>
+
+<h3>3. Gold — business-ready (finished jewelry)</h3>
+<div class="flow-box fixed">
+  <div class="flow-title good">AGGREGATES FOR REPORTS &amp; KPIs</div>
+  <p><strong>What:</strong> Summary tables optimized for reporting and fast queries.</p>
+  <ul>
+    <li><strong>Fabric items:</strong> Another PySpark notebook (or T-SQL) producing aggregates.</li>
+    <li><strong>Consumption:</strong> Power BI semantic model reading those tables — ideally via <strong>Direct Lake</strong> so there is no separate Import refresh schedule to manage.</li>
+  </ul>
+</div>
+
+<h3>Quick map — layer → Fabric tool → goal</h3>
+<div class="flow-box">
+  <pre>Layer   │ Data state                      │ Fabric tool / item              │ Key goal
+────────┼─────────────────────────────────┼────────────────────────────────┼──────────────────────────
+Bronze  │ Raw, uncleaned, historical      │ Copy Data + Lakehouse Files    │ Auditability &amp; fast land
+Silver  │ Cleaned, deduped, conformed     │ PySpark + Delta tables         │ Trusted single source
+Gold    │ Aggregated, business-focused    │ Direct Lake semantic model     │ Instant reporting</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Land raw. Clean smart. Aggregate for impact — Bronze for capture, Silver for trust, Gold for value. The business question should never depend on which system a row came from.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/medallion-architecture-fabric.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
   }
 
 };
@@ -889,8 +1197,10 @@ function openDetail(id) {
   const help = DETAIL_HELP[id];
   if (!help) return;
   const overlay = document.getElementById("detailOverlay");
+  const modal = overlay.querySelector(".detail-modal");
   document.getElementById("detailTitle").textContent = help.title;
   document.getElementById("detailBody").innerHTML = help.html;
+  modal.classList.toggle("arch-wide", /<img[\s>]/i.test(help.html));
   overlay.hidden = false;
   overlay.classList.add("open");
   document.body.style.overflow = "hidden";
