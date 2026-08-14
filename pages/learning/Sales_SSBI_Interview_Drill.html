@@ -656,7 +656,75 @@ DIVIDE(
   </ul>
 </div>
 `
+  },
+  "model-0": {
+    title: "Additive vs rate measures — never average a pre-computed %",
+    html: `
+<h3>The Goal</h3>
+<p>Ensure two analysts slicing data differently always get <strong>consistent, trustworthy numbers</strong>, without contradictory calculations.</p>
+
+<h3>The Two Families of Measures</h3>
+<div class="tree-box">
+<pre>                 MEASURE DESIGN
+                       │
+        ┌──────────────┴──────────────┐
+        ▼                             ▼
+  ADDITIVE MEASURES              RATE / % MEASURES
+  (Revenue, Units, COGS)         (GM%, AOV, YoY%)
+        │                             │
+  Safe to SUM                    NEVER sum or average
+  SUM(Sales[Revenue])            pre-calculated rates
+                                 Recompute dynamically:
+                                 DIVIDE(Sum_Num, Sum_Denom)</pre>
+</div>
+
+<h3>The Bad Pattern vs. The Right Fix</h3>
+<p>Imagine two sales divisions:</p>
+<div class="flow-box">
+  <pre>[ Division ]  │  [ Revenue ]  │  [ Profit ]  │  [ GM% ]
+──────────────┼───────────────┼──────────────┼─────────
+ Division A   │    $1,000     │     $500     │   50.0%
+ Division B   │    $9,000     │     $900     │   10.0%</pre>
+</div>
+
+<div class="flow-box broken">
+  <div class="flow-title bad">The bad way — averaging percentages</div>
+  <div class="math-box">Average GM% = (50% + 10%) / 2 = <strong>30%</strong></div>
+  <p style="margin:10px 0 0;"><strong>Why this fails:</strong> It treats Division A ($1,000 sales) as equal weight to Division B ($9,000 sales). That distorts overall business reality. <code>AVERAGEX()</code> over a pre-computed ratio column does the same mistake.</p>
+</div>
+
+<div class="flow-box fixed">
+  <div class="flow-title good">The right way — DIVIDE() on sums</div>
+  <p>Sum numerators and denominators first, then calculate the percentage in the current filter context:</p>
+  <div class="math-box">Total GM% = Total Profit / Total Revenue<br>= ($500 + $900) / ($1,000 + $9,000)<br>= $1,400 / $10,000 = <strong>14%</strong></div>
+</div>
+
+<h3>Quick Summary Checklist</h3>
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Additive metrics</div>
+    <pre>SUM(Sales[Amount])</pre>
+    <p class="muted" style="margin-top:8px;margin-bottom:0;">Safe to add across Region, Year, Category, etc.</p>
+  </div>
+  <div class="diag-box">
+    <div class="label">Rate / ratio metrics</div>
+    <pre>DIVIDE([Total Profit],
+       [Total Revenue])</pre>
+    <p class="muted" style="margin-top:8px;margin-bottom:0;">Re-evaluates fresh in whatever filter context the visual is in.</p>
+  </div>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaways</strong>
+  <ul style="margin:8px 0 0 1.1rem;">
+    <li>Split measures into <strong>additive</strong> vs <strong>rate</strong> families and treat them differently.</li>
+    <li>Never <code>AVERAGEX()</code> (or sum) a pre-computed ratio column — recompute with <code>DIVIDE()</code> on summed numerator and denominator.</li>
+    <li><strong>Document</strong> the type on every measure you ship so analysts know what they can safely slice.</li>
+  </ul>
+</div>
+`
   }
+
 };
 
 function openDetail(id) {
