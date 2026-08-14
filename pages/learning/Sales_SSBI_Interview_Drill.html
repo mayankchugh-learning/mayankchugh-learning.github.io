@@ -808,6 +808,79 @@ DIVIDE(
   </ul>
 </div>
 `
+  },
+  "model-1": {
+    title: "Dimension vs measure — lenses vs math (Excel audience)",
+    html: `
+<h3>The Core Analogy</h3>
+<p>Think of looking at data like taking a picture with a camera:</p>
+<ul>
+  <li><strong>Dimensions</strong> are the <em>lenses</em> — they control which slice or group you are looking at.</li>
+  <li><strong>Measures</strong> are the <em>math</em> — they calculate what number actually comes out.</li>
+</ul>
+
+<h3>Quick Visual Comparison</h3>
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Dimension (the lens)</div>
+    <pre>• Categorizes, slices, groups
+• Does NOT perform math
+• Examples:
+  - Region (North, South)
+  - Store Name
+  - Date / Year</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">Measure (the math)</div>
+    <pre>• Calculates dynamic values
+• Changes based on active filters
+• Examples:
+  - Revenue ($)
+  - Gross Margin %
+  - Total Units Sold</pre>
+  </div>
+</div>
+
+<h3>Interactive Mental Model: Excel vs DAX</h3>
+<p><strong>1. In traditional Excel</strong> — a formula in a cell is usually static to its definition:</p>
+<div class="math-box">Cell C5 = SUM(C2:C4)  (fixed range, fixed answer)</div>
+
+<p style="margin-top:14px;"><strong>2. In Power BI (DAX context shift)</strong> — a measure does not sit in a fixed cell; it recalculates live based on whatever dimensions you apply:</p>
+<div class="flow-box fixed">
+  <pre>┌──────────────────────────┐
+│      Total Revenue       │  ← Measure, NO filters
+│        $1,000,000        │
+└────────────┬─────────────┘
+             │  + Dimension: Region = North
+             ▼
+┌──────────────────────────┐
+│      North Revenue       │  ← Same measure recalculates
+│         $400,000         │
+└────────────┬─────────────┘
+             │  + Dimension: Category = Electronics
+             ▼
+┌──────────────────────────┐
+│ North Elec. Revenue      │  ← Same measure again
+│         $120,000         │
+└──────────────────────────┘</pre>
+</div>
+<p class="muted">Live demo tip: put GM% on a card with no filters, then add Region, then Category — show the number changing, not staying fixed like a static Excel formula.</p>
+
+<h3>Summary Cheat Sheet for Excel Veterans</h3>
+<div class="flow-box">
+  <pre>Question you ask              │ Excel equivalent        │ Power BI term
+──────────────────────────────┼─────────────────────────┼──────────────
+How do I group / slice rows?  │ Row/column headers,     │ Dimension
+(Text, dates, categories)     │ slicers                 │
+──────────────────────────────┼─────────────────────────┼──────────────
+What calculation do I see?    │ Values area             │ Measure
+(Numbers, formulas)           │ (SUM, AVERAGE, …)       │</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Ask <em>“which slice am I looking at?”</em> (dimension) vs <em>“what number am I looking at?”</em> (measure). The same measure can produce a different number depending on which dimensions are filtering it — that is the point of DAX filter context, not a bug.
+</div>
+`
   }
 
 };
