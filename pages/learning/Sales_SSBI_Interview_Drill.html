@@ -370,6 +370,42 @@
     .diag-grid { grid-template-columns: 1fr; }
   }
 
+
+  .glossary-list { display: flex; flex-direction: column; gap: 12px; }
+  .gloss-item {
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .gloss-term {
+    font-family: Syne, Georgia, serif;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--gold);
+    margin: 0 0 4px;
+  }
+  .gloss-expand {
+    font-size: 0.78rem;
+    color: var(--mint);
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .gloss-def { margin: 0; color: var(--light-txt); font-size: 0.9rem; line-height: 1.5; }
+  .glossary-search {
+    width: 100%;
+    margin-bottom: 14px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--light-txt);
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .glossary-search::placeholder { color: var(--sub-txt); }
+  .detail-modal.glossary-wide { width: min(780px, 100%); }
+
   @media (max-width: 600px) {
     .toolbar { flex-direction: column; }
   }
@@ -408,6 +444,7 @@
     <input class="search" id="searchBox" type="text" placeholder="Search questions or answers...">
     <button class="btn" id="quizBtn">Random Question</button>
     <button class="btn secondary" id="resetBtn">Reset Progress</button>
+    <button class="btn secondary" id="glossaryBtn" type="button">BI Glossary</button>
   </div>
 
   <div id="cardContainer"></div>
@@ -428,6 +465,19 @@
       <button type="button" class="detail-close" id="detailClose" aria-label="Close">×</button>
     </div>
     <div class="detail-modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<div class="detail-overlay" id="glossaryOverlay" role="dialog" aria-modal="true" aria-labelledby="glossaryTitle" hidden>
+  <div class="detail-modal glossary-wide">
+    <div class="detail-modal-head">
+      <h2 id="glossaryTitle">BI / Fabric Glossary</h2>
+      <button type="button" class="detail-close" id="glossaryClose" aria-label="Close glossary">×</button>
+    </div>
+    <div class="detail-modal-body">
+      <input class="glossary-search" id="glossarySearch" type="search" placeholder="Filter terms (e.g. DAX, RLS, Direct Lake)..." autocomplete="off">
+      <div class="glossary-list" id="glossaryList"></div>
+    </div>
   </div>
 </div>
 
@@ -542,6 +592,68 @@ Is numerator = 0?                 Is source data literally 0?
 
 <div class="takeaway">
   <strong>Key takeaway:</strong> Marking a table as a Date Table in Power BI / Fabric only sets metadata (“this is my primary date dimension”). It does <em>not</em> automatically draw the active relationship between <code>Date[Date]</code> and <code>Fact[Date]</code>. Without that line, time-intelligence functions evaluate over the entire unfiltered fact table — and a rate that subtracts a number from itself becomes exactly zero.
+</div>
+`
+  },
+  "incident-1": {
+    title: "Misleading Total row — never sum a rate measure (YoY%)",
+    html: `
+<h3>What Went Wrong?</h3>
+<p>Power BI attempted to calculate a <strong>Total</strong> for a rate/percentage column by simply summing the individual regional percentages.</p>
+<div class="flow-box broken">
+  <div class="flow-title bad">Table visual — default Total (broken)</div>
+  <pre>[ Region ]      │  [ YoY% Growth ]
+────────────────┼──────────────────
+ Region A       │       +10%
+ Region B       │       +15%
+ Region C       │       −31.91%
+────────────────┼──────────────────
+ ❌ Total       │       −6.91%     ← literal sum (+10 + 15 − 31.91)</pre>
+</div>
+<p class="muted">The Total row looked “official,” but it was just arithmetic addition of three independent percentages.</p>
+
+<h3>Why Is This Misleading?</h3>
+<p>Percentages cannot be added together. Summing percentages treats each region equally without considering actual size or sales volume:</p>
+<div class="math-box">Total YoY%  ≠  Region A% + Region B% + Region C%</div>
+<p>A 10% increase in a <strong>$1,000,000</strong> region carries far more weight than a 31.91% decrease in a <strong>$10,000</strong> region. Adding rates together gives a mathematically meaningless result.</p>
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">What Power BI did</div>
+    <pre>Sum of rates
+10% + 15% + (−31.91%)
+= −6.91%</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">What would be valid</div>
+    <pre>Recompute from totals:
+DIVIDE(
+  Σ Current − Σ Prior,
+  Σ Prior
+)
+— or hide Total entirely</pre>
+  </div>
+</div>
+
+<h3>The Fix</h3>
+<p>Turn the <strong>Total row off</strong> for this specific visual. There is no mathematically valid total for a per-region rate column — the fix isn’t a different aggregation, it’s recognizing that <em>no</em> aggregation belongs there.</p>
+<div class="flow-box fixed">
+  <div class="flow-title good">After — Total row removed</div>
+  <pre>[ Region ]      │  [ YoY% Growth ]
+────────────────┼──────────────────
+ Region A       │       +10%
+ Region B       │       +15%
+ Region C       │       −31.91%
+────────────────┴──────────────────
+ ✅ Total row removed (no invalid sum shown)</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaways</strong>
+  <ul style="margin:8px 0 0 1.1rem;">
+    <li><strong>Power BI default:</strong> table Total rows default to <em>Sum</em> for any numeric column — including percentages and rates — unless you change or disable them.</li>
+    <li><strong>Rule of thumb:</strong> never sum a rate measure. Either recalculate the percentage from total numerators and denominators (e.g. <code>DIVIDE()</code> on summed Current and Prior), or hide the Total row entirely.</li>
+    <li><strong>Training tip:</strong> this real −6.91% Total is a stronger teaching demo of “never sum a rate” than any scripted example.</li>
+  </ul>
 </div>
 `
   }
@@ -701,6 +813,96 @@ document.getElementById("quizBtn").addEventListener("click", () => {
       setTimeout(() => { card.style.boxShadow = "none"; }, 1600);
     }
   });
+});
+
+
+const GLOSSARY = [
+  { term: "DAX", expand: "Data Analysis Expressions", def: "The formula language used in Power BI / Fabric semantic models for measures, calculated columns, and row filters. Think of it as Excel formulas built for relational models and filter context." },
+  { term: "Filter context", expand: null, def: "The set of filters currently applied to a visual (slicers, page filters, matrix rows/columns). The same DAX measure can return different numbers under different filter contexts — both can be correct." },
+  { term: "Row context", expand: null, def: "DAX evaluating row-by-row, as in calculated columns or iterators like SUMX. Different from filter context; CALCULATE is the bridge that can turn row context into filter context." },
+  { term: "CALCULATE", expand: null, def: "Core DAX function that evaluates an expression under a modified filter context. Time-intelligence patterns like SAMEPERIODLASTYEAR are typically wrapped in CALCULATE." },
+  { term: "SAMEPERIODLASTYEAR", expand: null, def: "DAX time-intelligence function that shifts the current date filter context back one year. Requires a marked date table and an active relationship to the fact table — without the relationship, prior-year and current-year can collapse to the same number." },
+  { term: "Semantic model", expand: null, def: "The Power BI modeling layer: tables, relationships, and DAX measures that reports query. In Fabric this often sits on Lakehouse/Warehouse Delta tables via Import or Direct Lake." },
+  { term: "Measure", expand: null, def: "A DAX calculation evaluated in filter context (e.g. Revenue, GM%, YoY%). Unlike a static Excel cell, it recomputes based on whatever is filtering the visual." },
+  { term: "Dimension", expand: null, def: "A descriptive lens used to group/filter facts — Region, Product, Date. Dimensions answer 'which slice'; measures answer 'what number'." },
+  { term: "Fact table", expand: null, def: "Transactional or event table at a defined grain (e.g. one row per sales line) holding numeric facts that measures aggregate." },
+  { term: "Grain", expand: null, def: "What one row in a fact table represents. Too coarse and you can't answer fine questions later; wrong joins that fan out grain silently inflate totals." },
+  { term: "Star schema", expand: null, def: "Modeling shape with a central fact table surrounded by denormalized dimensions. Default for BI because it minimizes joins and works well with VertiPaq/DAX." },
+  { term: "Import mode", expand: null, def: "Power BI storage mode that caches data in the model's compressed in-memory store. Fast queries, but needs refresh and duplicates storage." },
+  { term: "DirectQuery", expand: null, def: "Power BI mode that sends every visual query live to the source. Always fresh, but limited by source performance and some DAX/model features." },
+  { term: "Direct Lake", expand: null, def: "Fabric-specific mode where the semantic model reads Delta tables in OneLake directly into memory — near-Import speed without a classic Import refresh. Cannot add calculated columns in the model; RLS can fall back to DirectQuery." },
+  { term: "RLS", expand: "Row-Level Security", def: "Restricts which rows a user can see, usually via a DAX filter on a security role. On Direct Lake models, applying RLS can cause fallback to DirectQuery — plan for that latency trade-off." },
+  { term: "OLS", expand: "Object-Level Security", def: "Restricts access to entire tables or columns (not just rows). Complements RLS for sensitive fields that should not appear in the model for certain roles." },
+  { term: "Medallion architecture", expand: "Bronze / Silver / Gold", def: "Layered lakehouse pattern: Bronze = raw ingested data; Silver = cleaned/conformed at fixed grain; Gold = business-ready aggregates for semantic models and reports." },
+  { term: "OneLake", expand: null, def: "Fabric's single tenant-wide data lake. Workloads share one copy of data (typically Delta/Parquet) organized by workspace — conceptually like OneDrive for analytics data." },
+  { term: "Lakehouse", expand: null, def: "Fabric item that is Spark-first over OneLake Delta tables. Good for notebooks, large transforms, and mixed data shapes; also exposes a SQL analytics endpoint." },
+  { term: "Warehouse", expand: null, def: "Fabric item that is SQL-first with full T-SQL DDL/DML and ACID transactions on Delta in OneLake. Choose when the team and workload are relational/SQL-centric." },
+  { term: "Delta", expand: "Delta Lake / Delta Parquet", def: "Open table format (Parquet files + transaction log) used by OneLake. Enables ACID-ish lake tables, time travel patterns, and schema evolution controls." },
+  { term: "Parquet", expand: null, def: "Columnar file format. Efficient for analytics because queries read only needed columns and compress similar values well — preferred over CSV/JSON for lake storage." },
+  { term: "SSBI", expand: "Self-Service Business Intelligence", def: "Approach where business users explore and report with governed semantic models rather than waiting on IT for every extract — the Sales SSBI trainer role enables that safely." },
+  { term: "YoY%", expand: "Year-over-Year percent change", def: "Rate measure comparing a period to the same period last year, typically (Current − Prior) / Prior with DIVIDE and time intelligence. Never sum YoY% across regions as if it were an additive total." },
+  { term: "Purview", expand: "Microsoft Purview", def: "Microsoft's data governance platform: catalog, classification, lineage, sensitivity labels, and access workflows across the estate — complements Fabric rather than replacing Fabric-native security." },
+  { term: "Data Map", expand: "Purview Data Map", def: "Technical inventory from scanning sources — assets, schemas, classifications. The foundation under the business-facing Unified Catalog." },
+  { term: "Unified Catalog", expand: null, def: "Purview's curated business catalog: data products, glossary terms, owners, and domains people can discover and request access to." },
+  { term: "Lineage", expand: null, def: "Map of how data flows source → pipeline/notebook → lake tables → semantic model → report. Used for impact analysis and answering 'where did this number come from?'" },
+  { term: "VertiPaq", expand: null, def: "Power BI's in-memory columnar engine that stores Import (and related) model data compressed for fast aggregations — one reason star schemas perform well." },
+  { term: "CU", expand: "Capacity Unit", def: "Fabric billing/compute unit on F-SKUs. Shared across Power BI, engineering, and other Fabric workloads; sustained overuse leads to throttling after bursting/smoothing." }
+];
+
+function renderGlossary(filter) {
+  const list = document.getElementById("glossaryList");
+  const term = (filter || "").trim().toLowerCase();
+  const items = GLOSSARY.filter((g) => {
+    if (!term) return true;
+    return (
+      g.term.toLowerCase().includes(term) ||
+      (g.expand && g.expand.toLowerCase().includes(term)) ||
+      g.def.toLowerCase().includes(term)
+    );
+  });
+  if (!items.length) {
+    list.innerHTML = '<p class="muted">No terms match that filter.</p>';
+    return;
+  }
+  list.innerHTML = items.map((g) =>
+    '<article class="gloss-item">' +
+      '<p class="gloss-term">' + g.term + '</p>' +
+      (g.expand ? '<p class="gloss-expand">' + g.expand + '</p>' : '') +
+      '<p class="gloss-def">' + g.def + '</p>' +
+    '</article>'
+  ).join("");
+}
+
+function openGlossary() {
+  const overlay = document.getElementById("glossaryOverlay");
+  renderGlossary("");
+  const search = document.getElementById("glossarySearch");
+  search.value = "";
+  overlay.hidden = false;
+  overlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+  search.focus();
+}
+
+function closeGlossary() {
+  const overlay = document.getElementById("glossaryOverlay");
+  overlay.classList.remove("open");
+  overlay.hidden = true;
+  document.body.style.overflow = "";
+}
+
+document.getElementById("glossaryBtn").addEventListener("click", openGlossary);
+document.getElementById("glossaryClose").addEventListener("click", closeGlossary);
+document.getElementById("glossaryOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "glossaryOverlay") closeGlossary();
+});
+document.getElementById("glossarySearch").addEventListener("input", (e) => {
+  renderGlossary(e.target.value);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeGlossary();
+  }
 });
 
 renderPills();
