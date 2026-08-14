@@ -510,6 +510,7 @@
       <a href="../../assets/learning/direct-lake-limitations.png" target="_blank" rel="noopener">Direct Lake limitations</a>
       <a href="../../assets/learning/two-source-ingestion.png" target="_blank" rel="noopener">Two-source ingestion</a>
       <a href="../../assets/learning/medallion-architecture-fabric.png" target="_blank" rel="noopener">Medallion architecture</a>
+      <a href="../../assets/learning/delta-schema-changes.png" target="_blank" rel="noopener">Delta schema changes</a>
       <a href="fabric_interview_prep.html">Fabric flashcards</a>
       <a href="index.html">All learning pages</a>
     </div>
@@ -1187,6 +1188,148 @@ Gold    │ Aggregated, business-focused    │ Direct Lake semantic model     �
 <div class="takeaway">
   <strong>Key takeaway:</strong> Land raw. Clean smart. Aggregate for impact — Bronze for capture, Silver for trust, Gold for value. The business question should never depend on which system a row came from.
   <p style="margin:10px 0 0;"><a href="../../assets/learning/medallion-architecture-fabric.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "platform-4": {
+    title: "Delta schema changes — overwriteSchema upstream, refresh metadata downstream",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/delta-schema-changes.png" alt="Handle schema changes on a Delta table without breaking downstream consumers: overwriteSchema upstream, Refresh Metadata on Direct Lake — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full guide — Delta protects by default; change with intent; then refresh the model.</figcaption>
+</figure>
+
+<h3>The "Blueprint &amp; Security Check" Analogy</h3>
+<p>Think of a Delta table as a <strong>custom cargo container</strong> and Power BI’s Direct Lake model as the <strong>inspector</strong> expecting cargo in a specific layout. Schema changes need a deliberate unlock upstream — then an explicit metadata refresh downstream.</p>
+
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Upstream — PySpark / Delta</div>
+    <pre>Delta table storage
+
+• Enforces schema-on-write
+• Blocks accidental column adds
+• Needs deliberate flag:
+  .option("overwriteSchema", "true")</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">Downstream — Direct Lake model</div>
+    <pre>Semantic model
+
+• Caches which columns exist
+• Will not see new columns
+  until you Refresh Metadata
+• Do not assume auto-pickup</pre>
+  </div>
+</div>
+
+<h3>1. Upstream safety — schema-on-write is the bouncer</h3>
+<div class="flow-box broken">
+  <div class="flow-title bad">DEFAULT — mode("overwrite") ALONE FAILS ON NEW COLUMNS</div>
+  <p>Delta enforces <strong>schema-on-write</strong> by default. Adding a column (e.g. <code>Store_ID</code>) and writing with <code>mode("overwrite")</code> alone throws a <strong>schema-mismatch exception</strong>.</p>
+  <p><strong>Why that is a feature, not a bug:</strong> it stops accidental script bugs from silently corrupting table structure.</p>
+  <pre># FAILS — protects against accidental schema drift
+df.write.mode("overwrite").saveAsTable("Sales")</pre>
+</div>
+
+<div class="flow-box fixed">
+  <div class="flow-title good">INTENTIONAL CHANGE — OPT IN EXPLICITLY</div>
+  <pre># SUCCEEDS — deliberate schema update
+df.write \
+  .mode("overwrite") \
+  .option("overwriteSchema", "true") \
+  .saveAsTable("Sales")</pre>
+  <p>Making <code>overwriteSchema</code> an explicit choice turns the change into a deliberate act rather than an accident.</p>
+</div>
+
+<h3>2. Downstream sync — Direct Lake caches the blueprint</h3>
+<div class="flow-box broken">
+  <div class="flow-title bad">AFTER DELTA UPDATES — NEW COLUMN STILL HIDDEN IN THE MODEL</div>
+  <pre>1. PySpark adds Store_ID
+   (overwriteSchema = true)
+              │
+              ▼
+2. Delta table updated on OneLake
+              │
+              ▼
+3. Direct Lake model still uses CACHED schema
+   → Store_ID not visible to report builders
+              │
+              ▼
+4. REQUIRED: Refresh semantic model metadata</pre>
+</div>
+
+<h3>Checklist</h3>
+<div class="flow-box">
+  <pre>Step          │ Action                                      │ Purpose
+──────────────┼─────────────────────────────────────────────┼──────────────────────────────
+1. Write      │ .option("overwriteSchema", "true")          │ Signal intentional column change
+2. Model      │ Refresh Metadata on semantic model          │ Update Power BI’s cached blueprint</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Delta protects by default. You change with intent (<code>overwriteSchema</code>). Then refresh the model so everyone benefits — the table update alone does not expose new columns in Direct Lake.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/delta-schema-changes.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "platform-5": {
+    title: "RLS + Direct Lake — VIP line becomes DirectQuery when the ID check is on",
+    html: `
+<h3>The "VIP Club Security Check" Analogy</h3>
+<p>Think of Direct Lake as an <strong>express VIP line</strong> at an exclusive event, and Row-Level Security (RLS) as a <strong>personal ID guard</strong>. No guard = stream straight from OneLake. Guard on = every guest is checked live — and that check is the DirectQuery fallback.</p>
+
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Public access — no RLS</div>
+    <pre>Express VIP line (Direct Lake)
+
+• Near-Import speed
+• Streams from OneLake
+• No per-row identity filter</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">Restricted access — with RLS</div>
+    <pre>ID check station (DirectQuery)
+
+• Every request hits source live
+• Slower response per click
+• Real performance trade-off</pre>
+  </div>
+</div>
+
+<h3>What RLS is</h3>
+<p>RLS is a personalized filter tied to the user’s identity — typically a <strong>DAX filter expression</strong> on a security role.</p>
+<ul>
+  <li><strong>Without RLS:</strong> everyone sees all rows in the dataset.</li>
+  <li><strong>With RLS:</strong> a Europe sales manager sees only Europe rows; an Asia manager sees only Asia rows.</li>
+</ul>
+
+<h3>The hidden trade-off — Direct Lake fallback</h3>
+<div class="flow-box broken">
+  <div class="flow-title bad">RLS ON → MODEL FALLS BACK TO DIRECTQUERY FOR AFFECTED QUERIES</div>
+  <pre>User opens report
+        │
+        ▼
+  Is RLS applied?
+        │
+   NO ──► Direct Lake (fast stream from OneLake)
+        │
+  YES ──► DirectQuery fallback (live query on every slicer / click)</pre>
+  <p>This is not just a configuration toggle — it is a <strong>real latency trade-off</strong> to plan for on a large Direct Lake model.</p>
+</div>
+
+<h3>Architect checklist</h3>
+<div class="flow-box">
+  <pre>Dimension     │ Direct Lake (no RLS)              │ Direct Lake + RLS
+──────────────┼───────────────────────────────────┼─────────────────────────────────
+Speed         │ Near-Import / streaming           │ Slower (DirectQuery latency)
+Freshness     │ Real-time from OneLake            │ Real-time from source queries
+Best practice │ Fine for company-wide open reports│ Test actual fallback latency first</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> RLS = DAX role filters on rows. On Direct Lake, expect <strong>DirectQuery fallback</strong> for those queries — measure that latency before committing the security design.
 </div>
 `
   }
