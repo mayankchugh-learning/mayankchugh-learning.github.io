@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sales SSBI — Project Architecture</title>
+  <meta name="description" content="Sales SSBI architecture: Azure Portal SQL, local Excel load, Fabric medallion lakehouse, Direct Lake semantic model, and Power BI report.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "dark",
+      themeVariables: {
+        darkMode: true,
+        background: "#11314F",
+        primaryColor: "#0F2A44",
+        primaryTextColor: "#EAF4FB",
+        primaryBorderColor: "#3FB8AF",
+        secondaryColor: "#065A82",
+        tertiaryColor: "#0B1E33",
+        lineColor: "#9FC1D9",
+        textColor: "#EAF4FB",
+        nodeTextColor: "#EAF4FB",
+        mainBkg: "#0F2A44",
+        clusterBkg: "#0B1E33",
+        clusterBorder: "#1C7293",
+        titleColor: "#3FB8AF"
+      },
+      flowchart: { curve: "basis", htmlLabels: true },
+      securityLevel: "loose"
+    });
+  </script>
+  <style>
+    :root {
+      --dark-bg: #0B1E33;
+      --mid-bg: #0F2A44;
+      --card-bg: #11314F;
+      --deep-blue: #065A82;
+      --teal: #1C7293;
+      --mint: #3FB8AF;
+      --light-txt: #EAF4FB;
+      --sub-txt: #9FC1D9;
+      --gold: #E8B84B;
+      --ok: #5eead4;
+      --line: rgba(255,255,255,0.1);
+      --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse 70% 40% at 10% -5%, rgba(63,184,175,0.14), transparent),
+        radial-gradient(ellipse 50% 35% at 95% 10%, rgba(232,184,75,0.08), transparent),
+        linear-gradient(160deg, var(--dark-bg) 0%, var(--mid-bg) 100%);
+      font-family: "DM Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: var(--light-txt);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .page { max-width: 1080px; margin: 0 auto; padding: 28px 20px 56px; }
+    .topnav {
+      display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center;
+      margin-bottom: 22px; font-size: 0.85rem;
+    }
+    .topnav a { color: var(--sub-txt); text-decoration: none; }
+    .topnav a:hover { color: var(--mint); }
+    .topnav .sep { color: rgba(255,255,255,0.2); }
+    .eyebrow {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--mint); margin: 0 0 8px;
+    }
+    h1 {
+      font-family: Syne, Georgia, serif;
+      font-size: clamp(1.7rem, 4vw, 2.15rem);
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+    }
+    h2 {
+      font-family: Syne, Georgia, serif;
+      margin: 36px 0 12px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+      color: var(--mint);
+    }
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 1rem;
+      font-weight: 650;
+      color: var(--gold);
+    }
+    p, li { color: var(--sub-txt); font-size: 0.92rem; }
+    .lede { font-size: 1rem; max-width: 72ch; color: var(--sub-txt); margin: 0 0 16px; }
+    .related { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .related a {
+      font-size: 0.78rem; color: var(--mint); text-decoration: none;
+      border: 1px solid rgba(63,184,175,0.35); padding: 5px 10px; border-radius: 6px;
+    }
+    .related a:hover { background: rgba(63,184,175,0.12); border-color: var(--mint); }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 20px; }
+    .chip {
+      background: rgba(0,0,0,0.22);
+      color: var(--light-txt);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .chip.accent { background: rgba(63,184,175,0.12); border-color: rgba(63,184,175,0.4); color: var(--mint); }
+    .chip.ok { background: rgba(94,234,212,0.1); border-color: rgba(94,234,212,0.35); color: var(--ok); }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0 8px;
+    }
+    .stat {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .stat .v { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; color: var(--gold); }
+    .stat .l { margin-top: 4px; font-size: 0.75rem; color: var(--sub-txt); }
+    .callout {
+      background: rgba(63,184,175,0.1);
+      border: 1px solid rgba(63,184,175,0.35);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      color: var(--light-txt);
+      margin: 16px 0;
+    }
+    .callout code, code, .mono {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--mint);
+    }
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0 8px;
+      overflow-x: auto;
+    }
+    .mermaid { display: flex; justify-content: center; }
+    .snapshot {
+      margin: 0 0 8px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .snapshot img { display: block; width: 100%; height: auto; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .layer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .layer-card .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--mint);
+      margin-bottom: 6px;
+    }
+    .layer-card .check {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      font-size: 0.78rem;
+      color: var(--ok);
+      font-weight: 600;
+    }
+    .layer-card p { margin: 4px 0; font-size: 0.85rem; }
+    .layer-card strong { color: var(--light-txt); font-size: 0.82rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 0.85rem;
+      margin: 12px 0;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      background: rgba(0,0,0,0.22);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--sub-txt);
+    }
+    td { color: var(--light-txt); }
+    tr:last-child td { border-bottom: none; }
+    pre.shell {
+      background: #071422;
+      color: #f3efe7;
+      border-radius: 10px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+    .stages { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .stage {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .stage .n {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--mint);
+      color: #082A28;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .stage h4 { margin: 0 0 8px; font-size: 0.85rem; color: var(--light-txt); }
+    .stage ul { margin: 0; padding-left: 16px; color: var(--sub-txt); font-size: 0.75rem; }
+    footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 0.8rem;
+      color: var(--sub-txt);
+      text-align: center;
+      line-height: 1.6;
+    }
+    footer a { color: var(--mint); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 900px) {
+      .stats, .stages, .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .stats, .stages, .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" id="architecture">
+    <nav class="topnav" aria-label="Breadcrumb">
+      <a href="../../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="index.html">Learning</a>
+      <span class="sep">/</span>
+      <a href="Sales_SSBI_Interview_Drill.html">SSBI + Fabric Drill</a>
+      <span class="sep">/</span>
+      <span style="color:var(--light-txt)">Architecture</span>
+    </nav>
+
+    <p class="eyebrow">Career · BI Enablement · Fabric</p>
+    <h1>Sales SSBI — Project Architecture</h1>
+    <p class="lede">
+      Episode 1 · Excel + Azure SQL → Microsoft Fabric Lakehouse → Power BI semantic model.
+      Dual sources → medallion lakehouse → Direct Lake semantic model → report.
+      Local pandas mirrors Fabric so Phase 12 numbers stay identical.
+    </p>
+    <div class="related">
+      <a href="Sales_SSBI_Interview_Drill.html">Interview drill</a>
+      <a href="fabric_interview_prep.html">Fabric flashcards</a>
+      <a href="index.html">All learning pages</a>
+    </div>
+
+    <div class="meta">
+      <span class="chip accent">Medallion Bronze → Gold</span>
+      <span class="chip">10,593 fact rows</span>
+      <span class="chip">10 DAX measures</span>
+      <span class="chip ok">Fabric Phases 1–12</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="v">10,593</div><div class="l">Fact rows (grain)</div></div>
+      <div class="stat"><div class="v">Bronze→Gold</div><div class="l">Medallion layers</div></div>
+      <div class="stat"><div class="v">10 DAX</div><div class="l">Semantic measures</div></div>
+      <div class="stat"><div class="v">Phases 1–12</div><div class="l">Fabric runbook</div></div>
+    </div>
+
+    <div class="callout">
+      <strong>Source of truth:</strong>
+      Fabric browser build —
+      <code>docs/runbooks/Sales_SSBI_Execution_Runbook.docx</code>.
+      Local parity —
+      <code>python pipeline/medallion_pipeline.py</code>.
+    </div>
+
+    <h2>1. Data architecture (medallion)</h2>
+    <p>
+      Excel and Azure SQL are interchangeable after Bronze reconciliation (10,593 = 10,593).
+      Azure SQL is provisioned in <strong>Azure Portal</strong>, loaded locally, then copied into the Lakehouse via a Fabric Azure SQL connection.
+    </p>
+    <figure class="snapshot">
+      <img src="Sales_SSBI_Architecture.png" alt="Sales SSBI architecture snapshot: Azure Portal provisions SQL Server, local Python load from Excel into Azure SQL, then Microsoft Fabric Bronze-Silver-Gold, Direct Lake plus DAX, and a Power BI report." width="1600" height="900">
+    </figure>
+    <div class="panel">
+      <pre class="mermaid">
+flowchart LR
+  subgraph Azure["Azure Portal"]
+    AP[Create SQL Server + DB]
+    NET[Networking / firewall]
+    TBL[Create 4 tables]
+    AP --> NET --> TBL
+  end
+
+  subgraph Load["Local load"]
+    XLS[Excel workbook]
+    LDR["load_excel_to_azuresql.py"]
+    XLS --> LDR
+  end
+
+  subgraph Sources
+    X[Excel to Files/raw_excel]
+    S[Azure SQL Database]
+  end
+
+  subgraph Fabric["Microsoft Fabric"]
+    CONN[Azure SQL connection]
+    B[Bronze ingest + reconcile]
+    V[Silver conform]
+    G[Gold aggregate]
+    M[Direct Lake + DAX]
+    R[Power BI report]
+    CONN --> B
+    B --> V --> G
+    V --> M
+    G --> M
+    M --> R
+  end
+
+  TBL --> S
+  LDR --> S
+  X --> B
+  S --> CONN
+      </pre>
+    </div>
+
+    <h3>Azure Portal → Fabric path</h3>
+    <div class="panel">
+      <pre class="mermaid">
+flowchart TB
+  A1[Azure Portal: SQL Server + Database] --> A2[Firewall: client IP + Allow Azure services]
+  A2 --> A3[Query editor: create Transactions / DimStore / DimProduct / DimTarget]
+  A3 --> A4["Local: load_excel_to_azuresql.py"]
+  A4 --> A5[Fabric: create Azure SQL cloud connection]
+  A5 --> A6["Bronze_Ingest_Pipeline: Copy_AzureSQL + ForEach dims"]
+  A6 --> A7[Files/bronze]
+  A7 --> A8[Silver → Gold → semantic model → report]
+  E1[Upload Excel to Files/raw_excel] --> E2[Copy_Excel_Transactions]
+  E2 --> A7
+      </pre>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Step</th><th>Where</th><th>What</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1. Provision</td><td>Azure Portal</td><td>Create SQL Server + database</td></tr>
+        <tr><td>2. Network</td><td>Azure Portal → Networking</td><td>Allow client IP + Azure services (for Fabric copy)</td></tr>
+        <tr><td>3. Schema</td><td>Azure Portal Query editor</td><td>Create Transactions, DimStore, DimProduct, DimTarget</td></tr>
+        <tr><td>4. Load</td><td>Local</td><td>load_excel_to_azuresql.py (ODBC 18; no committed passwords)</td></tr>
+        <tr><td>5. Connect</td><td>Fabric</td><td>Cloud connection to Azure SQL</td></tr>
+        <tr><td>6. Ingest</td><td>Fabric pipeline</td><td>Copy_AzureSQL_Transactions + dim loop → Bronze</td></tr>
+        <tr><td>7. Downstream</td><td>Fabric</td><td>Silver → Gold → Direct Lake → report</td></tr>
+      </tbody>
+    </table>
+
+    <h2>2. Layer contracts</h2>
+    <div class="grid-2">
+      <div class="layer-card">
+        <div class="tag">Bronze</div>
+        <p><strong>Fabric:</strong> Bronze_Ingest_Pipeline → Files/bronze/</p>
+        <p><strong>Local:</strong> Excel + SQLite; assert row equality</p>
+        <div class="check">Check: 10,593 Excel = 10,593 Azure SQL</div>
+      </div>
+      <div class="layer-card">
+        <div class="tag">Silver</div>
+        <p><strong>Fabric:</strong> Silver_Conform → Delta silver_fact_sales</p>
+        <p><strong>Local:</strong> De-dupe, join dims, write parquet</p>
+        <div class="check">Check: Zero null Region/Brand · RegionMonthKey present</div>
+      </div>
+      <div class="layer-card">
+        <div class="tag">Gold</div>
+        <p><strong>Fabric:</strong> Gold_Aggregate → gold_by_* + dim_target</p>
+        <p><strong>Local:</strong> Groupbys → data/output + actual_facts.json</p>
+        <div class="check">Check: Revenue $31,856,730.94 · Units 13,851</div>
+      </div>
+      <div class="layer-card">
+        <div class="tag">Semantic + Report</div>
+        <p><strong>Fabric:</strong> Direct Lake default model + browser report</p>
+        <p><strong>Local:</strong> Validate against actual_facts.json</p>
+        <div class="check">Check: GM% 53.60% · YoY −2.04% · Target Acc. 95.86%</div>
+      </div>
+    </div>
+
+    <h2>3. Development flow</h2>
+    <div class="panel">
+      <pre class="mermaid">
+flowchart LR
+  P[1. Plan] --> L[2. Local reference]
+  L --> F[3. Fabric build]
+  F --> M[4. Semantic model]
+  M --> S[5. Validate and ship]
+      </pre>
+    </div>
+
+    <div class="stages">
+      <div class="stage">
+        <div class="n">1</div>
+        <h4>Plan</h4>
+        <ul>
+          <li>Define grain</li>
+          <li>Additive vs rate measures</li>
+          <li>Direct Lake constraints</li>
+        </ul>
+      </div>
+      <div class="stage">
+        <div class="n">2</div>
+        <h4>Local reference</h4>
+        <ul>
+          <li>medallion_pipeline.py</li>
+          <li>Excel ≡ Azure SQL</li>
+          <li>Write Gold outputs</li>
+        </ul>
+      </div>
+      <div class="stage">
+        <div class="n">3</div>
+        <h4>Fabric build</h4>
+        <ul>
+          <li>Runbook Phases 1–12</li>
+          <li>Pipeline + notebooks</li>
+          <li>Default semantic model</li>
+        </ul>
+      </div>
+      <div class="stage">
+        <div class="n">4</div>
+        <h4>Semantic model</h4>
+        <ul>
+          <li>Correct relationship grain</li>
+          <li>Paste 10 DAX measures</li>
+          <li>No calculated cols on DL</li>
+        </ul>
+      </div>
+      <div class="stage">
+        <div class="n">5</div>
+        <h4>Validate &amp; ship</h4>
+        <ul>
+          <li>Match actual_facts.json</li>
+          <li>Report + screenshots</li>
+          <li>Content pack</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>4. Dual-track: Local ↔ Fabric</h2>
+    <div class="panel">
+      <pre class="mermaid">
+flowchart TB
+  subgraph Local["Local track — fast feedback"]
+    LP["pipeline/medallion_pipeline.py"]
+    LS["data/sources/"]
+    LO["data/output/ Gold CSVs + actual_facts.json"]
+    LP --> LS
+    LP --> LO
+  end
+
+  subgraph Fabric["Fabric track — production path"]
+    WS[Workspace + Lakehouse]
+    PIP[Bronze_Ingest_Pipeline]
+    NB[Silver_Conform + Gold_Aggregate]
+    SM[Default semantic model Direct Lake]
+    RP[Browser report]
+    WS --> PIP --> NB --> SM --> RP
+  end
+
+  LO -.->|same Phase 12 numbers| SM
+      </pre>
+    </div>
+
+    <div class="grid-2">
+      <div class="layer-card">
+        <div class="tag">Local track</div>
+        <p><code>pipeline/medallion_pipeline.py</code> — pandas Bronze / Silver / Gold against <code>data/sources/</code>.</p>
+        <p><code>load_excel_to_azuresql.py</code> loads Excel into the Azure Portal–provisioned SQL DB (never commit passwords).</p>
+        <p>Notebooks document Spark logic recreated in Fabric.</p>
+      </div>
+      <div class="layer-card">
+        <div class="tag">Azure Portal → Fabric</div>
+        <p>Portal: SQL Server + DB → firewall → 4 tables → local load.</p>
+        <p>Fabric: Azure SQL <strong>cloud connection</strong> → Bronze copy activities → Lakehouse Files/bronze.</p>
+        <p>Then Silver → Gold → Direct Lake → report. Missing Date relation makes YoY % silently 0.</p>
+      </div>
+    </div>
+
+    <h2>5. Fabric runbook phases</h2>
+    <table>
+      <thead>
+        <tr><th>Phase</th><th>Name</th><th>Track</th><th>Primary artifact</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1–2</td><td>Workspace + Lakehouse</td><td>Fabric</td><td>Sales-SSBI-Project · Sales_SSBI_Lakehouse</td></tr>
+        <tr><td>3–4</td><td>Source landing</td><td>Azure + Fabric</td><td>Portal SQL Server/DB/tables · Excel → Files/raw_excel · Fabric Azure SQL connection</td></tr>
+        <tr><td>5</td><td>Bronze ingest</td><td>Fabric</td><td>Bronze_Ingest_Pipeline (Copy + ForEach dims)</td></tr>
+        <tr><td>6–7</td><td>Silver conform</td><td>Both</td><td>Silver_Conform → silver_fact_sales (+ RegionMonthKey)</td></tr>
+        <tr><td>8–9</td><td>Gold aggregate</td><td>Both</td><td>Gold_Aggregate → gold_* + dim_target</td></tr>
+        <tr><td>10</td><td>DAX measures</td><td>Fabric</td><td>10 measures from docs/dax_measures.md</td></tr>
+        <tr><td>11</td><td>Relationships</td><td>Fabric</td><td>RegionMonthKey · Date → DimDate</td></tr>
+        <tr><td>12</td><td>Validate + report</td><td>Both</td><td>Phase 12 checkpoints · report pages</td></tr>
+      </tbody>
+    </table>
+
+    <h2>6. Semantic model shape</h2>
+    <div class="grid-2">
+      <div class="layer-card">
+        <div class="tag">Fact &amp; dims</div>
+        <p><strong>Fact:</strong> silver_fact_sales (1 row / transaction line)</p>
+        <p><strong>Dims:</strong> DimDate · dim_target via RegionMonthKey</p>
+      </div>
+      <div class="layer-card">
+        <div class="tag">Measures</div>
+        <p><strong>Additive:</strong> Revenue, Total Units, Total COGS, Transactions</p>
+        <p><strong>Rates via DIVIDE():</strong> AOV, GM %, YoY %, Target Accuracy %</p>
+      </div>
+    </div>
+
+    <h2>7. Repo map</h2>
+    <table>
+      <thead>
+        <tr><th>Path</th><th>Role in the flow</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>data/sources/</code></td><td>Dual inputs: Excel + Azure SQL sim DB</td></tr>
+        <tr><td><code>pipeline/</code></td><td>Local medallion + Azure SQL loader + Fabric notebook mirrors</td></tr>
+        <tr><td><code>data/output/</code></td><td>Local Gold CSVs + silver parquet + actual_facts.json</td></tr>
+        <tr><td><code>docs/runbooks/</code></td><td>Canonical Fabric Phases 1–12</td></tr>
+        <tr><td><code>docs/dax_measures.md</code></td><td>Phase 10 measure library</td></tr>
+        <tr><td><code>content/</code></td><td>Report .pbix, YouTube plan/transcript, posts</td></tr>
+        <tr><td><code>assets/screenshots/</code></td><td>Lakehouse / pipeline / report evidence</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Quick start</h2>
+    <pre class="shell">pip install -r requirements.txt
+python pipeline/medallion_pipeline.py</pre>
+    <p>Fabric: open Execution Runbook → Phases 1–12 in the browser (no Desktop required for Direct Lake default model).</p>
+
+    <footer>
+      Sales SSBI Episode 1 · by Mayank Chugh · architecture notes for interview prep<br>
+      <a href="Sales_SSBI_Interview_Drill.html">← Back to Interview Drill</a>
+      · <a href="fabric_interview_prep.html">Fabric flashcards</a>
+      · <a href="index.html">Learning hub</a>
+    </footer>
+  </div>
+</body>
+</html>

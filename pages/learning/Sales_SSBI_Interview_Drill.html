@@ -405,9 +405,68 @@
   }
   .glossary-search::placeholder { color: var(--sub-txt); }
   .detail-modal.glossary-wide { width: min(780px, 100%); }
+  .detail-modal.arch-wide { width: min(1080px, 100%); }
+
+  .arch-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin: 16px 0 0;
+    padding: 12px 14px;
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(63,184,175,0.35);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font-family: inherit;
+    text-decoration: none;
+  }
+  .arch-banner:hover { border-color: var(--mint); background: rgba(63,184,175,0.08); }
+  .arch-banner-copy { flex: 1; min-width: 0; }
+  .arch-banner-copy strong {
+    display: block;
+    font-family: Syne, Georgia, serif;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+  .arch-banner-copy span { color: var(--sub-txt); font-size: 0.82rem; line-height: 1.4; }
+  .arch-banner img {
+    width: 168px;
+    height: 78px;
+    object-fit: cover;
+    object-position: left center;
+    border-radius: 6px;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .arch-figure {
+    margin: 0;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .arch-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .arch-caption {
+    margin: 12px 0 0;
+    color: var(--sub-txt);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  .arch-caption code {
+    font-size: 0.8rem;
+    color: var(--mint);
+  }
 
   @media (max-width: 600px) {
     .toolbar { flex-direction: column; }
+    .arch-banner { flex-direction: column; align-items: stretch; }
+    .arch-banner img { width: 100%; height: 110px; }
   }
 </style>
 </head>
@@ -428,9 +487,17 @@
     <div class="related">
       <a href="../migration/ssas_migration_proposal.html">SSAS → Fabric proposal</a>
       <a href="../migration/d365_migration_guide.html">D365 migration guide</a>
+      <a href="Sales_SSBI_Architecture.html">Project architecture</a>
       <a href="fabric_interview_prep.html">Fabric flashcards</a>
       <a href="index.html">All learning pages</a>
     </div>
+    <a class="arch-banner" href="Sales_SSBI_Architecture.html">
+      <div class="arch-banner-copy">
+        <strong>Azure Portal → Fabric architecture</strong>
+        <span>Portal provision → local load → Fabric connection → medallion → report. Open the full notes: mermaid flows, layer contracts, and Phases 1–12.</span>
+      </div>
+      <img src="Sales_SSBI_Architecture.png" alt="" width="168" height="78">
+    </a>
   </header>
 
   <div class="progress-row">
@@ -444,6 +511,7 @@
     <input class="search" id="searchBox" type="text" placeholder="Search questions or answers...">
     <button class="btn" id="quizBtn">Random Question</button>
     <button class="btn secondary" id="resetBtn">Reset Progress</button>
+    <button class="btn secondary" id="archBtn" type="button">Architecture</button>
     <button class="btn secondary" id="glossaryBtn" type="button">BI Glossary</button>
   </div>
 
@@ -453,6 +521,7 @@
   <footer>
     75 questions · 14 categories · SSBI + Fabric + Purview interview prep<br>
     <a href="index.html">← Back to Learning</a>
+    · <a href="Sales_SSBI_Architecture.html">Project architecture</a>
     · <a href="fabric_interview_prep.html">Fabric flashcards</a>
     · <a href="venv_comprehensive_guide.html">Python venv guide</a>
   </footer>
@@ -465,6 +534,22 @@
       <button type="button" class="detail-close" id="detailClose" aria-label="Close">×</button>
     </div>
     <div class="detail-modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<div class="detail-overlay" id="archOverlay" role="dialog" aria-modal="true" aria-labelledby="archTitle" hidden>
+  <div class="detail-modal arch-wide">
+    <div class="detail-modal-head">
+      <h2 id="archTitle">Sales SSBI — Azure Portal → Fabric</h2>
+      <button type="button" class="detail-close" id="archClose" aria-label="Close architecture">×</button>
+    </div>
+    <div class="detail-modal-body">
+      <figure class="arch-figure">
+        <img src="Sales_SSBI_Architecture.png" alt="Sales SSBI architecture: Azure Portal provisions SQL Server, firewall, and four tables; a local Python script loads an Excel workbook into Azure SQL; Microsoft Fabric connects, ingests Bronze (including Excel Files/raw_excel), then Silver, Gold, Direct Lake plus DAX, and a Power BI report." width="1600" height="900">
+      </figure>
+      <p class="arch-caption"><strong>Talk track:</strong> Portal provision → local load (<code>load_excel_to_azuresql.py</code>) → Azure SQL → Fabric connection → Bronze (plus Excel upload to Files/raw_excel) → Silver → Gold → Direct Lake + DAX → Power BI report.</p>
+      <p class="arch-caption"><a href="Sales_SSBI_Architecture.html" style="color:var(--mint);font-weight:600;">Open full architecture notes →</a> mermaid diagrams, Bronze/Silver/Gold contracts, dual-track local ↔ Fabric, and runbook phases.</p>
+    </div>
   </div>
 </div>
 
@@ -967,9 +1052,31 @@ document.getElementById("glossaryOverlay").addEventListener("click", (e) => {
 document.getElementById("glossarySearch").addEventListener("input", (e) => {
   renderGlossary(e.target.value);
 });
+
+function openArchitecture() {
+  const overlay = document.getElementById("archOverlay");
+  overlay.hidden = false;
+  overlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeArchitecture() {
+  const overlay = document.getElementById("archOverlay");
+  overlay.classList.remove("open");
+  overlay.hidden = true;
+  document.body.style.overflow = "";
+}
+
+document.getElementById("archBtn").addEventListener("click", openArchitecture);
+document.getElementById("archClose").addEventListener("click", closeArchitecture);
+document.getElementById("archOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "archOverlay") closeArchitecture();
+});
+
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     closeGlossary();
+    closeArchitecture();
   }
 });
 
