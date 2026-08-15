@@ -1532,7 +1532,7 @@ Fabric lake + speed + fresh  │ Direct Lake (default pick)</pre>
   <p style="margin:10px 0 0;"><a href="../../assets/learning/direct-lake-mode.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
 </div>
 `
-  }
+  },
   "json-bronze-0": {
     title: "Bronze = raw nested JSON — flatten only in Silver",
     html: `
@@ -1771,6 +1771,69 @@ ACID + history       │ Transaction log on Parquet → concurrent safety, time 
 <div class="takeaway">
   <strong>Key takeaway:</strong> OneLake stores <strong>Delta Parquet</strong>. Open format + shortcuts = one copy, many engines, no forced conversion silos.
   <p style="margin:10px 0 0;"><a href="../../assets/learning/onelake-delta-parquet.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "fabric-deep-4": {
+    title: "Fabric shortcuts — desktop links, not duplicate video files",
+    html: `
+<h3>The analogy — desktop shortcut vs copying a huge file</h3>
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Traditional copy (old way)</div>
+    <pre>Download a second copy
+→ Double storage
+→ Colleague edits original
+→ Your copy goes stale</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">Fabric shortcut (modern way)</div>
+    <pre>Create a portal icon
+→ Zero extra storage
+→ Open/read as if local
+→ Updates visible instantly</pre>
+  </div>
+</div>
+
+<h3>What shortcuts are</h3>
+<p>Virtual references inside OneLake that point to data stored elsewhere — another OneLake location, ADLS Gen2, S3, Dataverse — <strong>without physically copying it</strong>. Unify across workspaces or clouds while data stays in place.</p>
+
+<div class="tree-box">
+<pre> PHYSICAL STORAGE
+ [ S3 Sales ]  [ ADLS HR ]  [ OneLake WS-A Finance ]
+      │              │                 │
+      ▼              ▼                 ▼
+   Shortcut       Shortcut          Shortcut
+      │              │                 │
+      └──────────────┴─────────┬───────┘
+                               ▼
+              OneLake Workspace B (unified view)
+                               │
+              Power BI / Spark / SQL — zero duplication</pre>
+</div>
+
+<h3>When to shortcut vs copy</h3>
+<div class="tree-box">
+<pre>Need data in another location/cloud?
+              │
+     YES ─────┴───── NO → ingest / transform via Pipeline
+      │
+ Avoid copy &amp; storage cost?
+      │
+ YES → USE A SHORTCUT          NO → COPY THE DATA
+       Zero copy · instant           ETL · duplicate · stale risk
+       Unified view</pre>
+</div>
+
+<h3>Key capabilities</h3>
+<ul>
+  <li><strong>Multi-cloud:</strong> S3, GCS, ADLS Gen2, Dataverse, other OneLake workspaces.</li>
+  <li><strong>Zero ETL overhead:</strong> no pipeline just to move bytes for reporting.</li>
+  <li><strong>Governance:</strong> data stays at source; access via pointer — lineage and security boundaries still matter.</li>
+</ul>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> A shortcut is a live virtual link in OneLake — not a second copy. Use it when you need a unified view without duplicating storage.
 </div>
 `
   }
