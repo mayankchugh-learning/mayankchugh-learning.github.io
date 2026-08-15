@@ -511,6 +511,7 @@
       <a href="../../assets/learning/two-source-ingestion.png" target="_blank" rel="noopener">Two-source ingestion</a>
       <a href="../../assets/learning/medallion-architecture-fabric.png" target="_blank" rel="noopener">Medallion architecture</a>
       <a href="../../assets/learning/delta-schema-changes.png" target="_blank" rel="noopener">Delta schema changes</a>
+      <a href="../../assets/learning/rls-direct-lake.png" target="_blank" rel="noopener">RLS + Direct Lake</a>
       <a href="fabric_interview_prep.html">Fabric flashcards</a>
       <a href="index.html">All learning pages</a>
     </div>
@@ -1276,6 +1277,11 @@ df.write \
   "platform-5": {
     title: "RLS + Direct Lake — VIP line becomes DirectQuery when the ID check is on",
     html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/rls-direct-lake.png" alt="Row-Level Security and Direct Lake: RLS falls back to DirectQuery — who sees what and why RLS slows Direct Lake — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full guide — Direct Lake without RLS is the VIP line; RLS turns on the ID check (DirectQuery fallback).</figcaption>
+</figure>
+
 <h3>The "VIP Club Security Check" Analogy</h3>
 <p>Think of Direct Lake as an <strong>express VIP line</strong> at an exclusive event, and Row-Level Security (RLS) as a <strong>personal ID guard</strong>. No guard = stream straight from OneLake. Guard on = every guest is checked live — and that check is the DirectQuery fallback.</p>
 
@@ -1329,7 +1335,8 @@ Best practice │ Fine for company-wide open reports│ Test actual fallback lat
 </div>
 
 <div class="takeaway">
-  <strong>Key takeaway:</strong> RLS = DAX role filters on rows. On Direct Lake, expect <strong>DirectQuery fallback</strong> for those queries — measure that latency before committing the security design.
+  <strong>Key takeaway:</strong> Use Direct Lake for max speed when open access is OK. RLS triggers DirectQuery fallback — test that latency on large models before committing, and balance security needs against performance.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/rls-direct-lake.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
 </div>
 `
   }
