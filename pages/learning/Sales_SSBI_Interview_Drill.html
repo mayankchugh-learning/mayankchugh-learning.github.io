@@ -229,7 +229,6 @@
 
 
   .detail-btn {
-    margin-left: auto;
     background: transparent;
     border: 1px solid rgba(63,184,175,0.45);
     color: var(--mint);
@@ -240,8 +239,18 @@
     cursor: pointer;
     font-family: inherit;
     white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
   }
   .detail-btn:hover { background: rgba(63,184,175,0.12); border-color: var(--mint); }
+  .detail-actions {
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
 
   .detail-overlay {
     position: fixed; inset: 0; z-index: 200;
@@ -2829,6 +2838,13 @@ function renderPills() {
 
 function questionId(catId, idx) { return catId + "-" + idx; }
 
+function detailImageSrc(id) {
+  const help = DETAIL_HELP[id];
+  if (!help || !help.html) return null;
+  const m = help.html.match(/<img[^>]+src=["']([^"']+\.png)["']/i);
+  return m ? m[1] : null;
+}
+
 function renderCards() {
   containerEl.innerHTML = "";
   let shown = 0;
@@ -2858,6 +2874,14 @@ function renderCards() {
       card.dataset.id = id;
 
       const hasDetail = !!DETAIL_HELP[id];
+      const imgSrc = detailImageSrc(id);
+      let actions = "";
+      if (hasDetail || imgSrc) {
+        actions = '<div class="detail-actions">' +
+          (hasDetail ? '<button type="button" class="detail-btn" data-detail="' + id + '">Detailed help</button>' : '') +
+          (imgSrc ? '<a class="detail-btn" href="' + imgSrc + '" target="_blank" rel="noopener">Open PNG</a>' : '') +
+          '</div>';
+      }
       card.innerHTML =
         '<div class="card-head">' +
           '<span class="card-num">Q' + (q.idx + 1) + '</span>' +
@@ -2866,7 +2890,7 @@ function renderCards() {
         '</div>' +
         '<div class="mark-row">' +
           '<label><input type="checkbox" ' + (reviewed.has(id) ? "checked" : "") + ' data-mark="' + id + '"> Mark as reviewed</label>' +
-          (hasDetail ? '<button type="button" class="detail-btn" data-detail="' + id + '">Detailed help</button>' : '') +
+          actions +
         '</div>' +
         '<div class="card-body">' +
           '<div class="card-answer">' + q.a + '</div>' +
