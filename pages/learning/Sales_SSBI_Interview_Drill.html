@@ -520,6 +520,9 @@
       <a href="../../assets/learning/onelake-delta-parquet.png" target="_blank" rel="noopener">Delta Parquet / OneLake</a>
       <a href="../../assets/learning/fabric-shortcuts.png" target="_blank" rel="noopener">Fabric shortcuts</a>
       <a href="../../assets/learning/medallion-water-bottling.png" target="_blank" rel="noopener">Medallion (bottling)</a>
+      <a href="../../assets/learning/pipelines-vs-dataflows.png" target="_blank" rel="noopener">Pipelines vs Dataflows</a>
+      <a href="../../assets/learning/realtime-intelligence-fabric.png" target="_blank" rel="noopener">Real-Time Intelligence</a>
+      <a href="../../assets/learning/iot-low-latency-pipeline.png" target="_blank" rel="noopener">IoT low-latency pipeline</a>
       <a href="fabric_interview_prep.html">Fabric flashcards</a>
       <a href="index.html">All learning pages</a>
     </div>
@@ -1904,6 +1907,216 @@ Gold   │ Business consumption │ Star schema, aggregates       │ PySpark / 
 <div class="takeaway">
   <strong>Key takeaway:</strong> Bronze = land raw. Silver = trust at fixed grain. Gold = star schema for the semantic model — promote with pipelines/notebooks, ideally serve Gold via Direct Lake.
   <p style="margin:10px 0 0;"><a href="../../assets/learning/medallion-water-bottling.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "fabric-deep-5": {
+    title: "Pipelines vs Dataflows Gen2 — head chef orchestrates, line cook transforms",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/pipelines-vs-dataflows.png" alt="Data Factory Pipelines vs Dataflows Gen2 in Fabric: head chef orchestrates, line cook transforms with Power Query — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full guide — pipeline orchestrates; Dataflow Gen2 transforms; use them together.</figcaption>
+</figure>
+
+<h3>The restaurant kitchen analogy</h3>
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Pipelines — head chef / manager</div>
+    <pre>Orchestrate schedule &amp; sequence
+
+"First run Dataflow, then notebook,
+ then notify the team."
+
+Does not chop veggies itself</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">Dataflows Gen2 — line cook</div>
+    <pre>Hands-on Power Query station
+
+Filter, rename, merge, clean
+Land curated tables to
+Lakehouse or Warehouse</pre>
+  </div>
+</div>
+<p><strong>Key rule:</strong> you do not pick one instead of the other — the pipeline controls <em>when</em> the dataflow runs.</p>
+
+<h3>How they work together</h3>
+<div class="tree-box">
+<pre>FABRIC PIPELINE (orchestration)
+  │
+  ├─► Activity 1: Dataflows Gen2
+  │     Extract → clean/filter/join (Power Query)
+  │     → land tables in Lakehouse
+  │
+  ├─► Activity 2: PySpark notebook
+  │     Heavy / ML / Gold aggregations
+  │
+  └─► Activity 3: Teams / email notify
+        "Pipeline succeeded"</pre>
+</div>
+
+<h3>Decision tree</h3>
+<div class="tree-box">
+<pre>Primary task?
+        │
+   ┌────┴────┐
+   ▼         ▼
+ Transform   Automate / sequence
+ (low-code)  (schedule, copy, trigger)
+   │         │
+   ▼         ▼
+ DATAFLOWS   PIPELINE
+ GEN2        (may call a dataflow)</pre>
+</div>
+
+<h3>Summary</h3>
+<div class="flow-box">
+  <pre>Feature     │ Pipelines                         │ Dataflows Gen2
+────────────┼───────────────────────────────────┼─────────────────────────────
+Primary role│ Orchestration &amp; workflow          │ Transform &amp; cleanse
+UX          │ Activity flowchart canvas         │ Power Query visual editor
+Best for    │ Sequence jobs, copy, alerts       │ Low-code table reshaping
+Execution   │ Scheduled / event-driven          │ Transformation jobs</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Build transformations in Dataflows Gen2; use Data Factory Pipelines to orchestrate and automate the whole solution — not either/or.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/pipelines-vs-dataflows.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "fabric-deep-7": {
+    title: "Real-Time Intelligence — airport control tower components",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/realtime-intelligence-fabric.png" alt="Real-Time Intelligence in Microsoft Fabric: Hub, Eventstream, Eventhouse, Dashboards, Data Activator — airport control tower analogy — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full guide — ingest → store → visualize → act on streaming data in Fabric.</figcaption>
+</figure>
+
+<h3>The airport traffic control tower analogy</h3>
+<ul>
+  <li><strong>Real-Time Hub</strong> — central radar registry: master directory of every plane in the sky or approaching.</li>
+  <li><strong>Eventstream</strong> — air traffic controller: captures live signals, filters/routes planes to the right runway without delaying them first.</li>
+  <li><strong>Eventhouse &amp; KQL DB</strong> — high-speed flight recorder: millions of rapid points (altitude, speed, heat); sub-second queries.</li>
+  <li><strong>Real-Time dashboards</strong> — tower radar screens: up-to-the-second movements and runway conditions.</li>
+  <li><strong>Data Activator</strong> — automated alarm: triggers protocol the moment a sensor reads anomalous pressure or speed.</li>
+</ul>
+<p>Real-Time Intelligence is Fabric’s end-to-end streaming workload (current name; replaced “Real-Time Analytics”).</p>
+
+<h3>Architecture flow</h3>
+<div class="tree-box">
+<pre>Streaming sources (IoT, logs, clickstreams)
+        │  discover via Real-Time Hub
+        ▼
+   Eventstream (ingest &amp; route)
+        │
+        ├──────────────► Eventhouse / KQL DB (time-series store)
+        │                        │
+        │                        ▼
+        │               Real-Time Dashboard (live visuals)
+        │
+        └──────────────► Data Activator (alerts / webhooks)</pre>
+</div>
+
+<h3>Which component?</h3>
+<div class="tree-box">
+<pre>Need with live data?
+   │
+   ├─ Discover / catalog  → Real-Time Hub
+   ├─ Route / filter      → Eventstream
+   ├─ Store &amp; query logs  → Eventhouse (KQL)
+   └─ Trigger actions     → Data Activator
+
+(+ Real-Time Dashboard for low-latency display)</pre>
+</div>
+
+<h3>Component breakdown</h3>
+<div class="flow-box">
+  <pre>Component            │ Role              │ Core capability
+─────────────────────┼───────────────────┼──────────────────────────────────
+Real-Time Hub        │ Central catalog   │ Discover / manage stream sources
+Eventstream          │ Ingest &amp; route    │ No-code capture, transform, route
+Eventhouse (KQL DB)  │ Real-time engine  │ Fast time-series / log queries
+Real-Time Dashboard  │ Visuals           │ Instant refresh as events land
+Data Activator       │ Action engine     │ Pattern/threshold → alerts/actions</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Combine Hub + Eventstream + Eventhouse + Dashboards + Activator for end-to-end streaming — from IoT monitoring and fraud detection to operational dashboards and automated incident response.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/realtime-intelligence-fabric.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "fabric-deep-8": {
+    title: "Low-latency IoT — smart highway: Eventstream splits fast path vs archive",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/iot-low-latency-pipeline.png" alt="End-to-end low-latency IoT sensor pipeline in Fabric: Event Hubs, Eventstream, dual path Eventhouse and Lakehouse, Data Activator — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full guide — millisecond insights now; historical intelligence in Lakehouse forever.</figcaption>
+</figure>
+
+<h3>The automated smart highway analogy</h3>
+<ul>
+  <li><strong>IoT sensors</strong> — cars continuously transmitting speed, weight, location.</li>
+  <li><strong>Eventstream</strong> — toll gates: capture at speed, categorize, route into lanes without stopping traffic.</li>
+  <li><strong>Eventhouse / KQL</strong> — highway control tower: query patterns across thousands of cars in milliseconds.</li>
+  <li><strong>Lakehouse Delta copy</strong> — central archive vault for monthly reports and ML (batch path).</li>
+  <li><strong>Data Activator</strong> — automated speed trap: threshold breach → alerts / Power Automate.</li>
+  <li><strong>Real-Time dashboards</strong> — control-room live map with no scheduled refresh.</li>
+</ul>
+
+<h3>End-to-end architecture</h3>
+<div class="tree-box">
+<pre>IoT sensors / MQTT (temp, pressure, speed)
+        │
+        ▼
+   Event Hubs  ← streaming ingest point
+        │
+        ▼
+   Eventstream  ← in-flight transform &amp; route
+        │
+        ├──── Millisecond path ────► Eventhouse (KQL DB)
+        │                                 │
+        │                    ┌────────────┴────────────┐
+        │                    ▼                         ▼
+        │           Real-Time Dashboards      Data Activator
+        │           (live telemetry)          (threshold → alert)
+        │
+        └──── Batch / ML path ─────► Lakehouse (Delta / OneLake)
+                                            │
+                                            ▼
+                                      Spark / ML models</pre>
+</div>
+
+<h3>Walkthrough</h3>
+<div class="flow-box fixed">
+  <div class="flow-title good">1. INGEST &amp; ROUTE</div>
+  <p>Sensors → Event Hubs / MQTT. Eventstream filters noise and splits dual paths.</p>
+</div>
+<div class="flow-box fixed">
+  <div class="flow-title good">2. DUAL STORAGE</div>
+  <p><strong>Path A:</strong> Eventhouse indexes telemetry in milliseconds.<br><strong>Path B:</strong> OneLake / Lakehouse Delta copy for batch analytics and ML.</p>
+</div>
+<div class="flow-box fixed">
+  <div class="flow-title good">3. CONSUME &amp; ACT</div>
+  <p>Dashboards query Eventhouse live. Activator watches thresholds → webhook / Teams / Power Automate.</p>
+</div>
+
+<h3>Component roles</h3>
+<div class="flow-box">
+  <pre>Layer      │ Component           │ Function                     │ Latency
+───────────┼─────────────────────┼──────────────────────────────┼────────────
+Ingest     │ Event Hubs / MQTT   │ High-frequency telemetry     │ Sub-second
+Routing    │ Eventstream         │ Filter, enrich, split        │ Sub-second
+Hot path   │ Eventhouse (KQL)    │ Time-series ad-hoc queries   │ Milliseconds
+Cold path  │ Lakehouse / OneLake │ Delta for analytics / ML     │ Minutes/batch
+Alerting   │ Data Activator      │ Threshold → automated action │ Near real-time
+Visuals    │ RT dashboards       │ Live operator view           │ Live</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> One Eventstream, two lands — Eventhouse for millisecond ops, Lakehouse Delta for batch/ML — plus Activator and live dashboards. Pro tip: transform in-flight to cut volume; store what you need hot in Eventhouse, archive everything to Lakehouse.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/iot-low-latency-pipeline.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
 </div>
 `
   }
