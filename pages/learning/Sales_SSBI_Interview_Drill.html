@@ -530,6 +530,8 @@
       <a href="../../assets/learning/realtime-intelligence-fabric.png" target="_blank" rel="noopener">Real-Time Intelligence</a>
       <a href="../../assets/learning/iot-low-latency-pipeline.png" target="_blank" rel="noopener">IoT low-latency pipeline</a>
       <a href="../../assets/learning/data-activator-fabric.png" target="_blank" rel="noopener">Data Activator</a>
+      <a href="../../assets/learning/purview-governance-plane.png" target="_blank" rel="noopener">Purview governance</a>
+      <a href="../../assets/learning/purview-data-map-vs-catalog.png" target="_blank" rel="noopener">Data Map vs Catalog</a>
       <a href="fabric_interview_prep.html">Fabric flashcards</a>
       <a href="index.html">All learning pages</a>
     </div>
@@ -2631,6 +2633,150 @@ Hot path: KQL. Batch path: T-SQL / Direct Lake.</pre>
 
 <div class="takeaway">
   <strong>Key takeaway:</strong> Same Direct Lake calculated-column pattern: name the limit, then immediately pair the workaround and why it is more correct.
+</div>
+`
+  },
+  "purview-0": {
+    title: "Purview vs Fabric — museum security office vs exhibition halls",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/purview-governance-plane.png" alt="Microsoft Purview as the governance control plane for Fabric, Power BI, and the data estate — museum and security office analogy — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full guide — discover, classify, govern, protect everywhere; build in Fabric, govern with Purview.</figcaption>
+</figure>
+
+<h3>The museum &amp; security office analogy</h3>
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Fabric &amp; OneLake — halls &amp; vaults</div>
+    <pre>Where art (data) is created,
+stored, restored, and displayed
+
+Power BI reports &amp; analytics
+Spark / Warehouse / Lakehouse</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">Purview — director &amp; security office</div>
+    <pre>Does not paint or display art
+
+• Catalog &amp; lineage inventory
+• Sensitivity / classification tags
+• Access &amp; compliance policy</pre>
+  </div>
+</div>
+<p>Purview is the <strong>governance control plane</strong> — not another analytics engine. Fabric/Power BI build and consume data products; Purview registers what they are, who owns them, sensitivity, lineage, and policy.</p>
+
+<h3>Where Purview sits</h3>
+<div class="tree-box">
+<pre>        MICROSOFT PURVIEW (control plane)
+   Catalog · Sensitivity labels · End-to-end lineage
+                    │
+     ┌──────────────┼──────────────┐
+     ▼              ▼              ▼
+ Fabric/OneLake   Azure sources   Multi-cloud / on-prem
+ Spark, WH, PBI   SQL, Synapse…   S3, Snowflake, on-prem</pre>
+</div>
+
+<h3>Which tool?</h3>
+<div class="tree-box">
+<pre>What are you trying to do?
+        │
+   ┌────┴────┐
+   ▼         ▼
+ Build &amp;     Govern &amp;
+ analyze     protect
+   │         │
+   ▼         ▼
+ FABRIC /    MICROSOFT
+ POWER BI    PURVIEW</pre>
+</div>
+
+<h3>Summary</h3>
+<div class="flow-box">
+  <pre>Capability   │ Fabric &amp; Power BI              │ Microsoft Purview
+─────────────┼───────────────────────────────┼─────────────────────────────
+Primary role │ Compute, storage, analytics   │ Governance, compliance, security
+Data scope   │ Fabric / OneLake workloads    │ Whole estate (Azure, AWS, on-prem…)
+Core work    │ Notebooks, WH, reports        │ Catalog, labels, lineage
+Audience     │ Engineers, analysts, users    │ CDO, compliance, security</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Let Purview be the source of truth for the data estate. Build in Fabric &amp; Power BI. Govern with Purview. Win together.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/purview-governance-plane.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "purview-1": {
+    title: "Data Map vs Unified Catalog — warehouse inventory vs shopping storefront",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/purview-data-map-vs-catalog.png" alt="Microsoft Purview Data Map vs Unified Catalog: technical inventory vs business curated catalog — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full guide — Data Map is inventory; Unified Catalog is the shopping experience.</figcaption>
+</figure>
+
+<h3>The e-commerce warehouse analogy</h3>
+<div class="diag-grid">
+  <div class="diag-box">
+    <div class="label">Data Map — automated warehouse inventory</div>
+    <pre>Scanners log every box off the truck
+Technical specs: Box #8492, aisle 4,
+schema, weight, raw parts
+
+Great for engineers — confusing for shoppers</pre>
+  </div>
+  <div class="diag-box">
+    <div class="label">Unified Catalog — online storefront</div>
+    <pre>Curators list clean products:
+"Ergonomic chair — Furniture team,
+in stock, trusted rating"
+
+Business users find, trust, request access</pre>
+  </div>
+</div>
+<p><strong>Key rule:</strong> Scans build the Data Map (technical discovery). Stewards and product owners build the Unified Catalog (business curation and trust).</p>
+
+<h3>How the layers stack</h3>
+<div class="tree-box">
+<pre>UNIFIED CATALOG (business curated)
+  Glossary · Data products · Domains · Access requests
+                    ▲
+           Curated by stewards
+                    │
+DATA MAP (technical scanning)
+  Assets · Schemas · Auto-classifications · System lineage
+                    ▲
+           Automated metadata scans
+                    │
+  Fabric/OneLake · Azure SQL/Synapse · AWS S3 / Databricks…</pre>
+</div>
+
+<h3>Which layer solves the problem?</h3>
+<div class="tree-box">
+<pre>What problem?
+        │
+   ┌────┴────┐
+   ▼         ▼
+ Technical   Business / governance
+ "Where is   "Where is verified
+  column X?"  customer data &amp; who owns it?"
+   │         │
+   ▼         ▼
+ DATA MAP    UNIFIED CATALOG</pre>
+</div>
+
+<h3>Summary</h3>
+<div class="flow-box">
+  <pre>Feature     │ Data Map                         │ Unified Catalog
+────────────┼──────────────────────────────────┼──────────────────────────────
+Audience    │ Engineers, security, IT          │ Analysts, consumers, stewards
+Populated by│ Automated scans / crawlers       │ Curation, domains, enrichment
+Content     │ Schemas, classifications, lineage│ Glossary, ownership, products
+Value       │ Technical visibility             │ Self-service discovery &amp; trust</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Data Map is the <strong>inventory</strong>. Unified Catalog is the <strong>shopping experience</strong>. Inventory without curation is noise; curation without inventory is blind.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/purview-data-map-vs-catalog.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
 </div>
 `
   }
