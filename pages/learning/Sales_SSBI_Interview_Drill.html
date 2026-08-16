@@ -519,6 +519,7 @@
       <a href="json_bronze_ingestion_guide.md" target="_blank" rel="noopener">JSON → Bronze guide</a>
       <a href="../../assets/learning/onelake-delta-parquet.png" target="_blank" rel="noopener">Delta Parquet / OneLake</a>
       <a href="../../assets/learning/fabric-shortcuts.png" target="_blank" rel="noopener">Fabric shortcuts</a>
+      <a href="../../assets/learning/medallion-water-bottling.png" target="_blank" rel="noopener">Medallion (bottling)</a>
       <a href="fabric_interview_prep.html">Fabric flashcards</a>
       <a href="index.html">All learning pages</a>
     </div>
@@ -1841,6 +1842,68 @@ ACID + history       │ Transaction log on Parquet → concurrent safety, time 
 <div class="takeaway">
   <strong>Key takeaway:</strong> Fabric shortcuts give a single, unified view of data across workspaces and clouds without copying it — saving time, cost, and storage while keeping everything up to date.
   <p style="margin:10px 0 0;"><a href="../../assets/learning/fabric-shortcuts.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
+</div>
+`
+  },
+  "fabric-deep-6": {
+    title: "Medallion in Fabric — water bottling plant (Bronze → Silver → Gold)",
+    html: `
+<figure class="detail-figure">
+  <img src="../../assets/learning/medallion-water-bottling.png" alt="Medallion architecture in Microsoft Fabric: water bottling analogy — Bronze raw, Silver cleaned, Gold star schema to Power BI Direct Lake — infographic by Mayank Chugh" width="1400" height="900" loading="lazy">
+  <figcaption>Full guide — raw spring → filtered water → bottled products; Bronze → Silver → Gold in Fabric.</figcaption>
+</figure>
+
+<h3>The water bottling plant analogy</h3>
+<ul>
+  <li><strong>Bronze (raw spring water):</strong> Unfiltered water from the spring — sediment and all. Store as-is in holding tanks so you never lose the original source.</li>
+  <li><strong>Silver (filtered &amp; purified):</strong> Filtration, testing, standardization — debris removed, bad batches discarded, clean water ready for mixing.</li>
+  <li><strong>Gold (bottled products):</strong> Final SKUs for the store — sparkling, lemonade, 6-packs — business-ready star schemas for reports.</li>
+</ul>
+
+<h3>Fabric pipeline view</h3>
+<div class="tree-box">
+<pre>Raw sources (APIs, files, DBs)
+        │  Pipeline / Eventstream
+        ▼
+ Bronze Lakehouse — raw Delta (append-only)
+        │  Spark / Dataflow
+        ▼
+ Silver Lakehouse — cleaned, deduped, validated
+        │  Spark / Notebook
+        ▼
+ Gold Lakehouse — star schema (facts / dims)
+        │
+        ▼
+ Power BI (Direct Lake)</pre>
+</div>
+
+<h3>Implementation checklist</h3>
+<div class="tree-box">
+<pre>[1] Design pattern
+    A) One Lakehouse + 3 schemas (Bronze/Silver/Gold)
+    B) Three Lakehouses (enterprise isolation / permissions)
+
+[2] Ingest Bronze — Pipelines or Eventstream → append-only Delta
+
+[3] Promote Silver — PySpark / Dataflow: dedupe, NULLs, schema
+
+[4] Aggregate Gold — fact/dim tables for Direct Lake reporting
+
+Chain stages with a scheduled or event-driven pipeline trigger.</pre>
+</div>
+
+<h3>Layer comparison</h3>
+<div class="flow-box">
+  <pre>Layer  │ Purpose              │ Key work                      │ Fabric tools
+───────┼──────────────────────┼───────────────────────────────┼─────────────────────
+Bronze │ Raw landing          │ Ingest, archive, incremental  │ Pipelines / Shortcuts
+Silver │ Clean &amp; standardized │ Filter, dedupe, enforce schema│ PySpark / Dataflows
+Gold   │ Business consumption │ Star schema, aggregates       │ PySpark / SQL</pre>
+</div>
+
+<div class="takeaway">
+  <strong>Key takeaway:</strong> Bronze = land raw. Silver = trust at fixed grain. Gold = star schema for the semantic model — promote with pipelines/notebooks, ideally serve Gold via Direct Lake.
+  <p style="margin:10px 0 0;"><a href="../../assets/learning/medallion-water-bottling.png" target="_blank" rel="noopener" style="color:var(--mint);">Open full-size infographic →</a></p>
 </div>
 `
   }
