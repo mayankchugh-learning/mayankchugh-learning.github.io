@@ -171,6 +171,20 @@
     padding-top: 3px;
   }
   .card.open .chevron { transform: rotate(90deg); }
+  .mark-row {
+    padding: 0 18px 14px;
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 10px;
+    margin: 0 0 0;
+  }
+  .card-head + .mark-row {
+    margin-top: -4px;
+  }
+  .mark-row label {
+    font-size: 0.8rem; color: var(--sub-txt); display: flex; align-items: center; gap: 6px; cursor: pointer;
+  }
   .card-body {
     max-height: 0;
     overflow: hidden;
@@ -184,13 +198,6 @@
     color: var(--light-txt);
     border-top: 1px solid rgba(255,255,255,0.06);
     padding-top: 14px;
-  }
-  .mark-row {
-    padding: 0 18px 16px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .mark-row label {
-    font-size: 0.8rem; color: var(--sub-txt); display: flex; align-items: center; gap: 6px; cursor: pointer;
   }
   .cat-label {
     display: inline-block;
@@ -235,7 +242,6 @@
     white-space: nowrap;
   }
   .detail-btn:hover { background: rgba(63,184,175,0.12); border-color: var(--mint); }
-  .mark-row { flex-wrap: wrap; }
 
   .detail-overlay {
     position: fixed; inset: 0; z-index: 200;
@@ -2204,16 +2210,19 @@ function renderCards() {
           '<span class="card-q">' + q.q + '</span>' +
           '<span class="chevron">&#9656;</span>' +
         '</div>' +
+        '<div class="mark-row">' +
+          '<label><input type="checkbox" ' + (reviewed.has(id) ? "checked" : "") + ' data-mark="' + id + '"> Mark as reviewed</label>' +
+          (hasDetail ? '<button type="button" class="detail-btn" data-detail="' + id + '">Detailed help</button>' : '') +
+        '</div>' +
         '<div class="card-body">' +
           '<div class="card-answer">' + q.a + '</div>' +
-          '<div class="mark-row">' +
-            '<label><input type="checkbox" ' + (reviewed.has(id) ? "checked" : "") + ' data-mark="' + id + '"> Mark as reviewed</label>' +
-            (hasDetail ? '<button type="button" class="detail-btn" data-detail="' + id + '">Detailed help</button>' : '') +
-          '</div>' +
         '</div>';
 
       card.querySelector(".card-head").addEventListener("click", () => {
         card.classList.toggle("open");
+      });
+      card.querySelector(".mark-row").addEventListener("click", (e) => {
+        e.stopPropagation();
       });
 
       containerEl.appendChild(card);
