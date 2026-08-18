@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en" data-page="novabank-assignment-2-solutions">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/assets/theme-switcher.js"></script>
+<title>NovaBank · Assignment 2 Solutions — Mayank Chugh</title>
+<meta name="description" content="Interactive answer key for Assignment 2: LangChain create_agent, checkpointers, HITL, PII, and prebuilt middleware in a NovaBank banking domain.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+<style>
+:root {
+  --bg: #0c0c0e;
+  --surface: #16161a;
+  --surface2: #1c1c22;
+  --text: #e6e2dc;
+  --muted: #8a8680;
+  --border: #2a2a32;
+  --border2: #3a3a44;
+  --accent: #f0a500;
+  --accent2: #7dd4c6;
+  --accent3: #f07a6b;
+  --accent4: #c4b5fd;
+  --green: #6bcf7f;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body.study-page {
+  margin: 0 auto;
+  font-family: "Source Serif 4", Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 17px;
+}
+.header { margin-bottom: 1.5rem; }
+.header-meta {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.header h1 {
+  font-family: Syne, sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+  margin: 0.35rem 0 0.5rem;
+}
+.header h1 span { color: var(--accent); }
+.header-sub { color: var(--muted); max-width: 640px; }
+.tag {
+  display: inline-block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  margin: 2px 3px 2px 0;
+}
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+  margin: 1.15rem 0 1.5rem;
+  font-size: 0.95rem;
+}
+.callout.teal { border-left-color: var(--accent2); background: rgba(125,212,198,0.08); }
+.callout.red { border-left-color: var(--accent3); background: rgba(240,122,107,0.08); }
+.callout.purple { border-left-color: var(--accent4); background: rgba(196,181,253,0.08); }
+.callout a { color: var(--accent2); }
+.section-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+h2 {
+  font-family: Syne, sans-serif;
+  font-size: 1.55rem;
+  color: #fff;
+  margin: 0 0 0.7rem;
+}
+h3 {
+  font-family: Syne, sans-serif;
+  font-size: 1.15rem;
+  color: #fff;
+  margin: 1.6rem 0 0.5rem;
+}
+p { margin: 0.55rem 0 0.85rem; }
+code {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85em;
+  background: rgba(240,165,0,0.1);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  color: var(--accent2);
+}
+pre {
+  background: #0a0a0c;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  margin: 0.8rem 0 1.3rem;
+}
+pre code {
+  background: none;
+  padding: 0;
+  color: #c8c4be;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 1rem 0 1.4rem;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+}
+.card.highlight { border-color: rgba(240,165,0,0.45); background: rgba(240,165,0,0.08); }
+.card-title { font-family: Syne, sans-serif; font-weight: 600; color: #fff; margin-bottom: 0.35rem; }
+.card-desc { font-size: 0.92rem; color: var(--muted); }
+.pipeline { display: flex; flex-direction: column; margin: 0.75rem 0; }
+.pipeline-item { display: flex; gap: 12px; }
+.pipeline-left { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+.pipeline-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border2);
+}
+.pipeline-num.gold { border-color: rgba(240,165,0,0.5); color: var(--accent); }
+.pipeline-num.teal { border-color: rgba(125,212,198,0.5); color: var(--accent2); }
+.pipeline-num.coral { border-color: rgba(240,122,107,0.5); color: var(--accent3); }
+.pipeline-line { width: 1px; flex: 1; background: var(--border2); min-height: 16px; }
+.pipeline-content { padding-bottom: 1rem; }
+.pipeline-title { font-family: Syne, sans-serif; font-weight: 600; color: #fff; }
+.pipeline-desc { font-size: 0.92rem; color: var(--muted); }
+  body.study-page.interactive-page { max-width: 920px; padding: 4.5rem 20px 5.5rem; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 1.75rem; }
+  .tab {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: 0.04em;
+    padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border2);
+    background: var(--surface); color: var(--muted); cursor: pointer;
+  }
+  .tab.active { color: #fff; border-color: rgba(240,165,0,0.5); background: rgba(240,165,0,0.12); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .qa { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.15rem 1.3rem; margin: 1.15rem 0; }
+  .qa-q { font-family: Syne, sans-serif; font-size: 1.02rem; font-weight: 600; color: #fff; margin-bottom: 0.55rem; }
+  .qa-q .num { color: var(--accent); font-family: "IBM Plex Mono", monospace; font-size: 0.88rem; margin-right: 0.35rem; }
+  details.reveal { margin-top: 0.55rem; }
+  details.reveal > summary {
+    font-family: Syne, sans-serif; font-weight: 600; color: var(--accent4); cursor: pointer; list-style: none;
+  }
+  details.reveal > summary::-webkit-details-marker { display: none; }
+  details.reveal > summary::before { content: "▸ Show answer  "; color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  details.reveal[open] > summary::before { content: "▾ Hide answer  "; }
+  .toolbar-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0.75rem 0 1.25rem; }
+  .ghost {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; padding: 6px 10px; border-radius: 6px;
+    border: 1px dashed var(--border2); background: transparent; color: var(--accent2); cursor: pointer;
+  }
+  .sim {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.1rem; margin: 1rem 0 1.25rem;
+  }
+  .sim-title { font-family: Syne, sans-serif; font-weight: 600; color: #fff; margin-bottom: 0.45rem; }
+  .sim-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0.65rem 0; }
+  .sim button, .quiz-opt, .stack-item {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--border2); background: var(--surface); color: var(--text); cursor: pointer; text-align: left;
+  }
+  .sim button:hover, .quiz-opt:hover { border-color: var(--accent); }
+  .quiz-opt { width: 100%; }
+  .quiz-opt.correct { border-color: var(--green); background: rgba(107,207,127,0.12); color: var(--green); }
+  .quiz-opt.wrong { border-color: var(--accent3); background: rgba(240,122,107,0.12); color: var(--accent3); }
+  .feedback { display: none; margin-top: 8px; font-size: 0.92rem; padding: 8px 10px; border-radius: 8px; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: rgba(107,207,127,0.12); color: var(--green); }
+  .feedback.bad { background: rgba(240,122,107,0.12); color: var(--accent3); }
+  .mono-out {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; line-height: 1.55;
+    background: #0a0a0c; border: 1px solid var(--border2); border-radius: 8px;
+    padding: 0.85rem 1rem; color: #c8c4be; white-space: pre-wrap; margin-top: 0.7rem;
+  }
+  .sim input[type="text"], .sim input[type="number"] {
+    font-family: "IBM Plex Mono", monospace; font-size: 13px; padding: 8px 10px;
+    border-radius: 8px; border: 1px solid var(--border2); background: var(--bg); color: var(--text); min-width: 220px;
+  }
+  .onion { display: flex; flex-direction: column; gap: 6px; margin: 0.8rem 0; }
+  .onion-layer {
+    border: 1px solid var(--border2); border-radius: 8px; padding: 8px 12px; font-size: 0.9rem;
+  }
+  .onion-layer.outer { border-color: rgba(240,165,0,0.45); background: rgba(240,165,0,0.08); }
+  .onion-layer.inner { border-color: rgba(125,212,198,0.45); background: rgba(125,212,198,0.08); }
+  .onion-layer.core { border-color: rgba(240,122,107,0.45); background: rgba(240,122,107,0.08); }
+  .stack-grid { display: grid; gap: 8px; margin: 0.75rem 0; }
+  .stack-item.selected { border-color: var(--accent2); background: rgba(125,212,198,0.1); }
+  .loop-step { opacity: 0.45; transition: opacity .2s, border-color .2s; }
+  .loop-step.on { opacity: 1; }
+  .status-row { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.85rem; }
+  a.back { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); text-decoration: none; }
+  a.back:hover { color: var(--accent); }
+  .callout:not(.teal):not(.red):not(.purple) { font-style: italic; }
+  ul.clean { margin: 0.45rem 0 0.8rem 1.15rem; }
+  ul.clean li { margin: 0.28rem 0; color: #c0beb8; }
+  .ex-label { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin: 1rem 0 0.4rem; }
+  .footer-note {
+    margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+    font-size: 0.9rem; color: var(--muted);
+  }
+  .footer-note a { color: var(--accent2); }
+  .pill {
+    display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 11px;
+    padding: 3px 9px; border-radius: 20px; margin: 2px 3px; font-weight: 500;
+  }
+  .pill-teal { background: rgba(125,212,198,0.15); color: #7dd4c6; border: 1px solid rgba(125,212,198,0.25); }
+  .pill-coral { background: rgba(240,122,107,0.15); color: #f07a6b; border: 1px solid rgba(240,122,107,0.25); }
+</style>
+</head>
+<body class="study-page interactive-page">
+
+<div class="header">
+  <div class="header-meta">Assignment 2 · Agents &amp; prebuilt middleware</div>
+  <p><a class="back" href="../learning/index.html#agents-frameworks">← Learning Hub</a>
+     · <a class="back" href="langchain-fundamentals-study-guide.html">GreenPlate fundamentals</a></p>
+  <h1>NovaBank · <span>Solutions</span></h1>
+  <p class="header-sub">Interactive answer key for Assignment 2. Domain is a personal banking assistant — prove the concepts, don’t rename Cinebot.</p>
+  <div class="status-row">
+    <span class="tag">Part A · conceptual</span>
+    <span class="tag">Part B · coding</span>
+    <span class="tag">Part C · capstone</span>
+    <span class="pill pill-teal">Built-ins only</span>
+    <span class="pill pill-coral">No custom middleware</span>
+  </div>
+</div>
+
+<div class="callout teal">
+  <strong>How this relates.</strong> This page is the NovaBank answer key for Assignment 2 (agents and prebuilt middleware).
+  The <em>GreenPlate</em> fundamentals key (landscape → tools) is a different assignment — see the <a href="langchain-fundamentals-study-guide.html">LangChain Fundamentals study guide</a>. Keep the NovaBank notebook blank until you have tried it; this page is the spoiler.
+</div>
+
+<nav class="tabs" id="tabs" aria-label="Assignment parts"></nav>
+
+<!-- ════════════ OVERVIEW ════════════ -->
+<section class="panel active" id="panel-overview">
+  <div class="section-label">00 · How to use this page</div>
+  <h2>Attempt, then reveal</h2>
+  <p>Part A answers sit behind <strong>Show answer</strong>. Part B/C include one verified working solution each — not the only correct shape, especially the capstone. Simulators on this page are teaching models; they do not call an LLM.</p>
+
+  <div class="card-grid">
+    <div class="card highlight">
+      <div class="card-title">Scope lock</div>
+      <div class="card-desc">Only <code>create_agent</code>, <code>thread_id</code>, <code>context_schema</code>, and built-in middleware. No <code>@before_model</code>, no subclassing <code>AgentMiddleware</code>.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Why NovaBank</div>
+      <div class="card-desc">A new domain so you cannot copy-paste Cinebot / GreenPlate / TripMate with renamed variables.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pass bar</div>
+      <div class="card-desc">Explain the loop, persist with a checkpointer, gate a transfer, redact <code>NB-########</code>, compose retry + error, then stack six prebuilt pieces.</div>
+    </div>
+  </div>
+
+  <h3>Agent loop (mechanical)</h3>
+  <p>Click through once before Q1. This is the same loop middleware wraps.</p>
+  <div class="sim">
+    <div class="sim-row">
+      <button type="button" id="loop-next">Step →</button>
+      <button type="button" id="loop-reset" class="ghost">Reset</button>
+    </div>
+    <div class="pipeline" id="loop-viz">
+      <div class="pipeline-item loop-step on" data-step="0">
+        <div class="pipeline-left"><div class="pipeline-num gold">1</div><div class="pipeline-line"></div></div>
+        <div class="pipeline-content"><div class="pipeline-title">User message in</div><div class="pipeline-desc">“Transfer ₹50,000 to NB-20000002.” Appended to <code>messages</code>.</div></div>
+      </div>
+      <div class="pipeline-item loop-step" data-step="1">
+        <div class="pipeline-left"><div class="pipeline-num gold">2</div><div class="pipeline-line"></div></div>
+        <div class="pipeline-content"><div class="pipeline-title">Model call</div><div class="pipeline-desc"><code>before_model</code> → nested <code>wrap_model_call</code> → LLM sees tools + history.</div></div>
+      </div>
+      <div class="pipeline-item loop-step" data-step="2">
+        <div class="pipeline-left"><div class="pipeline-num teal">3</div><div class="pipeline-line"></div></div>
+        <div class="pipeline-content"><div class="pipeline-title">Tool request</div><div class="pipeline-desc">AIMessage with <code>.tool_calls</code>. Nothing has executed yet. HITL can interrupt here (<code>after_model</code>).</div></div>
+      </div>
+      <div class="pipeline-item loop-step" data-step="3">
+        <div class="pipeline-left"><div class="pipeline-num coral">4</div><div class="pipeline-line"></div></div>
+        <div class="pipeline-content"><div class="pipeline-title">Tool execution</div><div class="pipeline-desc">Nested <code>wrap_tool_call</code> (retry, error, emulator). Result becomes a ToolMessage.</div></div>
+      </div>
+      <div class="pipeline-item loop-step" data-step="4">
+        <div class="pipeline-left"><div class="pipeline-num teal">5</div><div class="pipeline-line"></div></div>
+        <div class="pipeline-content"><div class="pipeline-title">Loop or finish</div><div class="pipeline-desc">More tool_calls → back to step 2. No tool_calls → final AIMessage (and optional <code>structured_response</code>).</div></div>
+      </div>
+    </div>
+    <div class="mono-out" id="loop-caption">User message lands in state. Middleware has not fired yet.</div>
+  </div>
+</section>
+
+<!-- ════════════ PART A ════════════ -->
+<section class="panel" id="panel-a">
+  <div class="section-label">Part A · Conceptual</div>
+  <h2>Answers Q1–Q15</h2>
+  <div class="toolbar-row">
+    <button type="button" class="ghost" id="reveal-all">Reveal all answers</button>
+    <button type="button" class="ghost" id="hide-all">Hide all answers</button>
+  </div>
+
+  <h3>A1 · Agents</h3>
+
+  <div class="qa" id="q1">
+    <div class="qa-q"><span class="num">Q1</span> Describe the agent loop when a tool call is involved</div>
+    <details class="reveal"><summary></summary>
+      <p>The user message is appended to state. The model is called with the tool schemas. If it returns <code>tool_calls</code>, those are <em>requests</em>, not results. Each call is executed (unless HITL interrupts). A ToolMessage is appended. The model is called again with that result. Repeat until the model returns a plain AIMessage (or a structured finish via <code>response_format</code>). Middleware wraps the model call, the tool call, and the once-per-invoke agent boundaries — it does not replace this loop.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q2">
+    <div class="qa-q"><span class="num">Q2</span> <code>thread_id</code> alone doesn’t persist a conversation</div>
+    <details class="reveal"><summary></summary>
+      <p>You also need a <strong>checkpointer</strong> (<code>InMemorySaver</code> in class; Postgres in production) passed into <code>create_agent(..., checkpointer=...)</code>. <code>thread_id</code> is only the <em>key</em> the checkpointer uses. Forget the checkpointer and every <code>.invoke()</code> is amnesiac — the id is ignored. HITL also breaks: there is nowhere to save the paused graph, so you cannot resume an approve/edit/reject decision.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q3">
+    <div class="qa-q"><span class="num">Q3</span> <code>thread_id</code> vs <code>context</code></div>
+    <details class="reveal"><summary></summary>
+      <table>
+        <thead><tr><th></th><th>Lives</th><th>NovaBank example</th></tr></thead>
+        <tbody>
+          <tr><td>thread_id + checkpointer</td><td>This conversation, mutable across turns</td><td>Customer said “call me Meera” two messages ago</td></tr>
+          <tr><td>context / context_schema</td><td>This <em>invoke only</em> — pass fresh every call</td><td><code>account_tier="premium"</code> for this HTTP request</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Swap bug:</strong> put tier in the thread. A later invoke on the same thread still looks premium after the customer’s session should have been standard — a transfer tool that was gated “for this request” stays visible. Put the name in context instead of the thread: the next <code>.invoke()</code> forgets “Meera” even with the same <code>thread_id</code>.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q4">
+    <div class="qa-q"><span class="num">Q4</span> Three practical <code>stream_mode</code> options</div>
+    <details class="reveal"><summary></summary>
+      <table>
+        <thead><tr><th>Mode</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><td><code>messages</code></td><td>Chat UI token stream (typing effect) from the model node.</td></tr>
+          <tr><td><code>updates</code></td><td>Progress: which node just wrote (model vs tools), including HITL pauses.</td></tr>
+          <tr><td><code>custom</code></td><td>Your own signals from a tool via <code>get_stream_writer</code> (e.g. “contacting core banking…”).</td></tr>
+        </tbody>
+      </table>
+      <p>You can pass a list, e.g. <code>stream_mode=["messages", "updates"]</code>. <code>values</code> exists too (full state each step) but the three you actually reach for in this course are the ones above.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q5">
+    <div class="qa-q"><span class="num">Q5</span> Why <code>name=</code> costs nothing now but matters later</div>
+    <details class="reveal"><summary></summary>
+      <p>It is just a string on <code>create_agent(name="novabank-assistant")</code> — no extra tokens, no extra calls. Later it becomes the graph/node name in LangSmith traces, subgraph streaming namespaces, and multi-agent routing. Unnamed compiled graphs show up as anonymous blobs when you finally nest this agent inside a larger graph.</p>
+    </details>
+  </div>
+
+  <h3>A2 · Prebuilt middleware core</h3>
+
+  <div class="qa" id="q6">
+    <div class="qa-q"><span class="num">Q6</span> Hook order for <code>before_*</code>, <code>after_*</code>, <code>wrap_*</code></div>
+    <details class="reveal"><summary></summary>
+      <p>Given <code>middleware=[m1, m2, m3]</code>:</p>
+      <ul class="clean">
+        <li><code>before_*</code> runs <strong>first → last</strong> (m1, m2, m3).</li>
+        <li><code>wrap_*</code> <strong>nests</strong> like function calls: m1 is outermost, m3 is closest to the model/tool.</li>
+        <li><code>after_*</code> runs <strong>last → first</strong> (m3, m2, m1).</li>
+      </ul>
+      <p><code>before_*</code> and <code>after_*</code> differ because after-hooks unwind like a stack (onion). That is why ToolError must sit <em>outside</em> ToolRetry: the inner wrap sees the raw exception first; the outer wrap sanitizes whatever is still raised.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q7">
+    <div class="qa-q"><span class="num">Q7</span> Four HITL decisions on <code>transfer_funds</code></div>
+    <details class="reveal"><summary></summary>
+      <table>
+        <thead><tr><th>Decision</th><th>NovaBank situation</th></tr></thead>
+        <tbody>
+          <tr><td><code>approve</code></td><td>Meera asked to send ₹2,000 to her own joint account. Amount and destination match. Let it run.</td></tr>
+          <tr><td><code>edit</code></td><td>Model parsed “fifty thousand” as 50000 but she meant ₹5,000. Change <code>amount</code> before the tool fires.</td></tr>
+          <tr><td><code>reject</code></td><td>Destination looks like a mule account / she says “wait, cancel.” Tool must <em>not</em> run; feed that back as an error ToolMessage.</td></tr>
+          <tr><td><code>respond</code></td><td>The “tool” is really the human (e.g. <code>ask_customer</code> for a 2FA code). Your reply <em>is</em> the successful tool result. Do <strong>not</strong> use respond to deny a transfer — that looks like success.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </div>
+
+  <div class="qa" id="q8">
+    <div class="qa-q"><span class="num">Q8</span> Summarization vs context-editing for a chatty NovaBank thread</div>
+    <details class="reveal"><summary></summary>
+      <p><strong>SummarizationMiddleware.</strong> The problem is a long, chatty conversation with a handful of <em>simple</em> tools — history tokens, not huge tool dumps. Summarization compresses old turns while keeping recent messages. <code>ContextEditingMiddleware</code> + <code>ClearToolUsesEdit</code> is for bloated <em>tool results</em> (seat maps, PDF extracts). Clearing tool uses on a chatty “what’s my balance / thanks / also…” thread barely helps.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q9">
+    <div class="qa-q"><span class="num">Q9</span> Three distinct retry mechanisms</div>
+    <details class="reveal"><summary></summary>
+      <table>
+        <thead><tr><th>Mechanism</th><th>Retries what</th><th>NovaBank scenario</th></tr></thead>
+        <tbody>
+          <tr><td><code>ToolRetryMiddleware</code></td><td>The <em>same</em> tool call (backoff)</td><td>Core-banking <code>check_live_balance</code> throws <code>ConnectionError</code> 50% of the time.</td></tr>
+          <tr><td><code>ModelRetryMiddleware</code></td><td>The <em>same</em> model HTTP call</td><td>Provider 429 / timeout on gpt-5-mini. Don’t swap models; wait and retry.</td></tr>
+          <tr><td>Agent-loop retry (error ToolMessage / validation)</td><td>A <em>new</em> model decision</td><td>Transfer amount fails a Pydantic <code>le=100000</code> constraint, or ToolError returns a safe message — the model tries different args. Not the same call retried.</td></tr>
+        </tbody>
+      </table>
+      <p><code>ModelFallbackMiddleware</code> is related but different in kind: it <em>switches models</em>, it does not retry the same request.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q10">
+    <div class="qa-q"><span class="num">Q10</span> Tight tool limit, looser model limit</div>
+    <details class="reveal"><summary></summary>
+      <p><code>ToolCallLimitMiddleware(tool_name="transfer_funds", run_limit=1, thread_limit=2)</code> — a transfer is consequential; one attempt per question, two per session. <code>ModelCallLimitMiddleware(run_limit=12, thread_limit=40)</code> stays looser because the same turn may need several model calls (clarify beneficiary, confirm, then answer). Tight model limits would kill the conversation before the transfer cap ever mattered.</p>
+    </details>
+  </div>
+
+  <h3>A3 · Advanced</h3>
+
+  <div class="qa" id="q11">
+    <div class="qa-q"><span class="num">Q11</span> ToolError + ToolRetry composition</div>
+    <details class="reveal"><summary></summary>
+      <p><strong>Correct list:</strong> <code>[ToolErrorMiddleware(...), ToolRetryMiddleware(..., on_failure="error")]</code>.</p>
+      <p>First middleware is the <em>outer</em> wrap. Inner ToolRetry actually retries. When retries are exhausted, <code>on_failure="error"</code> re-raises so the outer ToolError can turn the exception into a safe ToolMessage. Default ToolRetry <code>on_failure="continue"</code> would swallow the error as a raw-ish message and ToolError would never see it.</p>
+      <p><strong>Backwards:</strong> ToolRetry outer / ToolError inner. Inner ToolError converts the first exception into a ToolMessage immediately — there is nothing left to retry. You get a sanitized message with <em>zero</em> retries, which looks “safe” but fails the flaky-API requirement.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q12">
+    <div class="qa-q"><span class="num">Q12</span> PII policy for NovaBank account numbers</div>
+    <details class="reveal"><summary></summary>
+      <table>
+        <thead><tr><th>Flag</th><th>Set</th><th>Protects against</th></tr></thead>
+        <tbody>
+          <tr><td><code>apply_to_input</code></td><td>True</td><td>Customer pastes <code>NB-12345678</code> in chat. Mask it <em>before</em> the model (and logs/traces of the prompt).</td></tr>
+          <tr><td><code>apply_to_output</code></td><td>True</td><td>Model echoes the number back in the assistant reply or in streamed tokens.</td></tr>
+          <tr><td><code>apply_to_tool_results</code></td><td>True</td><td><code>check_balance</code> returns the account id in the ToolMessage; that would otherwise be re-fed to the model on the next loop.</td></tr>
+        </tbody>
+      </table>
+      <p>All three true for account numbers in a bank assistant. <code>strategy="mask"</code> (this assignment) keeps a little structure for the model; <code>block</code> is for things that must never enter the harness at all (raw card PAN, if you ever collect it).</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q13">
+    <div class="qa-q"><span class="num">Q13</span> <code>LLMToolEmulator</code>’s <code>model</code> discrepancy</div>
+    <details class="reveal"><summary></summary>
+      <p>The parameter is documented as optional (<code>model=None</code>). The <em>implicit default</em> is not “use the agent’s model” — it is a hardcoded Anthropic id (<code>anthropic:claude-sonnet-4-5-…</code>). If <code>langchain-anthropic</code> is not installed, construction raises <code>ImportError</code> even though your agent is OpenAI. Docs and default disagree; relying on the default is deprecated.</p>
+      <p><strong>Habit:</strong> any middleware that takes its own <code>model=</code> (<code>LLMToolEmulator</code>, <code>LLMToolSelectorMiddleware</code>, <code>SummarizationMiddleware</code>) should get an explicit model. Silent defaults pick a provider you didn’t intend, a bill you didn’t expect, or a missing extra.</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q14">
+    <div class="qa-q"><span class="num">Q14</span> LLM tool selector vs provider tool search</div>
+    <details class="reveal"><summary></summary>
+      <table>
+        <thead><tr><th></th><th>How it filters</th><th>Constraint</th></tr></thead>
+        <tbody>
+          <tr><td><code>LLMToolSelectorMiddleware</code></td><td>A (usually cheaper) LLM <em>pre-picks</em> up to <code>max_tools</code> schemas; those are what the main model sees. <code>always_include</code> is never dropped.</td><td>Works with any tool-calling model. Extra model call each turn.</td></tr>
+          <tr><td><code>ProviderToolSearchMiddleware</code></td><td>Does <em>not</em> pre-filter in Python. Marks tools <code>defer_loading</code> and lets the <strong>provider</strong> search schemas server-side.</td><td>Only providers with native tool search (Anthropic Claude 4+ / selected OpenAI). Others raise <code>ValueError</code>.</td></tr>
+        </tbody>
+      </table>
+      <p>NovaBank on <code>openai:gpt-5-mini</code> without provider tool-search → use the LLM selector. Don’t pick provider search “because 15 tools.”</p>
+    </details>
+  </div>
+
+  <div class="qa" id="q15">
+    <div class="qa-q"><span class="num">Q15</span> Production stack (open-ended — one coherent answer)</div>
+    <details class="reveal"><summary></summary>
+      <p>Order below follows outer → inner for wraps, plus node-style hooks that need a checkpointer.</p>
+      <ol class="clean" style="margin-left:1.2rem;color:#c0beb8;">
+        <li><code>PIIMiddleware("novabank_account", detector=r"NB-\\d{8}", strategy="mask", apply_to_input/output/tool_results=True)</code> — compliance on the wire.</li>
+        <li><code>SummarizationMiddleware(model="openai:gpt-5-mini", …)</code> — long threads.</li>
+        <li><code>ModelCallLimitMiddleware(run_limit=12, thread_limit=40)</code> — spend cap.</li>
+        <li><code>ToolCallLimitMiddleware(tool_name="transfer_funds", run_limit=1, thread_limit=3)</code> — velocity on the dangerous tool.</li>
+        <li><code>HumanInTheLoopMiddleware(interrupt_on={"transfer_funds": True})</code> — human gate. Needs checkpointer.</li>
+        <li><code>ToolErrorMiddleware(on_error=safe_handler)</code> then <code>ToolRetryMiddleware(retry_on=(ConnectionError,), on_failure="error")</code> — outer sanitize, inner retry.</li>
+        <li><code>ModelRetryMiddleware</code> and/or <code>ModelFallbackMiddleware</code> around the model call for provider blips.</li>
+        <li><code>LLMToolSelectorMiddleware(max_tools=4, always_include=["check_balance"], model="openai:gpt-5-mini")</code> if the catalog grows.</li>
+      </ol>
+      <p>Plus: <code>checkpointer</code> + stable <code>thread_id</code>, <code>context_schema</code> for tier. No custom wraps in this assignment.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ════════════ PART B ════════════ -->
+<section class="panel" id="panel-b">
+  <div class="section-label">Part B · Coding</div>
+  <h2>Working solutions</h2>
+  <p>One complete solution per exercise. Environment cell (once): <code>load_dotenv()</code>, assert <code>OPENAI_API_KEY</code>, <code>init_chat_model("openai:gpt-5-mini")</code>.</p>
+
+  <h3>B1.1 — Agent with real memory</h3>
+  <p>Proof is two separate <code>.invoke()</code> calls on the <em>same</em> <code>thread_id</code> with a checkpointer. Without <code>InMemorySaver</code>, call 2 cannot recall the name.</p>
+<pre><code>from langchain_core.tools import tool
+from langchain.agents import create_agent
+from langgraph.checkpoint.memory import InMemorySaver
+
+@tool
+def check_balance(account_id: str) -&gt; str:
+    """Return the fake available balance for an account."""
+    balances = {"NB-10000001": 84250.00, "NB-10000002": 1200.50}
+    bal = balances.get(account_id, 0.0)
+    return f"Available balance for {account_id}: ₹{bal:,.2f}"
+
+@tool
+def get_interest_rate() -&gt; str:
+    """Return NovaBank's current savings interest rate."""
+    return "Current savings rate: 6.5% p.a."
+
+memory_agent = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[check_balance, get_interest_rate],
+    checkpointer=InMemorySaver(),
+    system_prompt="You are NovaBank's personal assistant.",
+    name="novabank-memory",
+)
+config = {"configurable": {"thread_id": "nb-meera-01"}}
+
+memory_agent.invoke({"messages": [("user", "Hi, my name is Meera.")]}, config=config)
+result = memory_agent.invoke(
+    {"messages": [("user", "What's my name? Also check NB-10000001.")]},
+    config=config,
+)
+print(result["messages"][-1].content)</code></pre>
+
+  <h3>B1.2 — Per-run context</h3>
+  <p><code>runtime.context</code> is injected because of the <code>ToolRuntime</code> annotation — it never appears in the tool schema the model sees. Pass a fresh dataclass on <em>every</em> invoke.</p>
+<pre><code>from dataclasses import dataclass
+from langchain.tools import ToolRuntime, tool as tool_rt
+
+@dataclass
+class BankContext:
+    account_tier: str  # "standard" | "premium"
+
+@tool_rt
+def greet_customer(runtime: ToolRuntime) -&gt; str:
+    """Return a greeting that depends on the caller's account tier."""
+    if runtime.context.account_tier == "premium":
+        return "Welcome back, NovaBank Premium. A relationship manager is on standby."
+    return "Welcome to NovaBank. How can I help today?"
+
+ctx_agent = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[greet_customer],
+    context_schema=BankContext,
+    system_prompt="Always call greet_customer before answering.",
+)
+
+r_std = ctx_agent.invoke({"messages": [("user", "Hello")]}, context=BankContext(account_tier="standard"))
+r_prem = ctx_agent.invoke({"messages": [("user", "Hello")]}, context=BankContext(account_tier="premium"))
+print("standard:", r_std["messages"][-1].content)
+print("premium: ", r_prem["messages"][-1].content)</code></pre>
+
+  <h3>B2.1 — HITL with an <code>edit</code> resume</h3>
+  <p>Interrupt, then resume on the <em>same</em> thread with <code>Command</code>. Confirm the ToolMessage used ₹5,000, not ₹50,000. Simulator on the Practice tab walks the four decisions without an API key.</p>
+<pre><code>from langchain.agents.middleware import HumanInTheLoopMiddleware
+from langgraph.types import Command
+
+@tool
+def transfer_funds(to_account: str, amount: float) -&gt; str:
+    """Transfer funds to another NovaBank account. Consequential — requires HITL."""
+    return f"Transferred ₹{amount:,.2f} to {to_account}."
+
+hitl_agent = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[transfer_funds],
+    middleware=[HumanInTheLoopMiddleware(
+        interrupt_on={"transfer_funds": {
+            "allowed_decisions": ["approve", "edit", "reject", "respond"]
+        }}
+    )],
+    checkpointer=InMemorySaver(),
+)
+cfg = {"configurable": {"thread_id": "nb-hitl-edit"}}
+
+paused = hitl_agent.invoke(
+    {"messages": [("user", "Transfer 50000 to NB-20000002")]},
+    config=cfg,
+)
+print("interrupt payload:", paused)
+
+final = hitl_agent.invoke(
+    Command(resume={"decisions": [{
+        "type": "edit",
+        "edited_action": {
+            "name": "transfer_funds",
+            "args": {"to_account": "NB-20000002", "amount": 5000.0},
+        },
+    }]}),
+    config=cfg,
+)
+for m in final["messages"]:
+    if getattr(m, "type", None) == "tool":
+        print("tool result:", m.content)</code></pre>
+  <div class="callout">If your installed LangChain returns <code>GraphOutput</code>, read <code>paused.interrupts</code> and pass <code>version="v2"</code>. Class notebooks often used <code>agent.get_state(config)</code> to inspect the pending tool call. Same resume payload either way.</div>
+
+  <h3>B2.2 — Custom PII detector</h3>
+<pre><code>from langchain.agents.middleware import PIIMiddleware
+
+pii_agent = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[],
+    middleware=[PIIMiddleware(
+        "novabank_account",
+        detector=r"NB-\d{8}",
+        strategy="mask",
+        apply_to_input=True,
+    )],
+)
+# "Please look up NB-12345678" is masked before the model sees it.
+result = pii_agent.invoke({"messages": [("user", "Please look up NB-12345678")]})
+print(result["messages"][-1].content)</code></pre>
+  <p>A callable detector is also valid if you need span offsets; a regex string is enough for this pattern. Use the Practice tab to see mask vs redact vs block on the same input.</p>
+
+  <h3>B2.3 — Retry a flaky balance API</h3>
+  <p>Print inside the tool so you can see attempt 1 fail and attempt 2 succeed. Run the cell several times.</p>
+<pre><code>import random
+from langchain.agents.middleware import ToolRetryMiddleware
+
+@tool
+def check_live_balance(account_id: str) -&gt; str:
+    """Hit a flaky core-banking API (~50% ConnectionError)."""
+    print(f"attempt for {account_id}")
+    if random.random() &lt; 0.5:
+        raise ConnectionError("core-banking timeout")
+    return f"{account_id} balance: ₹12,400.00"
+
+retry_agent = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[check_live_balance],
+    middleware=[ToolRetryMiddleware(
+        max_retries=4,
+        retry_on=(ConnectionError,),
+        initial_delay=0.2,
+        backoff_factor=2.0,
+        jitter=False,
+        on_failure="continue",
+    )],
+)
+print(retry_agent.invoke({"messages": [("user", "Live balance for NB-10000001")]})["messages"][-1].content)</code></pre>
+
+  <h3>B3.1 — Three limit/context middleware together</h3>
+  <p>Each solves a different failure mode at the same time: history growth, runaway transfers, runaway model spend.</p>
+<pre><code>from langchain.agents.middleware import (
+    SummarizationMiddleware,
+    ToolCallLimitMiddleware,
+    ModelCallLimitMiddleware,
+)
+
+limited = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[check_balance, transfer_funds, get_interest_rate],
+    checkpointer=InMemorySaver(),
+    middleware=[
+        SummarizationMiddleware(model="openai:gpt-5-mini"),
+        ToolCallLimitMiddleware(tool_name="transfer_funds", run_limit=1, thread_limit=3),
+        ModelCallLimitMiddleware(run_limit=8, thread_limit=40),
+    ],
+    name="novabank-limited",
+)
+cfg = {"configurable": {"thread_id": "nb-limits"}}
+print(limited.invoke({"messages": [("user", "What is the savings rate?")]}, config=cfg)["messages"][-1].content)</code></pre>
+  <div class="callout purple">If your version wants <code>trigger=("tokens", 4000)</code> / <code>keep=("messages", 20)</code> on SummarizationMiddleware, use that — constructors moved slightly across v1 releases. The idea is unchanged: compress history, cap the dangerous tool tightly, cap model calls more loosely.</div>
+
+  <h3>B3.2 — Tool selection at scale</h3>
+  <p>Assignment forbids custom wraps, so we do <em>not</em> ship the class <code>show_tools</code> debug hook as the official answer. Prove the subset from which tools were actually called (and LangSmith if you have it). <code>always_include=["check_balance"]</code> must survive every filter.</p>
+<pre><code>from langchain.agents.middleware import LLMToolSelectorMiddleware
+
+@tool
+def list_branches(city: str) -&gt; str:
+    """Locate NovaBank branches in a city."""
+    return f"Branches in {city}: Bandra West, Andheri East."
+
+@tool
+def loan_info(loan_type: str) -&gt; str:
+    """Summarize a retail loan product."""
+    return f"{loan_type} loan: 9.25% p.a. floating, subject to KYC."
+
+@tool
+def open_support_ticket(topic: str) -&gt; str:
+    """Create a support ticket."""
+    return f"Ticket opened for {topic}."
+
+selector_agent = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[
+        check_balance, get_interest_rate, transfer_funds,
+        list_branches, loan_info, open_support_ticket,
+    ],
+    middleware=[LLMToolSelectorMiddleware(
+        model="openai:gpt-5-mini",   # explicit — don't inherit a surprise default
+        max_tools=3,
+        always_include=["check_balance"],
+    )],
+)
+result = selector_agent.invoke({"messages": [("user", "What's my balance on NB-10000001?")]})
+print([getattr(m, "name", m.type) for m in result["messages"]])</code></pre>
+
+  <h3>B3.3 — ToolError outer, ToolRetry inner</h3>
+  <p>Bad input always raises <code>ValueError</code>. Retry it (to show retries are wasted on non-transient errors), then re-raise into ToolError so the model never sees the raw Python text.</p>
+<pre><code>from langchain.agents.middleware import ToolErrorMiddleware, ToolRetryMiddleware
+
+@tool
+def close_account(account_id: str, confirm: str) -&gt; str:
+    """Close an account. Raises ValueError on a bad confirmation phrase."""
+    if confirm != "CLOSE":
+        raise ValueError(f"Refusing close: got {confirm!r} — internals must not leak")
+    return f"Account {account_id} closed."
+
+def safe_on_error(exc: Exception, request) -&gt; str:
+    return "That request could not be completed. Re-check the confirmation phrase."
+
+safe_agent = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[close_account],
+    middleware=[
+        ToolErrorMiddleware(on_error=safe_on_error),   # OUTER
+        ToolRetryMiddleware(                           # INNER
+            retry_on=(ValueError,),
+            max_retries=2,
+            on_failure="error",
+            initial_delay=0.05,
+            jitter=False,
+        ),
+    ],
+)
+result = safe_agent.invoke({"messages": [("user", "Close NB-10000001, confirm=yes")]})
+text = " ".join(str(getattr(m, "content", "")) for m in result["messages"])
+assert "Refusing close" not in text
+assert "internals must not leak" not in text
+print(result["messages"][-1].content)</code></pre>
+</section>
+
+<!-- ════════════ PART C ════════════ -->
+<section class="panel" id="panel-c">
+  <div class="section-label">Part C · Capstone</div>
+  <h2>One coherent NovaBank agent</h2>
+
+  <h3>Design (markdown cell, before code)</h3>
+  <p>Six required pieces, all built-in:</p>
+  <ol class="clean" style="margin-left:1.2rem;color:#c0beb8;">
+    <li><code>response_format=TransferRequest</code> with <code>amount</code> constrained <code>gt=0, le=100000</code>.</li>
+    <li>Three tools: <code>check_balance</code>, <code>transfer_funds</code>, <code>get_interest_rate</code>.</li>
+    <li><code>HumanInTheLoopMiddleware</code> on <code>transfer_funds</code>.</li>
+    <li><code>PIIMiddleware</code> masking <code>NB-########</code> on input, output, and tool results.</li>
+    <li><code>ToolRetryMiddleware</code> on the balance tool path (transient <code>ConnectionError</code>).</li>
+    <li><code>ToolCallLimitMiddleware</code> tight on transfers + checkpointer / <code>thread_id</code> + <code>context_schema</code> for tier.</li>
+  </ol>
+  <p>HITL already forces a checkpointer, so short-term memory is not an extra object — it is the same <code>InMemorySaver</code>.</p>
+
+<pre><code>from dataclasses import dataclass
+from pydantic import BaseModel, Field
+from langchain.agents.middleware import (
+    HumanInTheLoopMiddleware, PIIMiddleware,
+    ToolRetryMiddleware, ToolCallLimitMiddleware,
+)
+
+class TransferRequest(BaseModel):
+    customer_name: str
+    to_account: str
+    amount: float = Field(gt=0, le=100000)
+
+@dataclass
+class BankContext:
+    account_tier: str
+
+capstone = create_agent(
+    model="openai:gpt-5-mini",
+    tools=[check_balance, transfer_funds, get_interest_rate],
+    system_prompt="You are NovaBank's assistant. Mask nothing you weren't given; use tools.",
+    context_schema=BankContext,
+    response_format=TransferRequest,
+    checkpointer=InMemorySaver(),
+    name="novabank-capstone",
+    middleware=[
+        PIIMiddleware(
+            "novabank_account", detector=r"NB-\d{8}", strategy="mask",
+            apply_to_input=True, apply_to_output=True, apply_to_tool_results=True,
+        ),
+        ToolCallLimitMiddleware(tool_name="transfer_funds", run_limit=1, thread_limit=3),
+        HumanInTheLoopMiddleware(interrupt_on={"transfer_funds": True}),
+        ToolRetryMiddleware(retry_on=(ConnectionError,), max_retries=3, on_failure="continue"),
+    ],
+)
+cfg = {"configurable": {"thread_id": "nb-capstone"}}
+ctx = BankContext(account_tier="premium")
+
+# Call 1 — short-term memory + structured extract (no transfer yet)
+r1 = capstone.invoke(
+    {"messages": [("user", "I'm Meera. What's the savings rate?")]},
+    config=cfg, context=ctx,
+)
+print("call 1:", r1["messages"][-1].content)
+
+# Call 2 — same thread should still know Meera; transfer will HITL-pause
+r2 = capstone.invoke(
+    {"messages": [("user", "Send 1500 to NB-20000002 from my account.")]},
+    config=cfg, context=ctx,
+)
+print("call 2 (expect interrupt):", r2)</code></pre>
+
+  <h3>Reflection (3–5 sentences)</h3>
+  <div class="callout red">
+    The next piece I would add, once custom middleware is allowed, is a <code>wrap_model_call</code> velocity gate: hide <code>transfer_funds</code> entirely when this thread has already moved more than ₹25,000 in the last hour, reading a counter from <code>request.state</code> (updated by a <code>Command</code>-returning tool). HITL still reviews each surviving call, but the model should not even <em>see</em> the schema after a burst of transfers — that is a harness guarantee, not a prompt. <code>InMemorySaver</code> / in-memory retry state would also be swapped for Postgres before this left a notebook. I would not start with a new LLM-as-judge layer; the missing control is structural tool gating plus durable memory.
+  </div>
+</section>
+
+<!-- ════════════ PRACTICE ════════════ -->
+<section class="panel" id="panel-practice">
+  <div class="section-label">Practice · no API key</div>
+  <h2>Simulators &amp; quizzes</h2>
+
+  <h3>HITL — four decisions</h3>
+  <div class="sim">
+    <div class="sim-title">Pending: <code>transfer_funds(to_account="NB-20000002", amount=50000)</code></div>
+    <p style="font-size:0.92rem;color:var(--muted);margin-bottom:0.4rem;">Meera typed “send fifty thousand” but meant ₹5,000. Pick a decision.</p>
+    <div class="sim-row" id="hitl-btns">
+      <button type="button" data-d="approve">approve</button>
+      <button type="button" data-d="edit">edit → 5000</button>
+      <button type="button" data-d="reject">reject</button>
+      <button type="button" data-d="respond">respond “not now”</button>
+    </div>
+    <div class="mono-out" id="hitl-out">Waiting for a reviewer…</div>
+  </div>
+
+  <h3>PII — <code>NB-########</code></h3>
+  <div class="sim">
+    <div class="sim-title">Custom detector <code>NB-\\d{8}</code></div>
+    <div class="sim-row">
+      <input type="text" id="pii-in" value="Please look up NB-12345678 and email me.">
+      <button type="button" data-pii="mask">mask</button>
+      <button type="button" data-pii="redact">redact</button>
+      <button type="button" data-pii="block">block</button>
+    </div>
+    <div class="mono-out" id="pii-out">Click a strategy.</div>
+  </div>
+
+  <h3>Retry / error onion</h3>
+  <div class="sim">
+    <div class="sim-title">Same <code>ValueError</code> from <code>close_account</code></div>
+    <div class="sim-row">
+      <button type="button" id="comp-correct">Correct order</button>
+      <button type="button" id="comp-wrong">Backwards</button>
+    </div>
+    <div class="onion" id="onion"></div>
+    <div class="mono-out" id="comp-out">Choose an order.</div>
+  </div>
+
+  <h3>Quick checks</h3>
+  <div class="qa">
+    <div class="qa-q">Forgetting the checkpointer but passing <code>thread_id</code> means…</div>
+    <div class="quiz" data-explain="thread_id is only a key. No checkpointer → no persistence, and HITL cannot resume.">
+      <button type="button" class="quiz-opt" data-correct="false">LangGraph invents an in-memory saver for you</button>
+      <button type="button" class="quiz-opt" data-correct="true">Each invoke is amnesiac; HITL resume is impossible</button>
+      <button type="button" class="quiz-opt" data-correct="false">Context schema takes over persistence</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Chatty NovaBank thread, tiny tools. Which context middleware?</div>
+    <div class="quiz" data-explain="Summarization compresses conversation history. Context editing clears fat tool results — the wrong bottleneck here.">
+      <button type="button" class="quiz-opt" data-correct="true">SummarizationMiddleware</button>
+      <button type="button" class="quiz-opt" data-correct="false">ContextEditingMiddleware / ClearToolUsesEdit</button>
+      <button type="button" class="quiz-opt" data-correct="false">LLMToolEmulator</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Provider tool search on <code>openai:gpt-5-mini</code> without native tool-search support?</div>
+    <div class="quiz" data-explain="ProviderToolSearchMiddleware requires a provider that implements server-side tool search. Use LLMToolSelectorMiddleware instead.">
+      <button type="button" class="quiz-opt" data-correct="false">It silently no-ops and sends all 15 schemas</button>
+      <button type="button" class="quiz-opt" data-correct="true">The model call can raise ValueError</button>
+      <button type="button" class="quiz-opt" data-correct="false">LangChain falls back to regex tool filtering</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Using HITL <code>respond</code> to deny a transfer is wrong because…</div>
+    <div class="quiz" data-explain="respond writes a successful ToolMessage. The model thinks the transfer happened. Use reject for denials.">
+      <button type="button" class="quiz-opt" data-correct="false">respond is not one of the four decisions</button>
+      <button type="button" class="quiz-opt" data-correct="true">It looks like a successful tool result, not a denial</button>
+      <button type="button" class="quiz-opt" data-correct="false">It requires a second checkpointer</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <h3>Capstone stack checklist</h3>
+  <p>Toggle at least six. This is a design aid — Q15 has no single correct list.</p>
+  <div class="sim">
+    <div class="stack-grid" id="stack"></div>
+    <div class="mono-out" id="stack-out"></div>
+  </div>
+</section>
+
+<div class="footer-note">
+  Attempt the blank notebook first. This page is an answer key + simulator, not a live agent.
+  GreenPlate fundamentals live on the <a href="langchain-fundamentals-study-guide.html">LangChain Fundamentals study guide</a>.
+</div>
+<script>
+(function () {
+  const tabs = [
+    { id: "overview", label: "Overview" },
+    { id: "a", label: "Part A" },
+    { id: "b", label: "Part B" },
+    { id: "c", label: "Part C" },
+    { id: "practice", label: "Practice" },
+  ];
+  const nav = document.getElementById("tabs");
+  tabs.forEach((t, i) => {
+    const b = document.createElement("button");
+    b.className = "tab" + (i === 0 ? " active" : "");
+    b.type = "button";
+    b.textContent = t.label;
+    b.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
+      b.classList.add("active");
+      document.getElementById("panel-" + t.id).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    nav.appendChild(b);
+  });
+
+  document.getElementById("reveal-all").addEventListener("click", () => {
+    document.querySelectorAll("details.reveal").forEach((d) => { d.open = true; });
+  });
+  document.getElementById("hide-all").addEventListener("click", () => {
+    document.querySelectorAll("details.reveal").forEach((d) => { d.open = false; });
+  });
+
+  const captions = [
+    "User message lands in state. Middleware has not fired yet.",
+    "before_model runs first→last, then wrap_model_call nests (first middleware outermost).",
+    "after_model can HITL-interrupt here. tool_calls are still only requests.",
+    "wrap_tool_call: retry (inner) then error sanitize (outer). ToolMessage is appended.",
+    "No more tool_calls → after_agent (last→first) → final answer / structured_response.",
+  ];
+  let step = 0;
+  function paintLoop() {
+    document.querySelectorAll(".loop-step").forEach((el) => {
+      el.classList.toggle("on", Number(el.dataset.step) <= step);
+    });
+    document.getElementById("loop-caption").textContent = captions[step];
+  }
+  document.getElementById("loop-next").addEventListener("click", () => {
+    step = Math.min(step + 1, captions.length - 1);
+    paintLoop();
+  });
+  document.getElementById("loop-reset").addEventListener("click", () => { step = 0; paintLoop(); });
+
+  const hitlText = {
+    approve: "Tool runs as proposed.\n→ Transferred ₹50,000.00 to NB-20000002\nRisky if she meant five thousand.",
+    edit: "edited_action.amount = 5000; tool then runs.\n→ Transferred ₹5,000.00 to NB-20000002\nThis is the B2.1 proof: the ToolMessage shows the edited amount.",
+    reject: "Tool does not run. Error ToolMessage: “Transfer declined by reviewer.”\nModel may ask Meera what to do instead. Use reject for denials.",
+    respond: "Synthetic SUCCESS ToolMessage: “not now”.\nWrong for a transfer — the model thinks the tool succeeded. respond is for ask_user-style tools.",
+  };
+  document.getElementById("hitl-btns").addEventListener("click", (e) => {
+    const d = e.target.dataset.d;
+    if (!d) return;
+    document.getElementById("hitl-out").textContent = hitlText[d];
+  });
+
+  function applyPii(strategy, text) {
+    const re = /NB-\d{8}/g;
+    if (!re.test(text)) return { ok: true, text: text + "\n(no account number found)" };
+    if (strategy === "block") return { ok: false, text: "PIIDetectionError: novabank_account in input — run aborted." };
+    if (strategy === "redact") return { ok: true, text: text.replace(/NB-\d{8}/g, "[REDACTED_NOVABANK_ACCOUNT]") };
+    return { ok: true, text: text.replace(/NB-\d{8}/g, (m) => "****" + m.slice(-4)) };
+  }
+  document.querySelectorAll("[data-pii]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const r = applyPii(btn.dataset.pii, document.getElementById("pii-in").value);
+      document.getElementById("pii-out").textContent =
+        (r.ok ? "model / logs see:\n" : "exception:\n") + r.text;
+    });
+  });
+
+  function showOnion(correct) {
+    const onion = document.getElementById("onion");
+    if (correct) {
+      onion.innerHTML =
+        '<div class="onion-layer outer">OUTER wrap — ToolErrorMiddleware (sanitizes)</div>' +
+        '<div class="onion-layer inner">INNER wrap — ToolRetryMiddleware(on_failure="error")</div>' +
+        '<div class="onion-layer core">close_account → ValueError</div>';
+      document.getElementById("comp-out").textContent =
+        "Attempt 1 fail → retry → attempt 2 fail → retry → exhausted → re-raise → ToolError returns a safe ToolMessage.\nRaw 'Refusing close' never reaches the model.";
+    } else {
+      onion.innerHTML =
+        '<div class="onion-layer outer">OUTER wrap — ToolRetryMiddleware</div>' +
+        '<div class="onion-layer inner">INNER wrap — ToolErrorMiddleware</div>' +
+        '<div class="onion-layer core">close_account → ValueError</div>';
+      document.getElementById("comp-out").textContent =
+        "Inner ToolError converts the FIRST exception into a ToolMessage immediately.\nRetry never sees an exception. Safe-looking message, zero retries — wrong for a flaky API, and you didn't prove on_failure='error'.";
+    }
+  }
+  document.getElementById("comp-correct").addEventListener("click", () => showOnion(true));
+  document.getElementById("comp-wrong").addEventListener("click", () => showOnion(false));
+
+  document.querySelectorAll(".quiz").forEach((quiz) => {
+    quiz.addEventListener("click", (e) => {
+      const btn = e.target.closest(".quiz-opt");
+      if (!btn || quiz.dataset.done) return;
+      quiz.dataset.done = "1";
+      const ok = btn.dataset.correct === "true";
+      btn.classList.add(ok ? "correct" : "wrong");
+      quiz.querySelectorAll(".quiz-opt").forEach((b) => {
+        if (b.dataset.correct === "true") b.classList.add("correct");
+      });
+      const fb = quiz.parentElement.querySelector(".feedback");
+      fb.className = "feedback show " + (ok ? "ok" : "bad");
+      fb.textContent = (ok ? "Correct. " : "Not quite. ") + quiz.dataset.explain;
+    });
+  });
+
+  const pieces = [
+    "PIIMiddleware (account detector)",
+    "SummarizationMiddleware",
+    "HumanInTheLoopMiddleware on transfer_funds",
+    "ToolRetryMiddleware (ConnectionError)",
+    "ToolErrorMiddleware (outer)",
+    "ToolCallLimitMiddleware on transfer_funds",
+    "ModelCallLimitMiddleware",
+    "ModelRetryMiddleware / ModelFallbackMiddleware",
+    "LLMToolSelectorMiddleware",
+    "context_schema (account_tier)",
+    "checkpointer + thread_id",
+    "response_format schema with a constraint",
+  ];
+  const stack = document.getElementById("stack");
+  pieces.forEach((label) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "stack-item";
+    b.textContent = label;
+    b.addEventListener("click", () => {
+      b.classList.toggle("selected");
+      const n = stack.querySelectorAll(".stack-item.selected").length;
+      document.getElementById("stack-out").textContent =
+        n + " selected. Capstone asks for at least 6, with a justification cell before the code." +
+        (n >= 6 ? " You have enough — now justify order (Error outer / Retry inner, HITL needs the checkpointer)." : "");
+    });
+    stack.appendChild(b);
+  });
+  document.getElementById("stack-out").textContent = "0 selected.";
+})();
+</script>
+</body>
+</html>
