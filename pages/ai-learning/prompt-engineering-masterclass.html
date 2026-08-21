@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en" data-page="prompt-engineering-masterclass">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/assets/theme-switcher.js"></script>
+<title>Prompt Engineering Masterclass — Mayank Chugh</title>
+<meta name="description" content="Interactive prompt engineering guide: RCTFC, shot prompting, chain of thought, prompt chaining, meta prompting, and a copy-ready industry library. By Mayank Chugh, Senior Enterprise Architect and AI Engineer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f1e36; --navy2:#1a2f4e; --blue:#1d6fa4;
+  --gold:#e8a020; --gold2:#f0c060;
+  --bg:#f4f6f9; --surface:#ffffff; --text:#1a1a2e; --muted:#5a6a7e; --border:#dde3ec;
+  --sidebar:#0f1e36; --sidebar-text:#f8fafc; --sidebar-muted:#8aa0b8;
+  --hero-bg:linear-gradient(135deg,#fdf6e8 0%,#f4f6f9 100%);
+  --hero-border:#f0c060; --hero-title:#0f1e36; --hero-body:#6b5420;
+  --stat-bg:linear-gradient(135deg,#0f1e36 0%,#1a2f4e 100%);
+  --active:#e8a020; --active-text:#0f1e36;
+  --tab-active-bg:#fdf6e8; --tab-active-text:#0f1e36; --tab-active-border:#e8a020;
+  --check:#e8a020;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',system-ui,sans-serif;display:flex;background:var(--bg);color:var(--text)}
+aside{width:252px;min-width:252px;background:var(--sidebar);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.sb-hdr{padding:16px 12px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-name{font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:var(--sidebar-text);letter-spacing:.02em}
+.sb-tag{font-size:10px;color:var(--sidebar-muted);margin-top:3px}
+.sb-hub{display:inline-block;margin-top:8px;font-size:10px;font-weight:600;color:var(--gold);text-decoration:none}
+.sb-hub:hover{color:var(--gold2)}
+nav{flex:1;overflow-y:auto;padding:8px;scrollbar-width:thin;scrollbar-color:#334155 transparent}
+nav::-webkit-scrollbar{width:4px}nav::-webkit-scrollbar-thumb{background:#334155;border-radius:2px}
+.nb{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:9px 10px;border-radius:8px;transition:background .15s;display:flex;align-items:center;gap:9px;margin-bottom:2px}
+.nb:hover{background:rgba(255,255,255,.05)}
+.nb.active{background:var(--active)}
+.nb .nem{font-size:15px;line-height:1;flex-shrink:0}
+.nb .ntxt .ntit{font-size:11.5px;font-weight:600;color:#CBD5E1;line-height:1.2;font-family:Syne,sans-serif}
+.nb.active .ntxt .ntit{color:var(--active-text)}
+.nb .ntxt .nsub{font-size:9.5px;color:#64748B;margin-top:2px;line-height:1.3}
+.nb.active .ntxt .nsub{color:#5a4a18}
+.sb-ft{padding:12px;border-top:1px solid rgba(255,255,255,.08)}
+.ft-name{font-size:11px;font-weight:700;color:#d6e0ee;margin-bottom:2px}
+.ft-tag{font-size:10px;color:#7a90a8;margin-bottom:8px}
+.ft-social{display:flex;gap:5px;flex-wrap:wrap}
+.sl{font-size:9px;color:#8aa0b8;text-decoration:none;padding:3px 7px;border-radius:4px;border:1px solid #1a2f4e;transition:all .15s;font-weight:500}
+.sl:hover{border-color:var(--gold);color:var(--gold2)}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-l .sec-title{font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:var(--navy)}
+.topbar-l .sec-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.tab-dots{display:flex;gap:5px;align-items:center}
+.tdot{width:6px;height:6px;border-radius:50%;background:#CBD5E1;cursor:pointer;transition:all .15s;border:none}
+.tdot.active{background:var(--gold);width:14px;border-radius:3px}
+.tabbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 22px;display:flex;gap:2px;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.tabbar::-webkit-scrollbar{display:none}
+.tbtn{font-size:11px;font-weight:600;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;padding:9px 11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tbtn:hover{color:var(--navy);background:var(--bg)}
+.tbtn.active{color:var(--tab-active-text);border-bottom-color:var(--tab-active-border);background:var(--tab-active-bg)}
+.content{flex:1;overflow-y:auto;padding:18px 22px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.hero{background:var(--hero-bg);border:1px solid var(--hero-border);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.hero h2{font-family:Syne,sans-serif;font-size:17px;font-weight:800;color:var(--hero-title);margin-bottom:4px}
+.hero p{font-size:12px;color:var(--hero-body);line-height:1.55}
+.stat-hero{background:var(--stat-bg);border-radius:12px;padding:18px 22px;color:#fff;margin-bottom:14px}
+.stat-hero .sn{font-family:Syne,sans-serif;font-size:38px;font-weight:800;line-height:1;color:var(--gold2)}
+.stat-hero .sl2{font-size:13px;opacity:.9;margin-top:3px}
+.stat-hero .ss{font-size:10.5px;opacity:.6;margin-top:3px}
+.slabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px;margin-top:14px}
+.slabel:first-child{margin-top:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px}
+.card.ci{background:#eef6fb;border-color:#b7d4e8}
+.card.ct{background:#F0FDFA;border-color:#99F6E4}
+.card.ca{background:#fdf6e8;border-color:#f0c060}
+.card.cp{background:#F5F3FF;border-color:#DDD6FE}
+.card.cr{background:#FFF1F2;border-color:#FECDD3}
+.card.cg{background:#F0FDF4;border-color:#BBF7D0}
+.card.cb{background:#EFF6FF;border-color:#BFDBFE}
+.card.cs{background:var(--bg);border-color:var(--border)}
+.ch{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ctit{font-size:12.5px;font-weight:700;color:var(--navy);font-family:Syne,sans-serif}
+.csub{font-size:10.5px;color:var(--muted);margin-top:1px}
+.cbody{font-size:11.5px;color:var(--muted);line-height:1.55}
+.badge{display:inline-flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.bi{background:#1d6fa4;color:#fff} .bt{background:#0D9488;color:#fff} .ba{background:#B45309;color:#fff}
+.bp{background:#5b4fc7;color:#fff} .br{background:#BE185D;color:#fff} .bg{background:#059669;color:#fff}
+.bs{background:#475569;color:#fff} .bbl{background:#1d6fa4;color:#fff}
+.lbadge{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;font-family:Syne,sans-serif}
+ul.cl{list-style:none;padding:0;margin-top:7px}
+ul.cl li{font-size:11px;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(0,0,0,.04);display:flex;gap:6px;line-height:1.45}
+ul.cl li:last-child{border-bottom:none}
+ul.cl li::before{content:'\2713';color:var(--check);font-weight:700;flex-shrink:0}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.prompt-wrap{margin-bottom:14px}
+.plabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.plabel .pr{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ptext{background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:11.5px;line-height:1.65;color:var(--text);white-space:pre-wrap;word-break:break-word;margin:0}
+.ptext.t{border-left-color:#0D9488} .ptext.a{border-left-color:#B45309}
+.ptext.p{border-left-color:#5b4fc7} .ptext.r{border-left-color:#BE185D}
+.cpbtn{font-size:10px;font-weight:600;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cpbtn:hover{background:var(--bg);border-color:var(--gold);color:var(--navy)}
+.cpbtn.ok{background:#059669;color:#fff;border-color:#059669}
+.flow{display:flex;flex-direction:column;gap:0}
+.fstep{display:flex;gap:12px;align-items:flex-start;position:relative}
+.fstep:not(:last-child)::before{content:'';position:absolute;left:13px;top:30px;bottom:-8px;width:2px;background:var(--border)}
+.fnum{width:27px;height:27px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fbody{flex:1;padding-bottom:14px}
+.ftit{font-size:12.5px;font-weight:700;color:var(--navy);font-family:Syne,sans-serif}
+.fdesc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
+.dtable{width:100%;border-collapse:collapse;font-size:11px}
+.dtable th{background:var(--bg);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border)}
+.dtable td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top;line-height:1.45}
+.dtable tr:last-child td{border-bottom:none}
+.dtable td:first-child{font-weight:600;color:var(--navy)}
+.trigger-card{background:#fdf6e8;border:2px solid var(--gold);border-radius:10px;padding:15px;text-align:center}
+.tphrase{font-size:17px;font-weight:700;color:var(--navy);font-style:italic;margin-bottom:5px;font-family:Syne,sans-serif}
+.tnote{font-size:11px;color:#6b5420}
+.notebox{background:#fdf6e8;border:1px solid var(--gold2);border-radius:8px;padding:10px 14px;font-size:11px;color:#6b5420;display:flex;gap:8px;align-items:flex-start;margin-top:11px}
+.irow{display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border)}
+.irow:last-child{border-bottom:none}
+.ikey{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:84px;padding-top:1px;flex-shrink:0}
+
+[data-page="prompt-engineering-masterclass"] .site-chrome{
+  left:auto !important; right:16px; bottom:16px;
+}
+
+[data-theme="dark"], [data-theme="midnight"], [data-theme="contrast"]{
+  --bg:#0a1220; --surface:#132036; --text:#eef2f7; --muted:#8aa0b8; --border:#243552;
+  --sidebar:#080e18; --hero-bg:linear-gradient(135deg,#1a2f4e 0%,#132036 100%);
+  --hero-border:#3d4f6a; --hero-title:#f0c060; --hero-body:#c5d0de;
+  --tab-active-bg:#1a2f4e; --tab-active-text:#f0c060;
+}
+[data-theme="dark"] .card.ci, [data-theme="midnight"] .card.ci, [data-theme="contrast"] .card.ci{background:#143044;border-color:#1d6fa4}
+[data-theme="dark"] .card.ca, [data-theme="midnight"] .card.ca, [data-theme="contrast"] .card.ca{background:#2a2414;border-color:#e8a020}
+[data-theme="dark"] .card.cg, [data-theme="midnight"] .card.cg, [data-theme="contrast"] .card.cg{background:#13281c;border-color:#059669}
+[data-theme="dark"] .card.cr, [data-theme="midnight"] .card.cr, [data-theme="contrast"] .card.cr{background:#2a1418;border-color:#BE185D}
+[data-theme="dark"] .card.cp, [data-theme="midnight"] .card.cp, [data-theme="contrast"] .card.cp{background:#1c1730;border-color:#5b4fc7}
+[data-theme="dark"] .card.ct, [data-theme="midnight"] .card.ct, [data-theme="contrast"] .card.ct{background:#132824;border-color:#0D9488}
+[data-theme="dark"] .card.cb, [data-theme="midnight"] .card.cb, [data-theme="contrast"] .card.cb{background:#132036;border-color:#1d6fa4}
+[data-theme="dark"] .trigger-card, [data-theme="midnight"] .trigger-card, [data-theme="contrast"] .trigger-card{background:#1a2f4e;border-color:var(--gold)}
+[data-theme="dark"] .tnote, [data-theme="midnight"] .tnote, [data-theme="contrast"] .tnote{color:#c5d0de}
+[data-theme="dark"] .notebox, [data-theme="midnight"] .notebox, [data-theme="contrast"] .notebox{background:#1a2f4e;border-color:#e8a020;color:#f0c060}
+[data-theme="dark"] .ptext, [data-theme="midnight"] .ptext, [data-theme="contrast"] .ptext{color:var(--text)}
+[data-theme="dark"] ul.cl li, [data-theme="midnight"] ul.cl li, [data-theme="contrast"] ul.cl li{border-bottom-color:rgba(255,255,255,.06)}
+
+@media(max-width:768px){.g2,.g3,.compare{grid-template-columns:1fr}aside{width:200px;min-width:200px}}
+@media(max-width:600px){aside{display:none}}
+</style>
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+
+</head>
+<body>
+<aside>
+  <div class="sb-hdr">
+    <div class="sb-name">Prompt Engineering</div>
+    <div class="sb-tag">Interactive guide · Mayank Chugh</div>
+    <a class="sb-hub" href="/pages/learning/index.html">← Learning Hub</a>
+  </div>
+  <nav id="nav"></nav>
+  <div class="sb-ft">
+    <div class="ft-name">Mayank Chugh</div>
+    <div class="ft-tag">Senior Enterprise Architect · AI Engineer</div>
+    <div class="ft-social">
+      <a class="sl" href="https://youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+      <a class="sl" href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="sl" href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+      <a class="sl" href="https://medium.com/@mayankchugh.jobathk" target="_blank" rel="noopener">Medium</a>
+    </div>
+  </div>
+</aside>
+<main>
+  <div class="topbar">
+    <div class="topbar-l">
+      <div class="sec-title" id="sec-title"></div>
+      <div class="sec-sub" id="sec-sub"></div>
+    </div>
+    <div class="tab-dots" id="tab-dots"></div>
+  </div>
+  <div class="tabbar" id="tabbar"></div>
+  <div class="content" id="content"></div>
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════ */
+const SECTIONS = [
+  { emoji:'💡', title:'Why Prompting Matters', sub:'The gap · five techniques · time back',
+    tabs:['The Problem','The 5 Techniques','Time Savings'] },
+  { emoji:'✏️', title:'RCTFC Framework', sub:'Role · Context · Task · Format · Constraints',
+    tabs:['The 5 Parts','Bad vs Good','Live Templates','Quick Reference'] },
+  { emoji:'📸', title:'Shot Prompting', sub:'Zero · One · Few-Shot',
+    tabs:['The Concept','Progression Demo','Try These Prompts'] },
+  { emoji:'🔗', title:'Chain of Thought', sub:'3 triggers · Reasoning · Accuracy',
+    tabs:['The Concept','3 Trigger Phrases','Before vs After','Try These Prompts'] },
+  { emoji:'🧩', title:'Prompt Chaining', sub:'Extract · Analyse · Produce',
+    tabs:['The Concept','3-Step Pipeline','Common Mistakes','Try These Prompts'] },
+  { emoji:'🪄', title:'Meta Prompting', sub:'The model drafts the prompt',
+    tabs:['The Concept','How It Works','Try These Prompts'] },
+  { emoji:'💼', title:'Industry Prompt Library', sub:'6 domains · Ready to use · Copy & go',
+    tabs:['Business & Strategy','Marketing','HR & People','Finance & Data','Customer Support','Tech & Product'] },
+];
+
+let active = 0;
+let activeTabs = [0,0,0,0,0,0,0];
+
+/* ═══════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════ */
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function pb(label, text, technique, color){
+  const tmap = {rctfc:['RCTFC','bi'],few:['Few-Shot','bt'],cot:['Chain of Thought','ba'],chain:['Prompt Chaining','bp'],meta:['Meta Prompting','br']};
+  const tm = tmap[technique]||['',''];
+  const bcls = color||'';
+  return `<div class="prompt-wrap">
+  <div class="plabel"><span>${label}</span><div class="pr">${tm[0]?`<span class="badge ${tm[1]}" style="font-size:9px">${tm[0]}</span>`:''}<button class="cpbtn" onclick="copyPrompt(this)">Copy</button></div></div>
+  <pre class="ptext ${bcls}">${esc(text)}</pre></div>`;
+}
+
+function copyPrompt(btn){
+  const txt = btn.closest('.prompt-wrap').querySelector('.ptext').textContent.trim();
+  navigator.clipboard.writeText(txt).then(()=>{ btn.textContent='Copied! ✓'; btn.classList.add('ok'); setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('ok'); },2000); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); btn.textContent='Copied! ✓'; btn.classList.add('ok'); setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('ok'); },2000); });
+}
+
+/* ═══════════════════════════════════════════════
+   CONTENT (27 tabs)
+═══════════════════════════════════════════════ */
+function c(s,t){
+  const k=`${s}-${t}`;
+  const M={
+
+/* ──── S0: Why Prompting Matters ──── */
+'0-0': `
+<div class="stat-hero"><div class="sn">82%</div><div class="sl2">of professionals use AI with vague, unstructured prompts</div><div class="ss">McKinsey AI Adoption Survey 2025 · Of those, 74% report "inconsistent or disappointing" output quality</div></div>
+<div class="slabel">The 4 Most Common Prompt Failures</div>
+<div class="g2">
+<div class="card ci"><div class="ch"><span style="font-size:20px">🎯</span><div><div class="ctit">No Role Given</div><div class="csub">AI defaults to "generic assistant"</div></div></div><div class="cbody">You get a surface-level answer written for no one in particular. Add a role and the depth, vocabulary, and perspective change entirely.</div></div>
+<div class="card ca"><div class="ch"><span style="font-size:20px">🌫️</span><div><div class="ctit">Missing Context</div><div class="csub">AI operates in a vacuum</div></div></div><div class="cbody">Without knowing your situation, AI fills gaps with assumptions — often wrong ones. The more context, the more accurate the output.</div></div>
+<div class="card cp"><div class="ch"><span style="font-size:20px">📋</span><div><div class="ctit">No Format Specified</div><div class="csub">AI decides the structure</div></div></div><div class="cbody">You get a wall of text when you needed three bullet points. Specify format before AI writes — not after you're already reformatting.</div></div>
+<div class="card cr"><div class="ch"><span style="font-size:20px">📏</span><div><div class="ctit">No Constraints</div><div class="csub">"Short" is not a constraint</div></div></div><div class="cbody">Vague limits lead to 900-word responses when you needed a paragraph. Quantify everything: "under 150 words", "professional not casual", "no bullet points".</div></div>
+</div>
+<div class="notebox"><span>💡</span><span><strong>The key insight:</strong> The model is not the variable. The prompt is. The same system that returns a generic draft will return something you can actually use — if you specify role, context, task, format, and limits.</span></div>`,
+
+'0-1': `
+<div class="hero"><h2>Five techniques. Any model. Work that actually ships.</h2><p>These five methods cover everything from a single email to a multi-step analysis. Learn all five, then pick the one that matches the job — not the other way around.</p></div>
+<div class="flow">
+<div class="fstep"><div class="fnum">1</div><div class="fbody"><div class="ftit">RCTFC Framework <span class="badge bi" style="margin-left:4px">Foundation</span></div><div class="fdesc">Role, Context, Task, Format, Constraints. The 5-part structure that makes any prompt work. Use this as the default for any request you would be embarrassed to send unreviewed. Once it is a reflex, the other techniques slot in around it.</div></div></div>
+<div class="fstep"><div class="fnum">2</div><div class="fbody"><div class="ftit">Shot Prompting <span class="badge bt" style="margin-left:4px">Examples</span></div><div class="fdesc">Instead of writing rules, show examples. Zero-shot is guessing. One-shot shows the pattern. Few-shot locks in your vocabulary, format, and classification logic. Three labelled examples usually beat a paragraph of rules.</div></div></div>
+<div class="fstep"><div class="fnum">3</div><div class="fbody"><div class="ftit">Chain of Thought <span class="badge ba" style="margin-left:4px">Reasoning</span></div><div class="fdesc">Add "think step by step" to any prompt and watch AI slow down and reason. Accuracy improves on anything with tradeoffs — decisions, root-cause work, risk, or diagnosis — because you can see (and correct) the reasoning.</div></div></div>
+<div class="fstep"><div class="fnum">4</div><div class="fbody"><div class="ftit">Prompt Chaining <span class="badge bp" style="margin-left:4px">Complex Tasks</span></div><div class="fdesc">Break complex work into Extract → Analyse → Produce. Each prompt is small and focused. Each output becomes the input for the next. The final deliverable is built on extracted facts you reviewed — not a one-shot guess at “what a report looks like.”</div></div></div>
+<div class="fstep"><div class="fnum">5</div><div class="fbody"><div class="ftit">Meta Prompting <span class="badge br" style="margin-left:4px">Stuck?</span></div><div class="fdesc">Ask the model to write the prompt first. Give it the goal; it returns a structured draft you edit and run. Use this in an unfamiliar domain, or when the first ask came back mushy.</div></div></div>
+</div>`,
+
+'0-2': `
+<div class="hero"><h2>Where the time actually goes.</h2><p>These are order-of-magnitude, not a guarantee. They match what happens when the technique fits the task — and you still review the output.</p></div>
+<table class="dtable" style="margin-bottom:14px">
+<thead><tr><th>Task</th><th>Without AI prompting skill</th><th>With the right technique</th><th>Technique used</th></tr></thead>
+<tbody>
+<tr><td>Weekly performance report</td><td>60–90 min of writing and editing</td><td>8–12 min (review + refine AI draft)</td><td><span class="badge bp">Prompt Chaining</span></td></tr>
+<tr><td>Email to difficult stakeholder</td><td>20–30 min drafting and redrafting</td><td>3–5 min with RCTFC prompt</td><td><span class="badge bi">RCTFC</span></td></tr>
+<tr><td>Classify 50 support tickets</td><td>45 min manual categorisation</td><td>2 min with a few-shot prompt</td><td><span class="badge bt">Few-Shot</span></td></tr>
+<tr><td>Strategic options decision</td><td>Full team meeting + 2-day analysis</td><td>20 min structured CoT session</td><td><span class="badge ba">Chain of Thought</span></td></tr>
+<tr><td>Writing a prompt for new task type</td><td>Trial and error — often 30+ min</td><td>90 seconds via meta prompting</td><td><span class="badge br">Meta Prompting</span></td></tr>
+<tr><td>Job description for new role</td><td>45 min drafting from scratch</td><td>5 min with RCTFC + review</td><td><span class="badge bi">RCTFC</span></td></tr>
+</tbody>
+</table>
+<div class="notebox"><span>⏱️</span><span><strong>Compounded impact:</strong> Forty-five minutes a day is roughly 190 hours a year — about 24 working days. The techniques pay for themselves the first week you stop rewriting generic drafts.</span></div>`,
+
+/* ──── S1: RCTFC Framework ──── */
+'1-0': `
+<div class="hero"><h2>The 5-Part RCTFC Framework</h2><p>Each part removes a class of guesswork. Drop one and the draft usually degrades in a predictable way. Use all five when the output will be seen by someone else.</p></div>
+<div class="flow">
+<div class="fstep"><div class="lbadge" style="background:#1d6fa4;color:#fff;margin-top:1px">R</div><div class="fbody"><div class="ftit">Role — Who is the AI being?</div><div class="fdesc">Sets the expert lens for the entire response. Activates domain vocabulary and professional assumptions. Without a role: generic, shallow, written for no one in particular.</div>
+<div class="irow" style="margin-top:8px"><span class="ikey">Example</span><span>Act as a senior account manager with 10 years of B2B experience.</span></div>
+<div class="irow"><span class="ikey">Without it</span><span>AI responds as a neutral assistant. No depth, no expertise, no specificity.</span></div>
+</div></div>
+<div class="fstep"><div class="lbadge" style="background:#0D9488;color:#fff;margin-top:1px">C</div><div class="fbody"><div class="ftit">Context — What is the situation?</div><div class="fdesc">Gives background, stakes, and environment. Tells AI what actually matters here. Without context: AI operates in a vacuum and fills gaps with generic assumptions.</div>
+<div class="irow" style="margin-top:8px"><span class="ikey">Example</span><span>We had a supplier meeting on Monday. The delivery is 3 weeks late. The VP of Operations, who was absent, has authority to escalate.</span></div>
+<div class="irow"><span class="ikey">Without it</span><span>AI invents plausible context. Often wrong for your specific situation.</span></div>
+</div></div>
+<div class="fstep"><div class="lbadge" style="background:#7C3AED;color:#fff;margin-top:1px">T</div><div class="fbody"><div class="ftit">Task — What exactly do you need?</div><div class="fdesc">One unambiguous deliverable. Eliminates guessing. Without a clear task: AI decides what to give you — which may not be what you needed.</div>
+<div class="irow" style="margin-top:8px"><span class="ikey">Example</span><span>Write a professional follow-up email to the supplier's procurement team.</span></div>
+<div class="irow"><span class="ikey">Without it</span><span>AI gives you something adjacent — a summary, a list, a plan — when you needed an email.</span></div>
+</div></div>
+<div class="fstep"><div class="lbadge" style="background:#B45309;color:#fff;margin-top:1px">F</div><div class="fbody"><div class="ftit">Format — How should it look?</div><div class="fdesc">Specifies structure before AI writes anything. Without format: you get a wall of prose you still have to reformat. Specify it and you get something you can use immediately.</div>
+<div class="irow" style="margin-top:8px"><span class="ikey">Example</span><span>Subject line + 3 short paragraphs + professional sign-off. Total under 200 words.</span></div>
+<div class="irow"><span class="ikey">Without it</span><span>AI defaults to what it thinks looks like a good email — which may be 600 words long.</span></div>
+</div></div>
+<div class="fstep"><div class="lbadge" style="background:#BE185D;color:#fff;margin-top:1px">C</div><div class="fbody"><div class="ftit">Constraints — What are the non-negotiables?</div><div class="fdesc">Word limits, tone requirements, what to exclude, what not to start with. "Short" is vague. "Under 120 words" is a constraint. This is the most overlooked part of the framework.</div>
+<div class="irow" style="margin-top:8px"><span class="ikey">Example</span><span>Acknowledge the delay without over-apologising. Do not make promises about compensation. Maintain a confident, partnership-first tone.</span></div>
+<div class="irow"><span class="ikey">Without it</span><span>You get the right idea expressed the wrong way — wrong tone, wrong length, wrong emphasis.</span></div>
+</div></div>
+</div>`,
+
+'1-1': `
+<div class="slabel">The same task — two completely different prompts</div>
+<div class="compare">
+<div>
+<div class="card cr" style="margin-bottom:10px"><div class="ch"><span class="badge br">❌ Weak Prompt</span></div><div class="cbody" style="font-size:12px;font-style:italic;color:#9F1239">"Write a follow-up email about the delayed delivery."</div></div>
+<div class="card cs"><div class="ctit" style="font-size:11px;margin-bottom:6px">What AI gives you:</div><div class="cbody">A generic, polite email. Probably too long. No specific context. Doesn't address the VP situation. May open with "I hope this email finds you well." You spend 15 minutes fixing it.</div></div>
+</div>
+<div>
+<div class="card cg" style="margin-bottom:10px"><div class="ch"><span class="badge bg">✓ RCTFC Prompt</span></div><div class="cbody" style="font-size:11px;line-height:1.65">
+<strong style="color:#065F46">Role:</strong> Act as a senior account manager with 10 years of B2B supplier relations.<br><br>
+<strong style="color:#065F46">Context:</strong> We had a meeting with our supplier on [DATE] to discuss a 3-week delivery delay. Their VP of Operations was absent — she has escalation authority. Production expects delivery by [NEW DATE].<br><br>
+<strong style="color:#065F46">Task:</strong> Write a professional follow-up email to the supplier's procurement team.<br><br>
+<strong style="color:#065F46">Format:</strong> Subject line + 3 paragraphs + sign-off. Under 180 words.<br><br>
+<strong style="color:#065F46">Constraints:</strong> Acknowledge the delay firmly but not aggressively. Don't over-apologise. Do not promise compensation. Close with a specific next step. No filler phrases.
+</div></div>
+<div class="card cg"><div class="ctit" style="font-size:11px;margin-bottom:6px">What AI gives you:</div><div class="cbody">A precise, professional email ready to send. Correct tone, right length, addresses the actual situation. You spend 2 minutes reviewing and personalising the sender name.</div></div>
+</div>
+</div>
+<div class="notebox"><span>💡</span><span><strong>The only thing that changed:</strong> the specification. Vague asks get vague drafts. A complete RCTFC prompt gets something you can send after a two-minute review.</span></div>`,
+
+'1-2': `
+<div class="slabel">Template 1 — Professional Email</div>
+${pb('Copy & personalise with [BRACKETS]',`Role: Act as a [ROLE — e.g. senior communications manager, account manager, department head].
+
+Context: [DESCRIBE THE SITUATION — what happened, who is involved, what the stakes are, what the recipient already knows].
+
+Task: Write a professional email to [RECIPIENT/AUDIENCE] about [SUBJECT/PURPOSE].
+
+Format: Subject line + [NUMBER] paragraphs + professional sign-off. Under [WORD COUNT] words.
+
+Constraints: [TONE — e.g. direct and warm, firm but respectful, concise not curt]. [EXCLUSIONS — e.g. no apologies, no jargon, no filler phrases like "I hope this finds you well"]. [SPECIFIC REQUIREMENTS — e.g. include a clear next step, reference the previous meeting].`,'rctfc','')}
+
+<div class="slabel">Template 2 — Meeting Summary</div>
+${pb('Paste your rough notes after the prompt',`Role: Act as an executive assistant skilled at extracting decisions, actions, and open questions from meeting notes.
+
+Context: Below are rough notes from a [TYPE OF MEETING — e.g. weekly ops review, project kickoff, client call] on [DATE] with [LIST ATTENDEES AND ROLES].
+
+Task: Extract all decisions made, action items with owners, and unresolved questions that need follow-up.
+
+Format:
+— Decisions Made (bullet list)
+— Action Items (table: Action | Owner | Due Date)
+— Open Questions (numbered list)
+
+Constraints: Extract only what is explicitly stated. Do not infer or assume. Flag anything ambiguous with [UNCLEAR]. Keep language direct and scannable.
+
+[PASTE YOUR MEETING NOTES BELOW]`,'rctfc','')}
+
+<div class="slabel">Template 3 — Analysis Request</div>
+${pb('For reports, data, documents, or research',`Role: Act as a [DOMAIN — e.g. financial analyst, market researcher, operations consultant] with deep experience in [INDUSTRY/FIELD].
+
+Context: [DESCRIBE WHAT YOU ARE ANALYSING — what the data/document/situation is, who will read the output, and what decision it needs to support].
+
+Task: Analyse the [MATERIAL BELOW / ATTACHED] and identify [WHAT YOU NEED — e.g. the top 3 risks, root cause of the variance, strategic implications, key findings].
+
+Format: [STRUCTURE — e.g. Executive Summary (2 sentences) + Key Findings (3 bullets with evidence) + Recommended Action (1 paragraph)]. Under [WORD COUNT] words.
+
+Constraints: Evidence-based only. Quantify wherever the data allows. Flag assumptions clearly. [AUDIENCE NOTE — e.g. written for non-technical senior stakeholders].
+
+[PASTE DATA / CONTENT BELOW]`,'rctfc','')}`,
+
+'1-3': `
+<div class="slabel">Quick Reference — all 5 parts at a glance</div>
+<table class="dtable" style="margin-bottom:14px">
+<thead><tr><th>Part</th><th>What it does</th><th>What breaks without it</th><th>Quick example</th></tr></thead>
+<tbody>
+<tr><td><span style="font-weight:800;color:#1d6fa4">R — Role</span></td><td>Sets the expert lens and vocabulary</td><td>Generic, shallow response</td><td>"Act as a senior HR business partner"</td></tr>
+<tr><td><span style="font-weight:800;color:#0D9488">C — Context</span></td><td>Gives background and stakes</td><td>AI invents assumptions</td><td>"The manager is not aware of the complaint yet"</td></tr>
+<tr><td><span style="font-weight:800;color:#7C3AED">T — Task</span></td><td>Specifies the exact deliverable</td><td>AI decides what to give you</td><td>"Write a 1-page policy summary"</td></tr>
+<tr><td><span style="font-weight:800;color:#B45309">F — Format</span></td><td>Defines structure before AI writes</td><td>Wall of prose to reformat</td><td>"3 bullet points + one-line recommendation"</td></tr>
+<tr><td><span style="font-weight:800;color:#BE185D">C — Constraints</span></td><td>Sets limits and non-negotiables</td><td>Wrong tone, wrong length, wrong emphasis</td><td>"Under 120 words, no jargon, no filler phrases"</td></tr>
+</tbody>
+</table>
+<div class="slabel">Decision guide — which parts to include</div>
+<div class="g3">
+<div class="card ci"><div class="ctit" style="font-size:12px;margin-bottom:6px">Quick task (5 min)</div><div class="cbody">Role + Task at minimum. Add Format if output structure matters. Skip the rest.</div></div>
+<div class="card ca"><div class="ctit" style="font-size:12px;margin-bottom:6px">Important communication</div><div class="cbody">All 5 parts. Constraints especially matter for tone and length here.</div></div>
+<div class="card cg"><div class="ctit" style="font-size:12px;margin-bottom:6px">Analysis or report</div><div class="cbody">All 5 parts + paste the data after. Format and Constraints prevent reformatting later.</div></div>
+</div>
+<div class="notebox"><span>✏️</span><span><strong>Start with Role and end with Constraints.</strong> The five parts are not a checklist you fill in once. With practice, they become a reflex — a natural way of thinking before you type anything into any AI tool.</span></div>`,
+
+/* ──── S2: Shot Prompting ──── */
+'2-0': `
+<div class="hero"><h2>Show examples. Do not write a rulebook.</h2><p>Instructions are interpreted. Examples are copied. Three labelled examples usually beat a paragraph of rules — especially for classification, tone, and format.</p></div>
+<div class="slabel">The progression</div>
+<div class="g3">
+<div class="card ci"><div class="ch"><span style="font-size:22px">0️⃣</span><div><div class="ctit">Zero-Shot</div><div class="csub">No examples given</div></div></div><div class="cbody">AI uses its own interpretation of what a good output looks like. Results are inconsistent. Vocabulary doesn't match yours. Format is AI's choice, not yours.</div><ul class="cl"><li>AI guesses your standard</li><li>Inconsistent across runs</li><li>Vocabulary mismatches</li><li>Fine for simple, low-stakes tasks</li></ul></div>
+<div class="card ca"><div class="ch"><span style="font-size:22px">1️⃣</span><div><div class="ctit">One-Shot</div><div class="csub">One example given</div></div></div><div class="cbody">AI follows your template structure. Labels begin to align. Much more consistent than zero-shot — but edge cases can still slip through.</div><ul class="cl"><li>AI gets your format</li><li>Structure aligns</li><li>Partial vocabulary match</li><li>Good for standard, predictable tasks</li></ul></div>
+<div class="card cg"><div class="ch"><span style="font-size:22px">3️⃣</span><div><div class="ctit">Few-Shot</div><div class="csub">3+ examples given</div></div></div><div class="cbody">AI learns your classification logic, vocabulary, and edge case handling. Output usually matches your standard closely enough that you review, not rewrite.</div><ul class="cl"><li>AI follows your standard precisely</li><li>Handles edge cases reliably</li><li>Vocabulary locked in</li><li>Best for classification, formatting, tone</li></ul></div>
+</div>
+<div class="notebox"><span>🎓</span><span><strong>The intern analogy:</strong> On day one you can hand someone a three-page manual (zero-shot), or show three examples of how the work is actually done. The examples win. You already have them — past emails, tickets, and reports.</span></div>`,
+
+'2-1': `
+<div class="slabel">Task: Classify customer support tickets into categories</div>
+<div class="card cr" style="margin-bottom:11px"><div class="ch"><span class="badge br">Zero-Shot</span></div>
+<div class="cbody" style="font-style:italic;color:#9F1239;margin-bottom:8px">"Classify this support ticket: 'I ordered two items but only received one and I need the second one urgently.'"</div>
+<div class="cbody">AI output: <strong>"Order fulfilment issue"</strong> or <strong>"Delivery complaint"</strong> — but these may not match your internal categories at all. Inconsistent across 50 tickets.</div></div>
+
+<div class="card ca" style="margin-bottom:11px"><div class="ch"><span class="badge ba">One-Shot</span></div>
+<div class="cbody" style="font-style:italic;color:#92400E;margin-bottom:8px">"Classify this support ticket. Example: 'My invoice total is incorrect' → Billing Query. Now classify: 'I ordered two items but only received one and I need the second one urgently.'"</div>
+<div class="cbody">AI output: <strong>"Billing Query"</strong> — it anchored to the one example you gave, even though this is a delivery issue. One example isn't enough to cover different case types.</div></div>
+
+<div class="card cg"><div class="ch"><span class="badge bg">Few-Shot (3 examples)</span></div>
+<div class="cbody" style="font-style:italic;color:#065F46;margin-bottom:8px">"Classify support tickets using these categories. Examples:
+'My order hasn't arrived after 7 days' → Delivery
+'I was charged twice for the same order' → Billing
+'I can't log in — it keeps saying wrong password' → Account Access
+Now classify: 'I ordered two items but only received one and I need the second one urgently.'"</div>
+<div class="cbody">AI output: <strong>"Delivery"</strong> — correct, consistent with your taxonomy. Run 50 tickets through the same prompt: 94%+ accuracy. Your historical data becomes your classifier.</div></div>
+<div class="notebox"><span>💡</span><span><strong>Pro tip:</strong> The examples you choose matter. Include your hardest edge cases. If you have a category that's often confused with another, put both in the examples. Coverage beats quantity.</span></div>`,
+
+'2-2': `
+<div class="slabel">Ready-to-use few-shot prompts</div>
+${pb('Email tone and style matching',`Here are three examples of how we write client emails at [COMPANY]:
+
+Example 1:
+Subject: Update on project timeline
+"Hi [Name], quick update on Phase 2 — we're on track for the [DATE] milestone. One minor adjustment: the testing phase will now run [DATE] to [DATE] instead of the original window. No impact on the final delivery date. Let me know if you'd like to connect before then."
+
+Example 2:
+Subject: Invoice clarification needed
+"Hi [Name], the invoice we received yesterday references PO [NUMBER] but our records show this was already settled on [DATE]. Could you check your end and confirm? Happy to share our payment confirmation if useful."
+
+Example 3:
+[PASTE YOUR OWN EXAMPLE]
+
+Now write a similar email for this situation: [DESCRIBE YOUR SITUATION]`,'few','t')}
+
+${pb('Meeting action items extractor',`Extract action items from meeting notes in the format I'll show you. Here are two examples:
+
+Input: "John said he'd handle the supplier outreach. Target date discussed was end of next week."
+Output: Action: Follow up with supplier | Owner: John | Due: [DATE - End of Next Week] | Priority: Medium
+
+Input: "We need to get legal to review the contract terms before we can move forward. Sarah will send it over today."
+Output: Action: Legal review of contract terms | Owner: Legal (via Sarah) | Due: [DATE - Today/Tomorrow] | Priority: High
+
+Now extract actions from these notes: [PASTE MEETING NOTES]`,'few','t')}
+
+${pb('Content repurposing to different formats',`Adapt the following content for different formats. Here are three conversion examples:
+
+Long article → LinkedIn post: Extract one key insight. Add a curiosity hook (question or bold statement). Keep under 200 words. End with an open question to the reader.
+
+Report finding → Email subject line: One sentence. Include a specific number if available. State the outcome, not just the topic.
+
+Meeting takeaway → Slack message: Under 50 words. Action and deadline both visible in the first line.
+
+Source content to adapt: [PASTE YOUR CONTENT]
+Target format: [SPECIFY — LinkedIn post / email subject / Slack message / other]`,'few','t')}`,
+
+/* ──── S3: Chain of Thought ──── */
+'3-0': `
+<div class="hero"><h2>Ask it to reason, then answer.</h2><p>Models default to the most common-looking answer. Chain of Thought slows that down: you get reasoning you can check, not confidence you have to trust.</p></div>
+<div class="slabel">Two ways AI can respond to the same question</div>
+<div class="compare">
+<div class="card cr"><div class="ch"><span class="badge br">Without CoT</span></div><div class="cbody">AI jumps to conclusion. Pattern-matches to the most common answer type. Sounds confident. No reasoning visible. If the answer is wrong, you can't see where it went wrong — or even that it went wrong.</div><ul class="cl"><li>Fast — but potentially wrong</li><li>Confidence ≠ accuracy</li><li>No visible reasoning to check</li><li>Misses nuanced situational factors</li></ul></div>
+<div class="card cg"><div class="ch"><span class="badge bg">With CoT</span></div><div class="cbody">AI reasons step by step. Each step is visible and checkable. You can see where it made an assumption, catch an error before the conclusion, or redirect mid-reasoning. Significantly more accurate on complex tasks.</div><ul class="cl"><li>Slower — reliably better</li><li>Reasoning visible and verifiable</li><li>Catches hidden assumptions</li><li>Best on decisions, diagnoses, analysis</li></ul></div>
+</div>
+<div class="slabel">When to use Chain of Thought</div>
+<div class="g3">
+<div class="card ci"><div class="ctit" style="font-size:12px">✅ Use CoT</div><ul class="cl"><li>Decisions with real tradeoffs</li><li>Root cause analysis</li><li>Risk or impact assessment</li><li>Anything nuanced or multi-factor</li></ul></div>
+<div class="card ca"><div class="ctit" style="font-size:12px">⚠️ CoT optional</div><ul class="cl"><li>Moderate complexity tasks</li><li>Writing with a specific constraint</li><li>Summarisation of complex material</li><li>Generating structured recommendations</li></ul></div>
+<div class="card cs"><div class="ctit" style="font-size:12px">❌ Skip CoT</div><ul class="cl"><li>Simple factual lookups</li><li>Format conversions</li><li>Routine email drafts</li><li>Summarising short, clear material</li></ul></div>
+</div>
+<div class="notebox"><span>🩺</span><span><strong>The doctor analogy:</strong> A three-second diagnosis is pattern-matching. Thinking out loud — symptoms, alternatives, exceptions — is slower and more reliable. The extra twenty seconds are worth it. So is asking the model to show its reasoning.</span></div>`,
+
+'3-1': `
+<div class="slabel">The 3 phrases that unlock step-by-step reasoning</div>
+<div class="g3">
+<div class="trigger-card"><div class="tphrase">"Think step by step."</div><div class="tnote">Add this to any prompt. AI breaks down its reasoning process before concluding. Most versatile trigger — works on 90% of analytical tasks.</div></div>
+<div class="trigger-card"><div class="tphrase">"Show your reasoning."</div><div class="tnote">Slightly different emphasis — asks AI to make its logic explicit, not just sequential. Useful when you want to audit the quality of thinking, not just the conclusion.</div></div>
+<div class="trigger-card"><div class="tphrase">"Walk me through this."</div><div class="tnote">Most conversational of the three. Works well in dialogue-style prompts where you're exploring a problem together rather than requesting a finished output.</div></div>
+</div>
+<div class="slabel">How to add them to an existing prompt</div>
+<div class="card" style="margin-bottom:11px"><div class="cbody" style="font-size:11.5px;line-height:1.7">
+<strong>Original prompt:</strong> "Should we prioritise the partnership deal or the product launch this quarter?"<br><br>
+<strong>CoT version:</strong> "Should we prioritise the partnership deal or the product launch this quarter? <span style="color:#1d6fa4;font-weight:700">Think step by step.</span> Consider financial impact, resource availability, strategic alignment, and stakeholder expectations. Reason through each factor before giving your recommendation."
+</div></div>
+<div class="slabel">Advanced: Quiet CoT (reasoning without the show)</div>
+<div class="card cs"><div class="cbody">Sometimes you want the accuracy benefit of CoT but a clean, brief final output. Use this structure:<br><br>
+<em style="color:#1d6fa4">"Think step by step internally. Then give me only your final recommendation — no reasoning shown. Answer in 2–3 sentences."</em><br><br>
+AI reasons thoroughly but delivers a clean, concise output. Best for quick decisions where you trust the depth but don't need to audit every step.
+</div></div>`,
+
+'3-2': `
+<div class="slabel">Same scenario — with and without CoT</div>
+<div class="card ca" style="margin-bottom:4px"><div class="ch"><span class="badge ba">Scenario</span></div><div class="cbody">"I have two job offers. Company A is a fast-growing startup — higher salary, equity, more risk, longer hours. Company B is a large established firm — lower salary, stability, clear progression, better work-life balance. Which should I take?"</div></div>
+<div class="compare" style="margin-top:10px">
+<div>
+<div class="slabel">Without CoT</div>
+<div class="card cr"><div class="cbody" style="font-style:italic;color:#7F1D1D">"Based on your description, Company A seems like the better choice given the higher salary and growth potential. The equity could be significant if the company succeeds. However, if stability is important to you, Company B is also a solid option."</div>
+<div class="cbody" style="margin-top:8px;color:#94A3B8;font-size:10.5px">Verdict: Generic. Presents both options without actually helping you decide. Could apply to anyone. Tells you nothing you didn't already know.</div></div>
+</div>
+<div>
+<div class="slabel">With "Think step by step"</div>
+<div class="card cg"><div class="cbody" style="font-size:11px;line-height:1.65;color:#065F46">
+<strong>Step 1 — What is the actual decision context?</strong><br>This is a career inflection point, not just a salary comparison. The core question is: what do you optimise for at this stage of your career?<br><br>
+<strong>Step 2 — Financial analysis:</strong><br>Higher base salary at A has immediate value. Equity is uncertain — startup success rates are 10–15%. At Company B, the lower salary is the cost of the optionality and stability you get back.<br><br>
+<strong>Step 3 — Risk profile:</strong><br>At a startup, if it fails in 18 months, you restart your search in a tougher market. At the established firm, the downside is limited.<br><br>
+<strong>Step 4 — Life stage factor:</strong><br>Do you have dependents, a mortgage, or commitments that make income predictability important right now?<br><br>
+<strong>Recommendation:</strong> If you're in the first 5 years of your career with low personal financial obligations — Company A. If you have significant responsibilities or this is not the right risk moment — Company B. The equity only matters if the startup is post-Series B or has clear product-market fit.
+</div></div>
+</div>
+</div>
+<div class="notebox"><span>💡</span><span><strong>The shortcut to a confident wrong answer costs more than the 20 seconds it takes to ask for the reasoning.</strong></span></div>`,
+
+'3-3': `
+<div class="slabel">Chain of Thought prompts — ready to use</div>
+${pb('Strategic decision analysis',`Role: Act as a senior management consultant.
+
+Context: We are deciding between [OPTION A] and [OPTION B] for [SITUATION/BUSINESS CONTEXT]. The decision needs to be made by [DATE]. Key stakeholders: [LIST].
+
+Task: Analyse both options and recommend one. Think step by step. Consider: financial impact, operational feasibility, stakeholder reaction, timeline, and risk exposure. Reason through each factor before concluding.
+
+Format: For each option — 3 pros, 3 cons, 1-line verdict. Then a final recommendation paragraph with one specific next action.
+
+Constraints: No vague statements. Quantify wherever possible. Flag your assumptions clearly. Under 400 words total.`,'cot','a')}
+
+${pb('Root cause analysis',`Role: Act as an operations analyst specialising in process failure diagnosis.
+
+Context: [DESCRIBE THE PROBLEM — what happened, when it started, what was affected, what has already been tried]. 
+
+Task: Identify the root cause of this problem. Think step by step — first list all observable symptoms, then group them by pattern, then hypothesise 3 possible root causes, then assess which is most likely and why.
+
+Format: Symptoms list → Root Cause Hypotheses (3) → Most Likely Root Cause + Evidence → Recommended First Fix.
+
+Constraints: Distinguish clearly between symptoms and causes. Flag where data is insufficient. Avoid jumping to conclusions before completing the reasoning.`,'cot','a')}
+
+${pb('Risk assessment for a business decision',`Role: Act as a risk management specialist.
+
+Context: We are planning to [ACTION/INITIATIVE] in [TIMEFRAME]. Key dependencies: [LIST]. Stakeholders involved: [LIST].
+
+Task: Assess the risk landscape for this decision. Think step by step — first identify all possible risk categories (financial, operational, reputational, regulatory, people), then rate each risk for likelihood and impact, then recommend mitigation actions for the top 3.
+
+Format: Risk register table (Risk | Category | Likelihood | Impact | Mitigation) + Top 3 Priority Risks with detailed mitigation plan.
+
+Constraints: Be specific. No generic risks like "market uncertainty". Each mitigation must have a named owner. Under 300 words for the narrative section.`,'cot','a')}`,
+
+/* ──── S4: Prompt Chaining ──── */
+'4-0': `
+<div class="hero"><h2>Split the work. Review between steps.</h2><p>A mega-prompt is like asking for the whole route at once and hoping you remember every turn. Chaining splits the job: extract, then analyse, then produce — with a human check between steps.</p></div>
+<div class="slabel">Why one mega-prompt fails</div>
+<div class="compare">
+<div class="card cr"><div class="ch"><span class="badge br">One Mega-Prompt</span></div><ul class="cl"><li>AI pattern-matches to "what a report looks like"</li><li>Skips real analysis — goes straight to conclusions</li><li>Errors compound — wrong extraction leads to wrong analysis</li><li>Output is generic even when data is specific</li><li>You can't course-correct mid-response</li></ul></div>
+<div class="card cg"><div class="ch"><span class="badge bg">Chained Prompts</span></div><ul class="cl"><li>Each prompt has one clear job — no overload</li><li>You review and correct between steps</li><li>Analysis is built on real extracted facts</li><li>Final output is specific because inputs were specific</li><li>You stay in control of the entire process</li></ul></div>
+</div>
+<div class="slabel">The three-step pattern — works for almost any complex task</div>
+<div class="flow">
+<div class="fstep"><div class="fnum" style="background:#0D9488">1</div><div class="fbody"><div class="ftit" style="color:#0D9488">Extract</div><div class="fdesc">Ask only: what are the facts? No interpretation. No analysis. Just the raw signals from the data, document, or situation. This is the foundation — get it right first.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#B45309">2</div><div class="fbody"><div class="ftit" style="color:#B45309">Analyse</div><div class="fdesc">Using the facts from Step 1: what do they mean? Why did these patterns happen? What connections exist? This is where you add Chain of Thought. AI now has real material to reason about.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#5b4fc7">3</div><div class="fbody"><div class="ftit" style="color:#5b4fc7">Produce</div><div class="fdesc">Using both the facts and the analysis: write the final deliverable. Specify format, audience, word count. The output is now built on a real foundation — not pattern-matched assumptions.</div></div></div>
+</div>
+<div class="notebox"><span>🍽️</span><span><strong>The chef analogy:</strong> A tasting menu does not arrive as one plate. Each course sets up the next. Complex analysis works the same way — each prompt earns the right to the next one.</span></div>`,
+
+'4-1': `
+<div class="slabel">The 3-step pipeline in action — weekly performance report</div>
+${pb('Prompt 1 — Extract (run this first)',`Below is this week's performance data: [PASTE YOUR DATA]
+
+Your only job: extract the factual signals.
+— What changed week over week (in absolute and percentage terms)?
+— What is performing above target, below target, or at target?
+— Are there any anomalies, outliers, or unexpected patterns?
+
+List only facts. No interpretation. No analysis. Format as a numbered list. If the data is insufficient to determine something, say so.`,'chain','p')}
+
+${pb('Prompt 2 — Analyse (paste Prompt 1 output above this)',`Using the factual signals identified above, now analyse the patterns.
+
+For each major signal: what most likely caused it? Think step by step. Consider at least 2 alternative explanations for each significant change. Flag where you are making assumptions due to limited data.
+
+Do not write a report. Do not produce a final output yet. Only reason through the causes and connections.`,'chain','p')}
+
+${pb('Prompt 3 — Produce (paste Prompts 1 + 2 outputs above this)',`Using the data extracted and the analysis above, write a weekly performance summary for [AUDIENCE — e.g. the sales leadership team / the executive committee].
+
+Format: Executive Summary (2 sentences) + Key Findings (3 bullets with specific numbers) + Root Cause Insights (2 bullets) + Action Points (3 bullets with named owners and due dates).
+
+Constraints: Under 280 words. Confident and specific — no vague language. No findings that aren't supported by the data. Use exact numbers from the extraction.`,'chain','p')}
+
+<div class="notebox"><span>🔗</span><span><strong>Important:</strong> Run each prompt in the same conversation thread. That way AI retains context automatically. Never start a new chat between chained prompts — you'll lose the accumulated context.</span></div>`,
+
+'4-2': `
+<div class="slabel">The most common prompt chaining mistakes</div>
+<div class="flow">
+<div class="fstep"><div class="fnum" style="background:#BE185D">!</div><div class="fbody"><div class="ftit">Skipping the Extract step</div><div class="fdesc">Going straight to "Analyse this data" without extracting first. AI skips past the facts and pattern-matches to what an analysis "should look like". Output sounds good but isn't grounded in your specific data.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#BE185D">!</div><div class="fbody"><div class="ftit">Starting a new chat between steps</div><div class="fdesc">Each new chat wipes the context. If you start fresh for Prompt 2, AI doesn't have the Prompt 1 output. Stay in the same conversation — that's the chain.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#BE185D">!</div><div class="fbody"><div class="ftit">Asking too many things in one step</div><div class="fdesc">"Extract the facts AND analyse the patterns AND write the summary" is still a mega-prompt disguised as chaining. Each step must have one job — no exceptions.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#BE185D">!</div><div class="fbody"><div class="ftit">Not reviewing between steps</div><div class="fdesc">The power of chaining is that you can course-correct between prompts. If the extraction missed something, add it before running Step 2. Review between every step — don't just forward the output blindly.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#BE185D">!</div><div class="fbody"><div class="ftit">Using chaining when you don't need it</div><div class="fdesc">Prompt chaining is for genuinely complex, multi-step tasks. A professional email or a simple summary doesn't need three prompts. Use RCTFC and be done in one. Reserve chaining for work that actually warrants it.</div></div></div>
+</div>`,
+
+'4-3': `
+<div class="slabel">Prompt chains — ready to run</div>
+${pb('Chain: Competitive analysis (Step 1 of 2 — Extract)',`Below is information about our competitor: [PASTE CONTENT — website copy, press releases, job listings, product announcements, pricing page, etc.]
+
+Extract only observable facts:
+— What products or services do they offer?
+— What pricing model do they appear to use?
+— What market segments are they targeting?
+— What claims do they make about their differentiation?
+— Any notable recent moves (launches, partnerships, hires)?
+
+List only what is explicitly stated or clearly implied. Do not interpret, evaluate, or compare yet.`,'chain','p')}
+
+${pb('Chain: Competitive analysis (Step 2 of 2 — Produce)',`Using the competitive facts extracted above, produce a competitive intelligence brief for our [PRODUCT/SERVICE AREA] team.
+
+Format:
+— Competitor Overview (3 sentences)
+— Their Apparent Strategy (2 bullets)
+— Where They Are Stronger Than Us (2 bullets — be honest)
+— Where We Have the Advantage (2 bullets)
+— Recommended Response (1 action for our team in the next 30 days)
+
+Constraints: Evidence-based only — reference specific facts from the extraction. Under 300 words. No generic observations. Include one specific implication for how we should adjust our messaging or approach.`,'chain','p')}
+
+${pb('Chain: Document analysis (Step 1 — Extract key points)',`Here is a [DOCUMENT TYPE — contract, report, research paper, policy, proposal]: [PASTE DOCUMENT]
+
+Extract the following without interpretation:
+— Main purpose or objective of this document
+— Key commitments, obligations, or requirements mentioned
+— Dates and deadlines referenced
+— Any conditions, exceptions, or caveats
+— Terms or definitions that need attention
+
+Number each finding. Flag anything ambiguous with [UNCLEAR].`,'chain','p')}`,
+
+/* ──── S5: Meta Prompting ──── */
+'5-0': `
+<div class="hero"><h2>When you do not know how to ask, ask the model how to ask.</h2><p>Meta prompting is for unfamiliar territory. You give the goal in plain language; the model returns a structured prompt. You edit the placeholders and run it — usually better than a first draft written from a blank box.</p></div>
+<div class="slabel">What meta prompting gives you</div>
+<div class="g3">
+<div class="card ci"><div class="ctit" style="font-size:12px">🎯 A better starting structure</div><div class="cbody">AI knows what a well-structured prompt for this task type looks like. It will include parts you didn't think of — the role, the constraints, the format — automatically.</div></div>
+<div class="card ca"><div class="ctit" style="font-size:12px">📚 Domain vocabulary</div><div class="cbody">When you're in an unfamiliar domain, you don't know the right terms to use. The AI-written prompt uses the language that gets better results in that specific context.</div></div>
+<div class="card cg"><div class="ctit" style="font-size:12px">📈 A learning tool</div><div class="cbody">Read what AI wrote. The structure it chose becomes yours. After 5 rounds of meta prompting, you'll write those prompts yourself — without asking for help.</div></div>
+</div>
+<div class="slabel">The meta ask formula</div>
+<div class="card ci" style="margin-bottom:11px"><div class="cbody" style="font-size:12px;line-height:1.7">
+<strong style="color:#0f1e36">"I need to [brief description of your goal].</strong> I don't know the best way to structure a prompt for this. <strong>Write me the best possible prompt for this task</strong> — include role, context, task, format, and constraints. Use [PLACEHOLDER] brackets for the parts I'll fill in. Make it copy-paste ready."
+</div></div>
+<div class="notebox"><span>🏠</span><span><strong>The analogy:</strong> Before buying a first home, you ask someone who already did it: “What should I ask the solicitor?” Meta prompting is that call. You do not need the right questions yet — you need to admit you do not have them.</span></div>`,
+
+'5-1': `
+<div class="slabel">The 4-step loop — how meta prompting works in practice</div>
+<div class="flow">
+<div class="fstep"><div class="fnum" style="background:#BE185D">1</div><div class="fbody"><div class="ftit">You have a task — but you're stuck on the ask</div><div class="fdesc">New task type, unfamiliar domain, or you've tried prompting it and the output isn't right. This is the starting condition for meta prompting.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#5b4fc7">2</div><div class="fbody"><div class="ftit">Ask AI to write the prompt</div><div class="fdesc">Use the meta ask formula. Give AI your goal in plain language. Ask for a structured prompt with [PLACEHOLDER] fields. Specify that you want RCTFC covered.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#B45309">3</div><div class="fbody"><div class="ftit">Read, edit, personalise</div><div class="fdesc">Read the AI-generated prompt carefully. Fill in the [PLACEHOLDER] fields with your specific context. Remove what doesn't apply. Add nuance AI couldn't know about your situation.</div></div></div>
+<div class="fstep"><div class="fnum" style="background:#059669">4</div><div class="fbody"><div class="ftit">Run the prompt → better output → learn</div><div class="fdesc">The output quality will be noticeably higher. Read what made the prompt structure good — that structure is now yours. Next time, you write it from scratch.</div></div></div>
+</div>
+<div class="slabel">Before and after: meta prompting in action</div>
+<div class="compare">
+<div class="card cr"><div class="ch"><span class="badge br">What you'd write</span></div><div class="cbody" style="font-style:italic;color:#9F1239">"Help me prepare for a difficult performance conversation with an underperforming team member."</div><div class="cbody" style="margin-top:6px">Vague. AI gives general advice. Not tailored to your situation, your role, or the specific conversation you're facing.</div></div>
+<div class="card cg"><div class="ch"><span class="badge bg">What AI writes (when you ask it to)</span></div><div class="cbody" style="font-size:11px;line-height:1.65;color:#065F46"><em>"Role: Act as an experienced HR business partner coaching a line manager before a difficult performance conversation.<br>Context: [EMPLOYEE ROLE], [DURATION OF ISSUE], [PREVIOUS CONVERSATIONS HAD Y/N], [MANAGER'S CONCERN ABOUT HOW IT WILL GO].<br>Task: Help me prepare for this conversation — what to say, how to open, how to handle defensiveness, and how to close with clarity.<br>Format: Preparation guide with 5 sections: Opening, Key Messages, Anticipated Reactions + Responses, What to Avoid, How to Close.<br>Constraints: Practical and specific. No HR jargon. Under 350 words."</em></div></div>
+</div>`,
+
+'5-2': `
+<div class="slabel">Meta prompts — ready to use</div>
+${pb('The universal meta ask',`I need to [DESCRIBE YOUR GOAL IN 1-2 SENTENCES — be specific about what the final output is].
+
+I'm not sure of the best way to structure a prompt for this task. Please write me the best possible prompt for this goal.
+
+The prompt should include:
+— A specific role for the AI to take
+— All context I'll need to fill in (use [PLACEHOLDER] brackets)
+— A clear task statement
+— The ideal output format
+— Key constraints (length, tone, what to avoid)
+
+Make it copy-paste ready so I can personalise the [BRACKETS] and run it immediately.`,'meta','r')}
+
+${pb('Meta prompt for a new document type',`I need to write a [DOCUMENT TYPE — e.g. board briefing, investment memo, capability statement, technical specification, stakeholder update] and I haven't written one before.
+
+Please write me an expert-quality prompt that will help me produce this document. The prompt should:
+— Define the role (what kind of expert should AI be?)
+— List all the context fields I'll need to fill in with [PLACEHOLDERS]
+— Specify the correct structure for this document type
+— Include appropriate tone and length constraints for this audience
+
+Also add a brief note (2 sentences) explaining what makes a strong [DOCUMENT TYPE] so I understand the standard I'm aiming for.`,'meta','r')}
+
+${pb('Meta prompt for a recurring task',`I need to [DESCRIBE RECURRING TASK — e.g. write weekly team updates, prepare monthly client reports, draft supplier communication after issues].
+
+I need a reusable prompt template for this task — one I can use every week/month by filling in the current details.
+
+Please write a prompt template that:
+— Sets the right role and context structure
+— Has [PLACEHOLDER] fields for everything that changes each time (dates, names, specific situations)
+— Has fixed fields for everything that stays the same (tone, format, audience, constraints)
+— Is clearly organised so it's fast to fill in each time
+
+Goal: I want to be able to use this prompt in under 3 minutes each time.`,'meta','r')}
+
+${pb('Meta prompt for a difficult conversation',`I need to [DESCRIBE DIFFICULT COMMUNICATION SITUATION — e.g. deliver disappointing news, push back on a request from a senior stakeholder, address performance issues, decline a request professionally].
+
+Please write me the best prompt that will help me prepare for and/or draft this communication.
+
+The prompt should be designed to produce practical, specific output — not generic advice. Include all [PLACEHOLDERS] I'll need to fill in about the specific person, context, and stakes.`,'meta','r')}`,
+
+/* ──── S6: Industry Prompt Library ──── */
+'6-0': `
+<div class="slabel">Business &amp; Strategy — complete prompts, ready to run</div>
+${pb('Executive Decision Brief',`Role: Act as a strategic advisor who specialises in preparing executive-level decision documents.
+
+Context: I need to present a recommendation on [DECISION — describe clearly] to [STAKEHOLDER — role and seniority]. The meeting is on [DATE]. They value concise, evidence-based arguments. They dislike jargon and generic frameworks.
+
+Task: Write a one-page decision brief that outlines context, options, my recommendation, and the top risk if we get this wrong.
+
+Format: Four sections — Background (2 sentences) + Options Considered (2–3 options, each with one pro and one con) + Recommendation (1 paragraph) + Key Risk (1 sentence). Under 280 words.
+
+Constraints: No jargon. Recommendation must include one specific next action with a named owner. Be direct — no hedge language like "it could be argued that".`,'rctfc','')}
+
+${pb('Meeting Action Capture',`Role: Act as an executive assistant skilled at extracting decisions and actions from unstructured meeting notes.
+
+Context: Below are rough notes from a [MEETING TYPE — e.g. leadership sync, cross-functional review, client call] on [DATE] with attendees: [LIST NAMES AND ROLES].
+
+Task: Extract all decisions made, actions assigned, and open questions that still need resolution.
+
+Format: Three sections — Decisions Made (bulleted) + Action Items (table: Action | Owner | Due Date | Priority) + Open Questions (numbered list). Flag anything ambiguous with [UNCLEAR].
+
+Constraints: Extract only what is explicitly stated. Do not infer or add context. Language should be direct and scannable — not narrative.
+
+[PASTE MEETING NOTES BELOW]`,'rctfc','')}
+
+${pb('Stakeholder Communication — Difficult News',`Role: Act as a communications specialist writing professional leadership messages.
+
+Context: [SITUATION/EVENT] occurred on [DATE]. The stakeholder group is [AUDIENCE — who they are and how they'll likely react]. They have [HIGH/MEDIUM/LOW] awareness of the background.
+
+Task: Write a professional communication from [SENDER ROLE] to this stakeholder group addressing this situation.
+
+Format: Subject line + Opening (acknowledge situation, 1 sentence) + Context (what happened and why, 2 sentences) + What's being done (2 sentences) + Next steps (2 sentences) + Close. Under 200 words.
+
+Constraints: Confident but not dismissive. No corporate clichés. Direct and human tone. Do not minimise the issue — address it head-on.`,'rctfc','')}
+
+${pb('Strategic Options Analysis — with Chain of Thought',`Role: Act as a management consultant specialising in strategic decision-making.
+
+Context: We are deciding between [OPTION A — describe] and [OPTION B — describe] for [SITUATION]. Decision needs to be made by [DATE]. Relevant constraints: [LIST CONSTRAINTS — budget, timeline, resources, approvals needed].
+
+Task: Analyse both options and recommend one. Think step by step. Consider: financial impact, operational feasibility, stakeholder reaction, timeline, and risk exposure. Reason through each factor before concluding.
+
+Format: For each option — 3 pros, 3 cons, 1-line verdict. Then a final Recommendation paragraph (2–3 sentences) with one specific next action.
+
+Constraints: Quantify wherever possible. Flag assumptions explicitly. No vague statements. Under 400 words.`,'cot','a')}`,
+
+'6-1': `
+<div class="slabel">Marketing — complete prompts, ready to run</div>
+${pb('Campaign Copy Generator',`Role: Act as a senior B2B copywriter with experience in [INDUSTRY] marketing.
+
+Context: We are promoting [PRODUCT/SERVICE] to [TARGET AUDIENCE — job title, company size, industry]. The key value proposition is [SPECIFIC BENEFIT — not "saves time" but "reduces approval cycles from 5 days to same-day"]. Our brand tone is [PROFESSIONAL/CONVERSATIONAL/BOLD].
+
+Task: Write three headline variations and one 60-word body copy for a [CHANNEL — email, LinkedIn ad, landing page banner].
+
+Format: Three numbered headlines (max 10 words each) + one body copy block (60 words, ends with implied CTA).
+
+Constraints: No hyperbole. No buzzwords like "revolutionary", "game-changing", or "seamless". Each headline must include a specific outcome, not just a feature. Body copy must address one specific pain point.`,'rctfc','')}
+
+${pb('Content Repurposing — Few-Shot',`Repurpose the following source content for different formats. Here are three example conversions:
+
+Long article → LinkedIn post: Extract the single most counterintuitive insight. Open with a bold claim or provocative question. Keep under 180 words. End with a question that invites comment.
+
+Report finding → Email subject line: One sentence. Include a specific number or percentage. State the outcome clearly — not just the topic.
+
+Blog post → Slide headline: Max 8 words. Should work as a standalone statement — someone should understand the point without reading the slide.
+
+Source content: [PASTE YOUR CONTENT]
+Target format: [SPECIFY — LinkedIn post / email subject / slide headline / Twitter thread / executive summary / other]`,'few','t')}
+
+${pb('Customer Persona Builder — with Chain of Thought',`Role: Act as a market research analyst with experience developing buyer personas for B2B companies.
+
+Context: We sell [PRODUCT/SERVICE] to [GENERAL AUDIENCE DESCRIPTION]. I have gathered the following data about our buyers: [PASTE DATA — survey responses, interview notes, CRM characteristics, support ticket themes, sales call observations].
+
+Task: Develop our primary buyer persona. Think step by step — start with demographics, then goals, then pain points, then buying triggers, then objections, then preferred information channels. Reason through each dimension before summarising.
+
+Format: Named persona + One-paragraph profile + Table: Goals | Pain Points | Buying Triggers | Objections | Information Sources.
+
+Constraints: Only use what I've provided. Flag where assumptions were made. No invented data. Persona should feel like a real person, not a demographic category.`,'cot','a')}
+
+${pb('Social Media Calendar Brief',`Role: Act as a social media strategist with B2B content experience.
+
+Context: I need content for [PLATFORM — LinkedIn/Twitter/Instagram] for [TIMEFRAME — e.g. next 2 weeks / this month]. Our audience is [DESCRIPTION — job titles, interests, pain points]. Our primary goal is [AWARENESS/ENGAGEMENT/LEAD GENERATION].
+
+Task: Create a content brief for [NUMBER] posts. Topics to cover: [LIST 3–5 THEMES].
+
+Format: Table — Post # | Theme | Post Type (thought leadership/case study/tip/question/behind the scenes) | Hook (first line) | Key Message (1 sentence) | Call to Action.
+
+Constraints: Each hook must create curiosity or challenge an assumption. No generic tips. At least [NUMBER] posts must reference a specific stat or real example.`,'rctfc','')}`,
+
+'6-2': `
+<div class="slabel">HR &amp; People — complete prompts, ready to run</div>
+${pb('Job Description Writer',`Role: Act as a senior HR business partner with experience writing compelling, inclusive job descriptions.
+
+Context: We are hiring a [JOB TITLE] in [DEPARTMENT/TEAM]. This role reports to [MANAGER ROLE]. Key responsibilities: [LIST 3–5]. Ideal profile: [DESCRIBE — experience level, must-have skills, working style]. Our culture in 3 words: [WORDS].
+
+Task: Write a complete, compelling job description for this role.
+
+Format: Role summary (2 sentences) + Why this role matters (2 sentences) + Key Responsibilities (6 bullets, outcome-focused) + Required Qualifications (5 bullets) + Nice to Have (3 bullets) + About Us (2 sentences).
+
+Constraints: Inclusive language throughout — avoid gendered words, unnecessary degree requirements, and exclusionary phrases. Responsibilities must describe outcomes, not just activities. No jargon.`,'rctfc','')}
+
+${pb('Performance Review Summary',`Role: Act as an HR specialist supporting formal performance review documentation.
+
+Context: Below are my notes from a performance review conversation with [EMPLOYEE ROLE] for the period [DATES]. Key themes discussed: [BRIEFLY LIST — what went well, what needs development, any significant incidents, goals we discussed].
+
+Task: Write a structured performance summary suitable for the employee's formal review record. This will be seen by HR and potentially the employee.
+
+Format: Achievements (3 specific bullets with evidence) + Development Areas (2 bullets with concrete examples, not vague criticism) + Agreed Goals for Next Period (3 bullets with success metrics) + Overall Rating Rationale (1 paragraph).
+
+Constraints: Specific and evidence-based throughout. No vague praise ("great team player") or vague criticism ("needs to improve"). Professional, fair, and objective tone. Under 350 words.
+
+[PASTE YOUR NOTES BELOW]`,'rctfc','')}
+
+${pb('Interview Question Generator — with Chain of Thought',`Role: Act as a talent acquisition specialist with experience in competency-based interviewing.
+
+Context: We are interviewing for [JOB TITLE]. The three most critical competencies for success in this role are: [COMPETENCY 1], [COMPETENCY 2], [COMPETENCY 3].
+
+Task: Generate structured interview questions for each competency. Think step by step — for each competency, first define what excellent performance looks like in this specific role, then design a behavioural question that would surface evidence of it, then design a follow-up probe that goes deeper.
+
+Format: For each competency — Excellence Definition (1 sentence) + Primary Question + Follow-Up Probe.
+
+Constraints: All primary questions must be behavioural ("Tell me about a time when..."). No hypothetical questions ("What would you do if..."). Follow-up probes must dig into specific actions taken, not just intentions.`,'cot','a')}
+
+${pb('Policy Simplifier — Few-Shot',`Simplify the following HR policy text into plain language that any employee can understand. Here are two examples:
+
+Original: "Annual leave entitlement must be formally requested and approved by the immediate line manager no fewer than five (5) working days prior to the commencement of the intended leave period."
+Simplified: "Book leave at least 5 working days before your start date. Your manager must approve it first."
+
+Original: "Expense claims submitted more than thirty (30) calendar days after the transaction date will not be reimbursed without written authorisation from the Finance Director."
+Simplified: "Submit expenses within 30 days of purchase. Claims older than 30 days need Finance Director approval in writing."
+
+Now simplify this policy text:
+[PASTE POLICY TEXT]
+
+Guidelines: Keep every rule intact — simplify the language, not the meaning. Maximum 2 sentences per clause. Use "you" not "the employee".`,'few','t')}`,
+
+'6-3': `
+<div class="slabel">Finance &amp; Data — complete prompts, ready to run</div>
+${pb('Variance Analysis Narrative',`Role: Act as a financial analyst writing for non-financial senior stakeholders who need to understand the story behind the numbers.
+
+Context: Below is budget vs actual performance data for [PERIOD]. The primary audience is [LEADERSHIP LEVEL — e.g. the Executive Committee / Board / Department Heads]. They are not comfortable with raw data and need context, not just numbers.
+
+Task: Write a variance analysis narrative that explains what happened, why it happened, and what the implications are for the remainder of [PERIOD/YEAR].
+
+Format: Executive Summary (2 sentences — the headline) + Top 3 Variances Explained (one paragraph each: what, cause, implication) + Outlook (1 paragraph with forward-looking assessment).
+
+Constraints: No abbreviations without explanation. Quantify every variance in both absolute (£/$) and percentage terms. Flag where data is estimated or incomplete. Under 400 words. Plain language — no finance jargon.
+
+[PASTE VARIANCE DATA BELOW]`,'rctfc','')}
+
+${pb('Budget Reforecast — Extract Step (run first)',`Below is our budget vs actual performance data for [PERIOD]: [PASTE DATA]
+
+Your only job: extract the factual signals.
+— Which lines are significantly over or under budget (define "significant" as >5% or >[AMOUNT])?
+— What is the variance for each in absolute terms and as a percentage of budget?
+— Are there any lines that have changed direction compared to prior period?
+— Are there any lines approaching or exceeding their full-year budget allocation already?
+
+List findings as numbered facts. No interpretation. No narrative. Just the signals.`,'chain','p')}
+
+${pb('Budget Reforecast — Analyse Step (paste Step 1 output first)',`Using the variance signals identified above, now analyse the root causes and categorise each.
+
+For each major variance, assess: Is this a timing difference (the cost/revenue will arrive in a later period)? A volume or rate change (more/less activity than planned)? A forecasting error (the budget assumption was wrong)? Or a structural change (the business reality has fundamentally changed)?
+
+Think step by step. Flag where you are making assumptions due to data limitations. Be direct — don't hedge.
+
+This analysis will form the basis of the reforecast narrative and management commentary.`,'chain','p')}
+
+${pb('Cash Flow Risk Summary',`Role: Act as a treasury analyst reviewing near-term liquidity exposure.
+
+Context: Here is our cash flow forecast for [TIMEFRAME]: [PASTE DATA OR DESCRIBE KEY LINES]. Our current working capital facility limit is [AMOUNT]. Payment terms with key suppliers are [TERMS]. Our largest receivables are due from [CUSTOMER(S)] on [DATE(S)].
+
+Task: Identify the top 3 liquidity risks in this period and recommend one mitigation action for each.
+
+Format: Risk summary table — Risk | Severity (High/Med/Low) | Timing | Mitigation Action | Recommended Owner. Then a 2-sentence summary of overall liquidity position.
+
+Constraints: Specific numbers only. No generic risks. Each mitigation must be actionable in the next 10 working days. Flag any assumptions about data quality.`,'rctfc','')}`,
+
+'6-4': `
+<div class="slabel">Customer Support — complete prompts, ready to run</div>
+${pb('Professional Response Generator',`Role: Act as a senior customer experience specialist with expertise in tone, de-escalation, and resolution.
+
+Context: A customer has contacted us regarding [ISSUE — describe specifically]. Their emotional state: [FRUSTRATED/CONFUSED/UPSET/ESCALATING]. The actual situation: [WHAT HAPPENED — your understanding of the cause]. Our policy on this: [STATE RELEVANT POLICY]. Resolution available: [WHAT WE CAN DO].
+
+Task: Write a professional, empathetic response that addresses the customer's concern and moves toward resolution.
+
+Format: Opening acknowledgment (1 sentence, human not corporate) + Situation explanation (2 sentences) + What we are doing / next step (2 sentences) + Closing with clear next action (1 sentence). Under 130 words.
+
+Constraints: No defensive language. No phrases like "we apologise for any inconvenience caused" or "as per our policy". Sound like a real person who genuinely wants to help. Be specific about timing and next steps.`,'rctfc','')}
+
+${pb('FAQ Generator — Few-Shot',`Convert the following customer queries into polished FAQ entries in the format shown. Two examples:
+
+Query: "How do I cancel my subscription?"
+FAQ Entry:
+Q: How do I cancel my subscription?
+A: You can cancel anytime from Settings → Account → Cancel Subscription. Your access continues until the end of the current billing period, and no cancellation fees apply.
+
+Query: "I was charged but didn't get a receipt."
+FAQ Entry:
+Q: I was charged but haven't received a receipt — what should I do?
+A: Receipts are sent automatically to your registered email within 10 minutes of a transaction. Check your spam folder first. If it's not there, contact us at [EMAIL] with the date and amount and we'll resend it.
+
+Now convert these queries into FAQ entries using the same format: [PASTE YOUR LIST OF QUERIES]`,'few','t')}
+
+${pb('Escalation Brief — with Chain of Thought',`Role: Act as a senior customer success manager preparing an internal escalation for leadership review.
+
+Context: Customer [NAME or ID] has an open issue regarding [ISSUE — describe] that has been unresolved for [DURATION]. Previous resolution attempts: [LIST WHAT WAS TRIED AND WHEN]. Customer tier / commercial value: [ARR / TIER / RELATIONSHIP DURATION].
+
+Task: Write a structured escalation brief. Think step by step — first summarise the issue objectively, then assess the most likely root cause, then quantify the commercial and relationship risk of continued non-resolution, then recommend the specific escalation action and owner.
+
+Format: Issue Summary (2 sentences) + Root Cause Assessment (2–3 sentences) + Risk if Unresolved (1 sentence with commercial impact if known) + Recommended Action (1 sentence with owner and timeline).
+
+Constraints: No blame language. Objective and factual throughout. Under 200 words.`,'cot','a')}
+
+${pb('Post-Resolution Follow-Up Email',`Role: Act as a customer success specialist maintaining a positive customer relationship after a resolved support case.
+
+Context: Customer [NAME] contacted us on [DATE] regarding [ISSUE — brief description]. The issue was resolved by [WHAT WAS DONE] on [RESOLUTION DATE]. This is the first contact since resolution.
+
+Task: Write a warm follow-up email to check the issue is fully resolved and offer a next step.
+
+Format: Subject line + 3 short paragraphs + sign-off. Under 120 words.
+
+Constraints: Warm but professional — not overly effusive. Reference their specific original issue (not a generic "your recent query"). Offer one clear next step. Do not ask for a review or rating in this email — this is a care touchpoint, not a survey request.`,'rctfc','')}`,
+
+'6-5': `
+<div class="slabel">Tech &amp; Product — complete prompts, ready to run</div>
+${pb('User Story Generator',`Role: Act as a senior product manager writing for an agile engineering team.
+
+Context: We are building a feature for [PRODUCT NAME]: [FEATURE DESCRIPTION — what it does and why]. The primary user is [USER TYPE — job title or description]. The business goal this feature supports: [GOAL]. Engineering context: [ANY TECHNICAL CONSTRAINTS OR PLATFORM NOTES].
+
+Task: Write 3 user stories with acceptance criteria for this feature.
+
+Format: For each story:
+— User story: "As a [user], I want [action] so that [benefit]."
+— Acceptance Criteria: 3–5 bullets in Given/When/Then format.
+
+Constraints: Stories must be independently testable and deployable. No technical implementation detail in the user story itself. Acceptance criteria must be unambiguous — a tester should be able to determine pass/fail with no further context.`,'rctfc','')}
+
+${pb('Bug Report Analyser — with Chain of Thought',`Role: Act as a senior QA engineer and systems analyst.
+
+Context: We received this bug report: [PASTE BUG REPORT]. The affected system/component: [SYSTEM]. User impact: [HOW MANY USERS AFFECTED, WHAT BEHAVIOUR THEY SEE]. Environment: [PRODUCTION/STAGING, VERSION NUMBER].
+
+Task: Analyse this bug. Think step by step — first reproduce the failure scenario in your reasoning, then identify the most likely root cause, then list 2 alternative root causes, then assess severity and user impact, then recommend the priority level and the most valuable first debugging step.
+
+Format: Root Cause (most likely) + 2 Alternatives + Severity Assessment (P1/P2/P3 with justification) + Recommended First Step.
+
+Constraints: Specific to this bug and system — no generic "check the logs" advice. Reference the particular component, flow, or state described in the report. Under 250 words.`,'cot','a')}
+
+${pb('Release Notes Writer',`Role: Act as a technical writer who translates engineering changes into clear customer-facing language.
+
+Context: The engineering team has completed the following changes for version [VERSION NUMBER]: [PASTE CHANGELOG OR COMMIT NOTES]. The audience is our end users — they are [TECHNICAL LEVEL — non-technical / moderately technical / developer-level].
+
+Task: Write customer-facing release notes for this version.
+
+Format: Version header + What's New (3–5 bullets — user benefit focused) + Improvements (2–3 bullets) + Bug Fixes (2–3 bullets) + Deprecations (if any, 1–2 bullets).
+
+Constraints: No engineering jargon in the customer-facing bullets. Each "What's New" bullet must state the user benefit first, not the technical implementation. The total should be scannable in 90 seconds. Under 250 words.`,'rctfc','')}
+
+${pb('Technical Requirements — Extract Step (Prompt Chain)',`Below are the notes from our requirements discussion: [PASTE MEETING NOTES, USER RESEARCH, OR BRIEF]
+
+Extract only the explicit requirements — do not interpret or add anything not directly stated.
+
+Categorise as you extract:
+— Functional requirements (what the system must do)
+— Non-functional requirements (performance, security, scalability standards)
+— Constraints (technology choices, integration requirements, compliance needs)
+— Assumptions made during discussion (things treated as true but not confirmed)
+
+Number each requirement. Flag anything ambiguous with [NEEDS CLARIFICATION]. This extraction will be reviewed before any further work proceeds.`,'chain','p')}`,
+
+  };
+  return M[k]||'<div class="card"><div class="cbody">Content loading...</div></div>';
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════ */
+function render(){
+  const s=SECTIONS[active];
+  const t=activeTabs[active];
+
+  // Sidebar
+  document.getElementById('nav').innerHTML=SECTIONS.map((sec,i)=>`
+    <button class="nb${i===active?' active':''}" onclick="navigate(${i})">
+      <span class="nem">${sec.emoji}</span>
+      <div class="ntxt"><div class="ntit">${sec.title}</div><div class="nsub">${sec.sub}</div></div>
+    </button>`).join('');
+
+  // Top bar
+  document.getElementById('sec-title').textContent=s.title;
+  document.getElementById('sec-sub').textContent=s.sub;
+
+  // Tab dots
+  document.getElementById('tab-dots').innerHTML=s.tabs.map((_,i)=>
+    `<button class="tdot${i===t?' active':''}" onclick="switchTab(${i})" title="Tab ${i+1}"></button>`).join('');
+
+  // Tab bar
+  document.getElementById('tabbar').innerHTML=s.tabs.map((tab,i)=>
+    `<button class="tbtn${i===t?' active':''}" onclick="switchTab(${i})">${tab}</button>`).join('');
+
+  // Content
+  document.getElementById('content').innerHTML=c(active,t);
+  document.getElementById('content').scrollTop=0;
+}
+
+function navigate(i){ active=i; render(); }
+function switchTab(i){ activeTabs[active]=i; render(); }
+
+/* Init */
+render();
+</script>
+</body>
+</html>
