@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" data-page="claude-ai-series">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/assets/theme-switcher.js"></script>
+<title>Claude &amp; AI, Explained — A 7-Part Series · Mayank Chugh</title>
+<meta name="description" content="Seven interactive guides — APIs, AI economics, MCP, RAG, multi-agent systems, open-source models, and production readiness — by Mayank Chugh, Senior Enterprise Architect and AI Engineer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1e36; --navy2:#1a2f4e; --blue:#1d6fa4;
+  --gold:#e8a020; --gold2:#f0c060;
+  --paper:#f4f6f9; --paper-2:#ffffff; --paper-3:#eef2f6;
+  --ink:#0f1e36; --muted:#5a6a7e; --border:#dde3ec;
+  --paprika:#e8a020; --herb:#1d6fa4; --brass:#c48a18; --plum:#1a2f4e; --peri:#1d6fa4;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:'DM Sans',ui-sans-serif,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.font-mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+
+#home-view{display:block;min-height:100vh}
+#viewer-view{display:none;height:100vh;flex-direction:column}
+#viewer-view.active{display:flex}
+#home-view.hidden{display:none}
+
+.hero-blob{position:absolute;border-radius:999px;filter:blur(60px);opacity:.18;pointer-events:none}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px}
+header.hero{position:relative;overflow:hidden;padding:88px 0 36px}
+.hub-link{display:inline-block;margin-bottom:14px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none}
+.hub-link:hover{color:var(--navy)}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);display:flex;align-items:center;gap:8px;margin-bottom:14px;
+}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:1px;background:currentColor;opacity:.7}
+h1.title{font-family:Syne,sans-serif;font-size:clamp(2.1rem,5vw,3.2rem);line-height:1.06;font-weight:800;margin:0 0 18px;letter-spacing:-.02em;color:var(--navy)}
+h1.title .accent{color:var(--gold)}
+p.lede{font-size:16px;line-height:1.65;color:var(--muted);max-width:640px;margin:0}
+
+.section-label{
+  font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.15em;
+  color:var(--muted);margin:36px 0 18px;
+}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding-bottom:48px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+
+.card{
+  text-align:left;border:1.5px solid var(--border);background:var(--paper-2);border-radius:16px;
+  padding:20px;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;
+  display:flex;gap:14px;align-items:flex-start;font:inherit;color:inherit;width:100%;
+}
+.card:hover{border-color:var(--card-color,var(--gold));transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,30,54,.08)}
+.card .emoji{font-size:22px;line-height:1;flex-shrink:0}
+.card .body{min-width:0}
+.card .card-title{font-family:Syne,sans-serif;font-weight:700;font-size:15px;margin-bottom:4px;color:var(--navy)}
+.card .card-desc{font-size:12.5px;color:var(--muted);line-height:1.5}
+.card .go{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--card-color,var(--gold));margin-top:8px;font-weight:700}
+
+footer.credentials{border-top:1px solid var(--border);padding:28px 0 72px}
+.cred-row{display:flex;align-items:center;gap:12px}
+.cred-avatar{
+  width:42px;height:42px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;font-family:Syne,sans-serif;
+  flex-shrink:0;
+}
+.cred-name{font-weight:700;font-size:14px}
+.cred-role{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+.cred-links{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.cred-links a{
+  min-width:30px;height:30px;padding:0 8px;border-radius:999px;border:1px solid var(--border);display:flex;align-items:center;
+  justify-content:center;text-decoration:none;color:var(--navy);font-size:11px;font-weight:700;transition:all .15s;
+}
+.cred-links a:hover{border-color:var(--gold);color:var(--navy);background:#fff8e8}
+
+.topbar{
+  display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);
+  background:var(--navy);flex-shrink:0;color:#fff;
+}
+.back-btn{
+  display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy);
+  background:var(--gold);border:none;border-radius:999px;padding:7px 14px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
+.back-btn:hover{background:var(--gold2)}
+.topbar .current-title{font-weight:700;font-size:13.5px;font-family:Syne,sans-serif}
+.topbar .current-num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--navy);
+  background:var(--gold);width:22px;height:22px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.topbar-spacer{flex:1}
+.topbar .home-all{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.55);text-decoration:none}
+.topbar .home-all:hover{color:var(--gold2)}
+iframe#doc-frame{flex:1;width:100%;border:none;background:#fff}
+
+[data-page="claude-ai-series"] .site-chrome{left:auto !important;right:16px;bottom:16px}
+
+[data-theme="dark"],[data-theme="midnight"],[data-theme="contrast"]{
+  --paper:#0a1220; --paper-2:#132036; --paper-3:#1a2f4e;
+  --ink:#eef2f7; --muted:#8aa0b8; --border:#243552;
+}
+[data-theme="dark"] h1.title,[data-theme="midnight"] h1.title,[data-theme="contrast"] h1.title{color:#f4f6f9}
+[data-theme="dark"] .card .card-title,[data-theme="midnight"] .card .card-title,[data-theme="contrast"] .card .card-title{color:#f4f6f9}
+[data-theme="dark"] .cred-links a,[data-theme="midnight"] .cred-links a,[data-theme="contrast"] .cred-links a{color:#eef2f7}
+</style>
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+
+<div id="home-view">
+  <div class="wrap">
+    <header class="hero">
+      <div class="hero-blob" style="width:280px;height:280px;background:#e8a020;top:-60px;right:-60px;"></div>
+      <div class="hero-blob" style="width:220px;height:220px;background:#1d6fa4;top:180px;left:-80px;"></div>
+      <div style="position:relative;">
+        <a class="hub-link" href="/pages/learning/index.html">← Learning Hub</a>
+        <div class="eyebrow">A 7-part interactive series</div>
+        <h1 class="title">Claude &amp; AI,<br><span class="accent">explained without the fog.</span></h1>
+        <p class="lede">
+          Seven standalone guides — APIs, model economics, MCP, RAG, multi-agent systems,
+          open-source models, and production readiness. Analogies, live demos, and
+          researched examples you can reuse in architecture conversations. Open any topic; it runs as its own page.
+        </p>
+      </div>
+    </header>
+
+    <div class="section-label">Choose a topic</div>
+    <div class="grid" id="card-grid"></div>
+
+    <footer class="credentials">
+      <div class="cred-row">
+        <div class="cred-avatar">MC</div>
+        <div>
+          <div class="cred-name">Mayank Chugh</div>
+          <div class="cred-role">Senior Enterprise Architect · AI Engineer · RAG &amp; Agentic AI</div>
+        </div>
+        <div class="cred-links">
+          <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener" title="LinkedIn">in</a>
+          <a href="https://youtube.com/@itaienthusiast" target="_blank" rel="noopener" title="YouTube">▶</a>
+          <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener" title="GitHub">GH</a>
+          <a href="https://medium.com/@mayankchugh.jobathk" target="_blank" rel="noopener" title="Medium">Md</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div id="viewer-view">
+  <div class="topbar">
+    <button class="back-btn" type="button" onclick="goHome()">← All Topics</button>
+    <span class="current-num" id="current-num">1</span>
+    <span class="current-title" id="current-title"></span>
+    <div class="topbar-spacer"></div>
+    <a class="home-all" href="#home">claude-ai-series</a>
+  </div>
+  <iframe id="doc-frame" title="topic content"></iframe>
+</div>
+
+<script>
+const TOPICS = [
+  { id: 1, key: 'apis', emoji: '🧑\u200d🍳', color: 'var(--gold)', title: 'APIs, Explained', desc: 'Waiter-and-kitchen fundamentals: requests, JSON, headers, auth, Postman, and calling a real API.' },
+  { id: 2, key: 'economics', emoji: '🍽️', color: 'var(--blue)', title: 'AI Web vs. API Economics', desc: 'Buffet vs à la carte: why a chat subscription cannot power an app, and what tokens actually cost at scale.' },
+  { id: 3, key: 'mcp', emoji: '🧰', color: 'var(--blue)', title: 'MCP, Explained', desc: 'The shared toolbox that lets Claude act — tools, resources, prompts, and a server you can write.' },
+  { id: 4, key: 'rag', emoji: '📚', color: 'var(--gold)', title: 'RAG, Explained', desc: 'Open-book AI: chunking, embeddings, retrieval, and Anthropic Contextual Retrieval — with the tradeoffs.' },
+  { id: 5, key: 'agents', emoji: '👨\u200d🍳', color: 'var(--navy2)', title: 'Multi-Agent Systems', desc: 'A kitchen brigade, not one overloaded cook: six architecture patterns from chains to supervisors.' },
+  { id: 6, key: 'opensource', emoji: '🍳', color: 'var(--blue)', title: 'Open Source AI', desc: 'Open vs closed, free vs paid, and how to run a model yourself with Ollama or LM Studio.' },
+  { id: 7, key: 'production', emoji: '🏪', color: 'var(--gold)', title: 'Production Readiness', desc: 'Guardrails, red-teaming, evals, human review, and uptime — the gap between a demo and a system.' },
+];
+
+const grid = document.getElementById('card-grid');
+TOPICS.forEach(t => {
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'card';
+  card.style.setProperty('--card-color', t.color);
+  card.onclick = () => openTopic(t.id);
+  card.innerHTML = `
+    <span class="emoji">${t.emoji}</span>
+    <div class="body">
+      <div class="card-title">${t.title}</div>
+      <div class="card-desc">${t.desc}</div>
+      <div class="go">open guide →</div>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+function openTopic(id) {
+  const t = TOPICS.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('home-view').classList.add('hidden');
+  const viewer = document.getElementById('viewer-view');
+  viewer.classList.add('active');
+  viewer.querySelector('.current-num').textContent = t.id;
+  viewer.querySelector('.current-title').textContent = t.title;
+  document.getElementById('doc-frame').src = t.key + '.html';
+  window.location.hash = '#' + t.key;
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  document.getElementById('viewer-view').classList.remove('active');
+  document.getElementById('home-view').classList.remove('hidden');
+  document.getElementById('doc-frame').src = 'about:blank';
+  window.location.hash = '#home';
+}
+
+function routeFromHash() {
+  const hash = window.location.hash.replace('#', '');
+  if (!hash || hash === 'home') { goHome(); return; }
+  const t = TOPICS.find(x => x.key === hash);
+  if (t) openTopic(t.id);
+  else goHome();
+}
+
+window.addEventListener('hashchange', routeFromHash);
+routeFromHash();
+</script>
+</body>
+</html>
