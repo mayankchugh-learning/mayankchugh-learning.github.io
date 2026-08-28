@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en" data-page="ma-pmi-it-governance">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/assets/theme-switcher.js"></script>
+  <title>M&amp;A PMI IT Governance — Cargo Analogies — Mayank Chugh</title>
+  <meta name="description" content="Eight visual modules for M&amp;A IT integration: due diligence, TSA, retain/replace/decommission, Day-1 vs target state, dependency waves, COBIT, ITIL, and AI governance — framed as merging two cargo terminals.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&amp;family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f1e36;
+      --navy2: #1a2f4e;
+      --blue: #1d6fa4;
+      --accent: #e8a020;
+      --accent2: #f0c060;
+      --bg: #0b1528;
+      --surface: #13233d;
+      --panel: #1a2f4e;
+      --ink: #e8edf4;
+      --muted: #8aa0b8;
+      --border: rgba(255,255,255,0.1);
+      --ok: #34d399;
+      --ok-bg: rgba(52,211,153,0.12);
+      --bad: #fb7185;
+      --bad-bg: rgba(251,113,133,0.12);
+      --warn: #f0c060;
+      --warn-bg: rgba(232,160,32,0.14);
+    }
+    [data-theme="light"] {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --panel: #eef3f8;
+      --ink: #1a1a2e;
+      --muted: #5a6a7e;
+      --border: #dde3ec;
+      --ok-bg: #ecfdf5;
+      --bad-bg: #fff1f2;
+      --warn-bg: #fff8e8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 70% 40% at 8% -8%, rgba(29,111,164,0.22), transparent),
+        radial-gradient(ellipse 50% 35% at 100% 0%, rgba(232,160,32,0.12), transparent),
+        var(--bg);
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    a { color: var(--accent2); }
+    .muted { color: var(--muted); }
+    .shell { width: min(1080px, calc(100% - 2rem)); margin: 0 auto; }
+    .topbar {
+      background: rgba(15,30,54,0.94);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky; top: 0; z-index: 40;
+      backdrop-filter: blur(12px);
+    }
+    .topbar-inner {
+      height: 56px; display: flex; align-items: center; gap: 10px; font-size: 0.85rem;
+    }
+    .topbar a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .topbar a:hover { color: var(--accent2); }
+    .topbar .sep { color: rgba(255,255,255,0.25); }
+    .topbar .current { color: #fff; font-weight: 600; }
+    .hero {
+      background: linear-gradient(145deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; padding: 48px 0 36px; position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: ""; position: absolute; right: -6%; top: -40%;
+      width: 420px; height: 420px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,160,32,0.2), transparent 70%);
+      pointer-events: none;
+    }
+    .hero .shell { position: relative; z-index: 1; }
+    .eyebrow {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent2); margin-bottom: 10px;
+    }
+    .hero h1 {
+      font-family: Syne, sans-serif; font-size: clamp(1.7rem, 4vw, 2.45rem);
+      font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 10px;
+    }
+    .hero .subtitle { color: rgba(255,255,255,0.72); max-width: 720px; margin-bottom: 16px; }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hero-pills span {
+      font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.2); padding: 5px 11px; border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+    }
+    .jump {
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0 8px;
+    }
+    .jump a {
+      text-decoration: none; font-size: 0.78rem; font-weight: 600;
+      color: var(--muted); background: var(--surface); border: 1px solid var(--border);
+      padding: 6px 11px; border-radius: 999px;
+    }
+    .jump a:hover, .jump a:focus-visible { color: var(--navy); background: var(--accent); border-color: var(--accent); }
+    .layout { padding: 8px 0 80px; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px 22px 24px; margin-bottom: 22px;
+      scroll-margin-top: 72px;
+    }
+    .panel-kicker {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+    }
+    .panel h2 {
+      font-family: Syne, sans-serif; font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+      font-weight: 800; margin-bottom: 8px; color: var(--ink);
+    }
+    .analogy {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: var(--warn-bg); border: 1px solid rgba(232,160,32,0.35);
+      border-radius: 10px; padding: 12px 14px; margin: 12px 0 16px; font-size: 0.92rem;
+    }
+    .analogy strong { color: var(--accent); display: block; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mod {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+    }
+    .mod h3 { font-family: Syne, sans-serif; font-size: 1rem; margin-bottom: 8px; }
+    .mod .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 8px; background: var(--blue); color: #fff;
+      font-family: Syne, sans-serif; font-weight: 800; font-size: 0.85rem; margin-bottom: 8px;
+    }
+    .mod.retain { border-color: rgba(52,211,153,0.45); }
+    .mod.replace { border-color: rgba(232,160,32,0.5); }
+    .mod.decom { border-color: rgba(251,113,133,0.45); }
+    .checks { list-style: none; margin-top: 8px; }
+    .checks li { font-size: 0.86rem; color: var(--muted); padding: 4px 0 4px 22px; position: relative; }
+    .checks li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-weight: 700; }
+    .checks.bad li::before { content: "✕"; color: var(--bad); }
+    .footer-line {
+      margin-top: 16px; padding: 12px 14px; border-left: 3px solid var(--accent);
+      background: var(--panel); border-radius: 0 10px 10px 0; font-weight: 600; font-size: 0.92rem;
+    }
+    .stages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stage {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px; cursor: pointer; text-align: left; color: inherit; font: inherit;
+      width: 100%;
+    }
+    .stage:hover { border-color: var(--blue); }
+    .stage.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(232,160,32,0.25); }
+    .stage .lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .stage h3 { font-family: Syne, sans-serif; font-size: 0.95rem; margin: 4px 0 6px; }
+    .stage p { font-size: 0.84rem; color: var(--muted); }
+    .table-wrap { overflow-x: auto; margin-top: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    td:first-child { font-weight: 700; color: var(--accent2); white-space: nowrap; }
+    .tree { margin-top: 14px; background: var(--panel); border-radius: 12px; padding: 16px; }
+    .tree h3 { font-family: Syne, sans-serif; font-size: 1rem; margin-bottom: 10px; }
+    .q { font-size: 1.05rem; font-weight: 600; margin-bottom: 12px; }
+    .tree-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tree-btns button {
+      border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+      padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer;
+    }
+    .tree-btns button:hover { border-color: var(--accent); }
+    .verdict {
+      display: none; margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-weight: 600;
+    }
+    .verdict.show { display: block; }
+    .verdict.ok { background: var(--ok-bg); color: var(--ok); }
+    .verdict.warn { background: var(--warn-bg); color: var(--warn); }
+    .verdict.bad { background: var(--bad-bg); color: var(--bad); }
+    .waves { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .wave {
+      background: var(--panel); border-radius: 12px; padding: 14px; border-top: 3px solid var(--blue);
+    }
+    .wave:nth-child(2) { border-top-color: var(--accent); }
+    .wave:nth-child(3) { border-top-color: #7dd3fc; }
+    .wave:nth-child(4) { border-top-color: #c4b5fd; }
+    .wave .n { font-family: Syne, sans-serif; font-weight: 800; color: var(--accent2); font-size: 0.8rem; }
+    .wave h3 { font-family: Syne, sans-serif; font-size: 0.92rem; margin: 4px 0 6px; }
+    .wave p { font-size: 0.82rem; color: var(--muted); }
+    .risk {
+      margin-top: 12px; background: var(--bad-bg); border: 1px solid rgba(251,113,133,0.35);
+      border-radius: 10px; padding: 12px 14px; font-size: 0.9rem;
+    }
+    .split .mod h3 span { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
+    .itil-flow {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0;
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .itil-flow span {
+      background: var(--panel); border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px;
+    }
+    .itil-flow .arrow { background: none; border: 0; color: var(--accent); padding: 0; }
+    .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .tier { background: var(--panel); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
+    .tier .lvl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .tier h3 { font-family: Syne, sans-serif; margin: 4px 0 8px; font-size: 1rem; }
+    .tier p { font-size: 0.86rem; color: var(--muted); }
+    .overlay { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .hash { margin-top: 10px; font-size: 0.75rem; color: var(--muted); }
+    .related { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
+    footer { text-align: center; padding: 8px 0 32px; color: var(--muted); font-size: 0.82rem; }
+    @media (max-width: 900px) {
+      .grid-3, .stages, .waves, .tiers, .overlay, .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="shell topbar-inner">
+      <a href="/pages/learning/index.html">← Learning Hub</a>
+      <span class="sep">/</span>
+      <a href="/pages/learning/index.html#enterprise-migration">Enterprise Migration</a>
+      <span class="sep">/</span>
+      <span class="current">M&amp;A PMI IT Governance</span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="shell">
+      <div class="eyebrow">Enterprise Architecture · TOGAF 9.2 · IT Governance</div>
+      <h1>M&amp;A IT integration — merging two cargo terminals</h1>
+      <p class="subtitle">Eight visual modules for post-merger IT work. Every idea is framed with aviation-cargo analogies from 13 years at Cathay Pacific Cargo Terminal and 20 years of enterprise architecture delivery.</p>
+      <p class="hero-pills">
+        <span>Mayank Chugh</span>
+        <span>Due Diligence → Day 1 → PMI</span>
+        <span>TSA · COBIT · ITIL · AI governance</span>
+      </p>
+    </div>
+  </header>
+
+  <div class="shell layout">
+    <nav class="jump" aria-label="Modules">
+      <a href="#three-gates">1. Three gates</a>
+      <a href="#tsa">2. TSA</a>
+      <a href="#rdd">3. Retain / replace</a>
+      <a href="#finish-lines">4. Finish lines</a>
+      <a href="#waves">5. Dependency waves</a>
+      <a href="#cobit">6. COBIT</a>
+      <a href="#itil">7. ITIL</a>
+      <a href="#ai-gov">8. AI governance</a>
+    </nav>
+
+    <article class="panel" id="three-gates">
+      <div class="panel-kicker">Module 01</div>
+      <h2>Three gates, one analogy: merging two cargo terminals</h2>
+      <p class="muted">Due Diligence finds the liabilities. Day 1 keeps the planes flying. Post-Merger Integration decides what survives long-term.</p>
+      <div class="grid-3" style="margin-top:16px">
+        <div class="mod">
+          <div class="num">1</div>
+          <h3>Due diligence = pre-merger cargo audit</h3>
+          <p>Before two airlines combine cargo operations, you audit both terminals.</p>
+          <ul class="checks">
+            <li>What warehouse systems do they run?</li>
+            <li>Are any licenses non-compliant?</li>
+            <li>Is there hidden technical debt nobody documented?</li>
+            <li>Customs and hazardous-cargo compliance risks?</li>
+            <li>AI-era: were models trained on data they had no rights to use?</li>
+          </ul>
+        </div>
+        <div class="mod">
+          <div class="num">2</div>
+          <h3>Day 1 = one combined ramp</h3>
+          <p>The terminals must operate as one from the moment the deal closes — not the final state, just the minimum to run flights together.</p>
+          <ul class="checks">
+            <li>Shared staff badges and access</li>
+            <li>One unified security perimeter</li>
+            <li>One set of operational directories</li>
+            <li>AI-era: push one combined acceptable-use policy, like a unified safety briefing</li>
+          </ul>
+        </div>
+        <div class="mod">
+          <div class="num">3</div>
+          <h3>PMI = one warehouse system</h3>
+          <p>Over months, decide which systems survive. That is application rationalization.</p>
+          <ul class="checks">
+            <li>Which WMS becomes the standard?</li>
+            <li>Which gets decommissioned?</li>
+            <li>Which tracking tool is kept temporarily under a TSA?</li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-line">Due Diligence finds the liabilities. Day 1 keeps the planes flying. Post-Merger Integration decides what survives long-term.</p>
+      <p class="hash">#EnterpriseArchitecture #MandA #ITGovernance #TOGAF #CloudMigration #PostMergerIntegration</p>
+    </article>
+
+    <article class="panel" id="tsa">
+      <div class="panel-kicker">Module 02</div>
+      <h2>TSA explained: borrowing the other airline’s ground handling</h2>
+      <div class="analogy">
+        <div><strong>Key idea</strong>A Transition Service Agreement is a temporary, paid arrangement where the acquired company keeps using the seller’s IT after close — because you cannot build a replacement overnight. You do not own it. You are renting continuity, on a countdown clock.</div>
+      </div>
+      <div class="stages" id="tsa-stages">
+        <button class="stage active" type="button" data-stage="1">
+          <div class="lbl">Stage 1</div>
+          <h3>Deal closes</h3>
+          <p>No cargo systems of your own yet. You run entirely on the seller’s borrowed equipment. TSA is in effect.</p>
+        </button>
+        <button class="stage" type="button" data-stage="2">
+          <div class="lbl">Stage 2 · 6–24 months</div>
+          <h3>Build in parallel</h3>
+          <p>You migrate warehouse, tracking, and billing while still paying for the borrowed setup as a safety net.</p>
+        </button>
+        <button class="stage" type="button" data-stage="3">
+          <div class="lbl">Stage 3</div>
+          <h3>TSA exit</h3>
+          <p>Your systems go live; borrowed equipment is handed back. Miss this deadline and you pay penalties.</p>
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Concept</th><th>Meaning</th><th>Cargo terminal example</th></tr></thead>
+          <tbody>
+            <tr><td>TSA</td><td>Temporary reliance on the seller’s systems</td><td>Renting the old airline’s cargo scanners</td></tr>
+            <tr><td>TSA exit</td><td>Deadline to be fully independent</td><td>Your own scanners installed and certified</td></tr>
+            <tr><td>TSA cost</td><td>Usually monthly, often above market rate</td><td>An airport gate lease at a premium</td></tr>
+            <tr><td>TSA risk</td><td>Missed exit = extra cost + business risk</td><td>Flights delayed if your systems are not ready</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-line">A TSA is not a solution — it is a clock. The real work is building your own systems before it runs out.</p>
+      <p class="hash">#MandA #TSA #EnterpriseArchitecture #ITGovernance #TOGAF #PostMergerIntegration</p>
+    </article>
+
+    <article class="panel" id="rdd">
+      <div class="panel-kicker">Module 03</div>
+      <h2>Retain, replace, decommission: sorting two warehouses into one</h2>
+      <p>After two cargo operations merge, every system from both sides needs a verdict.</p>
+      <div class="grid-3" style="margin-top:14px">
+        <div class="mod retain">
+          <h3>Retain</h3>
+          <p>Keep as-is, at least for now. Business-critical, low debt, clean licensing, replacing it is not worth the risk yet.</p>
+          <p style="margin-top:8px;color:var(--muted);font-size:0.88rem">Keep the newer cargo-scanning system. It already works — do not touch it during a fragile transition.</p>
+        </div>
+        <div class="mod replace">
+          <h3>Replace</h3>
+          <p>Neither system survives. Build or buy a unified one because both are outdated, or merged scale needs new capability.</p>
+          <p style="margin-top:8px;color:var(--muted);font-size:0.88rem">Neither airline’s paper customs process scales to combined volume — replace both with one digital customs system.</p>
+        </div>
+        <div class="mod decom">
+          <h3>Decommission</h3>
+          <p>Shut it down, migrate data and function elsewhere, retire it. Duplicate, end-of-life, or redundant post-merger.</p>
+          <p style="margin-top:8px;color:var(--muted);font-size:0.88rem">Close the duplicate cargo counter once one combined counter can handle both airlines’ volume.</p>
+        </div>
+      </div>
+      <div class="tree" id="rdd-tree">
+        <h3>Walk the decision tree</h3>
+        <p class="q" id="tree-q">Is the system business-critical?</p>
+        <div class="tree-btns" id="tree-btns">
+          <button type="button" data-next="dup">Yes</button>
+          <button type="button" data-verdict="decom">No</button>
+        </div>
+        <div class="verdict" id="tree-out"></div>
+      </div>
+      <p class="footer-line">This is application rationalization — the same judgment as choosing which migration target survives, applied across a merged IT estate.</p>
+      <p class="hash">#ApplicationRationalization #MandA #EnterpriseArchitecture #ITGovernance #TOGAF</p>
+    </article>
+
+    <article class="panel" id="finish-lines">
+      <div class="panel-kicker">Module 04</div>
+      <h2>Day-1, Day-2, target state: three different finish lines</h2>
+      <div class="analogy">
+        <div><strong>Key distinction</strong>Day-1 readiness is not the finished airline. It is the minimum bar to legally and operationally open the gates.</div>
+      </div>
+      <div class="stages">
+        <div class="stage active">
+          <div class="lbl">Day 1 · close the deal</div>
+          <h3>Bare minimum</h3>
+          <p>Combined badges work, one security perimeter, nothing catastrophic breaks. Systems underneath can still be two setups duct-taped together — planes still get loaded.</p>
+        </div>
+        <div class="stage">
+          <div class="lbl">Day 2 · weeks to months</div>
+          <h3>Stabilization</h3>
+          <p>Pain points fixed, TSA processes stabilized, teams start operating as one. Ground crew drop two labeling systems and adopt one interim standard.</p>
+        </div>
+        <div class="stage">
+          <div class="lbl">Target · 9–18+ months</div>
+          <h3>Destination architecture</h3>
+          <p>TSAs exited, retain/replace/decommission executed, one unified platform. No more renting the old partner’s equipment.</p>
+        </div>
+      </div>
+      <p class="footer-line">Confusing these three stages is the most common PMI mistake — chasing target-state quality on a Day-1 timeline is how deals fail.</p>
+      <p class="hash">#PostMergerIntegration #MandA #EnterpriseArchitecture #TargetOperatingModel #TOGAF</p>
+    </article>
+
+    <article class="panel" id="waves">
+      <div class="panel-kicker">Module 05</div>
+      <h2>Dependency mapping: why you cannot migrate everything at once</h2>
+      <div class="analogy">
+        <div><strong>Cargo analogy</strong>You could not cut over warehouse management before the customs interface was ready, and you could not switch billing before both were stable. Hong Kong and Singapore may both depend on the same regional customs gateway — so their cutover dates are linked whether you like it or not.</div>
+      </div>
+      <div class="waves">
+        <div class="wave"><div class="n">Wave 1</div><h3>Foundations</h3><p>Directories, network, security. Everything else waits on these.</p></div>
+        <div class="wave"><div class="n">Wave 2</div><h3>Market cores</h3><p>Market-specific systems with no cross-market dependencies. Can migrate in parallel, market by market.</p></div>
+        <div class="wave"><div class="n">Wave 3</div><h3>Shared platforms</h3><p>Systems that depend on a regional platform. Wait until that platform is stable across every market that uses it.</p></div>
+        <div class="wave"><div class="n">Wave 4</div><h3>Reporting</h3><p>Analytics layers that need all upstream systems already migrated and stable.</p></div>
+      </div>
+      <p class="risk"><strong>Risk flag.</strong> Migrating Wave 3 before the shared platform is ready does not just risk one market — it risks every market that depends on it. Sequencing, not individual system readiness, sets the real timeline.</p>
+      <p class="footer-line">Coordinating HK and offshore teams on one airline’s systems is the same discipline as sequencing across markets in a merger — just with more countries on the map.</p>
+      <p class="hash">#DependencyMapping #MandA #EnterpriseArchitecture #TOGAF #PostMergerIntegration</p>
+    </article>
+
+    <article class="panel" id="cobit">
+      <div class="panel-kicker">Module 06</div>
+      <h2>COBIT 2019 in one picture: the control tower vs the ramp</h2>
+      <p>COBIT splits IT decision-making into two layers that must not be confused.</p>
+      <div class="grid-2 split" style="margin-top:14px">
+        <div class="mod">
+          <h3>Governance <span>Evaluate · Direct · Monitor — the control tower</span></h3>
+          <p>Owned by the board and executives. Set direction, choose priorities, watch whether outcomes match intent. Air traffic control does not load cargo — it decides which flights get priority and whether operations are safe.</p>
+        </div>
+        <div class="mod">
+          <h3>Management <span>Plan · Build · Run · Monitor — ramp operations</span></h3>
+          <p>Owned by product, delivery, and engineering. Plan the work, build systems, run the day, monitor performance. The ramp crew does not set airline strategy — they execute within the direction the tower has set.</p>
+        </div>
+      </div>
+      <div class="analogy">
+        <div><strong>TOGAF plug-in</strong>Phase G (Implementation Governance) and Phase H (Architecture Change Management) are where an EA’s work plugs into COBIT’s governance layer — architecture decisions are evaluated and directed at governance, then executed through management.</div>
+      </div>
+      <p class="footer-line">Confusing these two layers is a classic failure — like the control tower trying to load cargo, or the ramp crew trying to set airspace policy.</p>
+      <p class="hash">#COBIT2019 #ITGovernance #TOGAF #EnterpriseArchitecture #MandA</p>
+    </article>
+
+    <article class="panel" id="itil">
+      <div class="panel-kicker">Module 07</div>
+      <h2>ITIL in plain terms: when something breaks at the cargo terminal</h2>
+      <div class="itil-flow" aria-hidden="true">
+        <span>Incident</span><span class="arrow">→</span>
+        <span>Restore service</span><span class="arrow">→</span>
+        <span>Recurring? Problem</span><span class="arrow">→</span>
+        <span>Root cause</span><span class="arrow">→</span>
+        <span>Change</span><span class="arrow">→</span>
+        <span>Safe deploy</span>
+      </div>
+      <div class="grid-3">
+        <div class="mod">
+          <h3>Incident — put the fire out now</h3>
+          <p>Restore service as fast as possible, even with a workaround. Tracking system down mid-shift: restart the server, switch to a manual backup, get flights loading. You do not need the why yet.</p>
+        </div>
+        <div class="mod">
+          <h3>Problem — why it keeps happening</h3>
+          <p>Find and eliminate the root cause. Same tracking system crashed three times this month — memory leak, bad update, or architecture flaw? Fix the cause, not the symptom.</p>
+        </div>
+        <div class="mod">
+          <h3>Change — control what gets modified</h3>
+          <p>Assessment, approval, scheduling. The fix is tested and deployed in a controlled window — not pushed live during peak cargo season with nobody signing off.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Process</th><th>Question it answers</th><th>Timescale</th></tr></thead>
+          <tbody>
+            <tr><td>Incident</td><td>How do we get it working again, right now?</td><td>Minutes to hours</td></tr>
+            <tr><td>Problem</td><td>Why does this keep happening?</td><td>Days to weeks</td></tr>
+            <tr><td>Change</td><td>How do we safely deploy the fix?</td><td>Scheduled, controlled</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footer-line">SLAs, RPOs, and RTOs — already familiar from enterprise architecture — are the metrics that govern all three processes.</p>
+      <p class="hash">#ITIL #ITGovernance #IncidentManagement #EnterpriseArchitecture #TOGAF</p>
+    </article>
+
+    <article class="panel" id="ai-gov">
+      <div class="panel-kicker">Module 08</div>
+      <h2>Three tiers of enterprise AI: from public tools to your own vault</h2>
+      <div class="tiers">
+        <div class="tier">
+          <div class="lvl">Tier 1</div>
+          <h3>Public AI — open tarmac</h3>
+          <p>ChatGPT web, public Claude, no enterprise wrapper. Proprietary code and client data must never be pasted in. A public airport lounge: useful, but you would never leave a client’s cargo manifest on the table.</p>
+        </div>
+        <div class="tier">
+          <div class="lvl">Tier 2</div>
+          <h3>Private enterprise AI — your own gate</h3>
+          <p>Corporate-wrapped models (Azure OpenAI, Bedrock) in an isolated cloud. Inputs never train the public model. Most day-to-day usage belongs here. A private airline gate: controlled access, still on shared airport infrastructure.</p>
+        </div>
+        <div class="tier">
+          <div class="lvl">Tier 3</div>
+          <h3>Custom / RAG — your warehouse, your rules</h3>
+          <p>Domain vector stores mirroring the same permission levels as your relational databases. Highest control, used for sensitive proprietary retrieval. Your own warehouse, with security clearances mirrored onto who can access which shelf.</p>
+        </div>
+      </div>
+      <div class="overlay">
+        <div class="mod">
+          <h3>AI FinOps</h3>
+          <p>One enterprise API gateway rate-limits and cost-attributes usage per department — like a single fuel account that tracks which flights burned which fuel.</p>
+        </div>
+        <div class="mod">
+          <h3>Shadow AI mitigation</h3>
+          <p>An open AI service catalog plus a 48-hour review gives teams a fast sanctioned path — so nobody sneaks in an unauthorized tool, the way an unsanctioned baggage cart bypassing security would.</p>
+        </div>
+      </div>
+      <p class="footer-line">Tier 2 and 3 (isolated environments, permissioned vector retrieval) are the same principles as self-directed RAG work, scaled to enterprise governance.</p>
+      <p class="hash">#AIGovernance #EnterpriseAI #RAG #GenerativeAI #AIFinOps #Azure #AWS</p>
+    </article>
+
+    <p class="related">Related: <a href="cct_migration_guide_v2.html">CCT Migration Guide v2</a> · <a href="/pages/learning/index.html#enterprise-migration">Enterprise Migration on the Learning Hub</a></p>
+    <footer>Mayank Chugh · Enterprise Architect · TOGAF 9.2 · IT Governance · M&amp;A Integration · <a href="https://mayankchugh-learning.github.io/">mayankchugh-learning.github.io</a></footer>
+  </div>
+
+  <script>
+    (function () {
+      var stages = document.querySelectorAll('#tsa-stages .stage');
+      stages.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          stages.forEach(function (s) { s.classList.remove('active'); });
+          btn.classList.add('active');
+        });
+      });
+
+      var q = document.getElementById('tree-q');
+      var btns = document.getElementById('tree-btns');
+      var out = document.getElementById('tree-out');
+      var steps = {
+        start: {
+          q: 'Is the system business-critical?',
+          yes: 'dup',
+          no: { cls: 'bad', text: 'DECOMMISSION — not critical. Shut it down and migrate the function elsewhere.' }
+        },
+        dup: {
+          q: 'Is it duplicated by the other side’s system?',
+          yes: { cls: 'bad', text: 'Pick the better one. RETAIN that; DECOMMISSION the duplicate.' },
+          no: 'fit'
+        },
+        fit: {
+          q: 'Is it fit for the combined scale?',
+          yes: { cls: 'ok', text: 'RETAIN — keep it as-is, at least through the fragile transition.' },
+          no: { cls: 'warn', text: 'REPLACE — neither inherited system survives. Build or buy a unified one.' }
+        }
+      };
+
+      function render(key) {
+        var step = steps[key];
+        out.className = 'verdict';
+        out.textContent = '';
+        q.textContent = step.q;
+        btns.innerHTML = '';
+        ['yes', 'no'].forEach(function (side) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = side === 'yes' ? 'Yes' : 'No';
+          b.addEventListener('click', function () {
+            var next = step[side];
+            if (typeof next === 'string') render(next);
+            else {
+              out.className = 'verdict show ' + next.cls;
+              out.textContent = next.text;
+              var again = document.createElement('button');
+              again.type = 'button';
+              again.textContent = 'Start over';
+              again.addEventListener('click', function () { render('start'); });
+              btns.innerHTML = '';
+              btns.appendChild(again);
+            }
+          });
+          btns.appendChild(b);
+        });
+      }
+      if (q && btns) render('start');
+    })();
+  </script>
+</body>
+</html>
