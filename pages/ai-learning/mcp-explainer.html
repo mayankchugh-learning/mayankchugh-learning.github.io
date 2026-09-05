@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en" data-page="mcp-explainer">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/assets/theme-switcher.js"></script>
+  <title>MCP Explainer — Interactive Simulator · Mayank Chugh</title>
+  <meta name="description" content="Interactive Model Context Protocol simulator: watch Host, Client, and Server exchange JSON-RPC — from junior developer to enterprise architect.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f1e36;
+      --navy2: #1a2f4e;
+      --blue: #1d6fa4;
+      --gold: #e8a020;
+      --gold2: #f0c060;
+      --paper: #f4f6f9;
+      --card: #ffffff;
+      --ink: #1a1a2e;
+      --muted: #5a6a7e;
+      --border: #dde3ec;
+      --host: #1d6fa4;
+      --client: #7c5cbf;
+      --server: #0d9488;
+      --tool: #e8a020;
+      --you: #c2410c;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+      --sans: "DM Sans", system-ui, sans-serif;
+      --display: Syne, sans-serif;
+      --shadow: 0 10px 36px rgba(15, 30, 54, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+    a { color: var(--blue); }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+    .hub-link {
+      display: inline-block; margin: 88px 0 14px; font-size: 13px; font-weight: 600;
+      color: var(--blue); text-decoration: none;
+    }
+    .hub-link:hover { color: var(--navy); }
+    .eyebrow {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--gold); display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    }
+    .eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; opacity: 0.7; }
+    h1 {
+      font-family: var(--display); font-size: clamp(2rem, 4.6vw, 3.15rem); line-height: 1.08;
+      font-weight: 800; letter-spacing: -0.02em; color: var(--navy); margin-bottom: 14px;
+    }
+    h1 span { color: var(--gold); }
+    .lede { font-size: 17px; color: var(--muted); max-width: 720px; }
+    .role-bar {
+      position: sticky; top: 0; z-index: 20; margin: 28px 0 18px;
+      background: rgba(244, 246, 249, 0.92); backdrop-filter: blur(10px);
+      border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between;
+    }
+    .role-label { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .role-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill, .chip, .btn {
+      border: 1px solid var(--border); background: var(--card); color: var(--ink);
+      border-radius: 999px; padding: 7px 13px; font: 600 13px var(--sans); cursor: pointer;
+    }
+    .pill.active, .chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .btn.primary { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+    .btn.ghost { background: transparent; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .sim {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+      box-shadow: var(--shadow); overflow: hidden; margin-bottom: 28px;
+    }
+    .sim-head { padding: 18px 18px 10px; border-bottom: 1px solid var(--border); }
+    .sim-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    #prompt {
+      flex: 1 1 280px; min-height: 44px; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; font: 15px var(--sans); background: var(--paper); color: var(--ink);
+    }
+    #prompt:focus { outline: 2px solid rgba(232, 160, 32, 0.45); border-color: var(--gold); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .chip { font-size: 12px; padding: 5px 10px; }
+    .transport { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+    .stage { padding: 18px; background: linear-gradient(180deg, #0f1e36 0%, #152844 100%); }
+    .nodes {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; align-items: stretch;
+    }
+    .node {
+      background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 12px 8px; text-align: center; color: #d7e2ef; min-height: 92px;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .node small { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; margin-bottom: 4px; }
+    .node strong { display: block; font-size: 13px; }
+    .node .hint { display: block; font-size: 11px; opacity: 0.65; margin-top: 4px; }
+    .node.active-you { border-color: #fb923c; box-shadow: 0 0 0 3px rgba(251,146,60,0.25); }
+    .node.active-host { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,0.25); }
+    .node.active-client { border-color: #c4b5fd; box-shadow: 0 0 0 3px rgba(196,181,253,0.25); }
+    .node.active-server { border-color: #5eead4; box-shadow: 0 0 0 3px rgba(94,234,212,0.25); }
+    .node.active-tool { border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251,191,36,0.25); }
+    .wires {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 6px 0 2px; height: 18px;
+    }
+    .wire { position: relative; }
+    .wire::after {
+      content: ""; position: absolute; left: 20%; right: -20%; top: 8px; height: 2px;
+      background: rgba(255,255,255,0.12);
+    }
+    .wire:last-child::after { display: none; }
+    .wire.on::after { background: var(--gold2); box-shadow: 0 0 10px var(--gold); }
+    .packet {
+      width: 10px; height: 10px; border-radius: 50%; background: var(--gold2);
+      position: absolute; top: 4px; left: 20%; opacity: 0;
+    }
+    .wire.on .packet { opacity: 1; animation: slide 0.7s linear; }
+    @keyframes slide { from { left: 18%; } to { left: 92%; } }
+    @media (prefers-reduced-motion: reduce) {
+      .wire.on .packet { animation: none; opacity: 1; left: 55%; }
+    }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; color: rgba(255,255,255,0.62); font-size: 11px; }
+    .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+    .panels { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 0; border-top: 1px solid var(--border); }
+    .panel { padding: 14px 16px; min-height: 280px; }
+    .panel + .panel { border-left: 1px solid var(--border); }
+    .panel h3 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    #trace {
+      font-family: var(--mono); font-size: 11.5px; line-height: 1.45; white-space: pre-wrap;
+      background: #0f1e36; color: #d7e2ef; border-radius: 10px; padding: 12px; min-height: 220px;
+      overflow: auto; max-height: 320px;
+    }
+    #trace .k { color: #7dd3fc; }
+    #trace .s { color: #86efac; }
+    #trace .n { color: #fde68a; }
+    #narrate { font-size: 14.5px; color: var(--ink); }
+    #narrate .who { font-family: var(--mono); font-size: 11px; color: var(--blue); margin-bottom: 6px; }
+    #answer {
+      margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #fff8e8;
+      border: 1px solid rgba(232,160,32,0.35); display: none;
+    }
+    #answer.show { display: block; }
+    .progress { display: flex; gap: 4px; padding: 0 16px 14px; flex-wrap: wrap; }
+    .dot { width: 22px; height: 6px; border-radius: 99px; background: var(--border); }
+    .dot.done { background: var(--gold); }
+    .dot.now { background: var(--navy); }
+    section.block { padding: 28px 0 8px; }
+    section.block h2 {
+      font-family: var(--display); font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+      color: var(--navy); margin: 0 0 10px;
+    }
+    .muted { color: var(--muted); }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+    }
+    .card h3 { font-size: 15px; margin-bottom: 6px; color: var(--navy); }
+    .card.clickable { cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+    .card.clickable:hover, .card.clickable.on { border-color: var(--gold); transform: translateY(-2px); }
+    .card .tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); }
+    .role-copy { display: none; }
+    body[data-role="junior"] .role-copy.junior,
+    body[data-role="mid"] .role-copy.mid,
+    body[data-role="architect"] .role-copy.architect { display: block; }
+    .steps { display: grid; gap: 8px; margin: 14px 0; }
+    .step {
+      display: grid; grid-template-columns: 42px 1fr; gap: 10px; align-items: start;
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+    }
+    .step b {
+      width: 34px; height: 34px; border-radius: 8px; background: var(--navy); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; font-family: var(--mono);
+    }
+    .code-tabs { display: flex; gap: 6px; margin: 14px 0 8px; flex-wrap: wrap; }
+    pre {
+      background: #0f1e36; color: #e8eef6; border-radius: 12px; padding: 14px 16px;
+      overflow: auto; font: 12.5px/1.55 var(--mono); margin: 0 0 12px;
+    }
+    .code-pane { display: none; }
+    .code-pane.on { display: block; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .learn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .learn-grid a {
+      display: block; text-decoration: none; color: inherit; background: var(--card);
+      border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+    }
+    .learn-grid a:hover { border-color: var(--gold); }
+    .learn-grid strong { display: block; color: var(--navy); margin-bottom: 4px; }
+    .learn-grid span { font-size: 13px; color: var(--muted); }
+    footer.page-end { padding: 36px 0 88px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 900px) {
+      .nodes, .wires { grid-template-columns: 1fr 1fr; }
+      .wires { display: none; }
+      .panels, .cards, .compare, .learn-grid { grid-template-columns: 1fr; }
+      .panel + .panel { border-left: none; border-top: 1px solid var(--border); }
+    }
+    [data-theme="dark"], [data-theme="midnight"], [data-theme="contrast"] {
+      --paper: #0a1220; --card: #132036; --ink: #eef2f7; --muted: #8aa0b8; --border: #243552;
+      --shadow: 0 10px 36px rgba(0,0,0,0.28);
+    }
+    [data-theme="dark"] h1, [data-theme="midnight"] h1, [data-theme="contrast"] h1,
+    [data-theme="dark"] h2, [data-theme="midnight"] h2, [data-theme="contrast"] h2,
+    [data-theme="dark"] .card h3, [data-theme="midnight"] .card h3, [data-theme="contrast"] .card h3,
+    [data-theme="dark"] .learn-grid strong, [data-theme="midnight"] .learn-grid strong, [data-theme="contrast"] .learn-grid strong {
+      color: #f4f6f9;
+    }
+    [data-theme="dark"] .role-bar, [data-theme="midnight"] .role-bar, [data-theme="contrast"] .role-bar {
+      background: rgba(10, 18, 32, 0.92);
+    }
+    [data-theme="dark"] #prompt, [data-theme="midnight"] #prompt, [data-theme="contrast"] #prompt { background: #0a1220; color: #eef2f7; }
+    [data-theme="dark"] #answer, [data-theme="midnight"] #answer, [data-theme="contrast"] #answer {
+      background: #2a210c; color: #f8e7b0;
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body data-role="junior">
+  <div class="wrap">
+    <a class="hub-link" href="/pages/learning/index.html">← Learning Hub</a>
+    <div class="eyebrow">Interactive protocol lab · Model Context Protocol</div>
+    <h1>MCP, visually<br><span>explained while it runs.</span></h1>
+    <p class="lede">
+      Same idea as the <a href="https://poloclub.github.io/transformer-explainer/" target="_blank" rel="noopener">Transformer Explainer</a>:
+      type a request, press run, and watch the Host, Client, and Server talk in JSON-RPC.
+      Flip the lens from junior developer to architect — the picture stays the same; the depth changes.
+    </p>
+
+    <div class="role-bar" role="group" aria-label="Explanation depth">
+      <span class="role-label">Read as</span>
+      <div class="role-pills">
+        <button type="button" class="pill active" data-role-btn="junior">Junior developer</button>
+        <button type="button" class="pill" data-role-btn="mid">Mid-level engineer</button>
+        <button type="button" class="pill" data-role-btn="architect">Senior architect</button>
+      </div>
+    </div>
+
+    <div class="sim" id="simulator">
+      <div class="sim-head">
+        <div class="sim-row">
+          <input id="prompt" value="What's the weather in Delhi?" aria-label="User prompt">
+          <button type="button" class="btn primary" id="runBtn">Run request</button>
+          <button type="button" class="btn" id="stepBtn">Step</button>
+          <button type="button" class="btn ghost" id="resetBtn">Reset</button>
+        </div>
+        <div class="chips" id="examples"></div>
+        <div class="transport">
+          Transport
+          <button type="button" class="pill active" data-transport="stdio">stdio (local)</button>
+          <button type="button" class="pill" data-transport="http">Streamable HTTP (remote)</button>
+          <span id="serverName">server: weather-mcp</span>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="nodes">
+          <div class="node" id="n-you"><small>Human</small><strong>You</strong><span class="hint">ask in English</span></div>
+          <div class="node" id="n-host"><small>Host</small><strong>Cursor / Claude</strong><span class="hint">owns UX + model</span></div>
+          <div class="node" id="n-client"><small>Client</small><strong>MCP Client</strong><span class="hint">1 connection</span></div>
+          <div class="node" id="n-server"><small>Server</small><strong>MCP Server</strong><span class="hint" id="serverHint">weather-mcp</span></div>
+          <div class="node" id="n-tool"><small>Primitive</small><strong id="primName">Tool</strong><span class="hint" id="primHint">weather_current</span></div>
+        </div>
+        <div class="wires" aria-hidden="true">
+          <div class="wire" id="w0"><span class="packet"></span></div>
+          <div class="wire" id="w1"><span class="packet"></span></div>
+          <div class="wire" id="w2"><span class="packet"></span></div>
+          <div class="wire" id="w3"><span class="packet"></span></div>
+          <div class="wire"></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#fb923c"></i>You</span>
+          <span><i style="background:#38bdf8"></i>Host</span>
+          <span><i style="background:#c4b5fd"></i>Client</span>
+          <span><i style="background:#5eead4"></i>Server</span>
+          <span><i style="background:#fbbf24"></i>Tool / resource / prompt</span>
+        </div>
+      </div>
+
+      <div class="progress" id="progress" aria-hidden="true"></div>
+      <div class="panels">
+        <div class="panel">
+          <h3>Live JSON-RPC</h3>
+          <div id="trace">Press Run request to start the handshake.</div>
+        </div>
+        <div class="panel">
+          <h3>What just happened</h3>
+          <div id="narrate">
+            <div class="who">Idle</div>
+            <p class="role-copy junior">Think USB-C for AI. One plug. Many tools. You ask in English; a server does the work; the host writes the answer.</p>
+            <p class="role-copy mid">MCP is JSON-RPC 2.0 between a host-owned client and a server. First they negotiate capabilities, then the client lists tools and calls one.</p>
+            <p class="role-copy architect">Host owns policy, sampling, and conversation state. Each client is isolated 1:1 with one server. Servers never see the full chat — only the arguments the host chooses to send.</p>
+          </div>
+          <div id="answer"></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="block" id="what">
+      <h2>What is MCP?</h2>
+      <p class="role-copy junior muted">
+        Before MCP, every AI app needed a custom integration for Gmail, Slack, your database, your files.
+        MCP is the shared plug. Write the server once; Claude Desktop, Claude Code, Cursor, and VS Code can all use it.
+      </p>
+      <p class="role-copy mid muted">
+        MCP is an open protocol (Anthropic, 2024; spec dated by version, currently <strong>2025-11-25</strong>) for exchanging
+        context and tools with an LLM app. It does <em>not</em> tell the host how to call the model. It only standardizes
+        how context arrives: tools, resources, and prompts over JSON-RPC.
+      </p>
+      <p class="role-copy architect muted">
+        Scope is deliberately narrow: a data layer (JSON-RPC methods, lifecycle, primitives) and a transport layer
+        (stdio or Streamable HTTP). Hosts compose many servers. Security boundary is the host — approval, redaction,
+        and sampling stay on the client side. See the official architecture at
+        <a href="https://modelcontextprotocol.io/docs/2025-11-25/learn/architecture" target="_blank" rel="noopener">modelcontextprotocol.io</a>.
+      </p>
+    </section>
+
+    <section class="block" id="architecture">
+      <h2>Three participants — click a box</h2>
+      <div class="cards" id="archCards">
+        <article class="card clickable on" data-arch="host">
+          <div class="tag">Host</div>
+          <h3>The AI application</h3>
+          <p class="muted">Cursor, Claude Code, Claude Desktop, VS Code. Creates one client per server. Talks to the LLM. Enforces “may I run this tool?”</p>
+        </article>
+        <article class="card clickable" data-arch="client">
+          <div class="tag">Client</div>
+          <h3>One socket, one server</h3>
+          <p class="muted">A connector inside the host. It negotiates the protocol version, lists primitives, and routes messages. It never shares memory with sibling clients.</p>
+        </article>
+        <article class="card clickable" data-arch="server">
+          <div class="tag">Server</div>
+          <h3>Focused capability</h3>
+          <p class="muted">Local process (stdio) or remote service (HTTP). Exposes tools, resources, prompts. Can also ask the host for sampling or user input.</p>
+        </article>
+      </div>
+      <div id="archDetail" class="card">
+        <p class="role-copy junior"><strong>Host.</strong> This is the app you see. You type here. It decides which server to ask, then shows you the answer.</p>
+        <p class="role-copy mid"><strong>Host.</strong> Instantiates N clients for N servers, merges tool schemas into one model tool list, and intercepts tool calls before they hit a server.</p>
+        <p class="role-copy architect"><strong>Host.</strong> Trust boundary and UX owner. Policy (allow-list, confirmation, PII filters) lives here. A compromised server should not read sibling-server traffic or the raw system prompt.</p>
+      </div>
+    </section>
+
+    <section class="block" id="layers">
+      <h2>Two layers, same messages</h2>
+      <div class="compare">
+        <article class="card">
+          <div class="tag">Transport</div>
+          <h3>How bytes move</h3>
+          <p class="muted"><strong>stdio</strong> — host launches a local process and talks on stdin/stdout. Fast, no network, one client.</p>
+          <p class="muted" style="margin-top:8px"><strong>Streamable HTTP</strong> — POST for requests, optional SSE for streams. Remote, multi-client, OAuth / bearer tokens.</p>
+        </article>
+        <article class="card">
+          <div class="tag">Data</div>
+          <h3>What the bytes mean</h3>
+          <p class="muted">JSON-RPC 2.0: requests have an <code>id</code>, notifications do not. Methods look like <code>initialize</code>, <code>tools/list</code>, <code>tools/call</code>, <code>resources/read</code>, <code>sampling/createMessage</code>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="block" id="handshake">
+      <h2>The handshake, then the work</h2>
+      <div class="steps">
+        <div class="step"><b>1</b><div><strong>initialize</strong> — versions + capabilities. If they cannot agree, hang up.</div></div>
+        <div class="step"><b>2</b><div><strong>notifications/initialized</strong> — client is ready. No <code>id</code>, no reply expected.</div></div>
+        <div class="step"><b>3</b><div><strong>tools/list</strong> (or resources/prompts) — discover schemas so the model can choose.</div></div>
+        <div class="step"><b>4</b><div><strong>tools/call</strong> — host sends arguments; server returns a <code>content</code> array.</div></div>
+        <div class="step"><b>5</b><div><strong>Model writes</strong> — the host, not the server, turns the tool result into the user’s answer.</div></div>
+      </div>
+    </section>
+
+    <section class="block" id="primitives">
+      <h2>Three server primitives</h2>
+      <div class="cards">
+        <article class="card">
+          <div class="tag">Tools</div>
+          <h3>Do something</h3>
+          <p class="muted">Functions with JSON Schema args. Weather, SQL, browser click. Model-initiated. Often needs user approval.</p>
+        </article>
+        <article class="card">
+          <div class="tag">Resources</div>
+          <h3>Read context</h3>
+          <p class="muted">URI-addressable data: <code>config://app</code>, <code>docs://runbook/{svc}</code>. Application-initiated. Usually read-only.</p>
+        </article>
+        <article class="card">
+          <div class="tag">Prompts</div>
+          <h3>Reuse a template</h3>
+          <p class="muted">Named message recipes users pick: “incident update”, “release note”. Not a tool call — a structured start.</p>
+        </article>
+      </div>
+      <p class="role-copy junior muted">Rule of thumb: tool = verb, resource = noun, prompt = recipe.</p>
+      <p class="role-copy mid muted">Clients also expose primitives the other way: <strong>sampling</strong> (server asks the host LLM), <strong>elicitation</strong> (server asks the user), <strong>roots</strong> (filesystem / URI bounds), <strong>logging</strong>.</p>
+      <p class="role-copy architect muted">Advertise only what you implement. <code>tools.listChanged</code> means you will send <code>notifications/tools/list_changed</code>. Sampling must stay host-gated — the server should never see an unredacted system prompt. Prefer small, composable servers over a god-server.</p>
+    </section>
+
+    <section class="block" id="code">
+      <h2>Same server, three altitudes</h2>
+      <p class="muted">One weather capability. Junior writes the function. Mid adds schema, a resource, and a prompt. Architect designs isolation, transport, and policy.</p>
+      <div class="code-tabs">
+        <button type="button" class="pill active" data-code="junior">Junior — 12 lines</button>
+        <button type="button" class="pill" data-code="mid">Mid — tools + resources</button>
+        <button type="button" class="pill" data-code="architect">Architect — compose + harden</button>
+      </div>
+      <div class="code-pane on" id="code-junior">
+<pre>from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("weather")
+
+@mcp.tool()
+def weather_current(location: str) -> str:
+    """Get the current weather for a city."""
+    return f"{location}: 32°C, clear, humidity 41%"
+
+if __name__ == "__main__":
+    mcp.run()  # stdio — Cursor / Claude Code spawn this process</pre>
+        <p class="muted">Docstring + type hints become the tool schema. You did not write JSON-RPC. The SDK did.</p>
+      </div>
+      <div class="code-pane" id="code-mid">
+<pre>from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("weather")
+
+@mcp.tool()
+def weather_current(location: str, units: str = "metric") -> str:
+    """Current conditions. units: metric | imperial."""
+    if units not in {"metric", "imperial"}:
+        raise ValueError("units must be metric or imperial")
+    temp = "32°C" if units == "metric" else "90°F"
+    return f"{location}: {temp}, clear"
+
+@mcp.resource("weather://stations")
+def stations() -> dict:
+    """Read-only list of stations the model can cite."""
+    return {"stations": ["VIDP Delhi", "VABB Mumbai", "VOBL Bengaluru"]}
+
+@mcp.prompt()
+def travel_brief(city: str) -> str:
+    """Reusable user-facing recipe."""
+    return f"Write a 4-line travel weather brief for {city}."
+
+if __name__ == "__main__":
+    mcp.run()</pre>
+        <p class="muted">Validate inputs. Keep resources read-only. Prompts are templates, not side effects.</p>
+      </div>
+      <div class="code-pane" id="code-architect">
+<pre># .mcp.json — host config, not server code
+{
+  "mcpServers": {
+    "weather": { "command": "uvx", "args": ["weather-mcp"] },
+    "docs":    { "type": "http", "url": "https://docs.example.com/mcp" }
+  }
+}
+
+# Architect checklist (this is the real work):
+# 1. One client per server — weather cannot see docs traffic.
+# 2. stdio for trusted local; Streamable HTTP + OAuth for remote.
+# 3. Host approval on any tool that writes or leaves the machine.
+# 4. Advertise only implemented capabilities (tools.listChanged, etc.).
+# 5. Sampling stays on the host: server asks, host redacts, user can deny.
+# 6. Least privilege: a file server gets a root, not the whole disk.
+# 7. Observe: log tool name + latency, never raw secrets.
+# 8. Prefer many small servers over one god-process.</pre>
+        <p class="muted">The protocol is the easy part. Isolation, approval, and blast radius are the architecture.</p>
+      </div>
+    </section>
+
+    <section class="block" id="learn">
+      <h2>Continue in this site</h2>
+      <p class="muted" style="margin-bottom:12px">The simulator is the map. These pages are the roads you already built.</p>
+      <div class="learn-grid">
+        <a href="/pages/ai-learning/claude-ai-series/index.html#mcp">
+          <strong>Claude &amp; AI, Explained — MCP chapter</strong>
+          <span>Shorter analogy-first guide in the 7-part series. Use this after the first run.</span>
+        </a>
+        <a href="/pages/ai-learning/claude_code_tutorial.html#s9">
+          <strong>Claude Code Tutorial · MCP servers</strong>
+          <span>stdio vs HTTP config, <code>.mcp.json</code>, Playwright / Tavily examples.</span>
+        </a>
+        <a href="https://mayankchugh-learning.github.io/claude-tutorial/" target="_blank" rel="noopener">
+          <strong>Learn Claude — full course</strong>
+          <span>15-module path: agentic workflows, MCP, skills, hooks, capstone.</span>
+        </a>
+        <a href="/pages/ai-agent-architectures.html">
+          <strong>AI Agent Architectures</strong>
+          <span>17 workflow patterns. MCP is how those agents reach tools without custom glue.</span>
+        </a>
+        <a href="/pages/python_agents_app/index.html">
+          <strong>Python agents — build the loop by hand</strong>
+          <span>Tool schemas and the react loop, then come back here to see the standard plug.</span>
+        </a>
+        <a href="/pages/learning/index.html#tooling-claude">
+          <strong>Learning Hub · Tooling &amp; Claude</strong>
+          <span>Home for this page, Claude Code, and the series.</span>
+        </a>
+      </div>
+    </section>
+
+    <footer class="page-end">
+      Interactive lab by Mayank Chugh · protocol facts aligned to
+      <a href="https://modelcontextprotocol.io/docs/2025-11-25/learn/architecture" target="_blank" rel="noopener">MCP architecture (2025-11-25)</a>
+      · visual format inspired by
+      <a href="https://poloclub.github.io/transformer-explainer/" target="_blank" rel="noopener">Polo Club Transformer Explainer</a>.
+      This page simulates JSON-RPC in the browser — it does not spawn a real MCP process.
+    </footer>
+  </div>
+
+<script>
+(function () {
+  var transport = "stdio";
+  var role = "junior";
+  var timer = null;
+  var stepIndex = -1;
+  var steps = [];
+  var running = false;
+
+  var CITIES = {
+    delhi: ["32°C", "clear", "41%"],
+    mumbai: ["30°C", "humid", "78%"],
+    bengaluru: ["26°C", "light rain", "69%"],
+    london: ["14°C", "overcast", "82%"],
+    tokyo: ["22°C", "sunny", "48%"],
+    singapore: ["31°C", "thunderstorms nearby", "80%"],
+    dubai: ["38°C", "hot and dry", "29%"],
+    "san francisco": ["17°C", "fog", "71%"]
+  };
+
+  var EXAMPLES = [
+    { label: "Weather in Delhi", text: "What's the weather in Delhi?" },
+    { label: "Read app config", text: "Read the app config resource" },
+    { label: "Look up Acme", text: "Look up account Acme Corp in the CRM" },
+    { label: "Draft a release note", text: "Use the release-note prompt for checkout-api" }
+  ];
+
+  var ARCH = {
+    host: {
+      junior: "<strong>Host.</strong> This is the app you see. You type here. It decides which server to ask, then shows you the answer.",
+      mid: "<strong>Host.</strong> Instantiates N clients for N servers, merges tool schemas into one model tool list, and intercepts tool calls before they hit a server.",
+      architect: "<strong>Host.</strong> Trust boundary and UX owner. Policy (allow-list, confirmation, PII filters) lives here. A compromised server should not read sibling-server traffic or the raw system prompt."
+    },
+    client: {
+      junior: "<strong>Client.</strong> A tiny messenger the host creates for each server. Weather gets its own messenger. Files get another. They do not gossip.",
+      mid: "<strong>Client.</strong> Stateful JSON-RPC session: initialize, list, call, notifications. One client ↔ one server. Method names are namespaced: tools/list, resources/read.",
+      architect: "<strong>Client.</strong> Isolation primitive. Capability cache, request id correlation, cancellation, and progress live here. Do not multiplex unrelated servers on one client."
+    },
+    server: {
+      junior: "<strong>Server.</strong> A small program that knows one job — weather, files, or CRM — and answers when asked.",
+      mid: "<strong>Server.</strong> Advertises primitives in initialize. Implements tools/list + tools/call (and optionally resources/prompts). Can notify list_changed.",
+      architect: "<strong>Server.</strong> Least privilege + explicit capabilities. Local stdio for machine-bound secrets; remote HTTP for multi-tenant SaaS. May request sampling or elicitation; must tolerate denial."
+    }
+  };
+
+  function $(id) { return document.getElementById(id); }
+
+  function pretty(obj) {
+    var json = JSON.stringify(obj, null, 2);
+    return json
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/"([^"]+)":/g, '<span class="k">"$1"</span>:')
+      .replace(/: "([^"]*)"/g, ': <span class="s">"$1"</span>')
+      .replace(/: (\d+)/g, ': <span class="n">$1</span>');
+  }
+
+  function cityFrom(text) {
+    var lower = text.toLowerCase();
+    var names = Object.keys(CITIES);
+    for (var i = 0; i < names.length; i++) {
+      if (lower.indexOf(names[i]) !== -1) return names[i];
+    }
+    var m = text.match(/\b(?:in|for|at)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/);
+    return m ? m[1].toLowerCase() : "delhi";
+  }
+
+  function weatherLine(city) {
+    var row = CITIES[city] || ["28°C", "fair", "50%"];
+    var label = city.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    return label + ": " + row[0] + ", " + row[1] + ", humidity " + row[2];
+  }
+
+  function plan(text) {
+    var t = text.toLowerCase();
+    var proto = transport === "http" ? "2025-11-25" : "2025-11-25";
+    var clientInfo = { name: "mcp-explainer-sim", version: "1.0.0" };
+
+    if (/config|resource|file|docs:\/\//.test(t) && !/weather/.test(t) && !/account|crm|acme/.test(t) && !/release|prompt/.test(t)) {
+      return filePlan(proto, clientInfo);
+    }
+    if (/account|crm|acme|customer/.test(t)) return crmPlan(proto, clientInfo, text);
+    if (/release|prompt|draft/.test(t)) return promptPlan(proto, clientInfo, text);
+    return weatherPlan(proto, clientInfo, text);
+  }
+
+  function baseInit(proto, clientInfo, serverName, caps) {
+    return [
+      {
+        actors: ["you", "host"], wires: [0],
+        method: "user → host",
+        who: "You → Host",
+        json: { role: "user", content: $("prompt").value },
+        junior: "You typed a question in plain English. The host (Cursor / Claude) is the app that will handle it.",
+        mid: "The host now has a user turn. It will use already-connected MCP sessions — or start the lifecycle first.",
+        architect: "Host is the only component that sees the raw prompt. Nothing is sent to a server until a tool/resource/prompt is chosen."
+      },
+      {
+        actors: ["host", "client"], wires: [1],
+        method: "initialize",
+        who: "Client → Server  ·  initialize",
+        json: {
+          jsonrpc: "2.0", id: 1, method: "initialize",
+          params: { protocolVersion: proto, capabilities: { elicitation: {} }, clientInfo: clientInfo }
+        },
+        junior: "First handshake. The client says hello and which protocol year it speaks.",
+        mid: "Capability negotiation. Client advertises elicitation. Server will reply with tools/resources it actually implements.",
+        architect: "Version pin is " + proto + " over " + transport + ". Mismatch → terminate. Client capabilities travel with the session; do not assume sampling unless advertised."
+      },
+      {
+        actors: ["server", "client"], wires: [2],
+        method: "initialize result",
+        who: "Server → Client  ·  result",
+        json: {
+          jsonrpc: "2.0", id: 1,
+          result: {
+            protocolVersion: proto,
+            capabilities: caps,
+            serverInfo: { name: serverName, version: "1.0.0" }
+          }
+        },
+        junior: "The server answers: “I am " + serverName + ", and here is what I can do.”",
+        mid: "Store capabilities on the client. Later calls must respect this set — no tools/call if tools were not advertised.",
+        architect: "listChanged:true is a contract to emit notifications/tools/list_changed. Empty objects mean “I support the primitive, no extras.”"
+      },
+      {
+        actors: ["client", "server"], wires: [2],
+        method: "notifications/initialized",
+        who: "Client → Server  ·  notification",
+        json: { jsonrpc: "2.0", method: "notifications/initialized" },
+        junior: "A short “I’m ready” tap. No reply needed.",
+        mid: "Notification = JSON-RPC without id. Fire-and-forget. After this, discovery methods are legal.",
+        architect: "Do not send tools/list before initialized. Lifecycle is stateful even when individual RPCs look stateless."
+      }
+    ];
+  }
+
+  function stampServer(steps, name, prim) {
+    steps[0].server = name;
+    if (prim) steps[0].prim = prim;
+    return steps;
+  }
+
+  function weatherPlan(proto, clientInfo, text) {
+    var city = cityFrom(text);
+    var result = weatherLine(city);
+    var steps = stampServer(
+      baseInit(proto, clientInfo, "weather-mcp", { tools: { listChanged: true }, resources: {}, prompts: {} }),
+      "weather-mcp",
+      ["Tool", "weather_current"]
+    );
+    steps.push(
+      {
+        actors: ["client", "server"], wires: [2],
+        method: "tools/list",
+        who: "Client → Server  ·  tools/list",
+        json: { jsonrpc: "2.0", id: 2, method: "tools/list" },
+        junior: "The host asks: “What tools do you have?” Like reading a menu before ordering.",
+        mid: "Discovery. The model only sees tools after the host merges this list into its tool registry.",
+        architect: "Listings are allowed to be dynamic. Cache with a short TTL if the server set listChanged.",
+        prim: ["Tool", "weather_current"], server: "weather-mcp"
+      },
+      {
+        actors: ["server", "host"], wires: [2, 1],
+        method: "tools/list result",
+        who: "Server → Host  ·  catalog",
+        json: {
+          jsonrpc: "2.0", id: 2,
+          result: {
+            tools: [{
+              name: "weather_current",
+              title: "Weather Information",
+              description: "Current weather for a city",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  location: { type: "string" },
+                  units: { type: "string", enum: ["metric", "imperial"], default: "metric" }
+                },
+                required: ["location"]
+              }
+            }]
+          }
+        },
+        junior: "Menu item: weather_current. Needs a city name.",
+        mid: "JSON Schema becomes the model tool definition. Required vs optional matters for hallucination control.",
+        architect: "Namespace collisions: prefix by server (weather.weather_current) at the host if you attach many servers.",
+        prim: ["Tool", "weather_current"]
+      },
+      {
+        actors: ["host"], wires: [1],
+        method: "model chooses tool",
+        who: "Host LLM",
+        json: { decision: "call weather_current", location: city },
+        junior: "The model picks the weather tool instead of guessing the temperature.",
+        mid: "Tool choice is host/model logic — MCP does not pick tools. The protocol only carries the call.",
+        architect: "Keep a confirmation gate here for write tools. Weather is read-only; still log the call.",
+        prim: ["Tool", "weather_current"]
+      },
+      {
+        actors: ["client", "server", "tool"], wires: [2, 3],
+        method: "tools/call",
+        who: "Client → Server  ·  tools/call",
+        json: {
+          jsonrpc: "2.0", id: 3, method: "tools/call",
+          params: { name: "weather_current", arguments: { location: city, units: "metric" } }
+        },
+        junior: "Order goes to the kitchen: “weather for " + city + ".”",
+        mid: "Name must match discovery exactly. Arguments must satisfy inputSchema.",
+        architect: "Correlate on id:3. Support cancellation for long tools. Transport=" + transport + " only frames this payload.",
+        prim: ["Tool", "weather_current"]
+      },
+      {
+        actors: ["tool", "server", "client", "host"], wires: [3, 2, 1],
+        method: "tool result",
+        who: "Server → Host  ·  result",
+        json: { jsonrpc: "2.0", id: 3, result: { content: [{ type: "text", text: result }] } },
+        junior: "Kitchen sends the dish back. The host will now write the answer in English.",
+        mid: "content is an array so a tool can return text, images, or resource links.",
+        architect: "Do not treat this as trusted UI HTML. Sanitize before render. The model sees this as a tool message.",
+        prim: ["Tool", "weather_current"],
+        answer: "Based on the weather server: <strong>" + result + "</strong>. Good day for a walk if you like " + (result.indexOf("rain") >= 0 ? "an umbrella" : "clear skies") + "."
+      }
+    );
+    return steps;
+  }
+
+  function filePlan(proto, clientInfo) {
+    var steps = stampServer(baseInit(proto, clientInfo, "files-mcp", { resources: {} }), "files-mcp", ["Resource", "config://app"]);
+    steps.push(
+      {
+        actors: ["client", "server"], wires: [2],
+        method: "resources/list",
+        who: "Client → Server  ·  resources/list",
+        json: { jsonrpc: "2.0", id: 2, method: "resources/list" },
+        junior: "Instead of a tool, we ask for a file-like thing: a resource.",
+        mid: "Resources are application-pulled context. URIs, not function calls.",
+        architect: "Bind resources to a root. A file server without roots is an exfiltration path.",
+        prim: ["Resource", "config://app"], server: "files-mcp"
+      },
+      {
+        actors: ["server", "host"], wires: [2, 1],
+        method: "resources/list result",
+        who: "Server → Host",
+        json: { jsonrpc: "2.0", id: 2, result: { resources: [{ uri: "config://app", name: "App config", mimeType: "application/json" }] } },
+        junior: "There is one document: app config.",
+        mid: "mimeType helps the host decide how to attach the bytes to the model.",
+        architect: "Prefer resource templates (config://{env}) over dumping every secret into list.",
+        prim: ["Resource", "config://app"]
+      },
+      {
+        actors: ["client", "server", "tool"], wires: [2, 3],
+        method: "resources/read",
+        who: "Client → Server  ·  resources/read",
+        json: { jsonrpc: "2.0", id: 3, method: "resources/read", params: { uri: "config://app" } },
+        junior: "The host opens that document.",
+        mid: "Read, not execute. If you need a side effect, it should have been a tool.",
+        architect: "Authorize by URI. resources/read is a data-plane get — log and rate-limit it like an API.",
+        prim: ["Resource", "config://app"]
+      },
+      {
+        actors: ["tool", "host"], wires: [3, 2, 1],
+        method: "resource body",
+        who: "Server → Host  ·  contents",
+        json: { jsonrpc: "2.0", id: 3, result: { contents: [{ uri: "config://app", mimeType: "application/json", text: "{\"env\":\"prod\",\"region\":\"centralindia\",\"featureFlags\":[\"mcp-sim\"]}" }] } },
+        junior: "Here is the config. The host will explain it to you.",
+        mid: "Host may attach this as context or let the model quote it.",
+        architect: "Redact secrets before the model. Feature flags are fine; connection strings are not.",
+        prim: ["Resource", "config://app"],
+        answer: "App config from <code>config://app</code>: env <strong>prod</strong>, region <strong>centralindia</strong>, flag <strong>mcp-sim</strong>."
+      }
+    );
+    return steps;
+  }
+
+  function crmPlan(proto, clientInfo) {
+    var steps = stampServer(baseInit(proto, clientInfo, "crm-mcp", { tools: {} }), "crm-mcp", ["Tool", "account_lookup"]);
+    steps.push(
+      {
+        actors: ["client", "server"], wires: [2],
+        method: "tools/list",
+        who: "Client → Server  ·  tools/list",
+        json: { jsonrpc: "2.0", id: 2, method: "tools/list" },
+        junior: "CRM server shares its menu: look up an account.",
+        mid: "Enterprise tool: typed identifier, not free-text SQL.",
+        architect: "Never expose raw SQL as an MCP tool in prod. Wrap with a parameterized lookup and row-level security.",
+        prim: ["Tool", "account_lookup"], server: "crm-mcp"
+      },
+      {
+        actors: ["client", "server", "tool"], wires: [2, 3],
+        method: "tools/call",
+        who: "Client → Server  ·  tools/call",
+        json: { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "account_lookup", arguments: { name: "Acme Corp" } } },
+        junior: "We ask for Acme Corp.",
+        mid: "Host should show a confirmation if this were a write (update opportunity). Read is still audited.",
+        architect: "Map the calling user → CRM identity. MCP auth on HTTP is OAuth; stdio inherits the OS user. Both need an audit row.",
+        prim: ["Tool", "account_lookup"]
+      },
+      {
+        actors: ["tool", "host"], wires: [3, 2, 1],
+        method: "tool result",
+        who: "Server → Host",
+        json: { jsonrpc: "2.0", id: 3, result: { content: [{ type: "text", text: "Acme Corp · ARR $2.4M · owner Priya Shah · stage Expansion · next step Q2 QBR" }] } },
+        junior: "CRM found the company. The host writes a short brief.",
+        mid: "Structured enough to ground the model; small enough to avoid dumping the whole account graph.",
+        architect: "Return a projection, not SELECT *. Token budget and data-minimization are the same decision.",
+        prim: ["Tool", "account_lookup"],
+        answer: "<strong>Acme Corp</strong> — ARR $2.4M, owner Priya Shah, stage Expansion, next step Q2 QBR."
+      }
+    );
+    return steps;
+  }
+
+  function promptPlan(proto, clientInfo, text) {
+    var svc = (text.match(/for\s+([a-z0-9_-]+)/i) || [])[1] || "checkout-api";
+    var steps = stampServer(baseInit(proto, clientInfo, "release-mcp", { prompts: {} }), "release-mcp", ["Prompt", "release_note"]);
+    steps.push(
+      {
+        actors: ["client", "server"], wires: [2],
+        method: "prompts/list",
+        who: "Client → Server  ·  prompts/list",
+        json: { jsonrpc: "2.0", id: 2, method: "prompts/list" },
+        junior: "A prompt is a ready-made recipe, not a tool that changes the world.",
+        mid: "Users (or slash-commands) pick prompts. The server fills arguments, the host sends the resulting messages to the model.",
+        architect: "Prompts are a product surface. Version them. Do not hide side effects inside a prompt — that is a tool.",
+        prim: ["Prompt", "release_note"], server: "release-mcp"
+      },
+      {
+        actors: ["client", "server", "tool"], wires: [2, 3],
+        method: "prompts/get",
+        who: "Client → Server  ·  prompts/get",
+        json: { jsonrpc: "2.0", id: 3, method: "prompts/get", params: { name: "release_note", arguments: { service: svc } } },
+        junior: "We ask for the release-note recipe for " + svc + ".",
+        mid: "prompts/get returns messages[], not side-effect output.",
+        architect: "Treat returned messages as untrusted template text. The host still applies its system prompt and safety stack.",
+        prim: ["Prompt", "release_note"]
+      },
+      {
+        actors: ["tool", "host"], wires: [3, 2, 1],
+        method: "prompt messages",
+        who: "Server → Host  ·  messages",
+        json: {
+          jsonrpc: "2.0", id: 3,
+          result: {
+            description: "Release note helper",
+            messages: [{ role: "user", content: { type: "text", text: "Write a 5-line release note for " + svc + ". Audience: customers. No jargon." } }]
+          }
+        },
+        junior: "The recipe arrives. The host’s model writes the note.",
+        mid: "This is how slash-commands stay portable across hosts.",
+        architect: "Prompt servers are a governance point: legal / tone / locale live here, not in every agent.",
+        prim: ["Prompt", "release_note"],
+        answer: "<strong>" + svc + " — release note</strong><br>Customers can check out faster this week. We cut payment wait time, fixed a rare cart glitch, and added a clearer order-status page. No action needed on your side."
+      }
+    );
+    return steps;
+  }
+
+  function clearActive() {
+    ["you", "host", "client", "server", "tool"].forEach(function (n) {
+      $("n-" + n).className = "node";
+    });
+    [0, 1, 2, 3].forEach(function (i) {
+      var w = $("w" + i);
+      if (w) w.classList.remove("on");
+    });
+  }
+
+  function showStep(i) {
+    var s = steps[i];
+    if (!s) return;
+    clearActive();
+    (s.actors || []).forEach(function (a) {
+      $("n-" + a).classList.add("active-" + a);
+    });
+    (s.wires || []).forEach(function (w) {
+      var el = $("w" + w);
+      if (!el) return;
+      el.classList.remove("on");
+      void el.offsetWidth;
+      el.classList.add("on");
+    });
+    if (s.server) {
+      $("serverHint").textContent = s.server;
+      $("serverName").textContent = "server: " + s.server;
+    }
+    if (s.prim) {
+      $("primName").textContent = s.prim[0];
+      $("primHint").textContent = s.prim[1];
+    }
+    $("trace").innerHTML = pretty(s.json);
+    $("narrate").innerHTML = '<div class="who">' + s.who + '</div><p>' + s[role] + "</p>";
+    var dots = document.querySelectorAll("#progress .dot");
+    dots.forEach(function (d, idx) {
+      d.className = "dot" + (idx < i ? " done" : idx === i ? " now" : "");
+    });
+    var box = $("answer");
+    if (s.answer) {
+      box.innerHTML = s.answer;
+      box.classList.add("show");
+    }
+  }
+
+  function buildProgress() {
+    $("progress").innerHTML = steps.map(function () { return '<span class="dot"></span>'; }).join("");
+  }
+
+  function stopTimer() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    running = false;
+    $("runBtn").textContent = "Run request";
+  }
+
+  function resetSim(keepPrompt) {
+    stopTimer();
+    stepIndex = -1;
+    steps = [];
+    clearActive();
+    $("answer").classList.remove("show");
+    $("answer").innerHTML = "";
+    $("progress").innerHTML = "";
+    $("trace").textContent = "Press Run request to start the handshake.";
+    $("narrate").innerHTML =
+      '<div class="who">Idle</div>' +
+      '<p class="role-copy junior">Think USB-C for AI. One plug. Many tools. You ask in English; a server does the work; the host writes the answer.</p>' +
+      '<p class="role-copy mid">MCP is JSON-RPC 2.0 between a host-owned client and a server. First they negotiate capabilities, then the client lists tools and calls one.</p>' +
+      '<p class="role-copy architect">Host owns policy, sampling, and conversation state. Each client is isolated 1:1 with one server. Servers never see the full chat — only the arguments the host chooses to send.</p>';
+    $("primName").textContent = "Tool";
+    $("primHint").textContent = "weather_current";
+    if (!keepPrompt) return;
+  }
+
+  function playFrom(i) {
+    if (i >= steps.length) { running = false; $("runBtn").textContent = "Run again"; return; }
+    stepIndex = i;
+    showStep(i);
+    running = true;
+    $("runBtn").textContent = "Pause";
+    timer = setTimeout(function () { playFrom(i + 1); }, 1150);
+  }
+
+  function startRun() {
+    if (running) { stopTimer(); $("runBtn").textContent = "Resume"; return; }
+    if (steps.length && stepIndex >= 0 && stepIndex < steps.length - 1) {
+      playFrom(stepIndex + 1);
+      return;
+    }
+    $("answer").classList.remove("show");
+    steps = plan($("prompt").value.trim() || "What's the weather in Delhi?");
+    buildProgress();
+    playFrom(0);
+  }
+
+  function stepOnce() {
+    stopTimer();
+    if (!steps.length) {
+      steps = plan($("prompt").value.trim() || "What's the weather in Delhi?");
+      buildProgress();
+    }
+    if (stepIndex >= steps.length - 1) return;
+    stepIndex += 1;
+    showStep(stepIndex);
+    $("runBtn").textContent = stepIndex >= steps.length - 1 ? "Run again" : "Resume";
+  }
+
+  function setRole(next) {
+    role = next;
+    document.body.setAttribute("data-role", next);
+    document.querySelectorAll("[data-role-btn]").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-role-btn") === next);
+    });
+    if (stepIndex >= 0 && steps[stepIndex]) showStep(stepIndex);
+    var archOn = document.querySelector("#archCards .on");
+    if (archOn) renderArch(archOn.getAttribute("data-arch"));
+  }
+
+  function renderArch(key) {
+    $("archDetail").innerHTML = "<p>" + ARCH[key][role] + "</p>";
+  }
+
+  document.querySelectorAll("[data-role-btn]").forEach(function (btn) {
+    btn.addEventListener("click", function () { setRole(btn.getAttribute("data-role-btn")); });
+  });
+  document.querySelectorAll("[data-transport]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      transport = btn.getAttribute("data-transport");
+      document.querySelectorAll("[data-transport]").forEach(function (b) {
+        b.classList.toggle("active", b === btn);
+      });
+    });
+  });
+  document.querySelectorAll("[data-arch]").forEach(function (card) {
+    card.addEventListener("click", function () {
+      document.querySelectorAll("[data-arch]").forEach(function (c) { c.classList.remove("on"); });
+      card.classList.add("on");
+      renderArch(card.getAttribute("data-arch"));
+    });
+  });
+  document.querySelectorAll("[data-code]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("[data-code]").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      document.querySelectorAll(".code-pane").forEach(function (p) { p.classList.remove("on"); });
+      $("code-" + btn.getAttribute("data-code")).classList.add("on");
+    });
+  });
+
+  var ex = $("examples");
+  EXAMPLES.forEach(function (e) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.textContent = e.label;
+    b.addEventListener("click", function () {
+      $("prompt").value = e.text;
+      document.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("active"); });
+      b.classList.add("active");
+      resetSim(true);
+      startRun();
+    });
+    ex.appendChild(b);
+  });
+
+  $("runBtn").addEventListener("click", startRun);
+  $("stepBtn").addEventListener("click", stepOnce);
+  $("resetBtn").addEventListener("click", function () { resetSim(true); });
+  $("prompt").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); resetSim(true); startRun(); }
+  });
+})();
+</script>
+</body>
+</html>
