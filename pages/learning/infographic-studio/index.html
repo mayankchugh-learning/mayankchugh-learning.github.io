@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-page="infographic-studio">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <script src="../../../assets/theme-switcher.js"></script>
+  <title>Infographic Prompt Studio — Mayank Chugh</title>
+  <meta name="description" content="Private studio for ChatGPT and Gemini infographic prompts, with LinkedIn and YouTube Shorts share tracking.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&amp;family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="studio.css">
+  <link rel="stylesheet" href="../../../assets/theme-switcher.css">
+</head>
+<body>
+  <div id="access-gate">
+    <div class="gate-card">
+      <div class="gate-kicker">Private studio</div>
+      <h1>Infographic prompts</h1>
+      <p>Passphrase required. This catalog and the generated prompt pages stay locked in this browser tab until you unlock them.</p>
+      <form id="gate-form">
+        <input type="password" id="gate-pass" autocomplete="current-password" placeholder="Passphrase" aria-label="Passphrase">
+        <button type="submit">Unlock</button>
+      </form>
+      <div class="gate-error" id="gate-error" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div id="protected-content" hidden>
+    <header class="studio-top">
+      <div class="studio-top-inner">
+        <a class="studio-brand" href="index.html">MC<span>.</span> Studio</a>
+        <nav class="studio-nav">
+          <a href="../index.html">Learning Hub</a>
+          <a href="../../../index.html">Portfolio</a>
+        </nav>
+      </div>
+    </header>
+    <main class="wrap">
+      <div class="page-kicker">Content studio</div>
+      <h1>Infographic &amp; video prompt library</h1>
+      <p class="lead">HTML versions of every prompt file in <code>Infographics_prompts</code>. Mark each piece after you post it on LinkedIn or as a YouTube Short. Ticks stay in this browser.</p>
+
+      <div class="stats">
+        <div class="stat"><b id="stat-total">—</b><span>Trackable items</span></div>
+        <div class="stat"><b id="stat-linkedin">—</b><span>Shared on LinkedIn</span></div>
+        <div class="stat"><b id="stat-youtube">—</b><span>Shared as YouTube Short</span></div>
+        <div class="stat"><b id="stat-both">—</b><span>Posted on both</span></div>
+      </div>
+
+      <div class="section-label">Collections</div>
+      <div class="collection-grid" id="studio-collections"></div>
+
+      <div class="section-label">Share tracker</div>
+      <div class="toolbar">
+        <input type="search" id="studio-search" placeholder="Search titles…" aria-label="Search items">
+        <select id="studio-filter-collection" aria-label="Filter by collection"></select>
+        <select id="studio-filter-status" aria-label="Filter by share status">
+          <option value="">All statuses</option>
+          <option value="unshared">Not shared yet</option>
+          <option value="linkedin">LinkedIn done</option>
+          <option value="youtube">YouTube Short done</option>
+          <option value="both">Both done</option>
+        </select>
+        <button type="button" class="btn btn-ghost" id="studio-export">Export ticks</button>
+        <button type="button" class="btn btn-ghost" id="studio-import">Import ticks</button>
+        <input type="file" id="studio-import-file" accept="application/json" hidden>
+      </div>
+      <table class="item-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="hide-sm">Tag</th>
+            <th>LinkedIn</th>
+            <th>YouTube Short</th>
+          </tr>
+        </thead>
+        <tbody id="studio-items"></tbody>
+      </table>
+    </main>
+  </div>
+
+  <script src="catalog.enc.js"></script>
+  <script src="studio.js"></script>
+  <script>InfographicStudio.initCatalog();</script>
+</body>
+</html>
