@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en" data-page="mcp-legacy-vs-modern">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/assets/theme-switcher.js"></script>
+  <title>MCP Legacy vs Modern — What Actually Changed · Mayank Chugh</title>
+  <meta name="description" content="A chaptered explainer of MCP 2025-11-25 versus 2026-07-28: sessionless requests, mid-task questions, routing headers, caching, tracing, and what you should do today. By Mayank Chugh.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f1e36;
+      --navy2: #1a2f4e;
+      --blue: #1d6fa4;
+      --gold: #e8a020;
+      --gold2: #f0c060;
+      --paper: #f4f6f9;
+      --card: #ffffff;
+      --ink: #1a1a2e;
+      --muted: #5a6a7e;
+      --border: #dde3ec;
+      --sidebar: #0f1e36;
+      --sidebar-sub: #8aa0b8;
+      --teal: #0d9488;
+      --green: #1a7a4a;
+      --red: #c0392b;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+      --sans: "DM Sans", system-ui, sans-serif;
+      --display: Syne, sans-serif;
+      --shadow: 0 10px 36px rgba(15, 30, 54, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+    a { color: var(--blue); }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 300px; background: var(--sidebar); color: #e5e5e7; flex-shrink: 0;
+      display: flex; flex-direction: column; padding: 22px 14px; overflow-y: auto;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .hub-back { display: inline-block; font-size: 12px; color: #c7c7cc; text-decoration: none; margin: 0 10px 14px; }
+    .hub-back:hover { color: #fff; }
+    .sidebar-header { padding: 4px 10px 16px; }
+    .sidebar-header .title { font-family: var(--display); font-size: 17px; font-weight: 800; color: #fff; }
+    .sidebar-header .sub { font-size: 12px; color: var(--sidebar-sub); margin-top: 4px; }
+    .sidebar-badges { display: flex; gap: 6px; padding: 0 10px 16px; flex-wrap: wrap; }
+    .badge { font-size: 10.5px; padding: 3px 8px; border-radius: 5px; background: #1a2f4e; color: #c7c7cc; }
+    .cat { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--sidebar-sub); padding: 14px 10px 6px; }
+    .navitem {
+      display: block; width: 100%; text-align: left; background: none; border: none;
+      color: #d4d4d8; padding: 8px 10px; border-radius: 6px; font-size: 13.5px; cursor: pointer;
+      margin-bottom: 1px; font-family: inherit;
+    }
+    .navitem .nav-sub { display: block; font-size: 11px; color: #7a90a8; margin-top: 1px; }
+    .navitem:hover { background: #1a2f4e; }
+    .navitem.active { background: #243656; color: #fff; border-left: 3px solid var(--gold); padding-left: 7px; }
+    .navitem.active .nav-sub { color: var(--gold2); }
+    .sidebar-footer { margin-top: auto; padding: 16px 10px 4px; border-top: 1px solid #243656; }
+    .author { display: flex; align-items: center; gap: 8px; }
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%; background: var(--gold); color: var(--navy);
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px;
+    }
+    .author .name { font-size: 12.5px; font-weight: 600; color: #fff; }
+    .author .tag { font-size: 10.5px; color: var(--sidebar-sub); }
+    .sidebar-links { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .sidebar-links a { font-size: 10px; background: #1a2f4e; color: #c7c7cc; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
+    .sidebar-links a:hover { background: #2a4568; color: #fff; }
+
+    main { flex: 1; padding: 34px 48px 64px; max-width: 920px; }
+    .crumb { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+    .crumb b { color: var(--ink); }
+    .eyebrow {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--gold); display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    }
+    .eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; opacity: 0.7; }
+    h1.page-title {
+      font-family: var(--display); font-size: clamp(1.8rem, 3.4vw, 2.35rem); margin: 6px 0 8px;
+      letter-spacing: -0.03em; color: var(--navy); line-height: 1.12;
+    }
+    .page-sub { font-size: 16px; color: var(--muted); margin: 0 0 22px; max-width: 680px; }
+    .page { display: none; } .page.active { display: block; }
+
+    .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px; }
+    .cards.four { grid-template-columns: repeat(4, 1fr); }
+    .card { border: 1.5px solid var(--border); border-radius: 12px; padding: 16px; background: var(--card); box-shadow: var(--shadow); }
+    .card.highlight { background: #fff8e8; border-color: var(--gold); }
+    .card .k { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted); margin-bottom: 6px; }
+    .card.highlight .k { color: #9a6a10; }
+    .card h3 { font-family: var(--display); font-size: 17px; margin: 0 0 8px; color: var(--navy); }
+    .card p { font-size: 14px; color: #444; line-height: 1.55; margin: 0; }
+
+    .callout { border-radius: 10px; padding: 14px 16px; margin: 18px 0; border-left: 4px solid; display: flex; gap: 10px; }
+    .callout.analogy { background: #fff8e8; border-color: var(--gold); }
+    .callout.info { background: #eaf4fb; border-color: var(--blue); }
+    .callout.ok { background: #e8f6ef; border-color: var(--green); }
+    .callout.warn { background: #fdecea; border-color: var(--red); }
+    .callout .icon { font-size: 18px; line-height: 1.3; }
+    .callout .label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .callout.analogy .label { color: #9a6a10; }
+    .callout.info .label { color: var(--blue); }
+    .callout.ok .label { color: var(--green); }
+    .callout.warn .label { color: var(--red); }
+    .callout p { margin: 0; font-size: 14px; line-height: 1.55; }
+
+    .hql { font-style: italic; border-left: 3px solid var(--gold); padding-left: 12px; color: #444; margin: 20px 0; }
+    .ref-note { font-size: 12px; color: #9a9a9a; margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--border); }
+    code.inline { background: #eef1f6; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; font-family: var(--mono); }
+    table.ref { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+    table.ref th { text-align: left; font-size: 11px; text-transform: uppercase; color: var(--muted); padding: 6px 10px; border-bottom: 1.5px solid var(--border); }
+    table.ref td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+
+    .toggle-row { display: flex; gap: 8px; margin: 0 0 16px; }
+    .toggle-btn {
+      border: 1.5px solid var(--border); background: var(--card); color: var(--ink);
+      border-radius: 999px; padding: 7px 16px; font: 600 13px var(--sans); cursor: pointer;
+    }
+    .toggle-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .pane { display: none; } .pane.active { display: block; }
+
+    .timeline { display: grid; gap: 0; margin: 8px 0 20px; }
+    .tl-row { display: grid; grid-template-columns: 120px 22px 1fr; gap: 12px; align-items: start; }
+    .tl-date { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 10px; }
+    .tl-rail { position: relative; }
+    .tl-rail::before { content: ""; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .tl-row:first-child .tl-rail::before { top: 16px; }
+    .tl-row:last-child .tl-rail::before { bottom: auto; height: 16px; }
+    .tl-dot {
+      width: 18px; height: 18px; border-radius: 50%; background: var(--navy); border: 3px solid var(--gold);
+      margin-top: 12px; position: relative; z-index: 1;
+    }
+    .tl-row.now .tl-dot { background: var(--gold); }
+    .tl-body { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin: 6px 0; }
+    .tl-body strong { display: block; font-family: var(--display); color: var(--navy); margin-bottom: 2px; }
+
+    .seq {
+      background: var(--navy); color: #d7e2ef; border-radius: 14px; padding: 16px; margin: 16px 0 12px;
+    }
+    .seq-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .seq-head strong { font-family: var(--display); color: #fff; }
+    .btn {
+      border: 1px solid rgba(255,255,255,0.18); background: var(--gold); color: var(--navy);
+      border-radius: 999px; padding: 7px 14px; font: 700 13px var(--sans); cursor: pointer;
+    }
+    .btn.ghost { background: transparent; color: #fff; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .seq-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .seq-step {
+      background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 10px 8px; min-height: 92px; font-size: 12.5px;
+    }
+    .seq-step small { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.65; margin-bottom: 4px; }
+    .seq-step.on { border-color: var(--gold2); box-shadow: 0 0 0 3px rgba(240,192,96,0.22); background: rgba(232,160,32,0.12); }
+    .seq-caption { margin-top: 10px; font-size: 13px; color: #c9d6e6; min-height: 2.4em; }
+
+    .related { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .related a {
+      text-decoration: none; border: 1px solid var(--border); background: var(--card); color: var(--navy);
+      border-radius: 999px; padding: 6px 12px; font-size: 12.5px; font-weight: 600;
+    }
+    .related a:hover { border-color: var(--gold); }
+
+    .menu-toggle { display: none; }
+    [data-page="mcp-legacy-vs-modern"] .site-chrome { left: auto !important; right: 16px; bottom: 16px; }
+
+    html[data-theme="dark"], html[data-theme="midnight"] {
+      --paper: #121820; --card: #1a2230; --ink: #e8e6e3; --muted: #9a9aa3; --border: #2e3a4c;
+    }
+    html[data-theme="dark"] body, html[data-theme="midnight"] body { background: var(--paper); color: var(--ink); }
+    html[data-theme="dark"] .card, html[data-theme="midnight"] .card { background: var(--card); }
+    html[data-theme="dark"] .card.highlight, html[data-theme="midnight"] .card.highlight { background: #2a2416; }
+    html[data-theme="dark"] .card h3, html[data-theme="midnight"] .card h3,
+    html[data-theme="dark"] h1.page-title, html[data-theme="midnight"] h1.page-title { color: #f4f6f9; }
+    html[data-theme="dark"] .card p, html[data-theme="midnight"] .card p,
+    html[data-theme="dark"] .hql, html[data-theme="midnight"] .hql { color: #c9cdd4; }
+    html[data-theme="dark"] .callout.analogy, html[data-theme="midnight"] .callout.analogy { background: #2a2416; }
+    html[data-theme="dark"] .callout.info, html[data-theme="midnight"] .callout.info { background: #1a2838; }
+    html[data-theme="dark"] .callout.ok, html[data-theme="midnight"] .callout.ok { background: #163024; }
+    html[data-theme="dark"] .callout.warn, html[data-theme="midnight"] .callout.warn { background: #3a1c1c; }
+    html[data-theme="dark"] .tl-body, html[data-theme="midnight"] .tl-body { background: var(--card); }
+    html[data-theme="dark"] .tl-body strong, html[data-theme="midnight"] .tl-body strong { color: #f4f6f9; }
+    html[data-theme="dark"] code.inline, html[data-theme="midnight"] code.inline { background: #243044; color: #e8e6e3; }
+    html[data-theme="dark"] .related a, html[data-theme="midnight"] .related a { background: var(--card); color: #f4f6f9; }
+    html[data-theme="contrast"] { --ink: #000; --paper: #fff; --muted: #222; --border: #000; }
+    html[data-theme="contrast"] body { background: #fff; color: #000; }
+
+    @media (max-width: 980px) {
+      .cards, .cards.four, .seq-steps { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 860px) {
+      .menu-toggle {
+        display: inline-flex; align-items: center; gap: 8px;
+        position: fixed; top: 12px; left: 12px; z-index: 40;
+        background: var(--sidebar); color: #fff; border: none; border-radius: 8px;
+        padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+      }
+      .sidebar {
+        position: fixed; inset: 0 auto 0 0; z-index: 30; transform: translateX(-100%);
+        transition: transform 0.2s ease; height: 100vh;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-backdrop {
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 25;
+      }
+      .sidebar-backdrop.show { display: block; }
+      main { padding: 64px 20px 40px; }
+      .cards, .cards.four, .seq-steps, .tl-row { grid-template-columns: 1fr; }
+      .tl-date, .tl-rail { display: none; }
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+<button class="menu-toggle" type="button" id="menu-toggle" aria-label="Open guide menu">Menu</button>
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+<div class="app">
+  <nav class="sidebar" id="guide-sidebar">
+    <a class="hub-back" href="../learning/index.html#tooling-claude">← Learning Hub</a>
+    <div class="sidebar-header">
+      <div class="title">MCP: What's Changing</div>
+      <div class="sub">Legacy 2025-11-25 · Modern 2026-07-28</div>
+    </div>
+    <div class="sidebar-badges">
+      <span class="badge">11 chapters</span>
+      <span class="badge">Opt-in adoption</span>
+    </div>
+
+    <div class="cat">Start here</div>
+    <button class="navitem active" data-page="timeline">The real timeline<span class="nav-sub">Nothing you built is wasted</span></button>
+    <button class="navitem" data-page="shift">The one big idea<span class="nav-sub">Remember me vs tell me every time</span></button>
+
+    <div class="cat">What changed</div>
+    <button class="navitem" data-page="session">Who remembers you<span class="nav-sub">Session id vs self-contained request</span></button>
+    <button class="navitem" data-page="ask">Asking mid-task<span class="nav-sub">Questions only while work is open</span></button>
+    <button class="navitem" data-page="resume">Confirming and continuing<span class="nav-sub">Answer, then any replica can finish</span></button>
+
+    <div class="cat">The small stuff</div>
+    <button class="navitem" data-page="routing">Faster routing<span class="nav-sub">Mcp-Method and Mcp-Name</span></button>
+    <button class="navitem" data-page="cache">Smarter caching<span class="nav-sub">ttlMs and cacheScope</span></button>
+    <button class="navitem" data-page="trace">Finding what broke<span class="nav-sub">W3C trace context across hops</span></button>
+
+    <div class="cat">Newer pieces</div>
+    <button class="navitem" data-page="apps">Apps on the protocol<span class="nav-sub">Named extensions, real UI</span></button>
+    <button class="navitem" data-page="gone">Gone vs going away<span class="nav-sub">Removed now, deprecated until 2027</span></button>
+
+    <div class="cat">Closing</div>
+    <button class="navitem" data-page="do">What you should do<span class="nav-sub">Keep building. Learn the shape.</span></button>
+
+    <div class="sidebar-footer">
+      <div class="author">
+        <div class="avatar">MC</div>
+        <div>
+          <div class="name">Mayank Chugh</div>
+          <div class="tag">Enterprise Architect · AI Engineer</div>
+        </div>
+      </div>
+      <div class="sidebar-links">
+        <a href="https://youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page active" id="page-timeline">
+      <div class="crumb">MCP: What's Changing › <b>Start here</b></div>
+      <div class="eyebrow">Start here</div>
+      <h1 class="page-title">The real timeline</h1>
+      <p class="page-sub">Before the protocol details: when this matters, what already shipped, and why working servers are not being forced off the older model.</p>
+
+      <div class="callout ok">
+        <div class="icon">✅</div>
+        <div>
+          <div class="label">Say this first</div>
+          <p>Servers built on the <b>2025-11-25</b> model still run, unchanged, today. This page is a map of the <b>2026-07-28</b> revision — not a correction of the lifecycle, handshake, or JSON-RPC you already know.</p>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-row">
+          <div class="tl-date">Nov 2025</div>
+          <div class="tl-rail"><div class="tl-dot"></div></div>
+          <div class="tl-body"><strong>Legacy spec ships</strong>The 2025-11-25 revision — initialize, capability negotiation, tools/resources/prompts, Streamable HTTP, and session-oriented HTTP.</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-date">28 Jul 2026</div>
+          <div class="tl-rail"><div class="tl-dot"></div></div>
+          <div class="tl-body"><strong>Modern spec is published</strong>The 2026-07-28 revision is final. SDKs can speak it. Existing implementations were not switched off on that date.</div>
+        </div>
+        <div class="tl-row now">
+          <div class="tl-date">Today</div>
+          <div class="tl-rail"><div class="tl-dot"></div></div>
+          <div class="tl-body"><strong>Adoption is opt-in</strong>Legacy keeps working. You move when a new capability is worth the engineering, not because a countdown forced you.</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-date">Jul 2027</div>
+          <div class="tl-rail"><div class="tl-dot"></div></div>
+          <div class="tl-body"><strong>Earliest a deprecated piece could leave</strong>MCP's published rule: a named deprecation gets at least twelve months before it is even eligible for removal.</div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="icon">🔌</div>
+        <div>
+          <div class="label">Why ecosystems still move slowly</div>
+          <p>A published spec is not a migration. Rewriting a live server means new code paths, regression tests, and production traffic you cannot treat as a lab. Teams adopt when the payoff is real — extra replicas, cheaper routing, clearer traces — not when a date appears on a changelog.</p>
+        </div>
+      </div>
+
+      <p class="hql">"You did not learn a discarded model. You learned the model that is still fully supported, with no deadline pushing you off it."</p>
+      <div class="ref-note">Dates and the twelve-month deprecation floor come from the official Model Context Protocol revisions dated 2025-11-25 and 2026-07-28.</div>
+    </div>
+
+    <div class="page" id="page-shift">
+      <div class="crumb">MCP: What's Changing › <b>Start here</b></div>
+      <div class="eyebrow">Start here</div>
+      <h1 class="page-title">The one big idea</h1>
+      <p class="page-sub">Almost every later chapter is a consequence of this single change. Learn it once and the rest stops looking like a random feature list.</p>
+
+      <div class="cards">
+        <div class="card">
+          <div class="k">Legacy — 2025-11-25</div>
+          <h3>Remember me</h3>
+          <p>You introduce yourselves once. After that, the server keeps a conversation in memory and keys it with a session.</p>
+        </div>
+        <div class="card highlight">
+          <div class="k">Modern — 2026-07-28</div>
+          <h3>Describe yourself every time</h3>
+          <p>There is no receptionist keeping a guest list. Each request carries who is speaking, which version, and what this call needs.</p>
+        </div>
+      </div>
+
+      <div class="callout analogy">
+        <div class="icon">🏥</div>
+        <div>
+          <div class="label">Hospital-ward analogy</div>
+          <p>On one ward, a single nurse keeps your chart at the desk. Convenient — until that nurse is on break, and the next person has to reconstruct your history from memory. On the next ward, your wristband holds the identifiers every station needs. Slightly more to scan at each door, but any nurse on any shift can pick up your care without waiting for the person who first admitted you.</p>
+        </div>
+      </div>
+
+      <p>That is why the modern model exists. A process that must remember a caller can only be scaled by cloning that memory. A process that reads a complete request can be scaled by adding another identical process behind a load balancer.</p>
+      <p class="hql">"Memory is convenient until the only person who holds it is busy."</p>
+    </div>
+
+    <div class="page" id="page-session">
+      <div class="crumb">MCP: What's Changing › <b>What changed</b></div>
+      <div class="eyebrow">What changed</div>
+      <h1 class="page-title">Who remembers you</h1>
+      <p class="page-sub">This is the hinge. Toggle the two models and feel how the same conversation is stored in two different places.</p>
+
+      <div class="toggle-row" role="tablist" aria-label="Session model">
+        <button class="toggle-btn active" type="button" data-toggle="legacy" aria-pressed="true">Legacy</button>
+        <button class="toggle-btn" type="button" data-toggle="modern" aria-pressed="false">Modern</button>
+      </div>
+
+      <div class="pane active" id="pane-legacy">
+        <div class="card">
+          <div class="k">Sticky conversation</div>
+          <h3>One desk owns your file</h3>
+          <p>You open a ticket with one agent. They remember the earlier messages. If that connection drops, the next agent has an empty desk — nothing you said was written where a stranger can read it.</p>
+        </div>
+        <div class="callout info">
+          <div class="icon">🏷️</div>
+          <div>
+            <div class="label">On the wire</div>
+            <p>That is the older <code class="inline">Mcp-Session-Id</code> habit. The instance that accepted the first call is the instance that still knows you. Adding more servers behind the scenes is awkward, because context lives in one process.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" id="pane-modern">
+        <div class="card highlight">
+          <div class="k">Self-contained request</div>
+          <h3>The file travels with you</h3>
+          <p>You hand over a complete ticket: who you are, which job this is, and what you need next. Any agent who opens it can continue. The conversation is not stored in one person's head.</p>
+        </div>
+        <div class="callout info">
+          <div class="icon">📦</div>
+          <div>
+            <div class="label">On the wire</div>
+            <p>The modern HTTP model does not rely on a sticky session header. Identity, protocol version, and the work itself travel on the request, so any healthy replica can serve it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <div class="icon">💡</div>
+        <div>
+          <div class="label">The trade</div>
+          <p>Yes, each request is a little heavier. In production that cost is usually cheaper than pinning every caller to one machine when traffic spikes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-ask">
+      <div class="crumb">MCP: What's Changing › <b>What changed</b></div>
+      <div class="eyebrow">What changed</div>
+      <h1 class="page-title">Asking mid-task</h1>
+      <p class="page-sub">If the server no longer keeps a private memory of you, how can it still ask a question while work is in flight?</p>
+
+      <div class="callout analogy">
+        <div class="icon">🏦</div>
+        <div>
+          <div class="label">Bank-counter analogy</div>
+          <p>A teller can ask for your ID while processing the withdrawal you already started. A teller cannot walk into the queue and start asking strangers for ID before anyone has approached the window. The question is allowed only because your request is already open.</p>
+        </div>
+      </div>
+
+      <table class="ref">
+        <tr><th>Rule</th><th>In plain words</th></tr>
+        <tr><td>Work must already be open</td><td>A server may elicit only while it is handling something the client asked for. No surprise questions out of nowhere.</td></tr>
+        <tr><td>Ask a real question</td><td>The elicitation has to contain an actual question — not a vague "something is needed" placeholder.</td></tr>
+      </table>
+
+      <p class="hql">"If the server is asking, it is because you already asked it to do something first."</p>
+    </div>
+
+    <div class="page" id="page-resume">
+      <div class="crumb">MCP: What's Changing › <b>What changed</b></div>
+      <div class="eyebrow">What changed</div>
+      <h1 class="page-title">Confirming and continuing</h1>
+      <p class="page-sub">The server asked. You answered. With no sticky session, how does the work pick up again? Play the sequence.</p>
+
+      <div class="callout analogy">
+        <div class="icon">📚</div>
+        <div>
+          <div class="label">Library-hold analogy</div>
+          <p>You place a hold and leave. Later you come back with the hold slip. Any desk can fetch the book — it does not have to be the librarian who first wrote the slip. The paper, not the person, is the memory.</p>
+        </div>
+      </div>
+
+      <div class="seq" id="resume-seq">
+        <div class="seq-head">
+          <strong>Resume after a mid-task question</strong>
+          <div>
+            <button class="btn" type="button" id="seq-play">Play the sequence</button>
+            <button class="btn ghost" type="button" id="seq-reset">Reset</button>
+          </div>
+        </div>
+        <div class="seq-steps">
+          <div class="seq-step" data-step="0"><small>1 · Call</small>Client sends a tool call with everything the job needs.</div>
+          <div class="seq-step" data-step="1"><small>2 · Pause</small>Server asks one concrete question while that call is still open.</div>
+          <div class="seq-step" data-step="2"><small>3 · Return</small>Client comes back with the answer plus the original job details.</div>
+          <div class="seq-step" data-step="3"><small>4 · Finish</small>Any free replica can complete the work. Nobody sat waiting on a held socket.</div>
+        </div>
+        <div class="seq-caption" id="seq-caption">Press play to walk the four hops.</div>
+      </div>
+
+      <div class="callout ok">
+        <div class="icon">⚡</div>
+        <div>
+          <div class="label">What this unlocks</div>
+          <p>The instance that asked the question does not have to idle until you reply. When the answer arrives, whichever replica is free can finish — because the ticket still carries the work.</p>
+        </div>
+      </div>
+      <p class="hql">"Nothing was forgotten. It was written down well enough that a stranger could continue."</p>
+    </div>
+
+    <div class="page" id="page-routing">
+      <div class="crumb">MCP: What's Changing › <b>The small stuff</b></div>
+      <div class="eyebrow">The small stuff</div>
+      <h1 class="page-title">Faster routing</h1>
+      <p class="page-sub">Two small labels on the request let traffic machinery decide where to send it without opening the body.</p>
+
+      <div class="callout analogy">
+        <div class="icon">🏭</div>
+        <div>
+          <div class="label">Warehouse analogy</div>
+          <p>A sorter does not unbox every parcel to read the invoice. It glances at the barcode on the outside and pushes the box down the right chute. That is what <code class="inline">Mcp-Method</code> and <code class="inline">Mcp-Name</code> are for a load balancer.</p>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="k">Header</div>
+          <h3><code class="inline">Mcp-Method</code></h3>
+          <p>Which JSON-RPC method this is — initialize, tools/call, resources/read, and so on.</p>
+        </div>
+        <div class="card">
+          <div class="k">Header</div>
+          <h3><code class="inline">Mcp-Name</code></h3>
+          <p>Which tool, resource, or prompt is being named, so you can pin or shard by capability.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-cache">
+      <div class="crumb">MCP: What's Changing › <b>The small stuff</b></div>
+      <div class="eyebrow">The small stuff</div>
+      <h1 class="page-title">Smarter caching</h1>
+      <p class="page-sub">A server can now say how long an answer stays fresh, and whether that answer is safe to share.</p>
+
+      <div class="callout analogy">
+        <div class="icon">🛒</div>
+        <div>
+          <div class="label">Shelf-label analogy</div>
+          <p>A grocery tag that says "offer ends Sunday" saves you asking the clerk every visit. When Sunday passes, you look again. That is <code class="inline">ttlMs</code>. Whether the same price is for everyone in the aisle, or only for your loyalty card, is <code class="inline">cacheScope</code>.</p>
+        </div>
+      </div>
+
+      <table class="ref">
+        <tr><th>Field</th><th>Meaning</th></tr>
+        <tr><td><code class="inline">ttlMs</code></td><td>How long the client may treat the result as fresh, in milliseconds.</td></tr>
+        <tr><td><code class="inline">cacheScope</code></td><td>Shared across many callers, or private to this client.</td></tr>
+      </table>
+    </div>
+
+    <div class="page" id="page-trace">
+      <div class="crumb">MCP: What's Changing › <b>The small stuff</b></div>
+      <div class="eyebrow">The small stuff</div>
+      <h1 class="page-title">Finding what broke</h1>
+      <p class="page-sub">In a chain of hosts, clients, and servers, "something failed" is not an incident report. You need the hop.</p>
+
+      <div class="callout analogy">
+        <div class="icon">✈️</div>
+        <div>
+          <div class="label">Connecting-flight analogy</div>
+          <p>A passenger changes airlines twice. If the bag vanishes, "it's lost" does not help. One PNR that follows the bag through every carrier tells you which transfer dropped it. MCP now carries W3C trace context the same way.</p>
+        </div>
+      </div>
+
+      <p>When a tool call fans out through a gateway, a second MCP server, and an internal API, the same trace id lets you open one search and see the full path — not three disconnected log files.</p>
+    </div>
+
+    <div class="page" id="page-apps">
+      <div class="crumb">MCP: What's Changing › <b>Newer pieces</b></div>
+      <div class="eyebrow">Newer pieces</div>
+      <h1 class="page-title">Apps on the protocol</h1>
+      <p class="page-sub">This is already a named, shipped extension — not a slide about the future. It explains a lot of the newer vocabulary.</p>
+
+      <div class="callout analogy">
+        <div class="icon">🔌</div>
+        <div>
+          <div class="label">Grid-and-appliance analogy</div>
+          <p>The electrical grid is the platform. You do not live in the grid; you live in the appliances plugged into it. MCP is settling into that role: a socket standard, with most people spending their time in a hotel-booking app, a warehouse connector, or a finance tool built on top.</p>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="k">Naming</div>
+          <h3>Reversed domains</h3>
+          <p>Extensions are named like <code class="inline">com.yourcompany.tool</code> so two publishers cannot collide by accident.</p>
+        </div>
+        <div class="card highlight">
+          <div class="k">Interaction</div>
+          <h3>Real UI, not only text</h3>
+          <p>An app can present a pick list, a booking form, or a confirmation — not just another paragraph of model output.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-gone">
+      <div class="crumb">MCP: What's Changing › <b>Newer pieces</b></div>
+      <div class="eyebrow">Newer pieces</div>
+      <h1 class="page-title">Gone vs going away</h1>
+      <p class="page-sub">Two words that sound alike and are not. Be precise in interviews and in migration notes.</p>
+
+      <div class="cards">
+        <div class="card">
+          <div class="k">Removed</div>
+          <h3>Not in the modern spec</h3>
+          <p>The old handshake shape, <code class="inline">ping</code>, <code class="inline">logging/setLevel</code>, and the old session header are simply absent from 2026-07-28.</p>
+        </div>
+        <div class="card highlight">
+          <div class="k">Deprecated</div>
+          <h3>Still works, dated</h3>
+          <p>Roots, Sampling, Logging, and the older HTTP+SSE transport keep working until at least July 2027 under the twelve-month policy.</p>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <div class="icon">⏰</div>
+        <div>
+          <div class="label">The twelve-month floor</div>
+          <p>"Deprecated" is not "breaks next Tuesday." It is MCP's own rule that a named deprecation gets a minimum of twelve months from announcement before it is eligible to be removed. That clock started in July 2026. There is runway. There is not a fire drill.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-do">
+      <div class="crumb">MCP: What's Changing › <b>Closing</b></div>
+      <div class="eyebrow">Closing</div>
+      <h1 class="page-title">What you should do</h1>
+      <p class="page-sub">The honest answer, without hedging.</p>
+
+      <div class="cards">
+        <div class="card highlight">
+          <div class="k">Today</div>
+          <h3>Keep building on what runs</h3>
+          <p>The 2025-11-25 model is what most production servers still speak. Lifecycle, JSON-RPC, and the three primitives you already practiced still apply directly. Moving is a choice, not a mandate.</p>
+        </div>
+        <div class="card">
+          <div class="k">Worth knowing</div>
+          <h3>The shape of 2026-07-28</h3>
+          <p>Self-contained requests. Mid-task questions answered by coming back with the ticket, not by holding a socket. A published deprecation policy for a short list of older pieces — nothing sudden.</p>
+        </div>
+      </div>
+
+      <p class="hql">"You do not need to rebuild today. You needed a clear picture of what is already published — and now you have one."</p>
+
+      <p style="margin-top:18px;font-size:14px;color:var(--muted);">Continue with the other MCP labs on this site:</p>
+      <div class="related">
+        <a href="mcp-explainer.html">MCP Explainer</a>
+        <a href="mcp-lifecycle.html">Lifecycle Guide</a>
+        <a href="mcp-lifecycle-simulator.html">Lifecycle Simulator</a>
+        <a href="claude-ai-series/mcp.html">Claude series · MCP</a>
+      </div>
+      <div class="ref-note">
+        Mayank Chugh · Hong Kong · Enterprise Architect → AI Engineer.
+        Spec facts from the official Model Context Protocol revisions
+        <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">modelcontextprotocol.io</a>
+        (2025-11-25 and 2026-07-28).
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  var captions = [
+    "The client sends a complete tool call — no hidden session on the server.",
+    "While that call is open, the server asks one real question.",
+    "The client returns with the answer and the original job details.",
+    "A different replica can finish. The ticket, not the first process, was the memory."
+  ];
+  var seqTimer = null;
+  var seqIndex = -1;
+
+  function showPage(id) {
+    document.querySelectorAll(".navitem").forEach(function (b) { b.classList.remove("active"); });
+    document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
+    var btn = document.querySelector('.navitem[data-page="' + id + '"]');
+    var page = document.getElementById("page-" + id);
+    if (btn) btn.classList.add("active");
+    if (page) page.classList.add("active");
+    window.scrollTo(0, 0);
+    if (history.replaceState) history.replaceState(null, "", "#" + id);
+    closeSidebar();
+  }
+
+  document.querySelectorAll(".navitem").forEach(function (btn) {
+    btn.addEventListener("click", function () { showPage(btn.dataset.page); });
+  });
+
+  var hash = (location.hash || "").replace("#", "");
+  if (hash && document.getElementById("page-" + hash)) showPage(hash);
+
+  document.querySelectorAll(".toggle-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".toggle-btn").forEach(function (b) {
+        b.classList.remove("active");
+        b.setAttribute("aria-pressed", "false");
+      });
+      btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
+      document.querySelectorAll(".pane").forEach(function (p) { p.classList.remove("active"); });
+      document.getElementById("pane-" + btn.dataset.toggle).classList.add("active");
+    });
+  });
+
+  function paintSeq(n) {
+    document.querySelectorAll(".seq-step").forEach(function (el) {
+      el.classList.toggle("on", Number(el.dataset.step) <= n && n >= 0);
+    });
+    document.getElementById("seq-caption").textContent = n < 0 ? "Press play to walk the four hops." : captions[n];
+  }
+  function resetSeq() {
+    if (seqTimer) clearInterval(seqTimer);
+    seqTimer = null;
+    seqIndex = -1;
+    paintSeq(-1);
+    document.getElementById("seq-play").disabled = false;
+  }
+  document.getElementById("seq-play").addEventListener("click", function () {
+    resetSeq();
+    document.getElementById("seq-play").disabled = true;
+    seqIndex = 0;
+    paintSeq(0);
+    seqTimer = setInterval(function () {
+      seqIndex += 1;
+      if (seqIndex > 3) {
+        clearInterval(seqTimer);
+        seqTimer = null;
+        document.getElementById("seq-play").disabled = false;
+        return;
+      }
+      paintSeq(seqIndex);
+    }, 1100);
+  });
+  document.getElementById("seq-reset").addEventListener("click", resetSeq);
+
+  var toggle = document.getElementById("menu-toggle");
+  var sidebar = document.getElementById("guide-sidebar");
+  var backdrop = document.getElementById("sidebar-backdrop");
+  function closeSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.remove("open");
+    if (backdrop) backdrop.classList.remove("show");
+  }
+  function openSidebar() {
+    sidebar.classList.add("open");
+    if (backdrop) backdrop.classList.add("show");
+  }
+  if (toggle && sidebar) {
+    toggle.addEventListener("click", function () {
+      if (sidebar.classList.contains("open")) closeSidebar();
+      else openSidebar();
+    });
+  }
+  if (backdrop) backdrop.addEventListener("click", closeSidebar);
+</script>
+</body>
+</html>
