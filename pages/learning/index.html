@@ -1497,7 +1497,7 @@ footer{margin-top:40px;}
     <header class="topic-header">
       <div class="section-tag">Topic 07</div>
       <h2>Tooling & Claude</h2>
-      <p>Practical Claude tooling — MCP protocol lab, Claude Code, the Learn Claude course, and a 7-part interactive series.</p>
+      <p>Practical Claude tooling — MCP protocol lab, lifecycle conversation simulator, Claude Code, the Learn Claude course, and a 7-part interactive series.</p>
     </header>
     <div class="subtopic">
       <div class="subtopic-label">Protocol</div>
@@ -1538,6 +1538,77 @@ footer{margin-top:40px;}
               <h3>MCP Explainer</h3>
               <p>Interactive Model Context Protocol lab — watch Host, Client, and Server talk in JSON-RPC, then read the same flow as a junior or an architect.</p>
               <span class="learning-card-cta">Open simulator →</span>
+            </div>
+          </a>
+        </article>
+        <article class="learning-card">
+          <a href="../ai-learning/mcp-lifecycle-simulator.html" class="learning-card-link">
+            <div class="learning-card-thumb">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="MCP Lifecycle Simulator preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <linearGradient id="mcp-life-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#0f1e36"/><stop offset="100%" stop-color="#1a2f4e"/>
+                  </linearGradient>
+                  <linearGradient id="mcp-life-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#b5651d"/><stop offset="100%" stop-color="#0f6b64"/>
+                  </linearGradient>
+                </defs>
+                <rect width="400" height="225" fill="url(#mcp-life-bg)"/>
+                <ellipse cx="64" cy="40" rx="78" ry="42" fill="#b5651d" opacity="0.2"/>
+                <ellipse cx="336" cy="196" rx="86" ry="48" fill="#0f6b64" opacity="0.18"/>
+                <text x="200" y="40" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#f0c060" letter-spacing="2">JSON-RPC WIRETAP</text>
+                <text x="200" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#f4f6f9">MCP Lifecycle</text>
+                <text x="200" y="98" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="600" fill="#7ec8e8">Init · Operation · Shutdown</text>
+                <rect x="28" y="122" width="150" height="24" rx="6" fill="#3a2410" stroke="#e8c9a0"/>
+                <text x="103" y="138" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#f0c060">Client → initialize</text>
+                <rect x="222" y="122" width="150" height="24" rx="6" fill="#0f2e2b" stroke="#a9d8d1"/>
+                <text x="297" y="138" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#99f6e4">Server → tools/list</text>
+                <rect x="70" y="168" width="260" height="26" rx="13" fill="#e8a020"/>
+                <text x="200" y="185" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#0f1e36">Play the full conversation</text>
+                <rect x="0" y="223" width="400" height="2" fill="url(#mcp-life-bar)"/>
+              </svg>
+            </div>
+            <div class="learning-card-body">
+              <span class="learning-card-tag">Simulator</span>
+              <h3>MCP Lifecycle Simulator</h3>
+              <p>Watch initialize, tools/list, tools/call, errors, progress, ping, and shutdown — complete JSON-RPC bodies, one message at a time.</p>
+              <span class="learning-card-cta">Open simulator →</span>
+            </div>
+          </a>
+        </article>
+        <article class="learning-card">
+          <a href="../ai-learning/mcp-lifecycle.html" class="learning-card-link">
+            <div class="learning-card-thumb">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="MCP Lifecycle guide preview" width="400" height="225" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <linearGradient id="mcp-life-guide-bg" x1="0" y1="0" x2="400" y2="225" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#1a1a1d"/><stop offset="100%" stop-color="#2a2218"/>
+                  </linearGradient>
+                  <linearGradient id="mcp-life-guide-bar" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#d97a4d"/><stop offset="100%" stop-color="#0f6b64"/>
+                  </linearGradient>
+                </defs>
+                <rect width="400" height="225" fill="url(#mcp-life-guide-bg)"/>
+                <ellipse cx="70" cy="40" rx="80" ry="46" fill="#d97a4d" opacity="0.18"/>
+                <ellipse cx="340" cy="190" rx="90" ry="50" fill="#0f6b64" opacity="0.16"/>
+                <text x="200" y="42" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="600" fill="#e0a67e" letter-spacing="2">17 PAGES · LIVE-VERIFIED</text>
+                <text x="200" y="82" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#f4f6f9">MCP Lifecycle</text>
+                <text x="200" y="110" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="600" fill="#c7c7cc">Init · Operation · Shutdown</text>
+                <rect x="28" y="138" width="108" height="30" rx="6" fill="#2b2b30" stroke="#d97a4d" stroke-opacity="0.7"/>
+                <text x="82" y="158" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#e0a67e">Handshake</text>
+                <rect x="146" y="138" width="108" height="30" rx="6" fill="#2b2b30" stroke="#2f6db5" stroke-opacity="0.7"/>
+                <text x="200" y="158" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#8eb8e8">JSON-RPC</text>
+                <rect x="264" y="138" width="108" height="30" rx="6" fill="#2b2b30" stroke="#0f6b64" stroke-opacity="0.7"/>
+                <text x="318" y="158" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="600" fill="#5ec8c0">Transport</text>
+                <text x="200" y="198" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#8b8b93">stdio · Streamable HTTP · special cases</text>
+                <rect x="0" y="223" width="400" height="2" fill="url(#mcp-life-guide-bar)"/>
+              </svg>
+            </div>
+            <div class="learning-card-body">
+              <span class="learning-card-tag">Protocol</span>
+              <h3>MCP Lifecycle Guide</h3>
+              <p>Seventeen-page walkthrough of the MCP connection: handshake, capability negotiation, discovery, transports, shutdown, and special cases.</p>
+              <span class="learning-card-cta">Open guide →</span>
             </div>
           </a>
         </article>

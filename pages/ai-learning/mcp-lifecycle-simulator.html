@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" data-page="mcp-lifecycle-simulator">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/assets/theme-switcher.js"></script>
+  <title>MCP Lifecycle — Conversation Simulator · Mayank Chugh</title>
+  <meta name="description" content="Press Play and watch a full Model Context Protocol conversation — initialize, tools/list, tools/call, errors, progress, ping, and shutdown — message by message. Interactive lab by Mayank Chugh, Senior Enterprise Architect and AI Engineer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --amber: #b5651d; --amber-bg: #fdf3e7; --amber-bd: #e8c9a0;
+      --teal: #0f6b64; --teal-bg: #e8f5f3; --teal-bd: #a9d8d1;
+      --lav: #5b4b8a; --lav-bg: #f1eefa; --lav-bd: #cfc3e8;
+      --ink: #22262b; --sub: #6b7280; --line: #e5e7eb; --bg: #fafaf8;
+      --navy: #0f1e36; --gold: #e8a020;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+    .mono { font-family: 'SF Mono', Consolas, Menlo, monospace; }
+    header {
+      padding: 88px 32px 18px; border-bottom: 2px solid var(--ink);
+    }
+    .hub-link {
+      display: inline-block; margin-bottom: 14px;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      font-size: 13px; font-weight: 600; color: var(--teal); text-decoration: none;
+    }
+    .hub-link:hover { color: var(--navy); }
+    header h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: -0.3px; font-family: Syne, Georgia, serif; }
+    header .lede { margin: 0 0 16px; color: var(--sub); font-family: -apple-system, sans-serif; font-size: 14px; max-width: 880px; line-height: 1.55; }
+    .byline {
+      display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px 28px;
+      padding-top: 14px; border-top: 1px solid var(--line);
+      font-family: 'DM Sans', -apple-system, sans-serif;
+    }
+    .byline-name { font-family: Syne, sans-serif; font-weight: 800; font-size: 15px; color: var(--navy); }
+    .byline-role { font-size: 13px; color: var(--sub); margin-top: 2px; }
+    .byline-meta { font-size: 12.5px; color: var(--sub); margin-top: 2px; }
+    .byline-links { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .byline-links a {
+      font-size: 12px; font-weight: 600; color: var(--teal); text-decoration: none;
+      border: 1px solid var(--line); background: #fff; padding: 5px 10px; border-radius: 999px;
+    }
+    .byline-links a:hover { border-color: var(--teal); }
+
+    .layout { display: grid; grid-template-columns: 1fr 340px; gap: 0; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } header { padding: 80px 20px 16px; } }
+
+    .stage { padding: 24px 32px 48px; }
+    @media (max-width: 900px) { .stage { padding: 20px 20px 48px; } }
+
+    .controls { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; font-family: -apple-system, sans-serif; flex-wrap: wrap; }
+    button {
+      font-family: -apple-system, sans-serif; font-size: 13px; font-weight: 600;
+      padding: 9px 16px; border-radius: 3px; border: 1.5px solid var(--ink);
+      background: var(--ink); color: #fff; cursor: pointer;
+    }
+    button.secondary { background: #fff; color: var(--ink); }
+    button:disabled { opacity: 0.35; cursor: default; }
+    .phase-badge {
+      font-family: -apple-system, sans-serif; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 4px 10px; border-radius: 999px; border: 1.5px solid;
+    }
+    .phase-init { color: var(--amber); background: var(--amber-bg); border-color: var(--amber-bd); }
+    .phase-operation { color: var(--teal); background: var(--teal-bg); border-color: var(--teal-bd); }
+    .phase-shutdown { color: var(--lav); background: var(--lav-bg); border-color: var(--lav-bd); }
+
+    .rails { display: flex; justify-content: space-between; font-family: -apple-system, sans-serif;
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--sub); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 14px; }
+
+    .log { display: flex; flex-direction: column; gap: 10px; min-height: 420px; }
+    .msg {
+      max-width: 78%; opacity: 0; transform: translateY(6px);
+      animation: in 0.35s ease forwards;
+      border-radius: 4px; border: 1.5px solid; padding: 10px 14px; cursor: pointer;
+    }
+    @keyframes in { to { opacity: 1; transform: translateY(0); } }
+    .msg.client { align-self: flex-start; background: var(--amber-bg); border-color: var(--amber-bd); }
+    .msg.server { align-self: flex-end; background: var(--teal-bg); border-color: var(--teal-bd); }
+    .msg.event { align-self: center; background: var(--lav-bg); border-color: var(--lav-bd); font-style: italic; }
+    .msg .lbl { font-family: -apple-system, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.4px; margin-bottom: 3px; }
+    .msg.client .lbl { color: var(--amber); }
+    .msg.server .lbl { color: var(--teal); }
+    .msg.event .lbl { color: var(--lav); }
+    .msg .caption { font-family: -apple-system, sans-serif; font-size: 14px; }
+    .msg pre { display: none; margin: 8px 0 0; font-size: 12px; background: rgba(255,255,255,0.6);
+      padding: 8px; border-radius: 3px; overflow-x: auto; white-space: pre-wrap; }
+    .msg.expanded pre { display: block; }
+    .msg .hint { font-family: -apple-system, sans-serif; font-size: 11px; color: var(--sub); margin-top: 4px; }
+
+    .side { border-left: 2px solid var(--ink); padding: 24px 20px 80px; font-family: -apple-system, sans-serif; }
+    @media (max-width: 900px) { .side { border-left: none; border-top: 2px solid var(--ink); } }
+    .side h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px; }
+    details { border: 1px solid var(--line); border-radius: 4px; margin-bottom: 8px; background: #fff; }
+    summary { padding: 10px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    details[open] summary { border-bottom: 1px solid var(--line); }
+    .panel { padding: 10px 12px; font-size: 12.5px; line-height: 1.6; }
+    .panel table { width: 100%; border-collapse: collapse; }
+    .panel td, .panel th { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .panel th { font-size: 11px; text-transform: uppercase; color: var(--sub); }
+    .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 700; }
+    .tag.amber { background: var(--amber-bg); color: var(--amber); }
+    .tag.teal { background: var(--teal-bg); color: var(--teal); }
+    code { background: #f0f0ee; padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+    a { color: var(--teal); }
+    .page-end {
+      max-width: 1100px; margin: 0 auto; padding: 8px 32px 88px;
+      font-family: 'DM Sans', -apple-system, sans-serif; font-size: 13px; color: var(--sub); line-height: 1.6;
+    }
+
+    [data-theme="dark"], [data-theme="midnight"], [data-theme="contrast"] {
+      --ink: #eef2f7; --sub: #8aa0b8; --line: #2a3648; --bg: #0a1220; --navy: #f4f6f9;
+      --amber-bg: #3a2410; --amber-bd: #8a5a28; --teal-bg: #0f2e2b; --teal-bd: #2d6b64;
+      --lav-bg: #241e38; --lav-bd: #5b4b8a;
+    }
+    [data-theme="dark"] header, [data-theme="midnight"] header, [data-theme="contrast"] header { border-bottom-color: #eef2f7; }
+    [data-theme="dark"] .side, [data-theme="midnight"] .side, [data-theme="contrast"] .side { border-left-color: #eef2f7; }
+    @media (max-width: 900px) {
+      [data-theme="dark"] .side, [data-theme="midnight"] .side, [data-theme="contrast"] .side { border-top-color: #eef2f7; }
+    }
+    [data-theme="dark"] details, [data-theme="midnight"] details, [data-theme="contrast"] details { background: #132036; }
+    [data-theme="dark"] button, [data-theme="midnight"] button, [data-theme="contrast"] button {
+      background: #eef2f7; color: #0a1220; border-color: #eef2f7;
+    }
+    [data-theme="dark"] button.secondary, [data-theme="midnight"] button.secondary, [data-theme="contrast"] button.secondary {
+      background: #132036; color: #eef2f7; border-color: #eef2f7;
+    }
+    [data-theme="dark"] .byline-links a, [data-theme="midnight"] .byline-links a, [data-theme="contrast"] .byline-links a {
+      background: #132036; border-color: #2a3648; color: #7ec8e8;
+    }
+    [data-theme="dark"] code, [data-theme="midnight"] code, [data-theme="contrast"] code { background: #1a2740; }
+    [data-theme="dark"] .msg pre, [data-theme="midnight"] .msg pre, [data-theme="contrast"] .msg pre { background: rgba(10,18,32,0.45); }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+  <header>
+    <a class="hub-link" href="/pages/learning/index.html">← Learning Hub</a>
+    <h1>MCP Lifecycle — Conversation Simulator</h1>
+    <p class="lede">Not a slide deck — press Play and watch the full protocol conversation happen, message by message. This shows complete message bodies, the way a wiretap captures them — Claude Desktop's own log only shows a one-line summary of each message; see “Live capture command” for that exact, corrected command. Pair this with the <a href="/pages/ai-learning/mcp-explainer.html">MCP Explainer</a> (Host · Client · Server roles) on this site.</p>
+    <div class="byline">
+      <div>
+        <div class="byline-name">Mayank Chugh</div>
+        <div class="byline-role">Senior Enterprise Architect · AI Engineer · GenAI Practitioner</div>
+        <div class="byline-meta">Hong Kong · 20+ years · Cathay Pacific, HSBC, British Airways</div>
+      </div>
+      <div class="byline-links">
+        <a href="https://mayankchugh-learning.github.io/" target="_blank" rel="noopener">Portfolio</a>
+        <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://medium.com/@mayankchugh.jobathk" target="_blank" rel="noopener">Medium</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="stage">
+      <div class="controls">
+        <button id="playBtn" type="button" onclick="togglePlay()">▶ Play</button>
+        <button class="secondary" type="button" onclick="stepOnce()">Step →</button>
+        <button class="secondary" type="button" onclick="reset()">⟲ Reset</button>
+        <span id="phaseBadge" class="phase-badge phase-init">Initialization</span>
+      </div>
+      <div class="rails"><span>Client</span><span>Server</span></div>
+      <div class="log" id="log"></div>
+    </div>
+
+    <div class="side">
+      <h2>Deep Reference</h2>
+
+      <details>
+        <summary>Capability table</summary>
+        <div class="panel">
+          <table>
+            <tr><th>Side</th><th>Capability</th><th>Meaning</th></tr>
+            <tr><td class="tag amber">Client</td><td>roots</td><td>Filesystem directory access for the server</td></tr>
+            <tr><td class="tag amber">Client</td><td>sampling</td><td>Server can borrow the client's own AI model</td></tr>
+            <tr><td class="tag teal">Server</td><td>tools</td><td>Callable actions</td></tr>
+            <tr><td class="tag teal">Server</td><td>resources</td><td>Read-only data</td></tr>
+            <tr><td class="tag teal">Server</td><td>prompts</td><td>Request templates</td></tr>
+            <tr><td class="tag teal">Server</td><td>logging</td><td>Structured log messages to the client</td></tr>
+          </table>
+          <p style="margin-top:8px;color:#b5651d"><em>roots, sampling, and logging are being deprecated in the newest spec revision (SEP-2577).</em></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Error codes</summary>
+        <div class="panel">
+          <table>
+            <tr><th>Code</th><th>Name</th><th>Cause</th></tr>
+            <tr><td>-32700</td><td>Parse error</td><td>Unreadable JSON</td></tr>
+            <tr><td>-32600</td><td>Invalid request</td><td>Well-formed, not valid</td></tr>
+            <tr><td>-32601</td><td>Method not found</td><td>Never advertised</td></tr>
+            <tr><td>-32602</td><td>Invalid params</td><td>Wrong/missing args</td></tr>
+            <tr><td>-32603</td><td>Internal error</td><td>Server logic failed</td></tr>
+            <tr><td>-32000+</td><td>Server-defined</td><td>Custom to that server</td></tr>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>Transport comparison</summary>
+        <div class="panel">
+          <p><span class="tag teal">stdio</span> subprocess, stdin/stdout, newline-delimited, stderr free for logging, no auth layer.</p>
+          <p><span class="tag amber">Streamable HTTP</span> one endpoint (<code>/mcp</code>), POST+GET, JSON or SSE, optional <code>Mcp-Session-Id</code>.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Real local servers (stdio)</summary>
+        <div class="panel">
+          <p><code>npx -y @modelcontextprotocol/server-filesystem &lt;dir&gt;</code></p>
+          <p><code>npx -y @modelcontextprotocol/server-everything</code> — all 3 primitives</p>
+          <p><code>uvx mcp-server-git</code></p>
+          <p><code>npx -y @modelcontextprotocol/server-memory</code></p>
+          <p><code>uvx mcp-server-fetch</code></p>
+          <p><code>uvx mcp-server-time</code></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Real remote servers (HTTP)</summary>
+        <div class="panel">
+          <p><strong>DeepWiki</strong> (free, no auth)<br>
+          <code>https://mcp.deepwiki.com/mcp</code><br>
+          <span style="color:var(--sub)">also: /sse (legacy, same service — great for A/B transport demos)</span></p>
+          <p><strong>Semgrep</strong><br><code>https://mcp.semgrep.ai/mcp</code></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Live capture command</summary>
+        <div class="panel">
+          <p style="font-size:11px;color:#b5651d">Correction: Claude Desktop's log only shows a summary line (method/id/params-or-result present), not full JSON — no jq needed.</p>
+          <p class="mono" style="font-size:11px;">tail -n0 -f "$HOME/Library/Logs/Claude"/mcp-server-*.log<br>| awk '/Message from client:/ {...}<br>&nbsp;&nbsp;/Message from server:/ {...}'</p>
+          <p>Full corrected script: <code>watch-mcp-logs.sh</code>, in the course files.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <p class="page-end">
+    Interactive lab by <strong>Mayank Chugh</strong> · Senior Enterprise Architect and AI Engineer ·
+    <a href="https://mayankchugh-learning.github.io/">mayankchugh-learning.github.io</a>.
+    Conversation script adapted from the
+    <a href="https://mcp-lifecycle-simulator.netlify.app/" target="_blank" rel="noopener">MCP Lifecycle Conversation Simulator</a>
+    for this Learning Hub. Protocol facts aligned to MCP JSON-RPC 2.0. This page simulates messages in the browser — it does not spawn a real MCP process.
+  </p>
+
+<script>
+const STEPS = [
+  {phase:'init', dir:'client', label:'Step 1 · initialize request', caption:'Client speaks first: version, capabilities, identity.',
+   json:{jsonrpc:"2.0", id:1, method:"initialize", params:{protocolVersion:"2025-11-25", capabilities:{roots:{listChanged:true}}, clientInfo:{name:"RecipeBoxDesktopClient", version:"1.0.0"}}}},
+  {phase:'init', dir:'server', label:'Step 2 · initialize response', caption:'Server answers with its own version, capabilities, identity.',
+   json:{jsonrpc:"2.0", id:1, result:{protocolVersion:"2025-11-25", capabilities:{tools:{listChanged:true}}, serverInfo:{name:"RecipeBox", version:"1.0.0"}}}},
+  {phase:'init', dir:'client', label:'Step 3 · initialized notification', caption:'No id — an announcement, not a question. Handshake sealed.',
+   json:{jsonrpc:"2.0", method:"notifications/initialized"}},
+  {phase:'operation', dir:'client', label:'Discovery · tools/list', caption:'Fires automatically the instant the handshake completes.',
+   json:{jsonrpc:"2.0", id:2, method:"tools/list"}},
+  {phase:'operation', dir:'server', label:'Discovery response', caption:'The host quietly stores this for later matching.',
+   json:{jsonrpc:"2.0", id:2, result:{tools:[{name:"list_recipes",description:"List every recipe"},{name:"get_recipe",description:"Get one recipe's detail"},{name:"search_recipes",description:"Search by tag"}]}}},
+  {phase:'operation', dir:'client', label:'tools/call · search_recipes', caption:'A real question finally arrives.',
+   json:{jsonrpc:"2.0", id:3, method:"tools/call", params:{name:"search_recipes", arguments:{tag:"quick"}}}},
+  {phase:'operation', dir:'server', label:'Tool call response', caption:'Placing the order, after reading the menu.',
+   json:{jsonrpc:"2.0", id:3, result:{content:[{type:"text", text:"Weeknight Pasta, Five-Minute Salsa"}]}}},
+  {phase:'operation', dir:'client', label:'A request for something never negotiated', caption:'The host asks for prompts anyway — this genuinely happens.',
+   json:{jsonrpc:"2.0", id:4, method:"prompts/list"}},
+  {phase:'operation', dir:'server', label:'Error · Method not found', caption:'Not a crash — just an honest "we don\'t have that."',
+   json:{jsonrpc:"2.0", id:4, error:{code:-32601, message:"Method not found"}}},
+  {phase:'operation', dir:'client', label:'A long-running call, tagged for progress', caption:'A progressToken lets the server report back mid-task.',
+   json:{jsonrpc:"2.0", id:7, method:"tools/call", params:{name:"search_recipes", arguments:{tag:"sunday"}, _meta:{progressToken:"tok-7"}}}},
+  {phase:'operation', dir:'server', label:'notifications/progress', caption:'No id — a status update, not a reply yet.',
+   json:{jsonrpc:"2.0", method:"notifications/progress", params:{progressToken:"tok-7", progress:60, total:100, message:"Searching 60 of 100 recipes"}}},
+  {phase:'operation', dir:'client', label:'notifications/cancelled', caption:'A decision already made, announced — not a request for permission.',
+   json:{jsonrpc:"2.0", method:"notifications/cancelled", params:{requestId:"7", reason:"Timeout exceeded (30s)"}}},
+  {phase:'operation', dir:'client', label:'ping', caption:'Carries no information at all — just proving the line is still open.',
+   json:{jsonrpc:"2.0", id:42, method:"ping"}},
+  {phase:'operation', dir:'server', label:'ping response', caption:'An empty result is the entire point.',
+   json:{jsonrpc:"2.0", id:42, result:{}}},
+  {phase:'shutdown', dir:'event', label:'EVENT — not a JSON-RPC message', caption:'Shutdown has no message format of its own. The transport closing IS the goodbye.',
+   json:null, raw:'Server transport closed { metadata: undefined }'},
+];
+
+let idx = 0, playing = false, timer = null;
+const log = document.getElementById('log');
+const badge = document.getElementById('phaseBadge');
+const playBtn = document.getElementById('playBtn');
+
+function phaseClass(p){ return {init:'phase-init', operation:'phase-operation', shutdown:'phase-shutdown'}[p]; }
+function phaseLabel(p){ return {init:'Initialization', operation:'Operation', shutdown:'Shutdown'}[p]; }
+
+function render(step){
+  const el = document.createElement('div');
+  el.className = 'msg ' + step.dir;
+  const dirLabel = step.dir === 'client' ? 'Client → Server' : step.dir === 'server' ? 'Server → Client' : 'Event';
+  el.innerHTML = `<div class="lbl">${dirLabel} · ${step.label}</div>
+    <div class="caption">${step.caption}</div>
+    <div class="hint">click to ${step.json || step.raw ? 'toggle JSON' : ''}</div>
+    <pre class="mono">${step.json ? JSON.stringify(step.json, null, 2) : (step.raw || '')}</pre>`;
+  el.onclick = () => el.classList.toggle('expanded');
+  log.appendChild(el);
+  badge.className = 'phase-badge ' + phaseClass(step.phase);
+  badge.textContent = phaseLabel(step.phase);
+  el.scrollIntoView({behavior:'smooth', block:'end'});
+}
+
+function stepOnce(){
+  if (idx >= STEPS.length) { pause(); return; }
+  render(STEPS[idx]);
+  idx++;
+  if (idx >= STEPS.length) pause();
+}
+function togglePlay(){ playing ? pause() : play(); }
+function play(){
+  playing = true; playBtn.textContent = '⏸ Pause';
+  timer = setInterval(stepOnce, 1400);
+}
+function pause(){
+  playing = false; playBtn.textContent = '▶ Play';
+  clearInterval(timer);
+}
+function reset(){
+  pause(); idx = 0; log.innerHTML = '';
+  badge.className = 'phase-badge phase-init'; badge.textContent = 'Initialization';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en" data-page="mcp-lifecycle">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/assets/theme-switcher.js"></script>
+<title>MCP Lifecycle - Complete Guide - Mayank Chugh</title>
+<meta name="description" content="A 17-page walkthrough of the Model Context Protocol lifecycle - initialization, operation, transport, shutdown, and special cases - by Mayank Chugh.">
+<style>
+  :root {
+    --accent: #d97a4d; --accent-dark: #b5651d;
+    --cream: #fdf6e8; --cream-bd: #e8c9a0;
+    --blue-bg: #eaf2fb; --blue-bd: #b9d4f0; --blue: #2f6db5;
+    --sidebar: #1a1a1d; --sidebar-sub: #8b8b93; --sidebar-hover: #26262a;
+    --ink: #1f2328; --sub: #6b7280; --line: #e6e6e3; --bg: #fff;
+    --teal: #0f6b64; --teal-bg: #e8f5f3;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--ink); background: var(--bg); }
+  .mono { font-family: 'SF Mono', Consolas, Menlo, monospace; }
+
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar { width: 280px; background: var(--sidebar); color: #e5e5e7; flex-shrink: 0;
+    display: flex; flex-direction: column; padding: 22px 14px; overflow-y: auto;
+    position: sticky; top: 0; height: 100vh; }
+  .sidebar-header { padding: 4px 10px 16px; }
+  .sidebar-header .title { font-size: 16px; font-weight: 700; color: #fff; }
+  .sidebar-header .sub { font-size: 12px; color: var(--sidebar-sub); margin-top: 2px; }
+  .sidebar-badges { display: flex; gap: 6px; padding: 0 10px 16px; flex-wrap: wrap; }
+  .badge { font-size: 10.5px; padding: 3px 8px; border-radius: 5px; background: #2b2b30; color: #c7c7cc; }
+
+  .cat { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--sidebar-sub); padding: 14px 10px 6px; }
+  .navitem { display: block; width: 100%; text-align: left; background: none; border: none;
+    color: #d4d4d8; padding: 8px 10px; border-radius: 6px; font-size: 13.5px; cursor: pointer;
+    margin-bottom: 1px; }
+  .navitem .nav-sub { display: block; font-size: 11px; color: #7a7a80; margin-top: 1px; }
+  .navitem:hover { background: var(--sidebar-hover); }
+  .navitem.active { background: #33241b; color: #fff; border-left: 3px solid var(--accent); padding-left: 7px; }
+  .navitem.active .nav-sub { color: #e0a67e; }
+
+  .sidebar-footer { margin-top: auto; padding: 16px 10px 4px; border-top: 1px solid #2c2c30; }
+  .author { display: flex; align-items: center; gap: 8px; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
+  .author .name { font-size: 12.5px; font-weight: 600; color: #fff; }
+  .author .tag { font-size: 10.5px; color: var(--sidebar-sub); }
+  .sidebar-links { display: flex; gap: 6px; margin-top: 10px; }
+  .sidebar-links span { font-size: 10px; background: #2b2b30; color: #c7c7cc; padding: 3px 7px; border-radius: 4px; }
+
+  main { flex: 1; padding: 34px 48px; max-width: 900px; }
+  .crumb { font-size: 12.5px; color: var(--sub); margin-bottom: 10px; }
+  .crumb b { color: var(--ink); }
+  .eyebrow { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent-dark); }
+  h1.page-title { font-size: 32px; margin: 6px 0 8px; letter-spacing: -0.4px; }
+  .page-sub { font-size: 15px; color: var(--sub); margin: 0 0 22px; max-width: 640px; line-height: 1.5; }
+
+  .tabs { display: flex; gap: 22px; border-bottom: 1.5px solid var(--line); margin-bottom: 22px; }
+  .tab { padding: 8px 2px 10px; font-size: 13.5px; font-weight: 600; color: var(--sub);
+    border-bottom: 2.5px solid transparent; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; }
+  .tab.active { color: var(--accent-dark); border-bottom-color: var(--accent); }
+  .tabpanel { display: none; }
+  .tabpanel.active { display: block; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
+  .card { border: 1.5px solid var(--line); border-radius: 10px; padding: 16px; background: #fff; }
+  .card.highlight { background: var(--cream); border-color: var(--accent); }
+  .card .k { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--sub); margin-bottom: 6px; }
+  .card.highlight .k { color: var(--accent-dark); }
+  .card h3 { font-size: 16px; margin: 0 0 8px; }
+  .card p { font-size: 13.5px; color: #444; line-height: 1.5; margin: 0; }
+  .card b { color: var(--ink); }
+
+  .callout { border-radius: 8px; padding: 14px 16px; margin: 18px 0; border-left: 4px solid; display: flex; gap: 10px; }
+  .callout.analogy { background: var(--cream); border-color: var(--accent); }
+  .callout.info { background: var(--blue-bg); border-color: var(--blue); }
+  .callout .icon { font-size: 18px; line-height: 1.3; }
+  .callout .label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .callout.analogy .label { color: var(--accent-dark); }
+  .callout.info .label { color: var(--blue); }
+  .callout p { margin: 0; font-size: 14px; line-height: 1.55; }
+
+  pre.json { background: #f7f7f5; border: 1px solid var(--line); border-radius: 8px; padding: 14px;
+    font-size: 12.5px; overflow-x: auto; line-height: 1.55; }
+  pre.bash { background: #1c1c1f; color: #e5e5e7; border-radius: 8px; padding: 14px; font-size: 12px;
+    overflow-x: auto; line-height: 1.6; white-space: pre-wrap; }
+  .msg-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+  .msg-label.c2s { color: var(--accent-dark); }
+  .msg-label.s2c { color: var(--teal); }
+  .jkey { color: #a8710e; } .jstr { color: #2a7d3f; } .jnum { color: #2b5fb0; } .jbool { color: #7c4dbd; } .jpunc { color: #9a9a95; }
+
+  table.ref { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+  table.ref th { text-align: left; font-size: 11px; text-transform: uppercase; color: var(--sub); padding: 6px 10px; border-bottom: 1.5px solid var(--line); }
+  table.ref td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  code.inline { background: #f0f0ee; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+  .hql { font-style: italic; border-left: 3px solid var(--line); padding-left: 12px; color: #444; margin: 16px 0; }
+  .ref-note { font-size: 12px; color: #9a9a9a; margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .page { display: none; } .page.active { display: block; }
+
+  .hub-back { display: inline-block; font-size: 12px; color: #c7c7cc; text-decoration: none; margin: 0 10px 14px; }
+  .hub-back:hover { color: #fff; }
+  .sidebar-links a { font-size: 10px; background: #2b2b30; color: #c7c7cc; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
+  .sidebar-links a:hover { background: #3a3a40; color: #fff; }
+  .menu-toggle { display: none; }
+  [data-page="mcp-lifecycle"] .site-chrome { left: auto !important; right: 16px; bottom: 16px; }
+
+  html[data-theme="dark"], html[data-theme="midnight"] {
+    --cream: #2a2218; --cream-bd: #5a4030;
+    --blue-bg: #1a2838; --blue-bd: #3a5570; --blue: #7eb4e8;
+    --ink: #e8e6e3; --sub: #9a9aa3; --line: #2e2e32; --bg: #1a1a1d;
+    --teal: #5ec8c0; --teal-bg: #1a2e2c;
+  }
+  html[data-theme="dark"] body, html[data-theme="midnight"] body { background: var(--bg); color: var(--ink); }
+  html[data-theme="dark"] .card, html[data-theme="midnight"] .card { background: #222226; }
+  html[data-theme="dark"] .card.highlight, html[data-theme="midnight"] .card.highlight { background: var(--cream); }
+  html[data-theme="dark"] pre.json, html[data-theme="midnight"] pre.json { background: #141416; border-color: var(--line); color: #e5e5e7; }
+  html[data-theme="dark"] code.inline, html[data-theme="midnight"] code.inline { background: #2b2b30; }
+  html[data-theme="dark"] table.ref td, html[data-theme="midnight"] table.ref td { color: var(--ink); }
+  html[data-theme="contrast"] { --ink: #000; --bg: #fff; --sub: #222; --line: #000; }
+  html[data-theme="contrast"] body { background: #fff; color: #000; }
+
+  @media (max-width: 860px) {
+    .menu-toggle {
+      display: inline-flex; align-items: center; gap: 8px;
+      position: fixed; top: 12px; left: 12px; z-index: 40;
+      background: var(--sidebar); color: #fff; border: none; border-radius: 8px;
+      padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .sidebar {
+      position: fixed; inset: 0 auto 0 0; z-index: 30; transform: translateX(-100%);
+      transition: transform 0.2s ease; height: 100vh;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 25;
+    }
+    .sidebar-backdrop.show { display: block; }
+    main { padding: 64px 20px 40px; }
+  }
+</style>
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+
+<button class="menu-toggle" type="button" id="menu-toggle" aria-label="Open guide menu">Menu</button>
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+<div class="app">
+  <nav class="sidebar" id="guide-sidebar">
+    <a class="hub-back" href="../learning/index.html#tooling-claude">← Learning Hub</a>
+    <div class="sidebar-header">
+      <div class="title">MCP Lifecycle</div>
+      <div class="sub">Complete Guide · Mayank Chugh</div>
+    </div>
+    <div class="sidebar-badges"><span class="badge">17 Pages</span><span class="badge">Live-Verified</span></div>
+
+    <div class="cat">Foundation</div>
+    <button class="navitem active" data-page="overview">The Three Stages<span class="nav-sub">Init · Operation · Shutdown</span></button>
+    <button class="navitem" data-page="live-demo">Live Demo Setup<span class="nav-sub">Corrected command · No jq needed</span></button>
+    <button class="navitem" data-page="servers">Real Servers Reference<span class="nav-sub">Local + HTTP</span></button>
+
+    <div class="cat">Initialization</div>
+    <button class="navitem" data-page="jsonrpc">JSON-RPC Basics<span class="nav-sub">Anatomy · Why It's Used</span></button>
+    <button class="navitem" data-page="handshake">The Handshake<span class="nav-sub">3 Steps · 2 Rules</span></button>
+    <button class="navitem" data-page="version">Version Negotiation<span class="nav-sub">Match or disconnect</span></button>
+    <button class="navitem" data-page="capability">Capability Negotiation<span class="nav-sub">The table · A real error</span></button>
+
+    <div class="cat">Operation</div>
+    <button class="navitem" data-page="operation">Discovery &amp; Calling<span class="nav-sub">Automatic · On demand</span></button>
+
+    <div class="cat">Transport &amp; Shutdown</div>
+    <button class="navitem" data-page="transport">Transport Layer<span class="nav-sub">stdio · Streamable HTTP</span></button>
+    <button class="navitem" data-page="shutdown">Shutdown<span class="nav-sub">Zero JSON-RPC messages</span></button>
+
+    <div class="cat">Special Cases</div>
+    <button class="navitem" data-page="ping">Pings<span class="nav-sub">Alive-check</span></button>
+    <button class="navitem" data-page="errors">Error Handling<span class="nav-sub">6 scenarios · codes</span></button>
+    <button class="navitem" data-page="timeouts">Timeouts<span class="nav-sub"></span></button>
+    <button class="navitem" data-page="cancellation">Cancellation<span class="nav-sub"></span></button>
+    <button class="navitem" data-page="progress">Progress Notifications<span class="nav-sub"></span></button>
+
+    <div class="sidebar-footer">
+      <div class="author">
+        <div class="avatar">MC</div>
+        <div><div class="name">Mayank Chugh</div><div class="tag">Enterprise Architect · AI Engineer</div></div>
+      </div>
+      <div class="sidebar-links">
+        <a href="https://youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <div class="page active" id="page-overview">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Foundation</b></div>
+      <div class="eyebrow">Foundation</div>
+      <h1 class="page-title">The Three Stages</h1>
+      <p class="page-sub">Every MCP connection that has ever existed moves through exactly three stages, in exactly this order. No exceptions.</p>
+
+      <div class="cards">
+        <div class="card"><div class="k">Stage 1</div><h3>Initialization</h3><p>Client and server meet, agree on a version, and declare what they can do.</p></div>
+        <div class="card highlight"><div class="k">Stage 2 &middot; this guide</div><h3>Operation</h3><p>The normal back-and-forth &mdash; discovering what's available, then calling things.</p></div>
+        <div class="card"><div class="k">Stage 3</div><h3>Shutdown</h3><p>The connection ends, cleanly or otherwise.</p></div>
+      </div>
+
+      <div class="callout analogy"><div class="icon">&#129309;</div><div><div class="label">Analogy &mdash; Meeting a Stranger</div><p>Initialization is the handshake and introductions. Operation is the actual conversation. Shutdown is saying goodbye and leaving the room &mdash; and just like real life, you can't skip straight to the conversation before anyone's been introduced.</p></div></div>
+
+      <p class="hql">"Every MCP connection that has ever existed followed exactly these three stages, in exactly this order. No exceptions."</p>
+      <div class="ref-note">Reference: the three-stage lifecycle is verbatim, current official specification language.</div>
+    </div>
+
+    <div class="page" id="page-live-demo">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Foundation</b></div>
+      <div class="eyebrow">Foundation</div>
+      <h1 class="page-title">Live Demo Setup</h1>
+      <p class="page-sub">Claude Desktop's own native logging &mdash; corrected against a real captured log, no jq required.</p>
+
+      <div class="callout info"><div class="icon">&#8505;&#65039;</div><div><div class="label">What changed</div><p>Claude Desktop's log only shows a <b>summary line</b> per message (method, id, whether params/result are present) &mdash; not the full JSON body. An earlier jq-based version of this command assumed full JSON and failed. This version matches reality.</p></div></div>
+
+      <p><b>Add Filesystem to Claude Desktop:</b></p>
+      <pre class="json">{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/folder"]
+    }
+  }
+}</pre>
+
+      <p><b>Watch every connected server live (macOS):</b></p>
+      <pre class="bash">tail -n0 -f "$HOME/Library/Logs/Claude"/mcp-server-*.log | awk '
+/Message from client:/ {
+  t = substr($1, 12, 8); srv = $2; gsub(/[\[\]]/, "", srv);
+  sub(/^.*Message from client: /, ""); sub(/ \{ metadata:.*$/, "");
+  printf "\033[1;33m%s [%s] CLIENT -> SERVER\033[0m  %s\n", t, srv, $0; next
+}
+/Message from server:/ {
+  t = substr($1, 12, 8); srv = $2; gsub(/[\[\]]/, "", srv);
+  sub(/^.*Message from server: /, ""); sub(/ \{ metadata:.*$/, "");
+  printf "\033[1;36m%s [%s] SERVER -> CLIENT\033[0m  %s\n", t, srv, $0; next
+}
+'</pre>
+      <p style="font-size:13.5px;color:#555">No <code class="inline">jq</code> needed &mdash; pure <code class="inline">awk</code>, works with macOS's built-in version. Watches every connected server at once and tags each line with which one it came from.</p>
+
+      <p><b>Windows (PowerShell) log folder:</b></p>
+      <pre class="bash">Get-ChildItem "$env:APPDATA\Claude\logs\mcp-server-*.log"</pre>
+      <p style="font-size:13.5px;color:#555">Claude Desktop writes one log file per connected server. Open the matching file after you save <code class="inline">claude_desktop_config.json</code> and fully quit Claude (not just the window).</p>
+
+      <div class="callout analogy"><div class="icon">&#128736;&#65039;</div><div><div class="label">If the log file doesn't exist yet</div><p>That file is only created once Claude Desktop actually connects to a server with that exact name. Fully quit and reopen Claude Desktop after saving your config. No log-tailing setup at all? <b>MCP Inspector</b> (<code class="inline">npx @modelcontextprotocol/inspector</code>) shows the same traffic in a browser, with full JSON bodies.</p></div></div>
+    </div>
+
+    <div class="page" id="page-servers">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Foundation</b></div>
+      <div class="eyebrow">Foundation</div>
+      <h1 class="page-title">Real Servers Reference</h1>
+      <p class="page-sub">Servers you can actually connect to today, verified current.</p>
+
+      <p><b>Local (stdio)</b></p>
+      <table class="ref">
+        <tr><th>Server</th><th>What it does</th><th>Run it</th></tr>
+        <tr><td>Filesystem</td><td>Read/write files in allowed directories</td><td><code class="inline">npx -y @modelcontextprotocol/server-filesystem &lt;dir&gt;</code></td></tr>
+        <tr><td>Everything</td><td>All 3 primitives &mdash; tools, resources, prompts</td><td><code class="inline">npx -y @modelcontextprotocol/server-everything</code></td></tr>
+        <tr><td>Git</td><td>Status, diff, log on a local repo</td><td><code class="inline">uvx mcp-server-git</code></td></tr>
+        <tr><td>Memory</td><td>Persistent knowledge-graph across sessions</td><td><code class="inline">npx -y @modelcontextprotocol/server-memory</code></td></tr>
+        <tr><td>Fetch</td><td>Fetch a URL, convert to markdown</td><td><code class="inline">uvx mcp-server-fetch</code></td></tr>
+        <tr><td>Time</td><td>Timezone conversion</td><td><code class="inline">uvx mcp-server-time</code></td></tr>
+      </table>
+
+      <p><b>Remote (HTTP)</b></p>
+      <table class="ref">
+        <tr><th>Server</th><th>URL</th><th>Auth</th></tr>
+        <tr><td>DeepWiki</td><td><code class="inline">https://mcp.deepwiki.com/mcp</code></td><td>None &mdash; free, no signup</td></tr>
+        <tr><td>Semgrep</td><td><code class="inline">https://mcp.semgrep.ai/mcp</code></td><td>None for public surface</td></tr>
+      </table>
+      <p class="hql">"DeepWiki publishes both the old SSE URL and the new Streamable HTTP URL for the same service &mdash; point at both, and you're watching the transport migration this course describes, live, on a real production system."</p>
+    </div>
+
+    <div class="page" id="page-jsonrpc">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Initialization</b></div>
+      <div class="eyebrow">Initialization</div>
+      <h1 class="page-title">JSON-RPC Basics</h1>
+      <p class="page-sub">Every message &mdash; in either direction &mdash; shares one shape.</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="jr-anatomy">Anatomy</button>
+        <button class="tab" data-tab="jr-why">Why JSON-RPC</button>
+      </div>
+
+      <div class="tabpanel active" id="jr-anatomy">
+        <div class="msg-label c2s">Client &rarr; Server &middot; Request</div>
+        <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">1</span>, <span class="jkey">"method"</span>: <span class="jstr">"search_recipes"</span>, <span class="jkey">"params"</span>: { <span class="jkey">"tag"</span>: <span class="jstr">"quick"</span> } }</pre>
+        <div class="msg-label s2c">Server &rarr; Client &middot; Response</div>
+        <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">1</span>, <span class="jkey">"result"</span>: [<span class="jstr">"Weeknight Pasta"</span>, <span class="jstr">"Five-Minute Salsa"</span>] }</pre>
+        <div class="msg-label s2c">Server &rarr; Client &middot; Error (instead)</div>
+        <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">1</span>, <span class="jkey">"error"</span>: { <span class="jkey">"code"</span>: <span class="jnum">-32601</span>, <span class="jkey">"message"</span>: <span class="jstr">"Method not found"</span> } }</pre>
+        <table class="ref">
+          <tr><th>Field</th><th>What it does</th></tr>
+          <tr><td><code class="inline">jsonrpc</code></td><td>Always "2.0" &mdash; the shared format version</td></tr>
+          <tr><td><code class="inline">id</code></td><td>Matches a response/error to the exact request</td></tr>
+          <tr><td><code class="inline">method</code></td><td>What's being asked for (requests only)</td></tr>
+          <tr><td><code class="inline">params / result / error</code></td><td>The payload &mdash; exactly one, never both</td></tr>
+        </table>
+      </div>
+
+      <div class="tabpanel" id="jr-why">
+        <ul>
+          <li><b>Lightweight</b> &mdash; plain JSON, human-readable at a glance</li>
+          <li><b>Transport-agnostic</b> &mdash; same shape over stdio or HTTP</li>
+          <li><b>Two-way by design</b> &mdash; either side can send a request</li>
+          <li><b>Notifications built in</b> &mdash; no id, fires and expects nothing back</li>
+        </ul>
+        <div class="callout info"><div class="icon">&#128161;</div><div><div class="label">Familiar comparison</div><p>Just like HTTP has <code class="inline">404</code> and <code class="inline">500</code>, JSON-RPC has its own small set of standard codes &mdash; MCP inherits them wholesale rather than inventing new ones.</p></div></div>
+      </div>
+      <p class="hql">"JSON-RPC isn't MCP's invention &mdash; it's MCP borrowing a format that was already simple, already two-way, and already boring in the best possible sense."</p>
+      <div class="ref-note">Reference: JSON-RPC 2.0 as MCP's message format is current official documentation; the RecipeBox example is original.</div>
+    </div>
+
+    <div class="page" id="page-handshake">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Initialization</b></div>
+      <div class="eyebrow">Initialization</div>
+      <h1 class="page-title">The Handshake</h1>
+      <p class="page-sub">Three steps, every time &mdash; plus the two rules that protect them.</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="hs-1">Step 1</button>
+        <button class="tab" data-tab="hs-2">Step 2</button>
+        <button class="tab" data-tab="hs-3">Step 3</button>
+        <button class="tab" data-tab="hs-rules">The Two Rules</button>
+      </div>
+
+      <div class="tabpanel active" id="hs-1">
+        <p>The client speaks first, sending exactly three things.</p>
+        <div class="msg-label c2s">Client &rarr; Server &middot; initialize request</div>
+        <pre class="json">{
+  <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">1</span>, <span class="jkey">"method"</span>: <span class="jstr">"initialize"</span>,
+  <span class="jkey">"params"</span>: {
+    <span class="jkey">"protocolVersion"</span>: <span class="jstr">"2025-11-25"</span>,
+    <span class="jkey">"capabilities"</span>: { <span class="jkey">"roots"</span>: { <span class="jkey">"listChanged"</span>: <span class="jbool">true</span> } },
+    <span class="jkey">"clientInfo"</span>: { <span class="jkey">"name"</span>: <span class="jstr">"RecipeBoxDesktopClient"</span>, <span class="jkey">"version"</span>: <span class="jstr">"1.0.0"</span> }
+  }
+}</pre>
+        <p class="hql">"This is the very first sentence of the entire relationship. Everything after this assumes both sides heard it correctly."</p>
+      </div>
+
+      <div class="tabpanel" id="hs-2">
+        <p>The server answers, matching the same id, with its own three things.</p>
+        <div class="msg-label s2c">Server &rarr; Client &middot; initialize response</div>
+        <pre class="json">{
+  <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">1</span>,
+  <span class="jkey">"result"</span>: {
+    <span class="jkey">"protocolVersion"</span>: <span class="jstr">"2025-11-25"</span>,
+    <span class="jkey">"capabilities"</span>: { <span class="jkey">"tools"</span>: { <span class="jkey">"listChanged"</span>: <span class="jbool">true</span> } },
+    <span class="jkey">"serverInfo"</span>: { <span class="jkey">"name"</span>: <span class="jstr">"RecipeBox"</span>, <span class="jkey">"version"</span>: <span class="jstr">"1.0.0"</span> }
+  }
+}</pre>
+        <p style="font-size:14px">Same <code class="inline">id: 1</code> &mdash; the matched reply.</p>
+      </div>
+
+      <div class="tabpanel" id="hs-3">
+        <p>The client seals the handshake with a notification &mdash; no reply expected.</p>
+        <div class="msg-label c2s">Client &rarr; Server &middot; initialized notification</div>
+        <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"method"</span>: <span class="jstr">"notifications/initialized"</span> }</pre>
+        <p style="font-size:14px">No id &mdash; an announcement, not a question.</p>
+        <p class="hql">"Three messages. One sentence each: 'here's who I am,' 'here's who I am back,' 'good, let's begin.' That's the entire handshake."</p>
+      </div>
+
+      <div class="tabpanel" id="hs-rules">
+        <table class="ref">
+          <tr><th>Rule</th><th>In plain terms</th></tr>
+          <tr><td>Client SHOULD NOT send anything but a ping before the server responds to initialize</td><td>No jumping ahead</td></tr>
+          <tr><td>Server SHOULD NOT send anything but a ping/log line before receiving initialized</td><td>The server waits for step 3</td></tr>
+        </table>
+        <p class="hql">"Skip either rule and you're not talking to a stranger politely &mdash; you're talking over them."</p>
+      </div>
+      <div class="ref-note">Reference: verbatim, current official specification.</div>
+    </div>
+
+    <div class="page" id="page-version">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Initialization</b></div>
+      <div class="eyebrow">Initialization</div>
+      <h1 class="page-title">Version Negotiation</h1>
+      <p class="page-sub">What actually happens when client and server don't agree the first time.</p>
+
+      <div class="msg-label c2s">Client asks for one version</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">1</span>, <span class="jkey">"method"</span>: <span class="jstr">"initialize"</span>, <span class="jkey">"params"</span>: { <span class="jkey">"protocolVersion"</span>: <span class="jstr">"2025-11-25"</span>, "...": "..." } }</pre>
+      <div class="msg-label s2c">Server can only offer an older one</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">1</span>, <span class="jkey">"result"</span>: { <span class="jkey">"protocolVersion"</span>: <span class="jstr">"2024-11-05"</span>, "...": "..." } }</pre>
+      <p><b>What the client does next:</b></p>
+      <pre class="json">SUPPORTED_PROTOCOL_VERSIONS = [<span class="jstr">"2025-11-25"</span>, <span class="jstr">"2024-11-05"</span>]
+
+if server_version in SUPPORTED_PROTOCOL_VERSIONS:
+    send_initialized_notification()   <span class="jpunc"># proceed</span>
+else:
+    disconnect()                      <span class="jpunc"># no further communication</span></pre>
+      <p class="hql">"Version negotiation isn't a retry loop. It's exactly one counter-offer, checked exactly once, with disconnect as the only fallback."</p>
+      <div class="ref-note">Reference: verbatim, current official specification.</div>
+    </div>
+
+    <div class="page" id="page-capability">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Initialization</b></div>
+      <div class="eyebrow">Initialization</div>
+      <h1 class="page-title">Capability Negotiation</h1>
+      <p class="page-sub">Both sides declare exactly what they're each capable of &mdash; an honest menu, both ways.</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="cap-table">The Table</button>
+        <button class="tab" data-tab="cap-error">A Real Error Case</button>
+      </div>
+
+      <div class="tabpanel active" id="cap-table">
+        <table class="ref">
+          <tr><th>Category</th><th>Capability</th><th>What it means</th></tr>
+          <tr><td>Client</td><td>roots</td><td>Grants server access to specific directories</td></tr>
+          <tr><td>Client</td><td>sampling</td><td>Lets the server borrow the client's own AI model</td></tr>
+          <tr><td>Server</td><td>tools</td><td>Exposes callable tools</td></tr>
+          <tr><td>Server</td><td>resources</td><td>Provides readable resources</td></tr>
+          <tr><td>Server</td><td>prompts</td><td>Offers prompt templates</td></tr>
+          <tr><td>Server</td><td>logging</td><td>Emits structured log messages back</td></tr>
+        </table>
+        <div class="callout info"><div class="icon">&#9888;&#65039;</div><div><div class="label">Current note</div><p>roots, sampling, and logging are being formally deprecated in the newest protocol revision (SEP-2577).</p></div></div>
+      </div>
+
+      <div class="tabpanel" id="cap-error">
+        <p>A real, observed case: a client asks for something the server never declared.</p>
+        <div class="msg-label c2s">Client asks anyway</div>
+        <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">99</span>, <span class="jkey">"method"</span>: <span class="jstr">"prompts/list"</span> }</pre>
+        <div class="msg-label s2c">The honest answer</div>
+        <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">99</span>, <span class="jkey">"error"</span>: { <span class="jkey">"code"</span>: <span class="jnum">-32601</span>, <span class="jkey">"message"</span>: <span class="jstr">"Method not found"</span> } }</pre>
+        <p style="font-size:14px">The server doesn't crash &mdash; it just says, correctly, "I never told you I could do that."</p>
+      </div>
+      <p class="hql">"Capability negotiation is both sides handing over an honest menu before anyone orders."</p>
+      <div class="ref-note">Reference: capability table verbatim, current official specification; the error case is grounded in the source transcript's own capture (paraphrased).</div>
+    </div>
+
+    <div class="page" id="page-operation">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Operation</b></div>
+      <div class="eyebrow">Operation</div>
+      <h1 class="page-title">Discovery &amp; Calling</h1>
+      <p class="page-sub">Discovery fires automatically the instant the handshake completes &mdash; before the user even asks a question.</p>
+
+      <p><b>Part 1 &mdash; Discovery</b></p>
+      <div class="msg-label c2s">Client &rarr; Server</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">2</span>, <span class="jkey">"method"</span>: <span class="jstr">"tools/list"</span> }</pre>
+      <div class="msg-label s2c">Server &rarr; Client</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">2</span>, <span class="jkey">"result"</span>: { <span class="jkey">"tools"</span>: [
+  { <span class="jkey">"name"</span>: <span class="jstr">"list_recipes"</span> }, { <span class="jkey">"name"</span>: <span class="jstr">"get_recipe"</span> }, { <span class="jkey">"name"</span>: <span class="jstr">"search_recipes"</span> }
+]}}</pre>
+      <p><b>Part 2 &mdash; Calling</b></p>
+      <div class="msg-label c2s">Client &rarr; Server</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">3</span>, <span class="jkey">"method"</span>: <span class="jstr">"tools/call"</span>, <span class="jkey">"params"</span>: { <span class="jkey">"name"</span>: <span class="jstr">"search_recipes"</span>, <span class="jkey">"arguments"</span>: { <span class="jkey">"tag"</span>: <span class="jstr">"quick"</span> } } }</pre>
+      <div class="msg-label s2c">Server &rarr; Client</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">3</span>, <span class="jkey">"result"</span>: { <span class="jkey">"content"</span>: [{ <span class="jkey">"type"</span>: <span class="jstr">"text"</span>, <span class="jkey">"text"</span>: <span class="jstr">"Weeknight Pasta, Five-Minute Salsa"</span> }] } }</pre>
+      <p class="hql">"Discovery isn't something you triggered. It's something that already happened, quietly, the moment the handshake finished."</p>
+      <div class="ref-note">Reference: discovery/calling and auto-discovery behavior grounded in current official specification and the source transcript's live demonstration; RecipeBox examples original.</div>
+    </div>
+
+    <div class="page" id="page-transport">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Transport &amp; Shutdown</b></div>
+      <div class="eyebrow">Transport &amp; Shutdown</div>
+      <h1 class="page-title">Transport Layer</h1>
+      <p class="page-sub">The road every message above actually travelled on.</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="tr-stdio">stdio</button>
+        <button class="tab" data-tab="tr-http">Streamable HTTP</button>
+      </div>
+
+      <div class="tabpanel active" id="tr-stdio">
+        <ul>
+          <li>Client launches the server as a <b>subprocess</b></li>
+          <li>Server reads stdin, writes stdout &mdash; newline-delimited</li>
+          <li><b>stderr is free for logging</b></li>
+          <li>No separate auth layer &mdash; credentials from the environment</li>
+        </ul>
+        <p><b>Practical proof, live:</b></p>
+        <pre class="bash">python3 -c "
+import subprocess, json
+proc = subprocess.Popen(['python3','server.py'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+proc.stdin.write(json.dumps({'jsonrpc':'2.0','id':1,'method':'initialize',
+    'params':{'protocolVersion':'2025-11-25','capabilities':{},'clientInfo':{'name':'x','version':'1'}}}) + '\n')
+proc.stdin.flush()
+print(proc.stdout.readline())
+"</pre>
+        <p class="hql">"There's no hidden magic in stdio. It's a subprocess, a pipe in, a pipe out, and a newline between messages."</p>
+      </div>
+
+      <div class="tabpanel" id="tr-http">
+        <ul>
+          <li>One endpoint (commonly <code class="inline">/mcp</code>), POST + GET</li>
+          <li>Plain JSON or upgrades to SSE for long calls</li>
+          <li>Optional <code class="inline">Mcp-Session-Id</code> header</li>
+          <li>Replaces the older, deprecated HTTP+SSE transport</li>
+        </ul>
+        <div class="callout analogy"><div class="icon">&#127760;</div><div><div class="label">Live proof, real server</div><p>Point at DeepWiki's <code class="inline">/mcp</code> and <code class="inline">/sse</code> &mdash; same service, both transports, side by side.</p></div></div>
+        <p class="hql">"Streamable HTTP is the same conversation as stdio, wearing a different coat."</p>
+      </div>
+      <div class="ref-note">Reference: both transports verbatim, current official specification.</div>
+    </div>
+
+    <div class="page" id="page-shutdown">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Transport &amp; Shutdown</b></div>
+      <div class="eyebrow">Transport &amp; Shutdown</div>
+      <h1 class="page-title">Shutdown</h1>
+      <p class="page-sub">The one phase with no message format of its own.</p>
+
+      <div class="callout info"><div class="icon">&#128273;</div><div><div class="label">Key fact</div><p><b>No JSON-RPC message is exchanged during shutdown at all.</b> The entire responsibility shifts to the transport layer.</p></div></div>
+
+      <table class="ref">
+        <tr><th>Transport</th><th>Client-initiated (common)</th><th>Server-initiated (rare)</th></tr>
+        <tr><td>stdio</td><td>Close stdin, wait; SIGTERM if it doesn't; SIGKILL as last resort</td><td>Server closes its output stream and exits</td></tr>
+        <tr><td>Streamable HTTP</td><td>Close the HTTP connection</td><td>Server closes unexpectedly &mdash; client should reconnect gracefully</td></tr>
+      </table>
+
+      <div class="callout analogy"><div class="icon">&#128682;</div><div><div class="label">SIGTERM vs SIGKILL</div><p>SIGTERM is a polite knock &mdash; "please finish up and leave." SIGKILL is the door being forced open &mdash; no chance to clean up.</p></div></div>
+      <p class="hql">"Shutdown has no goodbye message of its own. The transport closing IS the goodbye."</p>
+      <div class="ref-note">Reference: verbatim, current official specification; the resilience note grounded in the source transcript (paraphrased).</div>
+    </div>
+
+    <div class="page" id="page-ping">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Special Cases</b></div>
+      <div class="eyebrow">Special Cases</div>
+      <h1 class="page-title">Pings</h1>
+      <p class="page-sub">Checking whether anyone's still there.</p>
+      <div class="msg-label c2s">Client &rarr; Server</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">42</span>, <span class="jkey">"method"</span>: <span class="jstr">"ping"</span> }</pre>
+      <div class="msg-label s2c">Server &rarr; Client</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">42</span>, <span class="jkey">"result"</span>: {} }</pre>
+      <div class="callout analogy"><div class="icon">&#128293;</div><div><div class="label">Why it matters beyond aliveness</div><p>A quiet connection can get silently dropped by a firewall or proxy that assumes "no traffic" means "not needed." Periodic pings keep that from happening.</p></div></div>
+      <p class="hql">"A ping carries no information at all. That's the whole point &mdash; a knock on the door, not a conversation."</p>
+      <div class="ref-note">Reference: verbatim, current official specification; firewall rationale grounded in the source transcript (paraphrased).</div>
+    </div>
+
+    <div class="page" id="page-errors">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Special Cases</b></div>
+      <div class="eyebrow">Special Cases</div>
+      <h1 class="page-title">Error Handling</h1>
+      <p class="page-sub">When it happens, and what it looks like.</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="err-scenarios">6 Scenarios</button>
+        <button class="tab" data-tab="err-codes">Error Codes</button>
+      </div>
+
+      <div class="tabpanel active" id="err-scenarios">
+        <ol>
+          <li>Protocol version mismatch during initialization</li>
+          <li>Calling a method never negotiated</li>
+          <li>Invalid arguments to a real tool</li>
+          <li>An internal failure on the server's side</li>
+          <li>A timeout being exceeded</li>
+          <li>A syntactically malformed JSON-RPC message</li>
+        </ol>
+        <div class="msg-label s2c">Example</div>
+        <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">4</span>, <span class="jkey">"error"</span>: {
+  <span class="jkey">"code"</span>: <span class="jnum">-32602</span>, <span class="jkey">"message"</span>: <span class="jstr">"Unsupported protocol version"</span>,
+  <span class="jkey">"data"</span>: { <span class="jkey">"supported"</span>: [<span class="jstr">"2025-11-25"</span>], <span class="jkey">"requested"</span>: <span class="jstr">"1.0.0"</span> }
+}}</pre>
+      </div>
+
+      <div class="tabpanel" id="err-codes">
+        <table class="ref">
+          <tr><th>Code</th><th>Name</th><th>Cause</th></tr>
+          <tr><td>-32700</td><td>Parse error</td><td>Unreadable JSON</td></tr>
+          <tr><td>-32600</td><td>Invalid request</td><td>Well-formed, not valid</td></tr>
+          <tr><td>-32601</td><td>Method not found</td><td>Never advertised</td></tr>
+          <tr><td>-32602</td><td>Invalid params</td><td>Wrong/missing args</td></tr>
+          <tr><td>-32603</td><td>Internal error</td><td>Server logic failed</td></tr>
+          <tr><td>-32000+</td><td>Server-defined</td><td>Custom to that server</td></tr>
+        </table>
+      </div>
+      <p class="hql">"An error isn't a crash. It's the exact same message envelope as a success, just carrying different news."</p>
+      <div class="ref-note">Reference: error object and codes verbatim, current JSON-RPC 2.0 / MCP specification; scenarios grounded in the source transcript (paraphrased).</div>
+    </div>
+
+    <div class="page" id="page-timeouts">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Special Cases</b></div>
+      <div class="eyebrow">Special Cases</div>
+      <h1 class="page-title">Timeouts</h1>
+      <ul>
+        <li>Every sent request should have a timeout</li>
+        <li>Hit with no response &rarr; send a cancellation notification, stop waiting</li>
+        <li>A progress notification may reset the clock &mdash; a hard maximum should still apply</li>
+      </ul>
+      <p class="hql">"A timeout isn't giving up. It's refusing to wait forever for an answer that might genuinely never come."</p>
+      <div class="ref-note">Reference: verbatim, current official specification.</div>
+    </div>
+
+    <div class="page" id="page-cancellation">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Special Cases</b></div>
+      <div class="eyebrow">Special Cases</div>
+      <h1 class="page-title">Cancellation</h1>
+      <div class="msg-label c2s">Original long-running call</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">7</span>, <span class="jkey">"method"</span>: <span class="jstr">"tools/call"</span>,
+  <span class="jkey">"params"</span>: { <span class="jkey">"name"</span>: <span class="jstr">"search_recipes"</span>, <span class="jkey">"arguments"</span>: { <span class="jkey">"tag"</span>: <span class="jstr">"sunday"</span> },
+              <span class="jkey">"_meta"</span>: { <span class="jkey">"progressToken"</span>: <span class="jstr">"tok-7"</span> } } }</pre>
+      <div class="msg-label c2s">Cancellation notification</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"method"</span>: <span class="jstr">"notifications/cancelled"</span>,
+  <span class="jkey">"params"</span>: { <span class="jkey">"requestId"</span>: <span class="jstr">"7"</span>, <span class="jkey">"reason"</span>: <span class="jstr">"Timeout exceeded (30s)"</span> } }</pre>
+      <p style="font-size:14px">No id &mdash; a notification referencing the original request by its requestId.</p>
+      <p class="hql">"Cancellation doesn't ask permission. It announces a decision that's already been made."</p>
+      <div class="ref-note">Reference: verbatim, current official specification pattern.</div>
+    </div>
+
+    <div class="page" id="page-progress">
+      <div class="crumb">MCP Lifecycle Guide &rsaquo; <b>Special Cases</b></div>
+      <div class="eyebrow">Special Cases</div>
+      <h1 class="page-title">Progress Notifications</h1>
+      <p class="page-sub">Let the client know a long-running request is still alive.</p>
+      <div class="msg-label c2s">Call with a progress token</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"id"</span>: <span class="jnum">7</span>, <span class="jkey">"method"</span>: <span class="jstr">"tools/call"</span>,
+  <span class="jkey">"params"</span>: { <span class="jkey">"name"</span>: <span class="jstr">"search_recipes"</span>, <span class="jkey">"arguments"</span>: { <span class="jkey">"tag"</span>: <span class="jstr">"sunday"</span> },
+              <span class="jkey">"_meta"</span>: { <span class="jkey">"progressToken"</span>: <span class="jstr">"tok-7"</span> } } }</pre>
+      <div class="msg-label s2c">Progress update</div>
+      <pre class="json">{ <span class="jkey">"jsonrpc"</span>: <span class="jstr">"2.0"</span>, <span class="jkey">"method"</span>: <span class="jstr">"notifications/progress"</span>,
+  <span class="jkey">"params"</span>: { <span class="jkey">"progressToken"</span>: <span class="jstr">"tok-7"</span>, <span class="jkey">"progress"</span>: <span class="jnum">60</span>, <span class="jkey">"total"</span>: <span class="jnum">100</span>,
+              <span class="jkey">"message"</span>: <span class="jstr">"Searching 60 of 100 recipes"</span> } }</pre>
+      <p class="hql">"Progress notifications are how a slow answer stays honest instead of just going quiet."</p>
+      <div class="ref-note">Reference: verbatim, current official specification pattern.</div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.navitem').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.navitem').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('page-' + btn.dataset.page).classList.add('active');
+      window.scrollTo(0, 0);
+      closeSidebar();
+    });
+  });
+  var toggle = document.getElementById('menu-toggle');
+  var sidebar = document.getElementById('guide-sidebar');
+  var backdrop = document.getElementById('sidebar-backdrop');
+  function closeSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('show');
+  }
+  function openSidebar() {
+    sidebar.classList.add('open');
+    if (backdrop) backdrop.classList.add('show');
+  }
+  if (toggle && sidebar) {
+    toggle.addEventListener('click', function() {
+      if (sidebar.classList.contains('open')) closeSidebar();
+      else openSidebar();
+    });
+  }
+  if (backdrop) backdrop.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.tabs').forEach(function(tabGroup) {
+    tabGroup.querySelectorAll('.tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabGroup.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+        var panels = tabGroup.parentElement.querySelectorAll('.tabpanel');
+        panels.forEach(function(p) { p.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+  });
+</script>
+</body>
+</html>
