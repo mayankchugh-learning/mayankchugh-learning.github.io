@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="/assets/theme-switcher.js"></script>
   <title>MCP Legacy vs Modern — What Actually Changed · Mayank Chugh</title>
-  <meta name="description" content="A chaptered explainer of MCP 2025-11-25 versus 2026-07-28: sessionless requests, mid-task questions, routing headers, caching, tracing, and what you should do today. By Mayank Chugh.">
+  <meta name="description" content="MCP 2025-11-25 versus 2026-07-28: sessionless requests, mid-task questions, and what actually breaks in current client libraries — sampling, elicitation, ping, mode=legacy, and stdio env. By Mayank Chugh.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
@@ -99,6 +99,14 @@
     .card.highlight .k { color: #9a6a10; }
     .card h3 { font-family: var(--display); font-size: 17px; margin: 0 0 8px; color: var(--navy); }
     .card p { font-size: 14px; color: #444; line-height: 1.55; margin: 0; }
+    .card ul { margin: 8px 0 0 18px; font-size: 14px; color: #444; }
+    .card li { margin: 4px 0; }
+    pre.code {
+      background: #0f1e36; color: #d7e2ef; border-radius: 10px; padding: 14px;
+      font-family: var(--mono); font-size: 12.5px; overflow-x: auto; line-height: 1.55;
+      margin: 14px 0;
+    }
+    .k { color: #7dd3fc; } .s { color: #86efac; } .cmt { color: #8aa0b8; }
 
     .callout { border-radius: 10px; padding: 14px 16px; margin: 18px 0; border-left: 4px solid; display: flex; gap: 10px; }
     .callout.analogy { background: #fff8e8; border-color: var(--gold); }
@@ -190,6 +198,8 @@
     html[data-theme="dark"] .tl-body, html[data-theme="midnight"] .tl-body { background: var(--card); }
     html[data-theme="dark"] .tl-body strong, html[data-theme="midnight"] .tl-body strong { color: #f4f6f9; }
     html[data-theme="dark"] code.inline, html[data-theme="midnight"] code.inline { background: #243044; color: #e8e6e3; }
+    html[data-theme="dark"] .card ul, html[data-theme="midnight"] .card ul,
+    html[data-theme="dark"] .card li, html[data-theme="midnight"] .card li { color: #c9cdd4; }
     html[data-theme="dark"] .related a, html[data-theme="midnight"] .related a { background: var(--card); color: #f4f6f9; }
     html[data-theme="contrast"] { --ink: #000; --paper: #fff; --muted: #222; --border: #000; }
     html[data-theme="contrast"] body { background: #fff; color: #000; }
@@ -231,7 +241,7 @@
       <div class="sub">Legacy 2025-11-25 · Modern 2026-07-28</div>
     </div>
     <div class="sidebar-badges">
-      <span class="badge">11 chapters</span>
+      <span class="badge">17 chapters</span>
       <span class="badge">Opt-in adoption</span>
     </div>
 
@@ -255,6 +265,14 @@
 
     <div class="cat">Closing</div>
     <button class="navitem" data-page="do">What you should do<span class="nav-sub">Keep building. Learn the shape.</span></button>
+
+    <div class="cat">The client side</div>
+    <button class="navitem" data-page="broke">What actually broke<span class="nav-sub">Sampling, elicitation, ping</span></button>
+    <button class="navitem" data-page="fixes">Two kinds of fix<span class="nav-sub">Gone for good vs still there</span></button>
+    <button class="navitem" data-page="sampling">Sampling: look it up yourself<span class="nav-sub">Server calls a provider directly</span></button>
+    <button class="navitem" data-page="legacy-mode">The old counter still open<span class="nav-sub">mode="legacy" on the client</span></button>
+    <button class="navitem" data-page="subprocess">The subprocess does not hear you<span class="nav-sub">stdio does not inherit your env</span></button>
+    <button class="navitem" data-page="model">The one-line mental model<span class="nav-sub">No back-channel. Ask, or rewrite.</span></button>
 
     <div class="sidebar-footer">
       <div class="author">
@@ -580,11 +598,19 @@
         </div>
       </div>
 
+      <div class="callout info">
+        <div class="icon">📌</div>
+        <div>
+          <div class="label">Spec promise vs library code</div>
+          <p>Twelve months is the <b>spec's minimum</b>. An SDK can still delete a deprecated method sooner. That is what happened with sampling in a recent FastMCP release: the spec still listed it as deprecated; the installed library no longer had the method. "The spec says it should work" and "this version still has the function" are two different facts.</p>
+        </div>
+      </div>
+
       <div class="callout warn">
         <div class="icon">⏰</div>
         <div>
           <div class="label">The twelve-month floor</div>
-          <p>"Deprecated" is not "breaks next Tuesday." It is MCP's own rule that a named deprecation gets a minimum of twelve months from announcement before it is eligible to be removed. That clock started in July 2026. There is runway. There is not a fire drill.</p>
+          <p>"Deprecated" is not "breaks next Tuesday." It is MCP's own rule that a named deprecation gets a minimum of twelve months from announcement before it is eligible to be removed. That clock started in July 2026. There is runway. There is not a fire drill — unless a library you pin has already moved.</p>
         </div>
       </div>
     </div>
@@ -610,6 +636,226 @@
 
       <p class="hql">"You do not need to rebuild today. You needed a clear picture of what is already published — and now you have one."</p>
 
+      <div class="callout info">
+        <div class="icon">➡️</div>
+        <div>
+          <div class="label">Next — the client, for real</div>
+          <p>The spec story ends here. The next chapters are what happens when current client libraries actually negotiate the modern, letter-only protocol: sampling, elicitation, ping, <code class="inline">mode="legacy"</code>, and a stdio env trap.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-broke">
+      <div class="crumb">MCP: What's Changing › <b>The client side</b></div>
+      <div class="eyebrow">The client side</div>
+      <h1 class="page-title">What actually broke</h1>
+      <p class="page-sub">Everything so far was the spec's own story. This section is what happens when you run current client code against the library sitting on disk today.</p>
+
+      <div class="callout ok">
+        <div class="icon">🧩</div>
+        <div>
+          <div class="label">Worth remembering</div>
+          <p>Nothing here means the earlier lifecycle or JSON-RPC lessons were wrong. The ground moved under a few features that assumed a live back-channel would always be there.</p>
+        </div>
+      </div>
+
+      <div class="callout analogy">
+        <div class="icon">📻</div>
+        <div>
+          <div class="label">Radio vs posted letter</div>
+          <p>A two-way radio lets either side cut in mid-sentence. A posted letter does not — you write, you send, you wait. The modern protocol is the letter. Once the request is in the post, the server has no open microphone to interrupt the client with a side question.</p>
+        </div>
+      </div>
+
+      <p>A few client features were built assuming the radio was always on. In plain terms:</p>
+      <table class="ref">
+        <tr><th>Feature</th><th>What it actually is</th></tr>
+        <tr><td><b>Sampling</b></td><td>The server asks the client's own connected model for help mid-task — for example, to turn raw rows into a short summary — so the server does not need its own model subscription.</td></tr>
+        <tr><td><b>Elicitation</b></td><td>The server pauses mid-task to ask the human a real question, such as confirming a large write before it happens.</td></tr>
+        <tr><td><b>Ping</b></td><td>The smallest alive-check: "are you still there?", with no other payload.</td></tr>
+      </table>
+
+      <p>Once the installed library negotiates the modern, letter-only protocol by default, those three hit real, repeatable errors — not because your tool logic was wrong, but because the channel they used is gone on that connection.</p>
+      <table class="ref">
+        <tr><th>Feature</th><th>What happens now</th></tr>
+        <tr><td>Sampling (<code class="inline">ctx.sample()</code>)</td><td>The method itself is missing from the installed library.</td></tr>
+        <tr><td>Elicitation (<code class="inline">ctx.elicit()</code>)</td><td>The method still exists, but raises on a modern connection.</td></tr>
+        <tr><td>Ping (<code class="inline">client.ping()</code>)</td><td>The method still exists, but raises "Method not found" on a modern connection.</td></tr>
+      </table>
+      <p class="hql">"The letter did not break the postal system. It just has no slot for a mid-sentence question — and a few demos quietly assumed it would."</p>
+    </div>
+
+    <div class="page" id="page-fixes">
+      <div class="crumb">MCP: What's Changing › <b>The client side</b></div>
+      <div class="eyebrow">The client side</div>
+      <h1 class="page-title">Two kinds of fix</h1>
+      <p class="page-sub">Not every breakage wants the same repair. Separate these before you touch code.</p>
+
+      <div class="cards">
+        <div class="card">
+          <div class="k">Class A — genuinely gone</div>
+          <h3>Sampling</h3>
+          <ul>
+            <li>The method was deleted from the library</li>
+            <li>No flag brings it back</li>
+            <li>Fix: rewrite the tool so it does not need it</li>
+          </ul>
+        </div>
+        <div class="card highlight">
+          <div class="k">Class B — still there, asleep</div>
+          <h3>Elicitation &amp; ping</h3>
+          <ul>
+            <li>The code is still in the library</li>
+            <li>It needs the older connection style</li>
+            <li>Fix: ask for that connection by name</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="icon">🔍</div>
+        <div>
+          <div class="label">How to tell which one you have</div>
+          <p>If Python raises <code class="inline">AttributeError</code> because the method does not exist at all, that is Class A. If the method exists but the client or server complains about the connection type when you call it, that is Class B — usually fixable without rewriting the tool body.</p>
+        </div>
+      </div>
+      <p class="hql">"One of these needed a rewrite. The other just needed to ask for the old counter by name."</p>
+    </div>
+
+    <div class="page" id="page-sampling">
+      <div class="crumb">MCP: What's Changing › <b>The client side</b></div>
+      <div class="eyebrow">The client side</div>
+      <h1 class="page-title">Sampling: look it up yourself</h1>
+      <p class="page-sub">Class A — genuinely gone. What sampling was, what replaced it, and why the rewrite is the direction the spec already wanted.</p>
+
+      <div class="callout info">
+        <div class="icon">🧠</div>
+        <div>
+          <div class="label">What sampling actually is</div>
+          <p>A tool sometimes needs a model mid-task. Sampling was the server asking the <b>client's</b> connected LLM to do that piece — so a thin server never needed its own API key. Useful, and tightly coupled to a live back-channel.</p>
+        </div>
+      </div>
+
+      <div class="callout analogy">
+        <div class="icon">📖</div>
+        <div>
+          <div class="label">Borrowed-phone vs own notebook</div>
+          <p>An intern used to borrow a colleague's phone to look up a word. Now they keep a notebook on their own desk. Less personal, always available, and it does not depend on that colleague picking up.</p>
+        </div>
+      </div>
+
+      <table class="ref">
+        <tr><th></th><th>Before</th><th>After</th></tr>
+        <tr><td>Who answers</td><td>The client's own LLM</td><td>The server calls a provider (Anthropic, and so on) directly</td></tr>
+        <tr><td>Where the key lives</td><td>On the client, already</td><td>On the server process</td></tr>
+        <tr><td>Matches where MCP is heading?</td><td>—</td><td>Yes — this is the spec's own suggested path off sampling</td></tr>
+      </table>
+
+      <div class="callout ok">
+        <div class="icon">✅</div>
+        <div>
+          <div class="label">Not a downgrade</div>
+          <p>"Call a provider API from the server" is the migration the MCP spec itself recommends for sampling. The forced rewrite points at the destination, not a workaround.</p>
+        </div>
+      </div>
+      <p class="hql">"The server stopped borrowing a friend's phone, and started keeping its own notebook."</p>
+    </div>
+
+    <div class="page" id="page-legacy-mode">
+      <div class="crumb">MCP: What's Changing › <b>The client side</b></div>
+      <div class="eyebrow">The client side</div>
+      <h1 class="page-title">The old counter still open</h1>
+      <p class="page-sub">Class B — elicitation and ping. Their logic did not change. They need the older connection, asked for by name.</p>
+
+      <div class="callout info">
+        <div class="icon">💬</div>
+        <div>
+          <div class="label">What these two actually are</div>
+          <p><b>Elicitation</b> is a server pausing to ask the human a real question — confirm a large action instead of guessing. <b>Ping</b> is only "are you still there?"</p>
+        </div>
+      </div>
+
+      <div class="callout analogy">
+        <div class="icon">🏦</div>
+        <div>
+          <div class="label">Kiosk vs staffed desk</div>
+          <p>Most of the floor moved to self-service kiosks. One staffed desk stays open for the few jobs a kiosk cannot do. You are not sent there automatically. You walk up and ask.</p>
+        </div>
+      </div>
+
+      <p>Asking for that desk, in current Python clients, is one keyword:</p>
+      <pre class="code"><span class="cmt"># Before — modern connection by default</span>
+Client(<span class="s">"main.py"</span>, elicitation_handler=...)
+
+<span class="cmt"># After — request the classic handshake</span>
+Client(<span class="s">"main.py"</span>, elicitation_handler=..., mode=<span class="s">"legacy"</span>)</pre>
+      <p>That one argument restores the initialize back-and-forth from the lifecycle guide, and with it the back-channel elicitation and ping need. Handler functions and server tools stay the same.</p>
+
+      <div class="callout ok">
+        <div class="icon">💡</div>
+        <div>
+          <div class="label">The honest trade-off</div>
+          <p>Elicitation does have a native modern replacement: rewrite the tool so it can pause and be called again later with the answer. That is a bigger shape change than most labs need. Asking for the old counter is the simpler, honest choice when the tool itself does not need to change.</p>
+        </div>
+      </div>
+      <p class="hql">"Nothing about elicitation broke. It moved behind a desk you now have to ask for."</p>
+    </div>
+
+    <div class="page" id="page-subprocess">
+      <div class="crumb">MCP: What's Changing › <b>The client side</b></div>
+      <div class="eyebrow">The client side</div>
+      <h1 class="page-title">The subprocess does not hear you</h1>
+      <p class="page-sub">A separate bug from protocol versions — easy to miss when sampling moves onto the server and the server needs a key.</p>
+
+      <div class="callout info">
+        <div class="icon">⚙️</div>
+        <div>
+          <div class="label">What "subprocess" means here</div>
+          <p>On stdio, the client does not dial a server that is already running. It <b>starts</b> that server as a new program sitting next to it. That freshly started program is the subprocess.</p>
+        </div>
+      </div>
+
+      <div class="callout analogy">
+        <div class="icon">✉️</div>
+        <div>
+          <div class="label">Note for the courier</div>
+          <p>You say the door code out loud in your own kitchen. Then you send someone to another room. They do not automatically know the code unless you wrote it on a slip and handed it over on the way out.</p>
+        </div>
+      </div>
+
+      <p>A local stdio server does <b>not</b> inherit your full terminal environment. Only a small, safe list of variables travels by default. An API key sitting in your shell is silently left behind.</p>
+      <p><b>The fix:</b> pass it on the way out.</p>
+      <pre class="code"><span class="cmt"># Do not assume the child inherited your shell.</span>
+<span class="cmt"># Pass the key into the transport that launches the server:</span>
+env={<span class="s">"ANTHROPIC_API_KEY"</span>: os.environ[<span class="s">"ANTHROPIC_API_KEY"</span>]}</pre>
+
+      <div class="callout warn">
+        <div class="icon">🔒</div>
+        <div>
+          <div class="label">Keys do not belong in chat</div>
+          <p>Never paste a real API key into a chat, a ticket, or a commit. Treat any key that has been typed somewhere like that as already burned, and mint a new one. A key lives in a local, untracked <code class="inline">.env</code> or in your shell — nowhere it can be copied or logged.</p>
+        </div>
+      </div>
+      <p class="hql">"The kitchen and the errand are not the same room. Whatever the courier needs, you have to actually hand them."</p>
+    </div>
+
+    <div class="page" id="page-model">
+      <div class="crumb">MCP: What's Changing › <b>The client side</b></div>
+      <div class="eyebrow">The client side</div>
+      <h1 class="page-title">The one-line mental model</h1>
+      <p class="page-sub">This whole client section, compressed into one sentence worth keeping.</p>
+
+      <div class="callout ok">
+        <div class="icon">💡</div>
+        <div>
+          <div class="label">The section, in one sentence</div>
+          <p>The modern protocol has no back-channel — a server can no longer interrupt a client mid-task for anything. Features that needed that channel were either removed (sampling — the server looks the answer up itself now) or still exist behind a counter you have to ask for by name (<code class="inline">mode="legacy"</code>).</p>
+        </div>
+      </div>
+
+      <p>You could dodge all of this by pinning the library to an older version where every original demo still runs unmodified. That path moves you away from where MCP is heading. The useful work is seeing the new default, the errors included, and choosing rewrite versus <code class="inline">mode="legacy"</code> on purpose.</p>
+      <p class="hql">"You did not only learn what changed. You watched it hit real code, and you know which fix is which."</p>
+
       <p style="margin-top:18px;font-size:14px;color:var(--muted);">Continue with the other MCP labs on this site:</p>
       <div class="related">
         <a href="mcp-explainer.html">MCP Explainer</a>
@@ -621,7 +867,7 @@
         Mayank Chugh · Hong Kong · Enterprise Architect → AI Engineer.
         Spec facts from the official Model Context Protocol revisions
         <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">modelcontextprotocol.io</a>
-        (2025-11-25 and 2026-07-28).
+        (2025-11-25 and 2026-07-28). Client-library behaviour described here is the pattern seen in current Python MCP / FastMCP installs: sampling removed from the SDK, elicitation and ping needing the legacy connection, stdio not inheriting a full env.
       </div>
     </div>
   </main>
