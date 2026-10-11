@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en" data-page="claude-m365">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/assets/theme-switcher.js"></script>
+<title>Claude for Microsoft 365 — Mayank Chugh</title>
+<meta name="description" content="A practical reference for Claude in Excel, Word, PowerPoint, Outlook, and Claude Tag for Slack — prompts, limits, and a Monday-morning workflow, by Mayank Chugh.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --terracotta:#C8674C;
+    --terracotta-dark:#A6503A;
+    --terracotta-light:#F0DACE;
+    --ink:#2B2420;
+    --ink-soft:#5B534C;
+    --off-white:#FAF7F2;
+    --panel:#FFFFFF;
+    --line:#E8E0D4;
+    --sage:#6C8C6B;
+    --sage-light:#E3EDE2;
+    --amber:#C68A2E;
+    --amber-light:#F3E6CB;
+    --slate:#5C6B7A;
+    --slate-light:#E4EAEE;
+    --code-bg:#2B2420;
+    --code-text:#F0EAE0;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(43,36,32,0.06);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--off-white);
+    color:var(--ink);
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:16px;
+    line-height:1.6;
+  }
+  h1,h2,h3,h4{
+    font-family:'Outfit',sans-serif;
+    color:var(--ink);
+    margin:0 0 .4em 0;
+    letter-spacing:-0.01em;
+  }
+  a{color:var(--terracotta-dark);}
+  .layout{display:flex; min-height:100vh;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:280px; flex-shrink:0;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    display:flex; flex-direction:column;
+    position:sticky; top:0; height:100vh;
+    overflow-y:auto;
+  }
+  .brand{
+    padding:28px 24px 18px 24px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand .mark{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:38px;height:38px;border-radius:10px;
+    background:var(--terracotta); color:#fff; font-family:'Outfit';
+    font-weight:700; font-size:18px; margin-bottom:12px;
+  }
+  .brand h1{font-size:19px; font-weight:700; line-height:1.25;}
+  .brand p{margin:6px 0 0 0; font-size:13px; color:var(--ink-soft);}
+
+  nav.navlist{padding:14px 12px; flex:1;}
+  .navgroup{margin-bottom:6px;}
+  .navgroup-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--ink-soft); padding:14px 12px 6px 12px; font-weight:700;
+  }
+  .navlink{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius:9px; cursor:pointer;
+    font-size:14.5px; font-weight:500; color:var(--ink-soft);
+    border:none; background:none; width:100%; text-align:left;
+    font-family:'Plus Jakarta Sans'; transition:background .12s ease, color .12s ease;
+  }
+  .navlink:hover{background:var(--terracotta-light); color:var(--terracotta-dark);}
+  .navlink.active{background:var(--terracotta); color:#fff;}
+  .navlink .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55; flex-shrink:0;}
+
+  .sidebar-footer{
+    padding:16px 24px 22px 24px; border-top:1px solid var(--line);
+  }
+  .sidebar-footer .handle{font-size:13px; font-weight:600; color:var(--ink);}
+  .social-links{display:flex; gap:10px; margin-top:10px;}
+  .social-links a{
+    font-size:12.5px; padding:6px 10px; border-radius:20px;
+    background:var(--off-white); border:1px solid var(--line);
+    text-decoration:none; color:var(--ink-soft); font-weight:600;
+  }
+  .social-links a:hover{border-color:var(--terracotta); color:var(--terracotta-dark);}
+
+  /* MAIN */
+  main{flex:1; min-width:0;}
+  .section{display:none; padding:48px 56px 80px 56px; max-width:920px;}
+  .section.active{display:block;}
+  .eyebrow{
+    display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--terracotta-dark);
+    background:var(--terracotta-light); padding:5px 12px; border-radius:20px; margin-bottom:14px;
+  }
+  .section h2{font-size:32px; font-weight:800;}
+  .section .lede{font-size:17px; color:var(--ink-soft); max-width:700px; margin-bottom:28px;}
+
+  .callout{
+    border-radius:var(--radius); padding:18px 20px; margin:22px 0;
+    border:1px solid var(--line); background:var(--panel); box-shadow:var(--shadow);
+  }
+  .callout.analogy{background:var(--sage-light); border-color:#CFE0CE;}
+  .callout.analogy .tag{color:var(--sage); }
+  .callout.limits{background:var(--amber-light); border-color:#E7D3A0;}
+  .callout.limits .tag{color:var(--amber);}
+  .callout .tag{font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; display:block;}
+  .callout p{margin:0;}
+  .callout ul{margin:6px 0 0 0; padding-left:18px;}
+
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:24px; margin:22px 0; box-shadow:var(--shadow);
+  }
+  .card h3{font-size:20px; font-weight:700; margin-bottom:6px;}
+  .card .card-sub{color:var(--ink-soft); font-size:14.5px; margin-bottom:14px;}
+
+  .stepline{display:flex; gap:14px; margin:16px 0;}
+  .stepline .num{
+    flex-shrink:0; width:26px;height:26px;border-radius:50%;
+    background:var(--terracotta); color:#fff; font-family:'Outfit'; font-weight:700;
+    font-size:13px; display:flex; align-items:center; justify-content:center; margin-top:2px;
+  }
+  .stepline .txt strong{display:block; margin-bottom:2px; font-size:15px;}
+  .stepline .txt span{color:var(--ink-soft); font-size:14.5px;}
+
+  /* PROMPT BLOCKS */
+  .prompt{
+    position:relative; background:var(--code-bg); color:var(--code-text);
+    border-radius:12px; padding:18px 52px 18px 18px; margin:14px 0;
+    font-family:'JetBrains Mono', monospace; font-size:13.5px; line-height:1.65;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .prompt .copybtn{
+    position:absolute; top:12px; right:12px;
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+    color:var(--code-text); font-family:'Plus Jakarta Sans'; font-size:12px; font-weight:600;
+    padding:6px 10px; border-radius:8px; cursor:pointer; transition:background .12s ease;
+  }
+  .prompt .copybtn:hover{background:rgba(255,255,255,.18);}
+  .prompt .copybtn.copied{background:var(--sage); border-color:var(--sage); color:#fff;}
+  .prompt-label{
+    font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); margin:18px 0 6px 0;
+  }
+
+  /* ACCORDION (bonus use cases) */
+  .accordion{border:1px solid var(--line); border-radius:12px; margin:12px 0; overflow:hidden; background:var(--panel);}
+  .accordion summary{
+    list-style:none; cursor:pointer; padding:16px 18px; display:flex; align-items:center;
+    justify-content:space-between; font-weight:600; font-size:15px;
+  }
+  .accordion summary::-webkit-details-marker{display:none;}
+  .accordion summary .plus{
+    width:22px;height:22px; border-radius:50%; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--ink-soft);
+    flex-shrink:0; transition:transform .15s ease;
+  }
+  .accordion[open] summary .plus{transform:rotate(45deg); background:var(--terracotta-light); border-color:var(--terracotta);}
+  .accordion .accordion-body{padding:0 18px 18px 18px; color:var(--ink-soft); font-size:14.5px;}
+  .accordion .accordion-body .prompt{font-size:13px;}
+
+  .badge-row{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 18px 0;}
+  .badge{
+    font-size:12.5px; font-weight:600; padding:5px 12px; border-radius:20px;
+    background:var(--slate-light); color:var(--slate); border:1px solid #D3DCE3;
+  }
+  .badge.avail{background:var(--sage-light); color:var(--sage); border-color:#CFE0CE;}
+  .badge.beta{background:var(--amber-light); color:var(--amber); border-color:#E7D3A0;}
+  .badge.restricted{background:var(--terracotta-light); color:var(--terracotta-dark); border-color:#E3C2B2;}
+
+  table.reftable{width:100%; border-collapse:collapse; margin:18px 0; font-size:14.5px;}
+  table.reftable th{
+    text-align:left; padding:10px 14px; background:var(--off-white);
+    border-bottom:2px solid var(--line); font-family:'Outfit'; font-weight:700; font-size:13px;
+    text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft);
+  }
+  table.reftable td{padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top;}
+  table.reftable tr:last-child td{border-bottom:none;}
+
+  .rctf-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0;}
+  .rctf-item{border-radius:12px; padding:16px 18px; border:1px solid var(--line);}
+  .rctf-item h4{font-size:15px; margin-bottom:4px; font-family:'Outfit'; font-weight:700;}
+  .rctf-item p{margin:0; font-size:14px; color:var(--ink-soft);}
+  .rctf-item.r{background:var(--sage-light); border-color:#CFE0CE;}
+  .rctf-item.c{background:var(--amber-light); border-color:#E7D3A0;}
+  .rctf-item.t{background:var(--slate-light); border-color:#D3DCE3;}
+  .rctf-item.f{background:var(--terracotta-light); border-color:#E3C2B2;}
+
+  .flowchain{display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:22px 0;}
+  .flowchain .fbox{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:10px 16px; font-size:14px; font-weight:600; box-shadow:var(--shadow);
+  }
+  .flowchain .farrow{color:var(--ink-soft); font-size:18px;}
+
+  .qa{margin:14px 0;}
+  .qa .q{font-weight:700; margin-bottom:4px; font-size:15px;}
+  .qa .a{color:var(--ink-soft); font-size:14.5px; margin:0 0 18px 0;}
+
+  .hero-panel{
+    background:linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
+    border-radius:20px; padding:38px 40px; color:#fff; margin-bottom:8px;
+  }
+  .hero-panel .eyebrow{background:rgba(255,255,255,.16); color:#fff;}
+  .hero-panel h2{color:#fff; font-size:34px;}
+  .hero-panel p{color:rgba(255,255,255,.88); font-size:16.5px; max-width:640px; margin:10px 0 0 0;}
+
+  .mini-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin:26px 0;}
+  .mini-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px;
+    cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; box-shadow:var(--shadow);
+  }
+  .mini-card:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(43,36,32,0.09);}
+  .mini-card .icon{font-size:22px; margin-bottom:8px; display:block;}
+  .mini-card h4{font-size:15px; margin-bottom:4px;}
+  .mini-card p{font-size:13px; color:var(--ink-soft); margin:0;}
+
+  ul.plain{padding-left:20px; margin:10px 0;}
+  ul.plain li{margin-bottom:6px; font-size:15px;}
+
+  .mobile-topbar{display:none;}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{
+      position:fixed; top:0; left:0; height:100vh; width:260px;
+      transform:translateX(-100%); transition:transform .2s ease; z-index:50;
+    }
+    .sidebar.open{transform:translateX(0);}
+    .mobile-topbar{
+      display:flex; align-items:center; gap:12px; padding:14px 18px;
+      background:var(--panel); border-bottom:1px solid var(--line);
+      position:sticky; top:0; z-index:40;
+    }
+    .mobile-topbar button{
+      background:var(--terracotta); color:#fff; border:none; border-radius:8px;
+      width:36px; height:36px; font-size:16px; cursor:pointer;
+    }
+    .mobile-topbar .mt-title{font-family:'Outfit'; font-weight:700; font-size:15px;}
+    .section{padding:28px 20px 60px 20px;}
+    .rctf-grid{grid-template-columns:1fr;}
+    .overlay{display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:45;}
+    .overlay.show{display:block;}
+  }
+
+  .hub-back{display:inline-block; font-size:12px; font-weight:700; color:var(--terracotta-dark); text-decoration:none; margin-bottom:8px;}
+  .hub-back:hover{text-decoration:underline;}
+  .handle-role{font-size:12px; color:var(--ink-soft); margin-top:2px; line-height:1.4;}
+  .status-note{font-size:13px; color:var(--ink-soft); margin:4px 0 8px;}
+  [data-page="claude-m365"] .site-chrome{left:auto !important; right:16px; bottom:16px;}
+
+  html[data-theme="dark"], html[data-theme="midnight"]{
+    --ink:#F3EDE6;
+    --ink-soft:#C4B8AE;
+    --off-white:#1C1816;
+    --panel:#26211E;
+    --line:#3A332E;
+    --terracotta-light:#3D2A24;
+    --sage-light:#243028;
+    --amber-light:#3A2E1C;
+    --slate-light:#243038;
+    --code-bg:#141210;
+    --code-text:#F0EAE0;
+    --shadow:0 2px 10px rgba(0,0,0,0.28);
+  }
+  html[data-theme="dark"] .hero-panel,
+  html[data-theme="midnight"] .hero-panel{
+    background:linear-gradient(135deg,#8E4634 0%,#6A3426 100%);
+  }
+  html[data-theme="contrast"]{
+    --ink:#000; --ink-soft:#111; --off-white:#fff; --panel:#fff; --line:#000;
+  }
+  html[data-theme="contrast"] body{background:#fff; color:#000;}
+</style>
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+
+<div class="mobile-topbar">
+  <button id="menuBtn" aria-label="Open menu">☰</button>
+  <span class="mt-title">Claude for Microsoft 365</span>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<div class="layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="mark">C</div>
+      <h1>Claude for Microsoft 365</h1>
+      <p>+ Slack — Reference Guide</p>
+    </div>
+    <nav class="navlist">
+      <div class="navgroup">
+        <div class="navgroup-label">Start Here</div>
+        <button class="navlink active" data-target="overview"><span class="dot"></span>Overview</button>
+        <button class="navlink" data-target="getting-started"><span class="dot"></span>Getting Started</button>
+        <button class="navlink" data-target="rctf"><span class="dot"></span>The RCTF Framework</button>
+      </div>
+      <div class="navgroup">
+        <div class="navgroup-label">The Apps</div>
+        <button class="navlink" data-target="excel"><span class="dot"></span>Claude for Excel</button>
+        <button class="navlink" data-target="word"><span class="dot"></span>Claude for Word</button>
+        <button class="navlink" data-target="powerpoint"><span class="dot"></span>Claude for PowerPoint</button>
+        <button class="navlink" data-target="outlook"><span class="dot"></span>Claude for Outlook</button>
+        <button class="navlink" data-target="claudetag"><span class="dot"></span>Claude Tag for Slack</button>
+      </div>
+      <div class="navgroup">
+        <div class="navgroup-label">Bringing It Together</div>
+        <button class="navlink" data-target="crossapp"><span class="dot"></span>Working Across Apps</button>
+        <button class="navlink" data-target="capstone"><span class="dot"></span>Capstone Workflow</button>
+        <button class="navlink" data-target="cheatsheet"><span class="dot"></span>Prompt Cheat Sheet</button>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="hub-back" href="../learning/index.html#tooling-claude">← Learning Hub</a>
+      <div class="handle">Mayank Chugh</div>
+      <div class="handle-role">Enterprise Architect · Hong Kong</div>
+      <div class="social-links">
+        <a href="https://youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <!-- OVERVIEW -->
+    <section class="section active" id="overview">
+      <div class="hero-panel">
+        <span class="eyebrow">Reference Guide</span>
+        <h2>One brain, five rooms</h2>
+        <p>Claude for Microsoft 365 isn't one tool — it's five separate products (Excel, Word, PowerPoint, Outlook, and Claude Tag for Slack) that share one Claude account and, when you turn on one setting, can read across each other's open files. This guide covers all five, with the exact prompts to use in each.</p>
+      </div>
+
+      <div class="mini-cards">
+        <div class="mini-card" data-jump="excel"><span class="icon">📊</span><h4>Excel</h4><p>Clean, model, and analyze real data</p></div>
+        <div class="mini-card" data-jump="word"><span class="icon">📄</span><h4>Word</h4><p>Tracked-changes editing & review</p></div>
+        <div class="mini-card" data-jump="powerpoint"><span class="icon">📽️</span><h4>PowerPoint</h4><p>On-brand decks from bullet points</p></div>
+        <div class="mini-card" data-jump="outlook"><span class="icon">✉️</span><h4>Outlook</h4><p>Inbox triage and drafting</p></div>
+        <div class="mini-card" data-jump="claudetag"><span class="icon">💬</span><h4>Claude Tag</h4><p>A shared teammate in Slack</p></div>
+        <div class="mini-card" data-jump="crossapp"><span class="icon">🔗</span><h4>Cross-App</h4><p>One prompt, multiple apps</p></div>
+      </div>
+
+      <h3 style="margin-top:36px;">How to use this guide</h3>
+      <p class="lede" style="margin-bottom:10px;">Each app section follows the same shape:</p>
+      <ul class="plain">
+        <li><strong>What it's for</strong> — the kind of work this room handles best</li>
+        <li><strong>A full walkthrough</strong> — a real example, start to finish, with every prompt you'd actually type</li>
+        <li><strong>More ways to use it</strong> — additional use cases you can try on your own files</li>
+        <li><strong>Good to know</strong> — honest limitations, so you know exactly when to double-check the output</li>
+      </ul>
+      <p>Every prompt block has a copy button — click it, paste it into the Claude sidebar inside the relevant app, and adjust the details to match your own file.</p>
+    </section>
+
+    <!-- GETTING STARTED -->
+    <section class="section" id="getting-started">
+      <span class="eyebrow">Foundations</span>
+      <h2>Getting started</h2>
+      <p class="lede">What you need before you open any of the five apps.</p>
+
+      <table class="reftable">
+        <tr><th>App</th><th>Status</th><th>Plans required</th></tr>
+        <tr><td>Claude for Excel</td><td><span class="badge avail">Generally available</span></td><td>Pro, Max, Team, Enterprise</td></tr>
+        <tr><td>Claude for PowerPoint</td><td><span class="badge avail">Generally available</span></td><td>Pro, Max, Team, Enterprise</td></tr>
+        <tr><td>Claude for Word</td><td><span class="badge avail">Generally available</span></td><td>Pro, Max, Team, Enterprise</td></tr>
+        <tr><td>Claude for Outlook</td><td><span class="badge beta">Beta</span></td><td>Pro, Max, Team, Enterprise</td></tr>
+        <tr><td>Claude Tag (Slack)</td><td><span class="badge beta">Beta</span></td><td><span class="badge restricted">Team &amp; Enterprise only</span></td></tr>
+      </table>
+      <p class="status-note">Availability checked against Anthropic’s Claude for Microsoft 365 and Claude Tag docs in October 2026. Plan gates move — confirm them in your Claude admin settings before a rollout.</p>
+
+      <div class="card">
+        <h3>Before you install</h3>
+        <div class="stepline"><div class="num">1</div><div class="txt"><strong>A paid Claude plan</strong><span>Pro or Max for individual use; Team or Enterprise for org-wide rollout. The Free plan doesn't include any of these add-ins.</span></div></div>
+        <div class="stepline"><div class="num">2</div><div class="txt"><strong>A genuine Microsoft 365 subscription</strong><span>Perpetual licenses like Office 2016 or 2019 aren't supported.</span></div></div>
+        <div class="stepline"><div class="num">3</div><div class="txt"><strong>A supported app build</strong><span>Web always works. On desktop: Windows needs build 16.0.13127.20296+, Mac needs 16.46+ (16.61+ for Word specifically).</span></div></div>
+        <div class="stepline"><div class="num">4</div><div class="txt"><strong>Admin consent for Outlook</strong><span>A Microsoft 365 Global Administrator needs to grant one-time consent before mail and calendar features work — this is separate from installing the add-in.</span></div></div>
+      </div>
+
+      <div class="card">
+        <h3>Installing an add-in</h3>
+        <div class="stepline"><div class="num">1</div><div class="txt"><strong>Go to Microsoft Marketplace</strong><span>Search “Claude for Microsoft 365.” Excel, PowerPoint, and Word share one listing; Outlook is a separate listing.</span></div></div>
+        <div class="stepline"><div class="num">2</div><div class="txt"><strong>Click Get it now</strong><span>This adds the add-in to your Microsoft account.</span></div></div>
+        <div class="stepline"><div class="num">3</div><div class="txt"><strong>Open the app and activate it</strong><span>Home → Add-ins on Windows, Tools → Add-ins on Mac.</span></div></div>
+        <div class="stepline"><div class="num">4</div><div class="txt"><strong>Sign in with your Claude account</strong><span>That's it — no API key or config file needed.</span></div></div>
+      </div>
+
+      <div class="callout limits">
+        <span class="tag">Good to know</span>
+        <p>Only use these add-ins with files and senders you trust. A downloaded template or an unexpected attachment can carry hidden instructions — this is called prompt injection, and it's a real, documented risk, not a hypothetical one.</p>
+      </div>
+    </section>
+
+    <!-- RCTF -->
+    <section class="section" id="rctf">
+      <span class="eyebrow">The Framework</span>
+      <h2>RCTF — the four-part prompt</h2>
+      <p class="lede">Every good prompt across all five apps has four parts. Skip one and you get a generic answer. Include all four and you get something you can actually ship.</p>
+
+      <div class="rctf-grid">
+        <div class="rctf-item r"><h4>Role</h4><p>Who is Claude in this task? Not "an AI" — a specific persona. e.g. "a senior FP&A analyst"</p></div>
+        <div class="rctf-item c"><h4>Context</h4><p>What isn't obvious from the file alone? e.g. "these tabs use inconsistent date formats"</p></div>
+        <div class="rctf-item t"><h4>Task</h4><p>The actual instruction — specific, not vague. e.g. "clean, consolidate, and analyze"</p></div>
+        <div class="rctf-item f"><h4>Format</h4><p>What should the output look like? e.g. "board-ready, IB formatting, with a waterfall chart"</p></div>
+      </div>
+
+      <div class="card">
+        <h3>Example prompt using RCTF</h3>
+        <div class="prompt" data-prompt>Role: You're a senior FP&A analyst reviewing this quarter's actuals.
+Context: This workbook has three regional tabs with inconsistent date formats.
+Task: Clean the dates, remove duplicates, and consolidate into one tab, then
+build a variance-to-budget summary.
+Format: Board-ready — IB formatting (blue inputs, black formulas), a summary
+table, and a waterfall chart of the three biggest variances.<button class="copybtn">Copy</button></div>
+        <p style="color:var(--ink-soft); font-size:14.5px; margin-top:10px;">You'll see this exact structure reused with different Role/Context/Task/Format combinations in every app section below.</p>
+      </div>
+    </section>
+
+    <!-- EXCEL -->
+    <section class="section" id="excel">
+      <span class="eyebrow">Room 1 of 5</span>
+      <h2>Claude for Excel</h2>
+      <div class="badge-row"><span class="badge avail">Generally available</span><span class="badge">Pro · Max · Team · Enterprise</span></div>
+      <p class="lede">Claude for Excel reads your workbook like an analyst who's already memorized every formula dependency — it doesn't just answer questions, it edits cells directly, with every change traceable back to a citation.</p>
+
+      <div class="callout analogy">
+        <span class="tag">Think of it like</span>
+        <p>Handing your workbook to an analyst who's memorized every formula dependency before you even asked — they trace what breaks three tabs away if they touch one assumption.</p>
+      </div>
+
+      <div class="card">
+        <h3>Walkthrough — cleaning a messy multi-region report</h3>
+        <p class="card-sub">A regional actuals export with three tabs, inconsistent date formats, and duplicate rows.</p>
+
+        <div class="prompt-label">Step 1 — Clean, consolidate, and build the analysis</div>
+        <div class="prompt" data-prompt>Role: You're a senior FP&A analyst reviewing this quarter's actuals.
+Context: This workbook has three regional tabs — APAC, EMEA, Americas — with
+inconsistent date formats and at least two duplicate rows somewhere in the data.
+Task: Clean the dates to one consistent format, remove duplicate rows, and
+consolidate all three tabs into a single "Consolidated" tab. Then build a
+variance-to-budget summary table.
+Format: Board-ready — IB formatting (blue for hardcoded inputs, black for
+formulas), a summary table, and a waterfall chart showing the three biggest
+variances.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 2 — Trace and fix an error</div>
+        <div class="prompt" data-prompt>Why is cell F12 on the Consolidated tab showing an error? Trace it and fix it.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 3 — Quick formatting one-liners</div>
+        <div class="prompt" data-prompt>Sort the Consolidated tab by variance, descending.<button class="copybtn">Copy</button></div>
+        <div class="prompt" data-prompt>Add conditional formatting: highlight any variance below -10% in red.<button class="copybtn">Copy</button></div>
+        <div class="prompt" data-prompt>Add a dropdown for the "Status" column with options: On Track, At Risk, Critical.<button class="copybtn">Copy</button></div>
+      </div>
+
+      <h3>More ways to use it</h3>
+
+      <details class="accordion">
+        <summary>Turning raw transactions into a pivot summary<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Point Claude at a raw transaction export and get an instant breakdown by category, region, or rep — no manual pivot table setup.</p>
+          <div class="prompt" data-prompt>Role: You're helping me analyze raw sales transactions.
+Context: Column D has product category, column F has region, column H has
+deal value.
+Task: Build a pivot summary of total deal value by category and region, and
+call out the single highest-performing combination.
+Format: A clean summary table plus a short written takeaway above it.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Building a headcount tracker with conditional formatting<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Useful for HR and team leads tracking open roles, offers, and start dates in one sheet.</p>
+          <div class="prompt" data-prompt>Role: You're helping me build a headcount tracker.
+Context: I have a list of roles, hiring managers, status (Open/Interviewing/
+Offer/Filled), and target start dates.
+Task: Build a tracker with a status column, and conditionally format overdue
+target dates in red and roles closing this month in yellow.
+Format: One clean sheet, sorted by target start date.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Forecasting next quarter from a trend<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Good for a first-pass forecast before a planning meeting — always double-check the assumptions Claude used.</p>
+          <div class="prompt" data-prompt>Role: You're helping me build a simple forecast.
+Context: Column B has the last 6 months of revenue by month.
+Task: Project the next 3 months using a linear trend, and flag if the trend
+looks seasonal rather than linear.
+Format: A short forecast table plus a line chart, with your assumptions
+listed clearly underneath.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <div class="callout limits">
+        <span class="tag">Good to know</span>
+        <p>No VBA, no macros, no Excel data tables. Not recommended for audit-critical numbers or a final client deliverable without a human review pass — treat the output as a fast first draft from a competent analyst, not a signed-off final number.</p>
+      </div>
+    </section>
+
+    <!-- WORD -->
+    <section class="section" id="word">
+      <span class="eyebrow">Room 2 of 5</span>
+      <h2>Claude for Word</h2>
+      <div class="badge-row"><span class="badge avail">Generally available</span><span class="badge">Pro · Max · Team · Enterprise</span></div>
+      <p class="lede">Claude for Word never touches your text silently — every suggestion shows up as a tracked change you can accept or reject, exactly like a colleague's redline.</p>
+
+      <div class="callout analogy">
+        <span class="tag">Think of it like</span>
+        <p>A meticulous editor who never touches your document without leaving a paper trail — every suggestion is a tracked change, not an invisible rewrite.</p>
+      </div>
+
+      <div class="card">
+        <h3>Walkthrough — reviewing a redlined contract</h3>
+        <p class="card-sub">A vendor NDA that came back with tracked changes, including one buried in the fine print.</p>
+
+        <div class="prompt-label">Step 1 — Summarize what the other side changed</div>
+        <div class="prompt" data-prompt>Role: You're reviewing this NDA on behalf of our legal team.
+Context: The counterparty just returned this document with fourteen tracked
+changes.
+Task: Summarize what they changed, grouped by severity, and flag anything
+worth pushing back on.
+Format: A short list — Dealbreaker / Worth Discussing / Harmless — one line
+per change.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 2 — Work through open comments</div>
+        <div class="prompt" data-prompt>Work through my open comments. For each one, edit the anchored text as a
+tracked change, then reply to the comment thread explaining what you changed.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 3 — Draft new content in the existing style</div>
+        <div class="prompt" data-prompt>Role: You're our HR policy writer.
+Context: Here's a rough bullet list for our new hybrid-work policy: 3 days
+in-office minimum, core hours 10am-4pm, manager approval for fully remote
+weeks, equipment stipend of $500/year.
+Task: Draft the full Hybrid Work section for our employee handbook.
+Format: Match the handbook's existing heading style, and add a summary table
+comparing the three work-mode options.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 4 — Semantic search across the document</div>
+        <div class="prompt" data-prompt>Find every clause in this document that touches data retention, even if it
+doesn't use that exact phrase.<button class="copybtn">Copy</button></div>
+      </div>
+
+      <h3>More ways to use it</h3>
+
+      <details class="accordion">
+        <summary>Turning meeting notes into a formal clause<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Useful when a verbal agreement in a meeting needs to become precise contract language.</p>
+          <div class="prompt" data-prompt>Role: You're drafting a contract amendment.
+Context: In our call, we agreed to extend the payment terms from Net 30 to
+Net 45, effective next quarter.
+Task: Draft a short amendment clause reflecting this, referencing the
+original agreement's section 4.
+Format: Match the formal tone and numbering style of the rest of the
+document.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Summarizing a long report into an executive brief<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Paste in a long report or paper and get a one-page summary without losing the key findings.</p>
+          <div class="prompt" data-prompt>Role: You're preparing a briefing for a director who won't read the full
+report.
+Context: The attached document is 40 pages covering market research findings.
+Task: Summarize into one page — key findings, one risk, and one
+recommendation.
+Format: Short paragraphs, no more than 5 bullet points total.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Adjusting tone for a different audience<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Rewriting the same content for a client versus an internal team without changing the facts.</p>
+          <div class="prompt" data-prompt>Role: You're adapting this internal update for an external client.
+Context: This memo was written for our internal team and includes casual
+language and internal project codenames.
+Task: Rewrite it for the client — remove internal codenames, keep the facts
+identical, make the tone more formal.
+Format: Same structure and length, client-appropriate tone throughout.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <div class="callout limits">
+        <span class="tag">Good to know</span>
+        <p>Generally available on paid plans. Still not a substitute for a human review on client deliverables, litigation filings, or audit-critical documents. Accept tracked changes only after you read them. .doc files must be converted to .docx first.</p>
+      </div>
+    </section>
+
+    <!-- POWERPOINT -->
+    <section class="section" id="powerpoint">
+      <span class="eyebrow">Room 3 of 5</span>
+      <h2>Claude for PowerPoint</h2>
+      <div class="badge-row"><span class="badge avail">Generally available</span><span class="badge">Pro · Max · Team · Enterprise</span></div>
+      <p class="lede">Claude for PowerPoint reads your slide master before it builds anything — new slides already fit your brand's fonts, colors, and layouts.</p>
+
+      <div class="callout analogy">
+        <span class="tag">Think of it like</span>
+        <p>A tailor who reads your template like a body measurement — builds new slides that already fit, instead of handing you something generic to force into shape yourself.</p>
+      </div>
+
+      <div class="card">
+        <h3>Walkthrough — building a QBR deck from a rough brief</h3>
+        <p class="card-sub">A branded client template already open, and a handful of raw numbers.</p>
+
+        <div class="prompt-label">Step 1 — Build the deck</div>
+        <div class="prompt" data-prompt>Role: You're an account manager preparing this quarter's business review.
+Context: Here's the template, already open. Our numbers this quarter: MRR
+grew from $340K to $391K, churn dropped from 4.2% to 3.1%, but support ticket
+volume is up 22% — that's the one risk to flag.
+Task: Build a 6-slide QBR: title, agenda, 3 KPI-highlight slides (MRR, churn,
+support volume), and a next-steps slide.
+Format: One-line bullets only, use native PowerPoint charts (not images), and
+use the template's accent color for anything that beat target this quarter.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 2 — Make a pinpoint edit, not a full rebuild</div>
+        <div class="prompt" data-prompt>Just rebuild slide 4. Make it about the support ticket increase — 22% up,
+flag it as the one risk, suggest we're adding a dedicated support hire.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 3 — Turn numbers into a native chart</div>
+        <div class="prompt" data-prompt>Turn this into a chart: MRR by month — Jan 310K, Feb 322K, Mar 340K, Apr 355K,
+May 371K, Jun 391K.<button class="copybtn">Copy</button></div>
+      </div>
+
+      <h3>More ways to use it</h3>
+
+      <details class="accordion">
+        <summary>Turning a written document into a deck<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Great for turning a strategy doc or report into a presentable version for a leadership meeting.</p>
+          <div class="prompt" data-prompt>Role: You're turning a written strategy document into a leadership
+presentation.
+Context: The attached document covers our 3 strategic priorities for next
+year.
+Task: Build an 8-slide deck — one title slide, one slide per priority with
+supporting detail, and a closing "asks" slide.
+Format: One core idea per slide, native charts wherever there's a number.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Building a competitive comparison slide<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Useful for sales decks where you need a clean side-by-side without building a table from scratch.</p>
+          <div class="prompt" data-prompt>Role: You're building a competitive comparison slide for a sales deck.
+Context: We're comparing our product against two competitors on price,
+support hours, and integration count.
+Task: Build a single comparison slide, us in the middle column, highlighted.
+Format: A clean 3-column table with a checkmark/cross icon style, not plain
+text.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Turning a process description into a flow diagram<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Paste in a written process and get a visual flow instead of a paragraph.</p>
+          <div class="prompt" data-prompt>Role: You're visualizing a process for a training deck.
+Context: Here's our onboarding process written out as a paragraph: [paste
+your process description].
+Task: Turn this into a step-by-step flow diagram on one slide.
+Format: Numbered steps in connected boxes, left to right.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <div class="callout limits">
+        <span class="tag">Good to know</span>
+        <p>Not recommended for final client-facing decks without a human review pass. Doesn't work on PowerPoint 2016/2019, iPad, or Android — web, Windows, and Mac only.</p>
+      </div>
+    </section>
+
+    <!-- OUTLOOK -->
+    <section class="section" id="outlook">
+      <span class="eyebrow">Room 4 of 5</span>
+      <h2>Claude for Outlook</h2>
+      <div class="badge-row"><span class="badge beta">Beta</span><span class="badge">Pro · Max · Team · Enterprise</span></div>
+      <p class="lede">Claude for Outlook reads your whole inbox and sorts it before you sit down — but it will never once hit send without you looking first.</p>
+
+      <div class="callout analogy">
+        <span class="tag">Think of it like</span>
+        <p>A sharp assistant who reads your inbox and sorts it into "needs you," "I drafted a reply, just check it," and "ignore" — but never sends anything on your behalf.</p>
+      </div>
+
+      <div class="card">
+        <h3>Walkthrough — a Monday-morning inbox triage</h3>
+        <p class="card-sub">A full inbox, one real escalation buried inside it.</p>
+
+        <div class="prompt-label">Step 1 — Triage everything unread</div>
+        <div class="prompt" data-prompt>Role: You're my assistant this morning.
+Context: Everything unread in my inbox right now.
+Task: Sort into what needs me, what you can draft a reply for, and what's
+noise.
+Format: One-line reason for each item in the "needs me" bucket.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 2 — Draft the replies you can handle</div>
+        <div class="prompt" data-prompt>Draft replies for everything you marked as "you can handle."<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 3 — Summarize a long thread</div>
+        <div class="prompt" data-prompt>What's been decided on this thread, and what's still open?<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 4 — Prep for a meeting</div>
+        <div class="prompt" data-prompt>Prep me for my 2pm with the client team.<button class="copybtn">Copy</button></div>
+      </div>
+
+      <h3>More ways to use it</h3>
+
+      <details class="accordion">
+        <summary>Drafting a follow-up sequence after a call<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Turns loose notes from a sales or client call into a ready-to-send follow-up.</p>
+          <div class="prompt" data-prompt>Role: You're drafting my follow-up after today's client call.
+Context: We discussed pricing, a Q3 timeline, and they asked for a case
+study.
+Task: Draft a follow-up email covering all three points and proposing a next
+call.
+Format: Short, warm, no more than 150 words.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Summarizing a long CC thread before a meeting<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>For threads with many participants where you need the gist, fast, before walking into a room.</p>
+          <div class="prompt" data-prompt>Summarize this thread for someone who hasn't read any of it — what's the
+ask, who's blocking it, and what's the current state?<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Handoff notes for someone covering your inbox<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Useful before time off — a clean brief for whoever's covering your inbox.</p>
+          <div class="prompt" data-prompt>Role: You're helping me hand off my inbox for the week I'm out.
+Context: Everything unread and anything awaiting my reply.
+Task: Build a handoff brief — what needs attention, by when, and who to loop
+in for each.
+Format: A short list, most urgent first.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <div class="callout limits">
+        <span class="tag">Good to know</span>
+        <p>There is no send permission at this beta stage — Claude cannot send an email or calendar invite. Everything lands unsent, waiting for you. Doesn't work on Outlook 2016/2019, iOS, Android, or on-prem Exchange.</p>
+      </div>
+    </section>
+
+    <!-- CLAUDE TAG -->
+    <section class="section" id="claudetag">
+      <span class="eyebrow">Room 5 of 5</span>
+      <h2>Claude Tag for Slack</h2>
+      <div class="badge-row"><span class="badge beta">Beta</span><span class="badge restricted">Team & Enterprise only</span></div>
+      <p class="lede">Every app so far is a private notebook — Claude remembers you and your file. Claude Tag is a shared whiteboard: one Claude per channel, visible to the whole team.</p>
+
+      <div class="callout analogy">
+        <span class="tag">Think of it like</span>
+        <p>A shared whiteboard bolted to the wall of a specific room — the whole team can see it, steer it, and hand off work to it, the way you'd hand something to a teammate.</p>
+      </div>
+
+      <div class="card">
+        <h3>Walkthrough — triaging bug reports in a channel</h3>
+        <p class="card-sub">A #launch-readiness channel that gets bug reports throughout the day.</p>
+
+        <div class="prompt-label">Step 1 — Give it a standing job</div>
+        <div class="prompt" data-prompt>@Claude — a bug just got reported in this channel. Reproduce it if you can
+using our issue tracker and deploy logs, and if you find the root cause, open
+a draft PR.<button class="copybtn">Copy</button></div>
+
+        <div class="prompt-label">Step 2 — A teammate picks up the same thread</div>
+        <div class="prompt" data-prompt>@Claude — did you check if this is related to last week's caching change?<button class="copybtn">Copy</button></div>
+      </div>
+
+      <h3>More ways to use it</h3>
+
+      <details class="accordion">
+        <summary>Weekly standup summary<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Have Claude compile a running standup summary from a channel's activity instead of chasing updates manually.</p>
+          <div class="prompt" data-prompt>@Claude — summarize what shipped this week in this channel and what's still
+open, then tag whoever owns each open item.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Onboarding FAQ helper<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Give new team members a place to ask questions without pinging a busy teammate directly.</p>
+          <div class="prompt" data-prompt>@Claude — answer onboarding questions in this channel using our team wiki.
+If you're not sure, say so and tag [team lead] instead of guessing.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Cross-referencing a decision across channels<span class="plus">+</span></summary>
+        <div class="accordion-body">
+          <p>Useful when a decision made in one channel needs to be checked against a related discussion elsewhere.</p>
+          <div class="prompt" data-prompt>@Claude — did we already discuss this pricing change in the #leadership
+channel? Summarize what was decided there if so.<button class="copybtn">Copy</button></div>
+        </div>
+      </details>
+
+      <div class="callout limits">
+        <span class="tag">Good to know</span>
+        <p>Team and Enterprise only — not on Free, Pro, or Max, and not through Bedrock, Vertex, or Foundry. It replaces the older Claude in Slack app. An Owner pairs the workspace, connects tools, and sets a spend limit before the channel can use it. Claude cannot update a CRM, tracker, or repo unless that connector was granted to the channel.</p>
+      </div>
+    </section>
+
+    <!-- CROSS APP -->
+    <section class="section" id="crossapp">
+      <span class="eyebrow">Bringing It Together</span>
+      <h2>Working across apps</h2>
+      <p class="lede">One setting lets the four Office rooms read and write to each other's open files — so one sentence can move through Outlook, Excel, and PowerPoint without you copying a single number.</p>
+
+      <div class="card">
+        <h3>Turn it on</h3>
+        <p class="card-sub">In each app’s Claude sidebar, open Settings and turn on “Let Claude work across files.” Pro and Max have this on by default. Team and Enterprise default to off, and an organization owner turns “Let Claude work across apps” on under Organization settings → Office agents. The toggle is per device, so turn it on in every app you want to coordinate from. Cross-app mode works when you sign in with a Claude account directly — not through Amazon Bedrock, Google Cloud Vertex AI, Microsoft Foundry, or an LLM gateway.</p>
+      </div>
+
+      <div class="card">
+        <h3>Example — one prompt, three apps</h3>
+        <p class="card-sub">Typed into the Outlook sidebar, with a blank Excel workbook and a branded PowerPoint deck already open.</p>
+        <div class="prompt" data-prompt>Read the attached regional report. Build a variance-to-budget model for it in
+the open Excel workbook, then create a 5-slide client update in the open
+PowerPoint deck using the top 3 findings. Use the template as-is.<button class="copybtn">Copy</button></div>
+      </div>
+
+      <div class="flowchain">
+        <div class="fbox">📧 Outlook reads</div><span class="farrow">→</span>
+        <div class="fbox">📊 Excel builds</div><span class="farrow">→</span>
+        <div class="fbox">📽️ PowerPoint delivers</div>
+      </div>
+
+      <div class="callout limits">
+        <span class="tag">Good to know</span>
+        <p>Claude can only read and write files that are already open, plus the email or event currently open in Outlook. It cannot create, open, close, or switch files. Chat history stays in your browser and is not synced across devices — clear it from Settings. Skills you have enabled in Claude also apply while it moves across Excel, PowerPoint, Word, and Outlook.</p>
+      </div>
+    </section>
+
+    <!-- CAPSTONE -->
+    <section class="section" id="capstone">
+      <span class="eyebrow">Put It All Together</span>
+      <h2>The Monday morning business review</h2>
+      <p class="lede">One escalation email, five connected rooms, one hour. This is the workflow that uses everything in this guide at once.</p>
+
+      <div class="stepline"><div class="num">1</div><div class="txt"><strong>Outlook — find the signal</strong><span>Triage the inbox and surface the one email that actually needs attention today.</span></div></div>
+      <div class="stepline"><div class="num">2</div><div class="txt"><strong>Excel — build the model</strong><span>Turn the attached report into a clean, cited variance model.</span></div></div>
+      <div class="stepline"><div class="num">3</div><div class="txt"><strong>PowerPoint — make it client-ready</strong><span>Turn the top findings into a template-matched update deck.</span></div></div>
+      <div class="stepline"><div class="num">4</div><div class="txt"><strong>Word — brief your team</strong><span>Draft an internal memo summarizing the situation and your recommended talking points.</span></div></div>
+      <div class="stepline"><div class="num">5</div><div class="txt"><strong>Claude Tag — loop everyone in</strong><span>Post a summary in your team's channel and tag whoever needs to review before the next call.</span></div></div>
+
+      <div class="card">
+        <h3>The internal memo prompt</h3>
+        <div class="prompt" data-prompt>Role: You're briefing your director before Friday's call with the client.
+Context: Use the variance findings from the open Excel model and the
+original escalation email thread.
+Task: Draft a one-page internal memo — what the client is concerned about,
+what the data actually shows, and your recommended talking points for
+Friday.
+Format: Match our team's existing memo template heading style.<button class="copybtn">Copy</button></div>
+      </div>
+
+      <div class="card">
+        <h3>The team loop-in prompt</h3>
+        <div class="prompt" data-prompt>@Claude — the client escalated about their numbers this quarter. Post a
+summary of what we found (the variance model and the client deck are both
+ready) and tag [teammate 1] and [teammate 2] to review before Friday's call.<button class="copybtn">Copy</button></div>
+      </div>
+    </section>
+
+    <!-- CHEAT SHEET -->
+    <section class="section" id="cheatsheet">
+      <span class="eyebrow">Quick Reference</span>
+      <h2>Prompt cheat sheet</h2>
+      <p class="lede">The RCTF shape for each room, at a glance.</p>
+
+      <table class="reftable">
+        <tr><th>App</th><th>Role</th><th>Context</th><th>Task</th><th>Format</th></tr>
+        <tr><td>Excel</td><td>Analyst persona</td><td>Which tabs / data quirks</td><td>Clean / build / analyze</td><td>Formatting convention + chart type</td></tr>
+        <tr><td>Word</td><td>Document owner persona</td><td>Template / existing doc</td><td>Draft / edit / review</td><td>Heading level / table structure</td></tr>
+        <tr><td>PowerPoint</td><td>Presenter persona</td><td>Template already loaded</td><td>Build / edit / restructure</td><td>Bullet density / chart type / accent rules</td></tr>
+        <tr><td>Outlook</td><td>"My assistant this morning"</td><td>Inbox / thread scope</td><td>Triage / draft / prep</td><td>Bucket structure / tone match</td></tr>
+        <tr><td>Claude Tag</td><td>Channel's ongoing job</td><td>Connected tools / data</td><td>Watch / triage / build</td><td>In-thread checklist / tag-only-when rule</td></tr>
+      </table>
+
+      <h3 style="margin-top:32px;">One rule for every room</h3>
+      <div class="callout">
+        <p>Be specific about all four parts of RCTF, and always review before you ship. Claude for Microsoft 365 is fast, traceable, and genuinely useful for a first draft — the final call always stays with you.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const navlinks = document.querySelectorAll('.navlink');
+  const sections = document.querySelectorAll('.section');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const menuBtn = document.getElementById('menuBtn');
+
+  function showSection(id){
+    sections.forEach(s => s.classList.toggle('active', s.id === id));
+    navlinks.forEach(l => l.classList.toggle('active', l.dataset.target === id));
+    window.scrollTo({top:0, behavior:'instant'});
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  }
+
+  navlinks.forEach(link => {
+    link.addEventListener('click', () => showSection(link.dataset.target));
+  });
+
+  document.querySelectorAll('.mini-card').forEach(card => {
+    card.addEventListener('click', () => showSection(card.dataset.jump));
+  });
+
+  menuBtn?.addEventListener('click', () => {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+  });
+  overlay?.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+
+  document.querySelectorAll('.copybtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const block = btn.closest('.prompt');
+      const text = block.textContent.replace('Copy', '').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

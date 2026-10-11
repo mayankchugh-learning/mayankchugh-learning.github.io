@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en" data-page="jev-typed-decisions">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/assets/theme-switcher.js"></script>
+<title>Jev typed decisions — Mayank Chugh</title>
+<meta name="description" content="Classroom copy of the Jev typed-decision demos by Mayank Chugh, Enterprise Architect and AI Engineer in Hong Kong. Router, ticket triage, inbox, slop filter, title scorer and cost calculator, running offline.">
+<meta property="og:title" content="Jev typed decisions — Mayank Chugh">
+<meta property="og:description" content="Jev makes the typed decision. An LLM writes the words. A classroom copy on Mayank Chugh's learning hub.">
+<meta property="og:type" content="website">
+<link rel="icon" href="logo.png" type="image/png">
+<meta name="theme-color" content="#0e1013">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+<header class="learn-top">
+  <a class="hub" href="/pages/learning/index.html">← Learning Hub</a>
+  <div class="who">
+    <strong>Mayank Chugh</strong>
+    <span>Hong Kong · Enterprise Architect and AI Engineer</span>
+  </div>
+  <nav class="who-links" aria-label="Mayank Chugh">
+    <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://www.youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+    <a href="/index.html">Portfolio</a>
+  </nav>
+</header>
+<header>
+  <div><h1>Jev <span>· TypeSafe System One</span></h1><p class="sub">Jev makes the typed decision. An LLM writes the words. Control flow stays in your code.</p></div>
+  <div class="controls" id="controls"></div>
+</header>
+<nav id="tabs"></nav>
+
+<main>
+<!-- ═════════ OVERVIEW ═════════ -->
+<section class="view" id="view-overview">
+  <section class="hero" id="hero">
+    <div class="hero-art" id="hero-art" aria-hidden="true"></div>
+    <div class="hero-main">
+      <img class="hero-logo" src="logo.png" width="72" height="72" alt="Jev logo">
+      <div class="hero-copy">
+        <h2 class="hero-title">Decisions in milliseconds. Words only when you need them.</h2>
+        <div class="hero-cta">
+          <button class="btn" id="hero-tour">▶ Start guided tour</button>
+          <a class="btn alt" href="https://www.youtube.com/watch?v=d9lCIVc5AyU" target="_blank" rel="noopener">▶ Watch the video</a>
+          <a class="btn alt" href="https://jevdemos.vercel.app/" target="_blank" rel="noopener">Original live demo</a>
+        </div>
+        <div class="hero-note" id="hero-note"></div>
+      </div>
+    </div>
+    <button class="hero-shot" id="hero-shot" title="Hides the header controls for a clean screenshot">Clean view</button>
+  </section>
+  <div class="card">
+    <h2>An LLM writes an answer. Jev returns a verdict.</h2>
+    <p class="lede">Same question: <b>“Is this invoice fraudulent?”</b> An LLM generates a sentence token by token. Jev reads the same state and returns a <b>typed choice with probabilities</b> in one pass. Timings are illustrative, taken from TypeSafe's launch material (about 8.5 s vs 0.4 s).</p>
+    <div class="duel">
+      <div class="term"><div class="hd"><span class="badge llm">LLM · writes text</span><span class="muted" id="o-llm-t">0.0 s</span></div><div id="o-llm-out" class="muted">Press “Run the duel”.</div></div>
+      <div class="term"><div class="hd"><span class="badge jev">Jev · returns a verdict</span><span class="muted" id="o-jev-t">0.0 s</span></div><pre id="o-jev-out" class="muted" style="margin:0;font:inherit"></pre></div>
+    </div>
+    <div class="row"><button class="btn" id="o-run">Run the duel</button></div>
+  </div>
+  <div class="card">
+    <h2>The three answer types (click one)</h2>
+    <div class="types" id="o-types"></div>
+    <pre class="json" id="o-json"></pre>
+  </div>
+  <div class="card">
+    <h2>Why builders care</h2>
+    <div class="kpis">
+      <div class="kpi"><small>Decision latency</small><div class="big">70–500 ms</div><div class="tiny">one parallel pass, any number of questions</div></div>
+      <div class="kpi"><small>Price</small><div class="big">$0.042 / 1M</div><div class="tiny">input tokens, output is free</div></div>
+      <div class="kpi jev"><small>Claimed vs frontier LLMs</small><div class="big">20–200× faster</div><div class="tiny">40–400× cheaper, per TypeSafe</div></div>
+      <div class="kpi gold"><small>Limits</small><div class="big">64k tokens</div><div class="tiny">32k for state. It can't write, explain or reason step by step</div></div>
+    </div>
+    <p class="note">Rule of thumb from the launch coverage: use Jev when the job is a decision at scale (yes/no, pick one, score). Keep a big model for writing, explaining and open-ended reasoning. Always run evals on a golden set before trusting it.</p>
+  </div>
+</section>
+
+<!-- ═════════ ROUTER ═════════ -->
+<section class="view" id="view-router" hidden>
+  <div class="card">
+    <h2>Prompt</h2>
+    <textarea id="r-prompt" placeholder="Type a prompt, or pick a sample…"></textarea>
+    <div class="row" id="r-samples"></div>
+    <div class="row">
+      <button class="btn" id="r-go">Route &amp; answer</button>
+      <button class="btn alt" id="r-bench">Run all samples</button>
+      <label class="opt"><input type="checkbox" id="r-baseline" checked> also time a simulated always-<span class="js-big">top model</span> (placeholder text, list-price cost)</label>
+    </div>
+  </div>
+  <div class="card"><h2>Live pipeline</h2><div id="r-flow"></div><div id="r-race" style="margin-top:10px"></div></div>
+  <div id="r-out"></div>
+  <div id="r-bench-out"></div>
+</section>
+
+<!-- ═════════ TRIAGE ═════════ -->
+<section class="view" id="view-triage" hidden>
+  <div class="card">
+    <h2>Support ticket</h2>
+    <textarea id="t-ticket" placeholder="Paste a ticket, or pick a sample…"></textarea>
+    <div class="row" id="t-samples"></div>
+    <div class="row">
+      <button class="btn" id="t-go">Triage ticket</button>
+      <button class="btn alt" id="t-bench">Run all samples</button>
+      <label class="opt"><input type="checkbox" id="t-compare" disabled> race <span class="js-small">small model</span> as classifier (off here: no live key, so it is not faked)</label>
+      <label class="opt"><input type="checkbox" id="t-draft" checked> draft a reply</label>
+    </div>
+  </div>
+  <div class="card"><h2>Live pipeline</h2><div id="t-flow"></div><div id="t-race" style="margin-top:10px"></div></div>
+  <div id="t-out"></div>
+  <div id="t-bench-out"></div>
+</section>
+
+<!-- ═════════ INBOX ═════════ -->
+<section class="view" id="view-inbox" hidden>
+  <div class="card">
+    <h2>Inbox at scale</h2>
+    <p class="lede">Every email gets five judgements at once (category, urgency, scam, needs reply). Jev runs the whole inbox in parallel. The <span class="js-small">small model</span> race is off in this classroom copy; the cost beside it is a list-price estimate. Watch the clock.</p>
+    <div class="row">
+      <label class="opt">Emails <select id="i-n"><option>25</option><option selected>60</option><option>100</option><option>200</option><option>500</option></select></label>
+      <label class="opt"><input type="checkbox" id="i-race" disabled> race <span class="js-small">small model</span> on the same emails (off here: cost is estimated from list prices)</label>
+      <button class="btn" id="i-go">Classify inbox</button>
+    </div>
+  </div>
+  <div class="card"><h2>Live pipeline</h2><div id="i-flow"></div><div id="i-lanes" style="margin-top:10px"></div></div>
+  <div id="i-kpis" class="kpis" style="margin-bottom:16px"></div>
+  <div id="i-note"></div>
+  <div class="grid">
+    <div class="card"><h2>Categories</h2><div class="donut-wrap"><div id="i-donut"></div><div class="legend" id="i-legend"></div></div></div>
+    <div class="card"><h2>Importance</h2><div class="hist" id="i-hist"></div><h2 style="margin-top:16px">Needs attention now</h2><div id="i-top" class="muted">Nothing yet.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ FEED ═════════ -->
+<section class="view" id="view-feed" hidden>
+  <div class="card">
+    <h2>Real-time slop filter</h2>
+    <p class="lede">Posts stream in and Jev labels each one as it lands: breaking, golden nugget, promo, hot take, noise or AI slop. Flip “hide slop” and watch the feed clean itself.</p>
+    <div class="row">
+      <button class="btn" id="f-go">Start feed</button>
+      <button class="btn alt" id="f-stop">Stop</button>
+      <label class="opt"><input type="checkbox" id="f-hide"> hide AI slop</label>
+    </div>
+  </div>
+  <div class="card"><h2>Live pipeline</h2><div id="f-flow"></div></div>
+  <div id="f-kpis" class="kpis" style="margin-bottom:16px"></div>
+  <div id="f-note"></div>
+  <div class="card"><h2>Feed</h2><div class="feed" id="f-feed"></div></div>
+</section>
+
+<!-- ═════════ TITLES ═════════ -->
+<section class="view" id="view-titles" hidden>
+  <div class="card">
+    <h2>LLM writes, Jev judges</h2>
+    <p class="lede"><span class="js-small">The small model</span> brainstorms video titles. Jev then scores every candidate in parallel on click appeal, clarity, hype and specificity, and the leaderboard re-ranks live. The writer does the words, Jev does the judgement.</p>
+    <input type="text" id="ti-topic" value="Typed decisions for enterprise architects">
+    <div class="row">
+      <label class="opt">Candidates <select id="ti-n"><option>8</option><option selected>12</option><option>16</option></select></label>
+      <button class="btn" id="ti-go">Generate &amp; rank</button>
+    </div>
+  </div>
+  <div class="card"><h2>Live pipeline</h2><div id="ti-flow"></div></div>
+  <div id="ti-kpis" class="kpis" style="margin-bottom:16px"></div>
+  <div id="ti-note"></div>
+  <div class="card"><h2>Leaderboard</h2><div class="board" id="ti-board" style="min-height:60px"></div></div>
+</section>
+
+<!-- ═════════ COST ═════════ -->
+<section class="view" id="view-cost" hidden>
+  <div class="card">
+    <h2>What does a decision cost at your scale?</h2>
+    <p class="lede">Move the slider. Prices are list prices; each decision is one request. The LLM figures are a <b>lower bound</b>: they count only the tokens in and out of a short structured verdict, not thinking tokens.</p>
+    <div class="calc">
+      <div><div class="stat"><span>Decisions per day</span><b id="c-vol-l"></b></div><input type="range" id="c-vol" min="3" max="7.5" step="0.05" value="5"></div>
+      <div class="grid">
+        <div><div class="stat"><span>Input tokens per decision</span><b id="c-in-l"></b></div><input type="range" id="c-in" min="100" max="8000" step="50" value="600"></div>
+        <div><div class="stat"><span>LLM output tokens per decision</span><b id="c-out-l"></b></div><input type="range" id="c-out" min="10" max="600" step="10" value="80"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card"><h2>Monthly cost</h2><div id="c-bars"></div><div id="c-kpis" class="kpis" style="margin-top:14px"></div></div>
+</section>
+</main>
+<aside class="narrator" id="narrator" hidden aria-live="polite">
+  <div class="n-head">
+    <span class="n-badge">Demo mode</span><span class="n-step" id="n-step"></span>
+    <span class="sp">
+      <label>Pace <select id="n-pace"><option value="500">Fast</option><option value="1100" selected>Normal</option><option value="2000">Slow</option></select></label>
+      <button class="chip" id="n-tour">▶ Guided tour</button>
+      <button class="chip" id="n-off">Hide</button>
+    </span>
+  </div>
+  <div class="n-text" id="n-text">Pick any tab and run it. I'll explain each step as it happens.</div>
+  <div class="n-log" id="n-log"></div>
+</aside>
+
+<footer class="credit">
+  <p>Learning page by <strong>Mayank Chugh</strong>, Hong Kong. Enterprise Architect and AI Engineer. Portfolio at <a href="/index.html">mayankchugh-learning.github.io</a>.</p>
+  <p>Adapted from the MIT-licensed <a href="https://github.com/mayank953/Jev" target="_blank" rel="noopener">Jev demos</a> by Mayank Aggarwal. The original copyright stays with that author. This copy runs in the browser with no server and no API keys. The hosted original is at <a href="https://jevdemos.vercel.app/" target="_blank" rel="noopener">jevdemos.vercel.app</a>. Jev is TypeSafe’s decision model, not affiliated with this page.</p>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
