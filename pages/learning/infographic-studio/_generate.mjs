@@ -24,6 +24,12 @@ const META = {
   'Data_Migration_Infographic_Prompts.md': { tag: 'Migration', kind: 'infographic', blurb: 'Scope, test lifecycle, and staffing patterns for cloud data migrations.' },
   'EA_Field_Notes_Infographic_Prompts.md': { tag: 'EA', kind: 'infographic', blurb: 'Field-notes series: certification, capability map, and lived delivery stories.' },
   'FinOps_Infographic_Prompts.md': { slug: 'finops-infographic-prompts', tag: 'FinOps', kind: 'infographic', blurb: 'FinOps prompts for AWS, Azure, and GCP plus service-level best practices.' },
+  'Infographic_Prompts_Architecture_Concepts.md': { tag: 'Architecture', kind: 'infographic', blurb: 'Part 1: twelve architecture concepts with everyday analogies — ARB, trade-offs, RPO/RTO, TCO, book of work.' },
+  'Infographic_Prompts_Architecture_Concepts_Insurance.md': { tag: 'Architecture', kind: 'infographic', blurb: 'Part 1, insurance edition: the same twelve architecture concepts told with insurance analogies.' },
+  'Infographic_Prompts_Part2_JD_and_MA.md': { tag: 'M&A', kind: 'infographic', blurb: 'Part 2: JD gap concepts (TOGAF ADM, CDC, API gateway, PDPO, 6 Rs) plus M&A deal and integration basics.' },
+  'Infographic_Prompts_Part2_JD_and_MA_Insurance.md': { tag: 'M&A', kind: 'infographic', blurb: 'Part 2, insurance edition: JD gap concepts plus M&A concepts set in a merger of two insurers.' },
+  'Infographic_Prompts_Part3_PostMerger_Insurance.md': { tag: 'M&A', kind: 'infographic', blurb: 'Part 3, insurance edition: post-merger integration — IMO, Day-100, single customer view, hypercare, RAID.' },
+  'Interview_Prep_Guide_Outsized_v3.md': { slug: 'interview-prep-outsized-v3', tag: 'Career', kind: 'guide', blurb: 'Outsized Senior Consultant interview prep: JD map, STAR stories, hard questions, claim audit.' },
   'JD_Runbook_and_Checklist.md': { tag: 'Career', kind: 'runbook', blurb: 'Intake-to-application runbook for job descriptions.' },
   'MA_PMI_Learning_Infographic_Prompts.md': { tag: 'M&A', kind: 'infographic', blurb: 'M&A / PMI / IT governance prompts — TSA, retain-replace, COBIT, ITIL, AI tiers.' },
   'MA_PMI_Learning_Infographic_Prompts_Batch2.md': { tag: 'M&A', kind: 'infographic', blurb: 'Batch 2: TOGAF ADM, TOM, scoring, SLA/RPO/RTO, AI FinOps, Shadow AI.' },
@@ -116,10 +122,12 @@ function inlineFormat(text) {
 
 function isTrackable(level, title, kind) {
   const t = title.toLowerCase().trim();
+  if (kind === 'guide') return false;
   if (SKIP_HEADINGS.has(t)) return false;
   if (t.startsWith('playlist ') && level === 2 && kind === 'video') return false;
   if (level === 2) {
     if (/^\d+([\.\)]|\s)/.test(t)) return true;
+    if (/^[a-z]\d+\.\s/.test(t)) return true;
     if (/^infographic\s+\d+/.test(t)) return true;
     if (/^prompt\s+\d+/.test(t)) return true;
     if (t.startsWith('playlist ') && kind === 'plan') return true;
@@ -218,7 +226,32 @@ function mdToHtml(md, fileSlug, kind, itemsOut) {
         quote.push(lines[i].replace(/^>\s?/, ''));
         i += 1;
       }
-      html.push('<blockquote>' + inlineFormat(quote.join(' ')) + '</blockquote>');
+      const paras = quote.join('\n').split(/\n\s*\n/).map((p) => p.replace(/\n/g, ' ').trim()).filter(Boolean);
+      html.push(
+        paras.length > 1
+          ? '<blockquote>' + paras.map((p) => '<p>' + inlineFormat(p) + '</p>').join('') + '</blockquote>'
+          : '<blockquote>' + inlineFormat(paras.join(' ')) + '</blockquote>'
+      );
+      continue;
+    }
+
+    if (/^\|/.test(line)) {
+      closeList();
+      const rows = [];
+      while (i < lines.length && /^\|/.test(lines[i])) {
+        if (!/^\|[\s|:-]+\|?\s*$/.test(lines[i])) {
+          rows.push(lines[i].trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim()));
+        }
+        i += 1;
+      }
+      const [head, ...rest] = rows;
+      html.push(
+        '<div class="md-table-wrap"><table><thead><tr>' +
+        head.map((c) => '<th>' + inlineFormat(c) + '</th>').join('') +
+        '</tr></thead><tbody>' +
+        rest.map((r) => '<tr>' + r.map((c) => '<td>' + inlineFormat(c) + '</td>').join('') + '</tr>').join('') +
+        '</tbody></table></div>'
+      );
       continue;
     }
 
@@ -255,7 +288,7 @@ function mdToHtml(md, fileSlug, kind, itemsOut) {
     closeList();
     const para = [line];
     i += 1;
-    while (i < lines.length && lines[i].trim() && !/^(#{1,4}\s|```|---+\s*$|[-*]\s|\d+\.\s|>)/.test(lines[i])) {
+    while (i < lines.length && lines[i].trim() && !/^(#{1,4}\s|```|---+\s*$|[-*]\s|\d+\.\s|>|\|)/.test(lines[i])) {
       para.push(lines[i]);
       i += 1;
     }

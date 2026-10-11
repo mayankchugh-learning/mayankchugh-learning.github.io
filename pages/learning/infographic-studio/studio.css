@@ -350,6 +350,17 @@ h1 {
   background: var(--off);
   color: var(--muted);
 }
+.md-body blockquote p:last-child { margin-bottom: 0; }
+.md-table-wrap { overflow-x: auto; margin: 0 0 1rem; }
+.md-body table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.md-body th,
+.md-body td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--border);
+}
+.md-body th { background: var(--off); color: var(--navy); }
 .md-body code {
   font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
   font-size: 0.86em;

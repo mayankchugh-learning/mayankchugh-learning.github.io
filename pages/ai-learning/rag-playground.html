@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="en" data-page="rag-playground">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/assets/theme-switcher.js"></script>
+  <title>RAG Playground — Interactive RAG Pipeline Lab · Mayank Chugh</title>
+  <meta name="description" content="Interactive RAG playground by Mayank Chugh: split a document into chunks, embed them in your browser, run semantic search, and watch an LLM answer from the retrieved context." />
+  <meta name="author" content="Mayank Chugh" />
+  <meta property="og:title" content="RAG Playground — Mayank Chugh" />
+  <meta property="og:description" content="Debug, visualize, and master Retrieval-Augmented Generation: text splitting, vector embeddings, semantic search, and context generation." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #111c30;
+      --elev: #17243b;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --dim: #5c6d85;
+      --border: rgba(255, 255, 255, 0.09);
+      --accent: #e8a020;
+      --accent2: #f0c060;
+      --accent-dim: rgba(232, 160, 32, 0.14);
+      --teal: #2dd4bf;
+      --sky: #38bdf8;
+      --coral: #fb7185;
+      --green: #4ade80;
+      --overlap-bg: rgba(251, 146, 60, 0.16);
+      --overlap-border: #fb923c;
+      --overlap-text: #fdba74;
+      --mark: rgba(232, 160, 32, 0.4);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --radius: 14px;
+      --font: "DM Sans", system-ui, sans-serif;
+      --display: "Syne", "DM Sans", sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+      --t0: rgba(248, 113, 113, 0.2);  --p0: #f87171;
+      --t1: rgba(96, 165, 250, 0.2);   --p1: #60a5fa;
+      --t2: rgba(74, 222, 128, 0.2);   --p2: #4ade80;
+      --t3: rgba(250, 204, 21, 0.22);  --p3: #facc15;
+      --t4: rgba(192, 132, 252, 0.22); --p4: #c084fc;
+      --t5: rgba(244, 114, 182, 0.2);  --p5: #f472b6;
+    }
+    html[data-theme="light"] {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --elev: #f1f4f9;
+      --text: #1a1a2e;
+      --muted: #5a6a7e;
+      --dim: #8a97a8;
+      --border: #dde3ec;
+      --accent: #c9850f;
+      --accent-dim: rgba(232, 160, 32, 0.14);
+      --overlap-text: #9a3412;
+      --mark: rgba(232, 160, 32, 0.35);
+      --shadow: 0 8px 24px rgba(15, 30, 54, 0.08);
+      --p3: #ca8a04;
+    }
+    html[data-theme="contrast"] {
+      --bg: #000;
+      --card: #000;
+      --elev: #111;
+      --text: #fff;
+      --muted: #e5e5e5;
+      --border: #fff;
+      --accent: #ffff00;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 10% 0%, rgba(56, 189, 248, 0.12), transparent),
+        radial-gradient(ellipse 50% 35% at 95% 10%, rgba(232, 160, 32, 0.1), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+    html[data-theme="light"] body::before { opacity: 0.5; }
+    a { color: var(--sky); }
+    html[data-theme="light"] a { color: #1d6fa4; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+
+    .page { position: relative; z-index: 1; max-width: 1320px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+    .crumb { padding-top: 1.25rem; font-size: 0.9rem; color: var(--muted); }
+    .crumb a { text-decoration: none; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 3rem 0 2rem; }
+    .hero-badge {
+      display: inline-flex; gap: 0.5rem; align-items: center;
+      padding: 0.35rem 0.9rem; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--accent-dim);
+      color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .hero h1 {
+      font-family: var(--display); font-weight: 800;
+      font-size: clamp(2.2rem, 5.5vw, 4rem); line-height: 1.08; letter-spacing: -0.02em;
+      margin: 1rem 0 0.75rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p.lead { max-width: 720px; margin: 0 auto; color: var(--muted); font-size: 1.1rem; }
+    .author {
+      display: inline-flex; align-items: center; gap: 0.85rem; margin-top: 1.5rem;
+      padding: 0.6rem 1rem 0.6rem 0.6rem; border: 1px solid var(--border); border-radius: 999px; background: var(--card);
+      text-align: left;
+    }
+    .author-avatar {
+      width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(135deg, #0f1e36, #1d6fa4); color: #f0c060; font-family: var(--display); font-weight: 800; font-size: 0.85rem;
+    }
+    .author strong { display: block; font-size: 0.95rem; }
+    .author small { color: var(--muted); font-size: 0.8rem; }
+    .author-links { display: flex; gap: 0.65rem; margin-left: 0.5rem; font-size: 0.82rem; }
+    .author-links a { text-decoration: none; font-weight: 600; }
+    .hero-cta { margin-top: 1.75rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;
+      padding: 0.6rem 1.1rem; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--elev); font-weight: 600; font-size: 0.9rem; text-decoration: none; color: var(--text);
+      transition: border-color 0.15s, background 0.15s, opacity 0.15s;
+    }
+    .btn:hover:not(:disabled) { border-color: var(--accent); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #111; }
+    .btn-primary:hover:not(:disabled) { background: var(--accent2); }
+    .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.8rem; border-radius: 8px; }
+    .btn-ghost { background: transparent; }
+
+    /* Pipeline overview */
+    .pipeline { display: flex; align-items: stretch; justify-content: center; gap: 0.6rem; margin: 1rem 0 2.5rem; }
+    .pipe-card {
+      flex: 1 1 0; max-width: 290px; text-align: left; cursor: pointer;
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.2rem; transition: transform 0.15s, border-color 0.15s;
+    }
+    .pipe-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .pipe-num {
+      display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+      background: var(--accent-dim); color: var(--accent); font-weight: 800; font-family: var(--display); margin-bottom: 0.6rem;
+    }
+    .pipe-card h3 { font-family: var(--display); font-size: 1.05rem; margin-bottom: 0.35rem; }
+    .pipe-card p { color: var(--muted); font-size: 0.88rem; }
+    .pipe-arrow { display: grid; place-items: center; color: var(--dim); font-size: 1.4rem; }
+
+    /* Lab */
+    .lab { scroll-margin-top: 12px; }
+    .tabs {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem;
+      padding: 0.6rem; margin-bottom: 1rem;
+      background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px);
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .tab {
+      cursor: pointer; border: 1px solid transparent; background: transparent;
+      padding: 0.55rem 0.95rem; border-radius: 10px; font-weight: 600; color: var(--muted);
+    }
+    .tab[aria-selected="true"] { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+    .tab:hover { color: var(--text); }
+    .model-pill {
+      margin-left: auto; font-size: 0.8rem; color: var(--muted);
+      display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--border);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); }
+    .dot.ready { background: var(--green); }
+    .dot.loading { background: var(--accent); animation: pulse 1s infinite alternate; }
+    .dot.error { background: var(--coral); }
+    @keyframes pulse { to { opacity: 0.3; } }
+
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem; box-shadow: var(--shadow); }
+    .panel[hidden] { display: none; }
+    .panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 1.1rem; }
+    .panel-head h2 { font-family: var(--display); font-size: 1.45rem; }
+    .panel-head p { color: var(--muted); font-size: 0.93rem; max-width: 760px; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 0.9rem 1.4rem; align-items: flex-end; margin-bottom: 1rem; }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+    .field.inline { flex-direction: row; align-items: center; gap: 0.5rem; }
+    .field input[type="number"], .field input[type="text"], .field input[type="password"], .field input[type="url"], .field select {
+      background: var(--elev); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.6rem; color: var(--text); font-weight: 500;
+    }
+    .field input[type="number"] { width: 6.5rem; }
+    .field input[type="range"] { accent-color: var(--accent); width: 140px; }
+    .field .hint { font-weight: 400; color: var(--dim); font-size: 0.75rem; }
+    .field-row { display: flex; align-items: center; gap: 0.5rem; }
+
+    .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+    .grid-2 > section { min-width: 0; }
+    .section-label { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.45rem; }
+    .section-label span { font-weight: 400; color: var(--muted); font-size: 0.78rem; }
+
+    .frame { border: 2px dashed var(--border); border-radius: 12px; padding: 0.9rem; }
+    .scroll { overflow-y: auto; }
+    .h-list { height: 560px; }
+    .empty { display: grid; place-items: center; height: 100%; min-height: 120px; color: var(--muted); text-align: center; padding: 1rem; font-size: 0.92rem; }
+
+    /* Separators */
+    .sep-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.8rem; margin-bottom: 1rem; font-size: 0.82rem; }
+    .sep-row > strong { color: var(--muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 6px; padding: 0.2rem 0.55rem;
+      font-family: var(--mono); font-size: 0.78rem; border: 1px solid transparent; cursor: pointer; background: var(--elev);
+    }
+    .chip.tone-yellow { background: rgba(250, 204, 21, 0.18); color: #eab308; }
+    .chip.tone-blue { background: rgba(96, 165, 250, 0.18); color: #60a5fa; }
+    .chip.tone-green { background: rgba(74, 222, 128, 0.18); color: #22c55e; }
+    .chip.tone-purple { background: rgba(192, 132, 252, 0.2); color: #a855f7; }
+    .chip.tone-gray { background: var(--elev); color: var(--muted); }
+    .chip[aria-checked="false"] { opacity: 0.5; }
+    .chip[aria-checked="true"] { border-color: var(--accent); opacity: 1; }
+    .chip button { border: 0; background: transparent; cursor: pointer; padding: 0 0.15rem; font-size: 0.85rem; line-height: 1; opacity: 0.7; }
+    .chip button:disabled { opacity: 0.25; cursor: not-allowed; }
+    .sep-input { width: 7.5rem; background: var(--elev); border: 1px solid var(--border); border-radius: 8px; padding: 0.3rem 0.5rem; font-family: var(--mono); font-size: 0.78rem; }
+
+    /* Source editor with highlight backdrop */
+    .editor { position: relative; height: 560px; border: 1px solid var(--border); border-radius: 12px; background: var(--elev); overflow: hidden; }
+    .editor-backdrop, .editor textarea {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; border: 0;
+      padding: 14px 16px; font: 400 0.84rem/1.65 var(--mono); letter-spacing: 0; tab-size: 4;
+      white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; overflow-y: scroll;
+    }
+    .editor-backdrop { color: transparent; pointer-events: none; scrollbar-color: transparent transparent; }
+    .editor-backdrop mark { background: var(--mark); color: transparent; border-radius: 3px; }
+    .editor textarea { background: transparent; resize: none; outline: none; z-index: 1; color: var(--text); }
+    .editor:focus-within { border-color: var(--accent); }
+    .doc-tools { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.6rem; }
+    .doc-tools select { background: var(--elev); border: 1px solid var(--border); border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.85rem; }
+
+    /* Chunks */
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; padding-bottom: 0.8rem; margin-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
+    .stat { background: var(--elev); border-radius: 8px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; gap: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+    .stat b { color: var(--text); font-size: 0.88rem; white-space: nowrap; }
+    .chunks { font-size: 0.92rem; line-height: 2; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .chunk {
+      position: relative; padding: 0.12em 0.35em; margin-right: 0.2em; border-radius: 5px; cursor: pointer;
+      -webkit-box-decoration-break: clone; box-decoration-break: clone; outline: none;
+    }
+    .chunk:hover, .chunk:focus-visible { box-shadow: 0 0 0 2px var(--accent) inset; }
+    .chunk-size { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); background: var(--elev); border-radius: 4px; padding: 0 0.3em; margin-right: 0.3em; vertical-align: super; }
+    .chunk-overlap {
+      border: 1.5px dashed var(--overlap-border); background: var(--overlap-bg); color: var(--overlap-text);
+      border-radius: 4px; padding: 0 0.25em; font-size: 0.85em;
+      -webkit-box-decoration-break: clone; box-decoration-break: clone;
+    }
+    .tone-0 { background: var(--t0); } .tone-1 { background: var(--t1); } .tone-2 { background: var(--t2); }
+    .tone-3 { background: var(--t3); } .tone-4 { background: var(--t4); } .tone-5 { background: var(--t5); }
+    .parent-group { border: 2px solid var(--border); border-radius: 10px; padding: 0.6rem 0.7rem; margin-bottom: 0.8rem; white-space: normal; }
+    .parent-group .chunks-inner { white-space: pre-wrap; }
+    .parent-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem; white-space: normal; }
+    .error-box { border: 1px solid var(--coral); background: rgba(251, 113, 133, 0.1); color: var(--coral); border-radius: 10px; padding: 0.75rem 0.9rem; font-size: 0.9rem; }
+
+    /* Embedding + search lists */
+    .item { background: var(--elev); border-radius: 10px; padding: 0.75rem 0.85rem; margin-bottom: 0.6rem; border: 2px solid transparent; transition: border-color 0.2s; }
+    .item.flash { border-color: var(--accent); }
+    .item p.text { font-size: 0.88rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .item .vec { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.4rem; overflow-wrap: anywhere; }
+    .item .meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+    .tag { font-size: 0.68rem; font-weight: 700; border-radius: 5px; padding: 0.05rem 0.4rem; background: rgba(192, 132, 252, 0.2); color: #a855f7; }
+    .tag.ctx { background: var(--accent-dim); color: var(--accent); }
+    .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+    .bar { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; margin-top: 0.45rem; }
+    .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--teal), var(--accent)); }
+
+    .progress { height: 8px; border-radius: 4px; background: var(--elev); overflow: hidden; }
+    .progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.2s; }
+    .status-box { display: flex; flex-direction: column; gap: 0.45rem; background: var(--elev); border-radius: 10px; padding: 0.75rem 0.9rem; margin-bottom: 1rem; font-size: 0.86rem; }
+    .status-box .row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; justify-content: space-between; }
+
+    /* Chart */
+    .chart { border: 1px solid var(--border); border-radius: 12px; background: var(--elev); padding: 0.5rem; }
+    .chart svg { width: 100%; height: auto; display: block; }
+    .chart .grid line { stroke: var(--border); }
+    .chart .axis-label { fill: var(--dim); font-size: 11px; font-family: var(--font); }
+    .chart .link { stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 5 5; opacity: 0.8; }
+    .chart .pt { cursor: pointer; }
+    .chart .pt circle { stroke: var(--bg); stroke-width: 1.5; }
+    .chart .pt text { fill: var(--text); font-size: 9.5px; font-family: var(--mono); pointer-events: none; }
+    .chart .pt.hl circle { stroke: var(--accent); stroke-width: 3; }
+    .chart .tone-0 circle { fill: var(--p0); } .chart .tone-1 circle { fill: var(--p1); } .chart .tone-2 circle { fill: var(--p2); }
+    .chart .tone-3 circle { fill: var(--p3); } .chart .tone-4 circle { fill: var(--p4); } .chart .tone-5 circle { fill: var(--p5); }
+    .chart .qpt path { fill: var(--coral); stroke: var(--bg); stroke-width: 1.5; }
+    .legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.78rem; color: var(--muted); padding: 0.4rem 0.4rem 0; }
+    .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+    figcaption { font-size: 0.82rem; color: var(--muted); margin-top: 0.6rem; }
+    figcaption ul { margin: 0.35rem 0 0 1.1rem; }
+
+    /* Search */
+    .question-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; margin-bottom: 0.6rem; }
+    .question-row .field.grow { flex: 1 1 320px; }
+    .question-row input[type="text"] { font-size: 1rem; padding: 0.6rem 0.75rem; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
+    .suggestions button { cursor: pointer; border: 1px solid var(--border); background: transparent; border-radius: 999px; padding: 0.2rem 0.7rem; font-size: 0.8rem; color: var(--muted); }
+    .suggestions button:hover { border-color: var(--accent); color: var(--text); }
+    .qvec { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); margin-bottom: 1rem; overflow-wrap: anywhere; }
+
+    /* Generation */
+    .mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .mode-switch label { cursor: pointer; padding: 0.45rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+    .mode-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .mode-switch input:checked + span { color: var(--accent); }
+    .mode-switch label:has(input:checked) { background: var(--accent-dim); }
+    .api-box { background: var(--elev); border-radius: 12px; padding: 0.9rem; margin-bottom: 1rem; }
+    .api-box .controls { margin-bottom: 0.4rem; }
+    .api-box .field input[type="text"], .api-box .field input[type="url"], .api-box .field input[type="password"] { min-width: 220px; }
+    .note { font-size: 0.78rem; color: var(--muted); }
+    .msg { margin-bottom: 0.9rem; }
+    .msg-head { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+    .msg textarea {
+      width: 100%; background: var(--elev); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.7rem; font: 400 0.8rem/1.55 var(--mono); resize: vertical; color: var(--text);
+    }
+    .steps { list-style: none; display: grid; gap: 0.45rem; font-size: 0.88rem; }
+    .steps li { display: flex; gap: 0.5rem; align-items: center; color: var(--muted); }
+    .steps li.done { color: var(--text); }
+    .steps li::before { content: "○"; color: var(--dim); width: 1em; }
+    .steps li.done::before { content: "✓"; color: var(--green); font-weight: 700; }
+    .steps li.active::before { content: "◌"; color: var(--accent); animation: pulse 0.8s infinite alternate; }
+    .answer { min-height: 260px; font-size: 0.93rem; }
+    .answer h3, .answer h4 { font-family: var(--display); margin: 0.8rem 0 0.3rem; }
+    .answer p { margin-bottom: 0.6rem; }
+    .answer ul, .answer ol { margin: 0 0 0.6rem 1.3rem; }
+    .answer code { font-family: var(--mono); font-size: 0.85em; background: var(--elev); padding: 0.05em 0.3em; border-radius: 4px; }
+    .answer pre { background: var(--elev); padding: 0.7rem; border-radius: 8px; overflow-x: auto; margin-bottom: 0.6rem; }
+    .answer pre code { background: none; padding: 0; }
+    .answer details { background: var(--elev); border-radius: 8px; padding: 0.5rem 0.7rem; margin-bottom: 0.7rem; font-size: 0.84rem; color: var(--muted); }
+    .answer details pre { white-space: pre-wrap; background: none; padding: 0.4rem 0 0; font-family: var(--font); }
+    .cursor::after { content: "▍"; color: var(--accent); animation: pulse 0.6s infinite alternate; }
+
+    /* Teaching callouts */
+    .notice { margin-top: 1.25rem; border-left: 4px solid var(--accent); background: var(--accent-dim); border-radius: 0 12px 12px 0; padding: 0.85rem 1.1rem; }
+    .notice h3 { font-family: var(--display); font-size: 0.95rem; margin-bottom: 0.35rem; }
+    .notice ul { margin-left: 1.1rem; font-size: 0.88rem; display: grid; gap: 0.25rem; }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); opacity: 0;
+      background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow);
+      padding: 0.6rem 1rem; border-radius: 10px; font-size: 0.88rem; z-index: 50; transition: opacity 0.2s, transform 0.2s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    footer.site-foot { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.88rem; display: grid; gap: 0.5rem; }
+    footer.site-foot strong { color: var(--text); }
+    footer.site-foot .links { display: flex; flex-wrap: wrap; gap: 1rem; }
+    footer.site-foot .credit { font-size: 0.8rem; color: var(--dim); }
+
+    @media (max-width: 1000px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .pipeline { flex-direction: column; align-items: stretch; }
+      .pipe-card { max-width: none; }
+      .pipe-arrow { transform: rotate(90deg); }
+      .editor, .h-list { height: 420px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .author { flex-wrap: wrap; border-radius: 16px; }
+      .author-links { margin-left: 0; }
+      .model-pill { margin-left: 0; }
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css" />
+</head>
+<body>
+  <div class="page">
+    <p class="crumb"><a href="../learning/index.html#rag-retrieval">← Learning Hub · RAG &amp; Retrieval</a></p>
+
+    <header class="hero">
+      <span class="hero-badge">Interactive lab · Runs in your browser</span>
+      <h1>RAG <span>Playground</span></h1>
+      <p class="lead">Debug, visualize, and master Retrieval-Augmented Generation through hands-on experiments: split a document, embed it, search it, and watch an LLM answer from what was retrieved.</p>
+      <div class="author">
+        <div class="author-avatar" aria-hidden="true">MC</div>
+        <div>
+          <strong>Mayank Chugh</strong>
+          <small>Senior Enterprise Architect · AI Engineer · RAG &amp; Agentic AI</small>
+        </div>
+        <div class="author-links">
+          <a href="https://linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+        </div>
+      </div>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#lab" data-go="text-splitting">Start experiment →</a>
+        <a class="btn" href="rag-architecture.html">RAG architecture guide</a>
+      </div>
+    </header>
+
+    <nav class="pipeline" aria-label="RAG pipeline steps">
+      <button type="button" class="pipe-card" data-go="text-splitting">
+        <span class="pipe-num">1</span>
+        <h3>Text Splitting</h3>
+        <p>See how documents are split into chunks that keep their meaning.</p>
+      </button>
+      <span class="pipe-arrow" aria-hidden="true">→</span>
+      <button type="button" class="pipe-card" data-go="embedding">
+        <span class="pipe-num">2</span>
+        <h3>Vector Embedding</h3>
+        <p>See how text becomes vectors, and which chunks land close together in vector space.</p>
+      </button>
+      <span class="pipe-arrow" aria-hidden="true">→</span>
+      <button type="button" class="pipe-card" data-go="semantic-search">
+        <span class="pipe-num">3</span>
+        <h3>Semantic Search</h3>
+        <p>Run a vector similarity search and see which chunks are retrieved from your knowledge base.</p>
+      </button>
+      <span class="pipe-arrow" aria-hidden="true">→</span>
+      <button type="button" class="pipe-card" data-go="generation">
+        <span class="pipe-num">4</span>
+        <h3>Context Generation</h3>
+        <p>Watch the LLM combine retrieved context with your question to write an answer.</p>
+      </button>
+    </nav>
+
+    <section class="lab" id="lab" aria-label="RAG experiment">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tab-text-splitting" aria-controls="panel-text-splitting" data-step="text-splitting">1 · Text Splitting</button>
+        <button class="tab" role="tab" id="tab-embedding" aria-controls="panel-embedding" data-step="embedding">2 · Vector Embedding</button>
+        <button class="tab" role="tab" id="tab-semantic-search" aria-controls="panel-semantic-search" data-step="semantic-search">3 · Semantic Search</button>
+        <button class="tab" role="tab" id="tab-generation" aria-controls="panel-generation" data-step="generation">4 · Context Generation</button>
+        <span class="model-pill" id="modelPill"><i class="dot" id="modelDot"></i><span id="modelPillText">Embedding model not loaded</span></span>
+      </div>
+
+      <!-- Step 1: Text splitting -->
+      <div class="panel" role="tabpanel" id="panel-text-splitting" aria-labelledby="tab-text-splitting">
+        <div class="panel-head">
+          <div>
+            <h2>Text Splitting</h2>
+            <p>Paste or upload a document, pick a strategy, and see the chunks it produces. Hover a chunk to find it in your text.</p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <label class="field">Strategy
+            <select id="strategy">
+              <option value="character">Fixed Character</option>
+              <option value="recursive-character" selected>Recursive Character</option>
+              <option value="parent-child">Parent-Child</option>
+            </select>
+          </label>
+          <label class="field">Chunk size <span class="hint">characters</span>
+            <span class="field-row"><input type="range" id="chunkSizeRange" min="50" max="2000" step="10" /><input type="number" id="chunkSize" min="10" max="5000" step="10" /></span>
+          </label>
+          <label class="field">Overlap <span class="hint">characters shared between neighbours</span>
+            <span class="field-row"><input type="range" id="overlapRange" min="0" max="500" step="5" /><input type="number" id="overlap" min="0" max="2000" step="5" /></span>
+          </label>
+          <label class="field" id="parentSizeField" hidden>Parent chunk size <span class="hint">sent to the LLM</span>
+            <span class="field-row"><input type="range" id="parentSizeRange" min="200" max="4000" step="50" /><input type="number" id="parentSize" min="50" max="10000" step="50" /></span>
+          </label>
+        </div>
+
+        <div class="sep-row" id="separatorRow"></div>
+
+        <div class="grid-2">
+          <section aria-label="Source document">
+            <div class="section-label">Source document <span id="charCount"></span></div>
+            <div class="doc-tools">
+              <select id="sampleSelect" aria-label="Sample document">
+                <option value="rag">Sample: What is RAG? (AWS explainer)</option>
+                <option value="profile">Sample: Mayank Chugh — profile</option>
+                <option value="hr">Sample: HR leave policy</option>
+              </select>
+              <label class="btn btn-sm" for="fileInput">Upload .txt / .md</label>
+              <input type="file" id="fileInput" accept=".txt,.md,.markdown,.csv,.json,text/*" hidden />
+              <button type="button" class="btn btn-sm btn-ghost" id="clearText">Clear</button>
+            </div>
+            <div class="editor">
+              <div class="editor-backdrop" id="backdrop" aria-hidden="true"></div>
+              <textarea id="sourceText" spellcheck="false" aria-label="Source document text"></textarea>
+            </div>
+          </section>
+          <section aria-label="Split result">
+            <div class="section-label">Split result <span>Hover a chunk to find it in your text</span></div>
+            <div class="frame scroll h-list" id="splitResult"></div>
+          </section>
+        </div>
+
+        <div class="notice">
+          <h3>What to notice</h3>
+          <ul>
+            <li><strong>Chunk size</strong> trades precision for context: small chunks match sharply but lose surrounding meaning; big chunks keep context but blur the vector.</li>
+            <li><strong>Overlap</strong> (dashed orange text) is repeated from the previous chunk so a sentence cut at a boundary still appears whole somewhere.</li>
+            <li><strong>Recursive</strong> tries ¶¶ (paragraph), then ¶ (line), then spaces, so it respects structure before words. <strong>Fixed · Every char</strong> cuts mid-word.</li>
+            <li><strong>Parent-Child</strong> (small-to-big retrieval): search the small child chunks, but hand the larger parent to the LLM.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 2: Embedding -->
+      <div class="panel" role="tabpanel" id="panel-embedding" aria-labelledby="tab-embedding" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>Vector Embedding</h2>
+            <p>Each chunk becomes a vector: a list of numbers that captures its meaning. Similar meanings get nearby vectors (famously, king − man + woman ≈ queen).</p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <label class="field">Embedding model
+            <select id="modelSelect"></select>
+          </label>
+          <button type="button" class="btn btn-sm" id="loadModelBtn">Load model &amp; embed</button>
+        </div>
+        <div class="status-box" id="embedStatus"></div>
+
+        <div class="grid-2">
+          <section aria-label="Chunks and vectors">
+            <div class="section-label">Chunks &amp; vectors <span id="vectorStatus"></span></div>
+            <div class="frame scroll h-list" id="embedList"></div>
+          </section>
+          <figure>
+            <div class="section-label">Chunks in 2D <span>Click a point to find its chunk</span></div>
+            <div class="chart" id="embedChart"><div class="empty">The map appears once at least 3 chunks have vectors.</div></div>
+            <figcaption>
+              PCA flattens hundreds of dimensions into 2D so you can see them. Treat it as a rough map.
+              <ul>
+                <li>Distances here are approximate, not exact similarity scores.</li>
+                <li>Points with the same colour as a chunk in step 1 are the same chunk.</li>
+                <li>Only chunks appear here. Your question shows up in Semantic Search.</li>
+              </ul>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="notice">
+          <h3>What to notice</h3>
+          <ul>
+            <li>The model runs <strong>locally in your browser</strong> (Transformers.js + ONNX). The first load downloads a few tens of MB and is cached afterwards. Nothing you type leaves the page.</li>
+            <li>Vectors are <strong>normalised</strong>, so cosine similarity is just a dot product.</li>
+            <li>Switch the model: vectors and the map change. Vectors from different models live in different spaces and can never be mixed in one index.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 3: Semantic search -->
+      <div class="panel" role="tabpanel" id="panel-semantic-search" aria-labelledby="tab-semantic-search" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>Semantic Search</h2>
+            <p>Ask a question. It is embedded with the same model as the chunks, then compared to every chunk by cosine similarity.</p>
+          </div>
+        </div>
+
+        <div class="question-row">
+          <label class="field grow">Your question
+            <input type="text" id="question" autocomplete="off" />
+          </label>
+          <label class="field">Top-K sent to LLM
+            <select id="topK">
+              <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>8</option><option>10</option>
+            </select>
+          </label>
+          <label class="field inline" id="prefixField" title="Asymmetric retrieval models expect an instruction in front of queries (not documents).">
+            <input type="checkbox" id="queryPrefix" checked /> Add query instruction prefix
+          </label>
+        </div>
+        <div class="suggestions" id="suggestions"></div>
+        <p class="qvec" id="questionVector"></p>
+
+        <div class="grid-2">
+          <section aria-label="Top matches">
+            <div class="section-label">Top matches <span id="matchCount"></span></div>
+            <div class="frame scroll h-list" id="matchList"></div>
+          </section>
+          <figure>
+            <div class="section-label">Question vs. chunks <span>Click a point to find it in Top matches</span></div>
+            <div class="chart" id="searchChart"><div class="empty">The map appears once your question and the chunks have vectors.</div></div>
+            <div class="legend"><span><i class="swatch" style="background:var(--coral)"></i>Question</span><span><i class="swatch" style="background:var(--p1)"></i>Chunks (colour = chunk)</span><span>- - - links to the Top-K matches</span></div>
+            <figcaption>Dashed lines link the question to the real Top-K matches computed in full dimensions. Because the 2D map is approximate, the closest-looking points are not always the best matches.</figcaption>
+          </figure>
+        </div>
+
+        <div class="notice">
+          <h3>What to notice</h3>
+          <ul>
+            <li>Try a question whose words are <strong>not</strong> in the text: semantic search still finds the right chunk, where keyword search would fail.</li>
+            <li>Toggle the <strong>query instruction prefix</strong> and watch the scores move. Arctic and BGE are trained with it; MiniLM is not.</li>
+            <li>Top-K is a precision/recall dial: more chunks give the LLM more evidence, but also more noise and more tokens.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 4: Generation -->
+      <div class="panel" role="tabpanel" id="panel-generation" aria-labelledby="tab-generation" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>Context Generation</h2>
+            <p id="genIntro">See how the LLM uses the Top-K chunks as context to answer your question.</p>
+          </div>
+          <div class="mode-switch" role="radiogroup" aria-label="Answer mode">
+            <label><input type="radio" name="genMode" value="offline" checked /><span>Offline · extractive</span></label>
+            <label><input type="radio" name="genMode" value="api" /><span>Live LLM · your API key</span></label>
+          </div>
+        </div>
+
+        <div class="api-box" id="apiBox" hidden>
+          <div class="controls">
+            <label class="field">Provider
+              <select id="provider"></select>
+            </label>
+            <label class="field">Base URL
+              <input type="url" id="baseUrl" placeholder="https://…/v1" />
+            </label>
+            <label class="field">Model
+              <input type="text" id="llmModel" placeholder="model id" />
+            </label>
+            <label class="field">API key <span class="hint" id="keyHint"></span>
+              <input type="password" id="apiKey" autocomplete="off" placeholder="paste key" />
+            </label>
+          </div>
+          <p class="note">Your key is kept only in this browser tab (sessionStorage) and is sent only to the provider above. Any OpenAI-compatible <code>/chat/completions</code> endpoint works; on OpenRouter, model ids ending in <code>:free</code> cost nothing. For Ollama, start it with <code>OLLAMA_ORIGINS=*</code> so the browser may call it.</p>
+        </div>
+
+        <div class="controls">
+          <label class="field">Temperature <span class="hint">lower = more focused</span>
+            <input type="number" id="temperature" min="0" max="1" step="0.1" value="0.3" />
+          </label>
+          <label class="field">Max tokens <span class="hint">caps answer length</span>
+            <input type="number" id="maxTokens" min="1" max="4096" step="50" value="1000" />
+          </label>
+          <button type="button" class="btn btn-primary" id="generateBtn">Generate answer</button>
+          <button type="button" class="btn" id="stopBtn" hidden>Stop</button>
+          <button type="button" class="btn btn-sm btn-ghost" id="copyPromptBtn">Copy prompt</button>
+        </div>
+
+        <div class="grid-2">
+          <section aria-label="Prompt preview">
+            <div class="section-label">Prompt preview <span>Editable · resets when the question or chunks change</span></div>
+            <div class="frame" id="promptFrame">
+              <div class="msg">
+                <div class="msg-head">System message <button type="button" class="btn btn-sm btn-ghost" id="resetPrompt">Reset</button></div>
+                <textarea id="systemMsg" rows="16"></textarea>
+              </div>
+              <div class="msg">
+                <div class="msg-head">User message</div>
+                <textarea id="userMsg" rows="2"></textarea>
+              </div>
+            </div>
+          </section>
+          <section aria-label="Model answer">
+            <div class="section-label">Model answer <span id="answerMode"></span></div>
+            <div class="frame" style="margin-bottom:0.9rem">
+              <ul class="steps" id="genSteps"></ul>
+            </div>
+            <div class="frame answer" id="answer"></div>
+          </section>
+        </div>
+
+        <div class="notice">
+          <h3>What to notice</h3>
+          <ul>
+            <li>The LLM never sees your whole document, only the system prompt with the Top-K chunks plus your question. That is the “augmented” in RAG.</li>
+            <li>Ask something the document does not cover: a grounded prompt should make the model say it does not know instead of guessing.</li>
+            <li><strong>Offline mode</strong> is extractive QA: no text is generated. It embeds every sentence of the context and returns the closest ones with citations, so you can see retrieval quality on its own.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-foot">
+      <div><strong>RAG Playground</strong> by <strong>Mayank Chugh</strong>, Senior Enterprise Architect &amp; AI Engineer, Hong Kong. Part of my <a href="../learning/index.html">Learning Hub</a>.</div>
+      <div class="links">
+        <a href="/index.html">Portfolio</a>
+        <a href="https://linkedin.com/in/mchugh77" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://huggingface.co/mayankchugh-learning" target="_blank" rel="noopener">Hugging Face</a>
+        <a href="https://www.youtube.com/@itaienthusiast" target="_blank" rel="noopener">YouTube</a>
+        <a href="mailto:mayankchugh.jobathk@gmail.com">Email</a>
+      </div>
+      <div class="credit">Adapted from <a href="https://github.com/Kain-90/RAG-Play" target="_blank" rel="noopener">RAG Play</a> © 2024 Kain Shu (MIT License), rebuilt as a static page. Embeddings run locally via <a href="https://huggingface.co/docs/transformers.js" target="_blank" rel="noopener">Transformers.js</a>. Default sample text adapted from AWS’s “What is RAG?” explainer.</div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    /* ───────────── Sample documents ───────────── */
+    var SAMPLES = {
+      rag: {
+        questions: ["What is RAG?", "Why does RAG increase user trust?", "How is external data kept up to date?", "What are known challenges of LLMs?"],
+        text: `What is Retrieval-Augmented Generation?
+Retrieval-Augmented Generation (RAG) is the process of optimizing the output of a large language model, so it references an authoritative knowledge base outside of its training data sources before generating a response. Large Language Models (LLMs) are trained on vast volumes of data and use billions of parameters to generate original output for tasks like answering questions, translating languages, and completing sentences. RAG extends the already powerful capabilities of LLMs to specific domains or an organization's internal knowledge base, all without the need to retrain the model. It is a cost-effective approach to improving LLM output so it remains relevant, accurate, and useful in various contexts.
+
+Why is Retrieval-Augmented Generation important?
+LLMs are a key artificial intelligence (AI) technology powering intelligent chatbots and other natural language processing (NLP) applications. The goal is to create bots that can answer user questions in various contexts by cross-referencing authoritative knowledge sources. Unfortunately, the nature of LLM technology introduces unpredictability in LLM responses. Additionally, LLM training data is static and introduces a cut-off date on the knowledge it has.
+
+Known challenges of LLMs include:
+- Presenting false information when it does not have the answer.
+- Presenting out-of-date or generic information when the user expects a specific, current response.
+- Creating a response from non-authoritative sources.
+- Creating inaccurate responses due to terminology confusion, wherein different training sources use the same terminology to talk about different things.
+
+You can think of the Large Language Model as an over-enthusiastic new employee who refuses to stay informed with current events but will always answer every question with absolute confidence. Unfortunately, such an attitude can negatively impact user trust and is not something you want your chatbots to emulate!
+
+RAG is one approach to solving some of these challenges. It redirects the LLM to retrieve relevant information from authoritative, pre-determined knowledge sources. Organizations have greater control over the generated text output, and users gain insights into how the LLM generates the response.
+
+What are the benefits of Retrieval-Augmented Generation?
+RAG technology brings several benefits to an organization's generative AI efforts.
+
+Cost-effective implementation
+Chatbot development typically begins using a foundation model. Foundation models (FMs) are API-accessible LLMs trained on a broad spectrum of generalized and unlabeled data. The computational and financial costs of retraining FMs for organization or domain-specific information are high. RAG is a more cost-effective approach to introducing new data to the LLM. It makes generative artificial intelligence (generative AI) technology more broadly accessible and usable.
+
+Current information
+Even if the original training data sources for an LLM are suitable for your needs, it is challenging to maintain relevancy. RAG allows developers to provide the latest research, statistics, or news to the generative models. They can use RAG to connect the LLM directly to live social media feeds, news sites, or other frequently-updated information sources. The LLM can then provide the latest information to the users.
+
+Enhanced user trust
+RAG allows the LLM to present accurate information with source attribution. The output can include citations or references to sources. Users can also look up source documents themselves if they require further clarification or more detail. This can increase trust and confidence in your generative AI solution.
+
+More developer control
+With RAG, developers can test and improve their chat applications more efficiently. They can control and change the LLM's information sources to adapt to changing requirements or cross-functional usage. Developers can also restrict sensitive information retrieval to different authorization levels and ensure the LLM generates appropriate responses. In addition, they can also troubleshoot and make fixes if the LLM references incorrect information sources for specific questions. Organizations can implement generative AI technology more confidently for a broader range of applications.
+
+How does Retrieval-Augmented Generation work?
+Without RAG, the LLM takes the user input and creates a response based on information it was trained on—or what it already knows. With RAG, an information retrieval component is introduced that utilizes the user input to first pull information from a new data source. The user query and the relevant information are both given to the LLM. The LLM uses the new knowledge and its training data to create better responses. The following sections provide an overview of the process.
+
+Create external data
+The new data outside of the LLM's original training data set is called external data. It can come from multiple data sources, such as a APIs, databases, or document repositories. The data may exist in various formats like files, database records, or long-form text. Another AI technique, called embedding language models, converts data into numerical representations and stores it in a vector database. This process creates a knowledge library that the generative AI models can understand.
+
+Retrieve relevant information
+The next step is to perform a relevancy search. The user query is converted to a vector representation and matched with the vector databases. For example, consider a smart chatbot that can answer human resource questions for an organization. If an employee searches, "How much annual leave do I have?" the system will retrieve annual leave policy documents alongside the individual employee's past leave record. These specific documents will be returned because they are highly-relevant to what the employee has input. The relevancy was calculated and established using mathematical vector calculations and representations.
+
+Augment the LLM prompt
+Next, the RAG model augments the user input (or prompts) by adding the relevant retrieved data in context. This step uses prompt engineering techniques to communicate effectively with the LLM. The augmented prompt allows the large language models to generate an accurate answer to user queries.
+
+Update external data
+The next question may be—what if the external data becomes stale? To maintain current information for retrieval, asynchronously update the documents and update embedding representation of the documents. You can do this through automated real-time processes or periodic batch processing. This is a common challenge in data analytics—different data-science approaches to change management can be used.
+
+What is the difference between Retrieval-Augmented Generation and semantic search?
+Semantic search enhances RAG results for organizations wanting to add vast external knowledge sources to their LLM applications. Modern enterprises store vast amounts of information like manuals, FAQs, research reports, customer service guides, and human resource document repositories across various systems. Context retrieval is challenging at scale and consequently lowers generative output quality.
+
+Semantic search technologies can scan large databases of disparate information and retrieve data more accurately. For example, they can answer questions such as, "How much was spent on machinery repairs last year?” by mapping the question to the relevant documents and returning specific text instead of search results. Developers can then use that answer to provide more context to the LLM.
+
+Conventional or keyword search solutions in RAG produce limited results for knowledge-intensive tasks. Developers must also deal with word embeddings, document chunking, and other complexities as they manually prepare their data. In contrast, semantic search technologies do all the work of knowledge base preparation so developers don't have to. They also generate semantically relevant passages and token words ordered by relevance to maximize the quality of the RAG payload.`
+      },
+      profile: {
+        questions: ["What cloud platforms has Mayank delivered on?", "Which airlines has Mayank worked with?", "What RAG projects has Mayank built?", "Does Mayank need visa sponsorship?"],
+        text: `Mayank Chugh — Profile Summary
+Mayank Chugh is a Senior Enterprise Architect and AI Engineer based in Hong Kong. He has more than 20 years of enterprise technology delivery at Cathay Pacific, HSBC, British Airways, CHANEL and Marks & Spencer, working across aviation, banking, luxury retail and logistics in Hong Kong, London and Singapore. He is a Hong Kong permanent resident, available immediately, and needs no visa sponsorship.
+
+Aviation and logistics
+Mayank spent 13 years supporting Cathay Pacific Cargo Terminal and Hong Kong International Airport (HKIA) operations. As Senior Technical Architect at Coforge (2025–2026) he led the on-premises to AWS migration for Cathay Pacific Cargo Terminal: WebLogic to JBoss, Oracle to PostgreSQL, Ant to Maven builds (50% faster) and JDK 1.6 to 17. The programme delivered a 30% reliability improvement and a 95% on-time deployment rate.
+
+As Digital Project Manager at TCS (2024–2025) for Cathay Pacific at HKIA, he managed AI initiatives including a computer vision system for cargo dimension capture and CCTV object detection, and built business cases and ROI analyses for AI investment decisions.
+
+Banking and luxury retail
+At Capgemini (2021–2023) Mayank was Cloud and Solution Architect for HSBC, delivering a cloud data platform with a Qlik Replicate migration from D365 on-premises to Azure DB, plus Power BI integration for enterprise analytics. For CHANEL Hong Kong he was Enterprise Architect, delivering an IT integration strategy and a data analytics framework.
+
+Earlier, from 2004 to 2021 at Coforge, he managed multimillion-dollar accounts for Cathay Pacific, British Airways, Asia Airfreight Terminal, Marks & Spencer and Lehman Brothers, and authored more than 55 technical RFQ and RFP responses.
+
+AI engineering
+Over the past two years Mayank has moved deliberately into AI engineering. He has built four live RAG applications on financial documents, including Document Audit RAG, which keeps a full audit trail on every query, and a Financial 10-K RAG suite built with LangChain, ChromaDB and Gradio. He has built a self-correcting agentic RAG pipeline with LangGraph, multi-agent proofs of concept with CrewAI, and MCP (Model Context Protocol) server tooling. He fine-tuned Qwen2.5-0.5B with Unsloth (SFT and DPO) for a finance FAQ assistant.
+
+His SaaS products include HireIQ, an AI hiring automation platform launched on Product Hunt; VyaparSaathi, a multilingual retail SaaS for Indian retailers; and Your Best Friend AI, a bilingual life assistant deployed on AWS ECS. He has 24 live AI apps on Hugging Face and 127 public GitHub repositories.
+
+Teaching and certifications
+Mayank teaches AI publicly through 85 YouTube tutorial videos covering RAG, LangChain, LLM fine-tuning and GenAI. He holds 12 industry certifications, including AZ-400, AZ-104, AWS Solutions Architect and AWS Developer, and works with the TOGAF 9.2 framework.
+
+Skills
+RAG and vector databases: ChromaDB, FAISS, Pinecone, semantic chunking, embeddings and hybrid search. Frameworks: LangChain, LlamaIndex, LangGraph, CrewAI, the OpenAI API, Azure OpenAI and Hugging Face. Cloud and DevOps: Azure and AWS in production, Microsoft Fabric, Docker, Terraform, GitHub Actions and MLflow. Programming: Python, SQL, Java and FastAPI.`
+      },
+      hr: {
+        questions: ["How much annual leave do I have after 5 years?", "Can I carry over unused leave?", "When do I need a medical certificate?", "How long is paternity leave?"],
+        text: `Northwind Cargo — Employee Leave Policy (sample document)
+
+Annual leave
+Full-time employees receive 14 working days of paid annual leave per calendar year during their first two years of service. From the third year, the entitlement increases by one day for each completed year of service, up to a maximum of 22 days. Part-time employees receive annual leave pro rata to their contracted hours.
+
+Carry-over
+Up to 5 unused annual leave days may be carried over into the next calendar year. Carried-over days must be used by 31 March, after which they expire. Annual leave cannot be exchanged for cash, except for unused days paid out when employment ends.
+
+Requesting leave
+Leave requests are submitted through the HR portal at least 10 working days in advance for any absence longer than three days. Managers should respond within three working days. During peak cargo season (October to December), requests for more than five consecutive days also need approval from the department head.
+
+Sick leave
+Employees accrue 2 days of paid sick leave for each month of service, up to a maximum balance of 120 days. A medical certificate is required for absences longer than two consecutive days. If you fall sick while on annual leave, those days can be converted back to annual leave when supported by a medical certificate.
+
+Parental leave
+Birth mothers receive 14 weeks of paid maternity leave. Fathers and secondary carers receive 5 days of paid paternity leave, which must be taken within four months of the birth or adoption.
+
+Public holidays
+Employees are entitled to all statutory public holidays. Staff required to work on a public holiday for operational reasons receive a substitute day off within 60 days.
+
+Contact
+Questions about this policy go to the HR Service Desk through the HR portal, or by email to hr-help@northwind.example.`
+      }
+    };
+
+    /* ───────────── Separators ───────────── */
+    var SEP = {
+      every: { id: "every-character", char: "", display: "Every char", tone: "purple" },
+      double: { id: "double-break", char: "\n\n", display: "¶¶", tone: "yellow" },
+      single: { id: "single-break", char: "\n", display: "¶", tone: "blue" },
+      space: { id: "space", char: " ", display: "␣", tone: "green" }
+    };
+    var DEFAULT_RECURSIVE = [SEP.double, SEP.single, SEP.space];
+    var FIXED_PRESETS = [SEP.every, SEP.double, SEP.single, SEP.space];
+
+    function parseSeparatorInput(input) {
+      var map = { n: "\n", t: "\t", "\\": "\\" };
+      return input.replace(/\\([nt\\])/g, function (_, c) { return map[c]; });
+    }
+    function formatSeparator(char) {
+      if (char === "") return "Every char";
+      return char.replace(/\n/g, "¶").replace(/\t/g, "⇥").replace(/ /g, "␣");
+    }
+    function createCustomSeparator(input) {
+      var char = parseSeparatorInput(input);
+      return { id: "custom-" + char, char: char, display: formatSeparator(char), tone: "gray" };
+    }
+
+    /* ───────────── LangChain text splitters (port of @langchain/textsplitters) ───────────── */
+    function TextSplitter(opts) {
+      this.chunkSize = opts.chunkSize;
+      this.chunkOverlap = opts.chunkOverlap;
+      this.keepSeparator = opts.keepSeparator;
+      if (this.chunkOverlap >= this.chunkSize) {
+        throw new Error("Overlap (" + this.chunkOverlap + ") must be smaller than chunk size (" + this.chunkSize + ").");
+      }
+    }
+    TextSplitter.prototype.splitOnSeparator = function (text, separator) {
+      var splits;
+      if (separator) {
+        if (this.keepSeparator) {
+          var escaped = separator.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
+          splits = text.split(new RegExp("(?=" + escaped + ")"));
+        } else {
+          splits = text.split(separator);
+        }
+      } else {
+        splits = text.split("");
+      }
+      return splits.filter(function (s) { return s !== ""; });
+    };
+    TextSplitter.prototype.joinDocs = function (docs, separator) {
+      var text = docs.join(separator).trim();
+      return text === "" ? null : text;
+    };
+    TextSplitter.prototype.mergeSplits = function (splits, separator) {
+      var docs = [];
+      var current = [];
+      var total = 0;
+      for (var i = 0; i < splits.length; i++) {
+        var d = splits[i];
+        var len = d.length;
+        if (total + len + current.length * separator.length > this.chunkSize) {
+          if (current.length > 0) {
+            var doc = this.joinDocs(current, separator);
+            if (doc !== null) docs.push(doc);
+            while (total > this.chunkOverlap || (total + len + current.length * separator.length > this.chunkSize && total > 0)) {
+              total -= current[0].length;
+              current.shift();
+            }
+          }
+        }
+        current.push(d);
+        total += len;
+      }
+      var last = this.joinDocs(current, separator);
+      if (last !== null) docs.push(last);
+      return docs;
+    };
+
+    function characterSplit(text, opts, separator) {
+      var s = new TextSplitter({ chunkSize: opts.chunkSize, chunkOverlap: opts.chunkOverlap, keepSeparator: false });
+      return s.mergeSplits(s.splitOnSeparator(text, separator), separator);
+    }
+
+    function recursiveSplit(text, opts, separators) {
+      var s = new TextSplitter({ chunkSize: opts.chunkSize, chunkOverlap: opts.chunkOverlap, keepSeparator: true });
+      function run(chunkText, seps) {
+        var finalChunks = [];
+        var separator = seps[seps.length - 1];
+        var nextSeps = null;
+        for (var i = 0; i < seps.length; i++) {
+          if (seps[i] === "") { separator = ""; break; }
+          if (chunkText.indexOf(seps[i]) !== -1) {
+            separator = seps[i];
+            nextSeps = seps.slice(i + 1);
+            break;
+          }
+        }
+        var splits = s.splitOnSeparator(chunkText, separator);
+        var good = [];
+        splits.forEach(function (piece) {
+          if (piece.length < s.chunkSize) {
+            good.push(piece);
+          } else {
+            if (good.length) {
+              finalChunks.push.apply(finalChunks, s.mergeSplits(good, ""));
+              good = [];
+            }
+            if (!nextSeps || nextSeps.length === 0) finalChunks.push(piece);
+            else finalChunks.push.apply(finalChunks, run(piece, nextSeps));
+          }
+        });
+        if (good.length) finalChunks.push.apply(finalChunks, s.mergeSplits(good, ""));
+        return finalChunks;
+      }
+      return run(text, separators);
+    }
+
+    function locate(text, chunks) {
+      var cursor = 0;
+      return chunks.map(function (chunk) {
+        var start = text.indexOf(chunk, cursor);
+        if (start !== -1) cursor = start + 1;
+        return { text: chunk, startIndex: start, endIndex: start === -1 ? -1 : start + chunk.length };
+      });
+    }
+
+    function splitDocument(text, st) {
+      if (!text || !text.trim()) return [];
+      var opts = { chunkSize: st.chunkSize, chunkOverlap: st.overlap };
+      var recursiveSeps = st.recursiveSeparators.map(function (x) { return x.char; });
+      if (st.strategy === "character") {
+        return locate(text, characterSplit(text, opts, st.fixedSeparator.char));
+      }
+      if (st.strategy === "recursive-character") {
+        return locate(text, recursiveSplit(text, opts, recursiveSeps));
+      }
+      // Parent-child: parents without overlap, children split inside each parent.
+      var parents = recursiveSplit(text, { chunkSize: st.parentChunkSize, chunkOverlap: 0 }, recursiveSeps);
+      var blocks = [];
+      var cursor = 0;
+      parents.forEach(function (parentText, parentId) {
+        var parentStart = text.indexOf(parentText, cursor);
+        if (parentStart !== -1) cursor = parentStart;
+        recursiveSplit(parentText, opts, recursiveSeps).forEach(function (child) {
+          var rel = parentText.indexOf(child);
+          var start = parentStart === -1 || rel === -1 ? -1 : parentStart + rel;
+          blocks.push({ text: child, startIndex: start, endIndex: start === -1 ? -1 : start + child.length, parentId: parentId, parentText: parentText });
+        });
+      });
+      return blocks;
+    }
+
+    function findOverlap(block, prev, maxOverlap) {
+      if (!prev) return "";
+      var max = Math.min(block.text.length, prev.text.length, maxOverlap);
+      for (var i = max; i >= 1; i--) {
+        var head = block.text.substring(0, i);
+        if (head === prev.text.substring(prev.text.length - i)) return head;
+      }
+      return "";
+    }
+
+    /* ───────────── Embedding models ───────────── */
+    var MODELS = [
+      { id: "Snowflake/snowflake-arctic-embed-xs", label: "Snowflake Arctic Embed XS (384-d)", pooling: "cls", queryPrefix: "Represent this sentence for searching relevant passages: " },
+      { id: "Xenova/all-MiniLM-L6-v2", label: "all-MiniLM-L6-v2 (384-d)", pooling: "mean", queryPrefix: "" },
+      { id: "Xenova/bge-small-en-v1.5", label: "BGE Small EN v1.5 (384-d)", pooling: "cls", queryPrefix: "Represent this sentence for searching relevant passages: " }
+    ];
+    function modelInfo(id) { return MODELS.find(function (m) { return m.id === id; }) || MODELS[0]; }
+
+    var PROVIDERS = {
+      openrouter: { label: "OpenRouter", baseUrl: "https://openrouter.ai/api/v1", model: "openai/gpt-4o-mini", keyUrl: "https://openrouter.ai/keys" },
+      openai: { label: "OpenAI", baseUrl: "https://api.openai.com/v1", model: "gpt-4o-mini", keyUrl: "https://platform.openai.com/api-keys" },
+      groq: { label: "Groq (not served in some regions, e.g. HK)", baseUrl: "https://api.groq.com/openai/v1", model: "llama-3.1-8b-instant", keyUrl: "https://console.groq.com/keys" },
+      ollama: { label: "Ollama (local, no key)", baseUrl: "http://localhost:11434/v1", model: "llama3.2", keyUrl: "" },
+      custom: { label: "Custom OpenAI-compatible", baseUrl: "", model: "", keyUrl: "" }
+    };
+
+    var SYSTEM_PROMPT_TEMPLATE = function (context) {
+      return ("You are a helpful AI assistant. Use the following pieces of context to answer the user's question.\n" +
+        "If you don't know the answer, just say that you don't know. Don't try to make up an answer.\n" +
+        "When you use a piece of context, cite its label, for example [Chunk 3].\n\n" +
+        "Context:\n" + context).trim();
+    };
+
+    /* ───────────── State ───────────── */
+    var STEPS = ["text-splitting", "embedding", "semantic-search", "generation"];
+    var state = {
+      step: "text-splitting",
+      sample: "rag",
+      text: SAMPLES.rag.text,
+      strategy: "recursive-character",
+      chunkSize: 500,
+      overlap: 50,
+      parentChunkSize: 1024,
+      fixedSeparator: SEP.every,
+      recursiveSeparators: DEFAULT_RECURSIVE.slice(),
+      blocks: [],
+      splitError: "",
+
+      model: MODELS[0].id,
+      modelStatus: "idle",
+      modelError: "",
+      fileProgress: {},
+      pipelineStarted: false,
+      embedProgress: null,
+      blockVectors: [],
+      vectorTexts: [],
+      vectorModel: "",
+
+      question: SAMPLES.rag.questions[0],
+      usePrefix: true,
+      questionVector: null,
+      questionVectorKey: "",
+      questionLoading: false,
+      topK: 3,
+
+      genMode: "offline",
+      genStatus: "idle",
+      answerRaw: "",
+      genError: "",
+      templateKey: ""
+    };
+
+    /* ───────────── Utilities ───────────── */
+    function $(id) { return document.getElementById(id); }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+    function debounce(fn, ms) {
+      var t;
+      return function () {
+        var args = arguments;
+        clearTimeout(t);
+        t = setTimeout(function () { fn.apply(null, args); }, ms);
+      };
+    }
+    function dot(a, b) {
+      var s = 0;
+      for (var i = 0; i < a.length; i++) s += a[i] * b[i];
+      return s;
+    }
+    function toast(msg) {
+      var el = $("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toast.t);
+      toast.t = setTimeout(function () { el.classList.remove("show"); }, 2600);
+    }
+    function sameTexts(a, b) {
+      if (a.length !== b.length) return false;
+      for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+      return true;
+    }
+    function vectorPreview(v) {
+      return "[" + Array.prototype.slice.call(v, 0, 8).map(function (x) { return x.toFixed(4); }).join(", ") + ", …]";
+    }
+
+    /* ───────────── Embedding worker client ───────────── */
+    var embedder = {
+      worker: null,
+      nextId: 1,
+      pending: {},
+      start: function () {
+        if (this.worker) return;
+        var self = this;
+        try {
+          this.worker = new Worker("rag-playground-worker.js", { type: "module" });
+        } catch (err) {
+          setModelStatus("error", "Your browser could not start the embedding worker: " + err.message);
+          return;
+        }
+        this.worker.onmessage = function (e) {
+          var msg = e.data;
+          if (msg.type === "progress") { onModelProgress(msg.model, msg.progress); return; }
+          var job = self.pending[msg.id];
+          if (!job) return;
+          if (msg.type === "embed-progress") { if (job.onProgress) job.onProgress(msg.done, msg.total); return; }
+          delete self.pending[msg.id];
+          if (msg.type === "done") job.resolve(msg.vectors);
+          else job.reject(new Error(msg.message));
+        };
+        this.worker.onerror = function (e) {
+          var reason = (e && e.message) || "the worker script failed to load (check your connection to cdn.jsdelivr.net)";
+          Object.keys(self.pending).forEach(function (id) { self.pending[id].reject(new Error(reason)); });
+          self.pending = {};
+          self.worker = null;
+          setModelStatus("error", reason);
+        };
+      },
+      request: function (kind, model, texts, onProgress) {
+        this.start();
+        if (!this.worker) return Promise.reject(new Error(state.modelError || "Embedding worker unavailable"));
+        var id = this.nextId++;
+        var info = modelInfo(model);
+        var self = this;
+        return new Promise(function (resolve, reject) {
+          self.pending[id] = { resolve: resolve, reject: reject, onProgress: onProgress };
+          self.worker.postMessage({ id: id, kind: kind, model: model, pooling: info.pooling, texts: texts || [] });
+        });
+      }
+    };
+
+    var loadPromise = null;
+    var loadPromiseModel = "";
+
+    function onModelProgress(model, p) {
+      if (model !== state.model || !p) return;
+      if (p.file && (p.status === "initiate" || p.status === "download" || p.status === "progress" || p.status === "done")) {
+        state.fileProgress[p.file] = p.status === "done" ? 100 : (p.progress || 0);
+        if (state.modelStatus !== "ready") {
+          state.modelStatus = "loading";
+          renderEmbedStatus();
+        }
+      }
+    }
+
+    function setModelStatus(status, error) {
+      state.modelStatus = status;
+      state.modelError = error || "";
+      renderModelStatus();
+      renderEmbed();
+    }
+
+    function ensureModel() {
+      if (state.modelStatus === "ready") return Promise.resolve();
+      if (loadPromise && loadPromiseModel === state.model) return loadPromise;
+      var model = state.model;
+      state.fileProgress = {};
+      setModelStatus("loading");
+      loadPromiseModel = model;
+      loadPromise = embedder.request("load", model, []).then(function () {
+        if (model === state.model) setModelStatus("ready");
+      }, function (err) {
+        if (model === state.model) setModelStatus("error", err.message);
+        loadPromise = null;
+        throw err;
+      });
+      return loadPromise;
+    }
+
+    function hasCurrentVectors() {
+      return state.blocks.length > 0 && state.vectorModel === state.model &&
+        sameTexts(state.vectorTexts, state.blocks.map(function (b) { return b.text; }));
+    }
+    function questionKey() {
+      return state.model + "|" + (state.usePrefix ? "1" : "0") + "|" + state.question.trim();
+    }
+    function hasCurrentQuestion() {
+      return !!state.questionVector && state.questionVectorKey === questionKey();
+    }
+    function queryText() {
+      var prefix = state.usePrefix ? modelInfo(state.model).queryPrefix : "";
+      return prefix + state.question.trim();
+    }
+
+    var blockJob = { running: false, dirty: false };
+    function scheduleEmbedBlocks() {
+      if (!state.pipelineStarted) return;
+      if (blockJob.running) { blockJob.dirty = true; return; }
+      blockJob.running = true;
+      (function loop() {
+        blockJob.dirty = false;
+        embedBlocksOnce().catch(function () { /* status already rendered */ }).then(function () {
+          if (blockJob.dirty) loop();
+          else blockJob.running = false;
+        });
+      })();
+    }
+
+    function embedBlocksOnce() {
+      return ensureModel().then(function () {
+        var model = state.model;
+        var texts = state.blocks.map(function (b) { return b.text; });
+        if (hasCurrentVectors()) return;
+        if (!texts.length) {
+          state.blockVectors = []; state.vectorTexts = []; state.vectorModel = model;
+          renderAfterVectors();
+          return;
+        }
+        state.embedProgress = { done: 0, total: texts.length };
+        renderEmbed();
+        return embedder.request("embed", model, texts, function (done, total) {
+          state.embedProgress = { done: done, total: total };
+          renderEmbedStatus();
+        }).then(function (vectors) {
+          state.embedProgress = null;
+          if (model !== state.model) return;
+          state.blockVectors = vectors;
+          state.vectorTexts = texts;
+          state.vectorModel = model;
+          renderAfterVectors();
+        }, function (err) {
+          state.embedProgress = null;
+          setModelStatus("error", err.message);
+          throw err;
+        });
+      });
+    }
+
+    var questionJob = { running: false, dirty: false };
+    function scheduleEmbedQuestion() {
+      if (!state.pipelineStarted) return;
+      if (questionJob.running) { questionJob.dirty = true; return; }
+      questionJob.running = true;
+      (function loop() {
+        questionJob.dirty = false;
+        embedQuestionOnce().catch(function () {}).then(function () {
+          if (questionJob.dirty) loop();
+          else { questionJob.running = false; state.questionLoading = false; renderSearch(); }
+        });
+      })();
+    }
+
+    function embedQuestionOnce() {
+      if (!state.question.trim()) {
+        state.questionVector = null; state.questionVectorKey = "";
+        renderAfterVectors();
+        return Promise.resolve();
+      }
+      if (hasCurrentQuestion()) return Promise.resolve();
+      state.questionLoading = true;
+      renderSearch();
+      return ensureModel().then(function () {
+        var key = questionKey();
+        return embedder.request("embed", state.model, [queryText()]).then(function (vectors) {
+          if (key !== questionKey()) return;
+          state.questionVector = vectors[0];
+          state.questionVectorKey = key;
+          renderAfterVectors();
+        });
+      });
+    }
+
+    function startPipeline() {
+      if (state.pipelineStarted) return;
+      state.pipelineStarted = true;
+      scheduleEmbedBlocks();
+      scheduleEmbedQuestion();
+    }
+
+    function similarities() {
+      if (!hasCurrentVectors() || !hasCurrentQuestion()) return [];
+      var q = state.questionVector;
+      return state.blockVectors.map(function (v, i) { return { index: i, score: dot(q, v) }; })
+        .sort(function (a, b) { return b.score - a.score; });
+    }
+
+    /* ───────────── PCA projection (deterministic) ───────────── */
+    function project2D(vectors) {
+      var n = vectors.length;
+      var d = vectors[0].length;
+      var mean = new Float64Array(d);
+      vectors.forEach(function (v) { for (var j = 0; j < d; j++) mean[j] += v[j] / n; });
+      var X = vectors.map(function (v) {
+        var r = new Float64Array(d);
+        for (var j = 0; j < d; j++) r[j] = v[j] - mean[j];
+        return r;
+      });
+      function norm(v) {
+        var s = Math.sqrt(dot(v, v));
+        if (s > 1e-12) for (var j = 0; j < v.length; j++) v[j] /= s;
+        return s;
+      }
+      var comps = [];
+      for (var c = 0; c < 2; c++) {
+        var v = new Float64Array(d);
+        for (var j = 0; j < d; j++) v[j] = Math.sin((j + 1) * (c + 1) * 1.7) + 0.01;
+        norm(v);
+        var ok = true;
+        for (var it = 0; it < 100; it++) {
+          var scores = X.map(function (row) { return dot(row, v); });
+          var w = new Float64Array(d);
+          X.forEach(function (row, i) { for (var k = 0; k < d; k++) w[k] += row[k] * scores[i]; });
+          comps.forEach(function (u) { var p = dot(w, u); for (var k = 0; k < d; k++) w[k] -= p * u[k]; });
+          if (norm(w) < 1e-12) { ok = false; break; }
+          v = w;
+        }
+        comps.push(ok ? v : new Float64Array(d));
+      }
+      return X.map(function (row) { return { x: dot(row, comps[0]), y: dot(row, comps[1]) }; });
+    }
+
+    var projCache = { embed: { key: null, pts: null }, search: { key: null, pts: null } };
+    function cachedProjection(slot, key, vectors) {
+      if (projCache[slot].key !== key) {
+        projCache[slot].key = key;
+        projCache[slot].pts = project2D(vectors);
+      }
+      return projCache[slot].pts;
+    }
+
+    /* ───────────── Scatter chart (SVG) ───────────── */
+    function renderScatter(host, opts) {
+      var W = 640, H = 460, P = 30;
+      var all = opts.query ? opts.points.concat([opts.query]) : opts.points;
+      var xs = all.map(function (p) { return p.x; }), ys = all.map(function (p) { return p.y; });
+      var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
+      var minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+      if (maxX - minX < 1e-9) { minX -= 1; maxX += 1; }
+      if (maxY - minY < 1e-9) { minY -= 1; maxY += 1; }
+      function sx(x) { return P + (x - minX) / (maxX - minX) * (W - 2 * P); }
+      function sy(y) { return H - P - (y - minY) / (maxY - minY) * (H - 2 * P); }
+
+      var out = ['<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + escapeHtml(opts.label) + '">'];
+      out.push('<g class="grid">');
+      for (var g = 0; g <= 4; g++) {
+        var gx = P + g * (W - 2 * P) / 4, gy = P + g * (H - 2 * P) / 4;
+        out.push('<line x1="' + gx + '" y1="' + P + '" x2="' + gx + '" y2="' + (H - P) + '"/>');
+        out.push('<line x1="' + P + '" y1="' + gy + '" x2="' + (W - P) + '" y2="' + gy + '"/>');
+      }
+      out.push("</g>");
+      out.push('<text class="axis-label" x="' + (W - P) + '" y="' + (H - 10) + '" text-anchor="end">PC 1 →</text>');
+      out.push('<text class="axis-label" x="12" y="' + (P - 10) + '">↑ PC 2</text>');
+
+      if (opts.query) {
+        var qx = sx(opts.query.x), qy = sy(opts.query.y);
+        (opts.links || []).forEach(function (i) {
+          var p = opts.points[i];
+          if (p) out.push('<line class="link" x1="' + qx + '" y1="' + qy + '" x2="' + sx(p.x) + '" y2="' + sy(p.y) + '"/>');
+        });
+      }
+      opts.points.forEach(function (p, i) {
+        var cls = "pt tone-" + (i % 6) + (opts.highlighted === i ? " hl" : "");
+        var cx = sx(p.x), cy = sy(p.y);
+        out.push('<g class="' + cls + '" data-index="' + i + '" tabindex="0" role="button" aria-label="Chunk ' + (i + 1) + '">' +
+          "<title>" + escapeHtml(p.title) + "</title>" +
+          '<circle cx="' + cx + '" cy="' + cy + '" r="8"/>' +
+          '<text x="' + (cx + 10) + '" y="' + (cy + 3) + '">' + (i + 1) + "</text></g>");
+      });
+      if (opts.query) {
+        var x = sx(opts.query.x), y = sy(opts.query.y), r = 11;
+        out.push('<g class="qpt"><title>' + escapeHtml(opts.query.title) + "</title>" +
+          '<path d="M' + x + " " + (y - r) + " L" + (x + r) + " " + y + " L" + x + " " + (y + r) + " L" + (x - r) + " " + y + ' Z"/></g>');
+      }
+      out.push("</svg>");
+      host.innerHTML = out.join("");
+      host.onclick = function (e) {
+        var g = e.target.closest(".pt");
+        if (g) opts.onPick(Number(g.dataset.index));
+      };
+      host.onkeydown = function (e) {
+        var g = e.target.closest && e.target.closest(".pt");
+        if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); opts.onPick(Number(g.dataset.index)); }
+      };
+    }
+
+    function flashItem(container, id) {
+      var el = document.getElementById(id);
+      if (!el) return false;
+      container.scrollTo({ top: el.offsetTop - container.offsetTop - 12, behavior: "smooth" });
+      el.classList.add("flash");
+      setTimeout(function () { el.classList.remove("flash"); }, 1600);
+      return true;
+    }
+
+    /* ───────────── Step 1 rendering ───────────── */
+    function runSplit() {
+      try {
+        var blocks = splitDocument(state.text, state);
+        var overlap = state.overlap;
+        blocks.forEach(function (b, i) {
+          var prev = blocks[i - 1];
+          if (state.strategy === "parent-child" && prev && prev.parentId !== b.parentId) prev = null;
+          b.overlapText = findOverlap(b, prev, overlap);
+        });
+        state.blocks = blocks;
+        state.splitError = "";
+      } catch (err) {
+        state.blocks = [];
+        state.splitError = err.message;
+      }
+      renderSplit();
+      renderAfterVectors();
+      scheduleEmbedBlocks();
+    }
+    var runSplitDebounced = debounce(runSplit, 250);
+
+    function chunkHtml(block, index) {
+      var ov = block.overlapText || "";
+      return '<span class="chunk tone-' + (index % 6) + '" data-index="' + index + '" tabindex="0" title="Chunk ' + (index + 1) + " · " + block.text.length + ' chars">' +
+        '<span class="chunk-size">' + block.text.length + "</span>" +
+        (ov ? '<span class="chunk-overlap" title="' + ov.length + ' characters shared with the previous chunk">↪ ' + escapeHtml(ov) + "</span>" : "") +
+        escapeHtml(block.text.slice(ov.length)) + "</span>";
+    }
+
+    function renderSplit() {
+      var host = $("splitResult");
+      if (state.splitError) {
+        host.innerHTML = '<div class="error-box">Couldn’t split this text. ' + escapeHtml(state.splitError) + "</div>";
+        return;
+      }
+      var blocks = state.blocks;
+      if (!blocks.length) {
+        host.innerHTML = '<div class="empty">Add some text on the left to see chunks.</div>';
+        return;
+      }
+      var overlapping = blocks.filter(function (b) { return b.overlapText; });
+      var avgOverlap = overlapping.length ? Math.round(overlapping.reduce(function (a, b) { return a + b.overlapText.length; }, 0) / overlapping.length) : 0;
+      var stats;
+      var body;
+      if (state.strategy === "parent-child") {
+        var groups = [];
+        blocks.forEach(function (b, i) {
+          if (!groups[b.parentId]) groups[b.parentId] = { parentText: b.parentText, items: [] };
+          groups[b.parentId].items.push(i);
+        });
+        var parentCount = groups.length;
+        stats = [["Parents", parentCount], ["Children", blocks.length], ["Children / parent", parentCount ? Math.round(blocks.length / parentCount * 10) / 10 : 0], ["Avg. overlap", avgOverlap + " chars"]];
+        body = groups.map(function (g, p) {
+          return '<div class="parent-group" style="border-color:var(--p' + (p % 6) + ')"><div class="parent-label">Parent ' + (p + 1) + " · " + g.parentText.length + " chars · " + g.items.length + " children</div>" +
+            '<div class="chunks-inner">' + g.items.map(function (i) { return chunkHtml(blocks[i], i); }).join("") + "</div></div>";
+        }).join("");
+      } else {
+        var avgSize = Math.round(blocks.reduce(function (a, b) { return a + b.text.length; }, 0) / blocks.length);
+        stats = [["Chunks", blocks.length], ["Avg. size", avgSize + " chars"], ["Overlapping", overlapping.length], ["Avg. overlap", avgOverlap + " chars"]];
+        body = blocks.map(chunkHtml).join("");
+      }
+      host.innerHTML = '<div class="stats">' + stats.map(function (s) { return '<div class="stat">' + s[0] + "<b>" + s[1] + "</b></div>"; }).join("") + "</div>" +
+        '<div class="chunks">' + body + "</div>";
+    }
+
+    function renderSeparators() {
+      var row = $("separatorRow");
+      var fixed = state.strategy === "character";
+      var html = "<strong>" + (fixed ? "Separator" : "Separators (tried in order)") + "</strong>";
+      if (fixed) {
+        var options = FIXED_PRESETS.some(function (s) { return s.char === state.fixedSeparator.char; }) ? FIXED_PRESETS : FIXED_PRESETS.concat([state.fixedSeparator]);
+        html += '<div class="chips" role="radiogroup" aria-label="Separator">' + options.map(function (s, i) {
+          var on = s.char === state.fixedSeparator.char;
+          return '<button type="button" class="chip tone-' + s.tone + '" role="radio" aria-checked="' + on + '" data-fixed="' + i + '">' + escapeHtml(s.display) + "</button>";
+        }).join("") + "</div>";
+        row.dataset.options = JSON.stringify(options);
+      } else {
+        html += '<ul class="chips" aria-label="Separators">' + state.recursiveSeparators.map(function (s, i) {
+          return '<li class="chip tone-' + s.tone + '">' + escapeHtml(s.display) +
+            '<button type="button" data-remove="' + i + '" aria-label="Remove ' + escapeHtml(s.display) + ' separator"' + (state.recursiveSeparators.length <= 1 ? " disabled" : "") + ">×</button></li>";
+        }).join("") + "</ul>";
+      }
+      html += '<input class="sep-input" id="sepInput" placeholder="e.g. . or \\n" aria-label="Custom separator" />' +
+        '<button type="button" class="btn btn-sm" id="sepAdd">' + (fixed ? "Use" : "+ Add") + "</button>" +
+        '<button type="button" class="btn btn-sm btn-ghost" id="sepReset">Reset</button>' +
+        '<span class="note">¶ = line break · ␣ = space · type \\n for a line break</span>';
+      row.innerHTML = html;
+    }
+
+    function syncSplitControls() {
+      $("strategy").value = state.strategy;
+      $("chunkSize").value = state.chunkSize; $("chunkSizeRange").value = Math.min(2000, state.chunkSize);
+      $("overlap").value = state.overlap; $("overlapRange").value = Math.min(500, state.overlap);
+      $("parentSize").value = state.parentChunkSize; $("parentSizeRange").value = Math.min(4000, state.parentChunkSize);
+      $("parentSizeField").hidden = state.strategy !== "parent-child";
+      renderSeparators();
+    }
+
+    /* Source editor highlight */
+    function renderBackdrop(range) {
+      var t = state.text;
+      var html;
+      if (range && range.start >= 0) {
+        html = escapeHtml(t.slice(0, range.start)) + "<mark>" + escapeHtml(t.slice(range.start, range.end)) + "</mark>" + escapeHtml(t.slice(range.end));
+      } else {
+        html = escapeHtml(t);
+      }
+      $("backdrop").innerHTML = html + "\n ";
+      $("backdrop").scrollTop = $("sourceText").scrollTop;
+    }
+    function highlightSource(index) {
+      var b = index === null ? null : state.blocks[index];
+      if (!b || b.startIndex < 0) { renderBackdrop(null); return; }
+      renderBackdrop({ start: b.startIndex, end: b.endIndex });
+      var mark = $("backdrop").querySelector("mark");
+      var ta = $("sourceText");
+      if (mark) ta.scrollTo({ top: Math.max(0, mark.offsetTop - ta.clientHeight / 3), behavior: "smooth" });
+    }
+
+    function updateCharCount() {
+      $("charCount").textContent = state.text.length.toLocaleString() + " characters";
+    }
+
+    /* ───────────── Step 2 rendering ───────────── */
+    function renderModelStatus() {
+      var dot = $("modelDot"), text = $("modelPillText");
+      dot.className = "dot " + (state.modelStatus === "ready" ? "ready" : state.modelStatus === "loading" ? "loading" : state.modelStatus === "error" ? "error" : "");
+      var name = modelInfo(state.model).label.replace(/ \(.*\)$/, "");
+      text.textContent = state.modelStatus === "ready" ? name + " · ready" :
+        state.modelStatus === "loading" ? "Loading " + name + "… " + overallProgress() + "%" :
+        state.modelStatus === "error" ? "Embedding model error" : "Embedding model loads at step 2";
+    }
+    function overallProgress() {
+      var files = Object.keys(state.fileProgress);
+      if (!files.length) return 0;
+      return Math.round(files.reduce(function (a, f) { return a + state.fileProgress[f]; }, 0) / files.length);
+    }
+
+    function renderEmbedStatus() {
+      var box = $("embedStatus");
+      var html;
+      if (state.modelStatus === "idle") {
+        html = '<div class="row"><span>The model is downloaded once (tens of MB) and cached by your browser. It starts automatically when you open this step.</span></div>';
+      } else if (state.modelStatus === "loading") {
+        var pct = overallProgress();
+        html = '<div class="row"><span>Downloading model files… ' + pct + "%</span><span class=\"note\">" + Object.keys(state.fileProgress).length + " file(s)</span></div>" +
+          '<div class="progress"><i style="width:' + pct + '%"></i></div>';
+      } else if (state.modelStatus === "error") {
+        html = '<div class="error-box">Couldn’t load the embedding model. ' + escapeHtml(state.modelError) + "</div>";
+      } else if (state.embedProgress) {
+        var p = Math.round(state.embedProgress.done / state.embedProgress.total * 100);
+        html = '<div class="row"><span>Embedding chunk ' + state.embedProgress.done + " / " + state.embedProgress.total + "…</span></div>" +
+          '<div class="progress"><i style="width:' + p + '%"></i></div>';
+      } else {
+        html = '<div class="row"><span>✓ ' + escapeHtml(modelInfo(state.model).label) + " ready · " + state.blockVectors.length + " chunk vectors</span>" +
+          '<span class="note">Pooling: ' + modelInfo(state.model).pooling.toUpperCase() + " · normalised</span></div>";
+      }
+      box.innerHTML = html;
+      $("loadModelBtn").hidden = state.modelStatus === "ready" || state.modelStatus === "loading";
+      $("loadModelBtn").textContent = state.modelStatus === "error" ? "Retry" : "Load model & embed";
+      renderModelStatus();
+    }
+
+    var embedHighlight = null;
+    function renderEmbed() {
+      renderEmbedStatus();
+      var list = $("embedList");
+      var current = hasCurrentVectors();
+      $("vectorStatus").textContent = !state.blocks.length ? "" : current ? state.blocks.length + " vectors · " + (state.blockVectors[0] || []).length + " dims" :
+        state.modelStatus === "error" ? "No vectors" : state.pipelineStarted ? "Vectors pending…" : "Open this step to start";
+      if (!state.blocks.length) {
+        list.innerHTML = '<div class="empty">No chunks yet. Add text in Text Splitting.</div>';
+      } else {
+        list.innerHTML = state.blocks.map(function (b, i) {
+          var v = current ? state.blockVectors[i] : null;
+          return '<div class="item" id="embed-chunk-' + i + '">' +
+            '<p class="text">' + escapeHtml(b.text) + "</p>" +
+            '<p class="vec">' + (v ? vectorPreview(v) : "Vector pending…") + "</p>" +
+            '<p class="meta"><i class="swatch" style="background:var(--p' + (i % 6) + ')"></i>Chunk ' + (i + 1) + " · " + b.text.length + " chars" +
+            (v ? " · " + v.length + " dimensions" : "") +
+            (b.parentId !== undefined ? ' <span class="tag">Child of Parent ' + (b.parentId + 1) + "</span>" : "") + "</p></div>";
+        }).join("");
+      }
+      var chart = $("embedChart");
+      if (current && state.blockVectors.length >= 3) {
+        var key = state.vectorModel + "|" + state.vectorTexts.join("\u0000");
+        var pts = cachedProjection("embed", key, state.blockVectors);
+        renderScatter(chart, {
+          label: "Chunks in 2D",
+          points: pts.map(function (p, i) { return { x: p.x, y: p.y, title: "Chunk " + (i + 1) + ": " + state.blocks[i].text.slice(0, 90) + "…" }; }),
+          highlighted: embedHighlight,
+          onPick: function (i) {
+            embedHighlight = i;
+            renderEmbed();
+            flashItem(list, "embed-chunk-" + i);
+          }
+        });
+      } else {
+        chart.innerHTML = '<div class="empty">The map appears once at least 3 chunks have vectors.</div>';
+      }
+    }
+
+    /* ───────────── Step 3 rendering ───────────── */
+    var searchHighlight = null;
+    function renderSearch() {
+      var sims = similarities();
+      var info = modelInfo(state.model);
+      $("prefixField").style.opacity = info.queryPrefix ? "1" : "0.45";
+      $("prefixField").title = info.queryPrefix ? "Prefix: “" + info.queryPrefix.trim() + "”" : "This model does not use a query prefix.";
+
+      var qv = $("questionVector");
+      if (!state.question.trim()) qv.textContent = "Type a question to search.";
+      else if (hasCurrentQuestion()) qv.textContent = "Question vector: " + vectorPreview(state.questionVector) + " · " + state.questionVector.length + " dims";
+      else if (state.modelStatus === "error") qv.textContent = "Embedding model unavailable.";
+      else if (!state.pipelineStarted) qv.textContent = "The question is embedded once the model loads.";
+      else qv.textContent = "Embedding question…";
+
+      var list = $("matchList");
+      var top = sims.slice(0, 10);
+      $("matchCount").textContent = sims.length ? "Showing top " + top.length + " of " + sims.length : "";
+      if (!state.blocks.length) {
+        list.innerHTML = '<div class="empty">No chunks yet. Add text in Text Splitting.</div>';
+      } else if (!sims.length) {
+        var searching = state.question.trim() && (state.questionLoading || (state.pipelineStarted && state.modelStatus !== "error"));
+        list.innerHTML = '<div class="empty">' + (searching ? "Searching…" : "Ask a question to see matches.") + "</div>";
+      } else {
+        list.innerHTML = top.map(function (m, rank) {
+          var b = state.blocks[m.index];
+          var inCtx = rank < state.topK;
+          return '<div class="item" id="search-match-' + m.index + '">' +
+            '<p class="text">' + escapeHtml(b.text) + "</p>" +
+            '<div class="bar"><i style="width:' + Math.max(0, Math.min(100, m.score * 100)).toFixed(1) + '%"></i></div>' +
+            '<p class="meta"><i class="swatch" style="background:var(--p' + (m.index % 6) + ')"></i>#' + (rank + 1) + " · Chunk " + (m.index + 1) + " · Similarity " + m.score.toFixed(4) +
+            (inCtx ? ' <span class="tag ctx">In LLM context</span>' : "") +
+            (b.parentId !== undefined ? ' <span class="tag">Parent ' + (b.parentId + 1) + "</span>" : "") + "</p></div>";
+        }).join("");
+      }
+
+      var chart = $("searchChart");
+      if (sims.length && state.blockVectors.length + 1 >= 3) {
+        var key = state.questionVectorKey + "|" + state.vectorTexts.join("\u0000");
+        var pts = cachedProjection("search", key, [state.questionVector].concat(state.blockVectors));
+        var links = sims.slice(0, state.topK).map(function (m) { return m.index; });
+        renderScatter(chart, {
+          label: "Question vs. chunks",
+          query: { x: pts[0].x, y: pts[0].y, title: "Question: " + state.question },
+          points: pts.slice(1).map(function (p, i) { return { x: p.x, y: p.y, title: "Chunk " + (i + 1) + ": " + state.blocks[i].text.slice(0, 90) + "…" }; }),
+          links: links,
+          highlighted: searchHighlight,
+          onPick: function (i) {
+            searchHighlight = i;
+            renderSearch();
+            if (!flashItem(list, "search-match-" + i)) toast("Chunk " + (i + 1) + " isn’t in the top 10 matches.");
+          }
+        });
+      } else {
+        chart.innerHTML = '<div class="empty">The map appears once your question and the chunks have vectors.</div>';
+      }
+    }
+
+    function renderSuggestions() {
+      $("suggestions").innerHTML = (SAMPLES[state.sample] ? SAMPLES[state.sample].questions : []).map(function (q) {
+        return '<button type="button" data-q="' + escapeHtml(q) + '">' + escapeHtml(q) + "</button>";
+      }).join("");
+    }
+
+    /* ───────────── Step 4: generation ───────────── */
+    function contextItems() {
+      var top = similarities().slice(0, state.topK);
+      if (state.strategy === "parent-child") {
+        var seen = {};
+        var items = [];
+        top.forEach(function (m) {
+          var b = state.blocks[m.index];
+          if (b && b.parentId !== undefined && !seen[b.parentId]) {
+            seen[b.parentId] = true;
+            items.push({ label: "Parent " + (b.parentId + 1), text: b.parentText });
+          }
+        });
+        return items;
+      }
+      return top.map(function (m) { return { label: "Chunk " + (m.index + 1), text: state.blocks[m.index].text }; });
+    }
+
+    function syncPromptTemplates(force) {
+      var ctx = contextItems();
+      var key = JSON.stringify([ctx, state.question]);
+      if (!force && key === state.templateKey) return;
+      state.templateKey = key;
+      $("systemMsg").value = ctx.length ? SYSTEM_PROMPT_TEMPLATE(ctx.map(function (c) { return "[" + c.label + "]\n" + c.text; }).join("\n\n")) : "";
+      $("userMsg").value = ctx.length ? state.question : "";
+    }
+
+    function splitThinking(raw) {
+      var open = raw.indexOf("<think>");
+      if (open === -1) return { thinking: "", answer: raw };
+      var close = raw.indexOf("</think>", open);
+      if (close === -1) return { thinking: raw.slice(open + 7), answer: "" };
+      return { thinking: raw.slice(open + 7, close), answer: raw.slice(0, open) + raw.slice(close + 8) };
+    }
+
+    function inlineMd(s) {
+      return s.replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
+        .replace(/(^|\s)_([^_\n]+)_(?=\s|$|[.,;:])/g, "$1<em>$2</em>");
+    }
+    function mdToHtml(md) {
+      var lines = escapeHtml(md).split("\n");
+      var out = [], para = [], list = null, inCode = false, code = [];
+      function flushPara() { if (para.length) { out.push("<p>" + inlineMd(para.join(" ")) + "</p>"); para = []; } }
+      function flushList() { if (list) { out.push("<" + list.tag + ">" + list.items.map(function (i) { return "<li>" + inlineMd(i) + "</li>"; }).join("") + "</" + list.tag + ">"); list = null; } }
+      lines.forEach(function (line) {
+        if (/^```/.test(line)) {
+          if (inCode) { out.push("<pre><code>" + code.join("\n") + "</code></pre>"); code = []; inCode = false; }
+          else { flushPara(); flushList(); inCode = true; }
+          return;
+        }
+        if (inCode) { code.push(line); return; }
+        var h = line.match(/^(#{1,4})\s+(.*)$/);
+        var ul = line.match(/^\s*[-*•]\s+(.*)$/);
+        var ol = line.match(/^\s*\d+[.)]\s+(.*)$/);
+        if (h) { flushPara(); flushList(); out.push((h[1].length <= 2 ? "<h3>" : "<h4>") + inlineMd(h[2]) + (h[1].length <= 2 ? "</h3>" : "</h4>")); }
+        else if (ul || ol) {
+          flushPara();
+          var tag = ul ? "ul" : "ol";
+          if (!list || list.tag !== tag) { flushList(); list = { tag: tag, items: [] }; }
+          list.items.push((ul || ol)[1]);
+        }
+        else if (!line.trim()) { flushPara(); flushList(); }
+        else { flushList(); para.push(line); }
+      });
+      if (inCode) out.push("<pre><code>" + code.join("\n") + "</code></pre>");
+      flushPara(); flushList();
+      return out.join("");
+    }
+
+    function renderGeneration() {
+      syncPromptTemplates(false);
+      var ctx = contextItems();
+      var ready = ctx.length > 0 && !!state.question.trim();
+      var running = state.genStatus === "running";
+      var offline = state.genMode === "offline";
+
+      $("genIntro").textContent = state.strategy === "parent-child" ?
+        "Parent-Child mode: the matched children point to their parents, and the parents (deduplicated) are sent as fuller context." :
+        "See how the LLM uses the Top-" + state.topK + " chunks as context to answer your question.";
+      $("apiBox").hidden = offline;
+      $("temperature").disabled = offline;
+      $("maxTokens").disabled = offline;
+      $("generateBtn").disabled = !ready || running;
+      $("generateBtn").textContent = running ? "Generating…" : offline ? "Find answer sentences" : "Generate answer";
+      $("stopBtn").hidden = !running || offline;
+      $("copyPromptBtn").disabled = !ready;
+      $("answerMode").textContent = offline ? "Extractive · no LLM" : "Streaming from " + (PROVIDERS[$("provider").value] || {}).label;
+
+      var steps = [
+        { label: ready ? "Got " + ctx.length + " context " + (state.strategy === "parent-child" ? "parent" : "chunk") + (ctx.length === 1 ? "" : "s") : "Waiting for search results", done: ready },
+        { label: "Built the prompt", done: ready },
+        { label: state.genStatus === "done" ? "Answer ready" : running ? (offline ? "Ranking context sentences…" : "Writing the answer…") : "Ready to answer", done: state.genStatus === "done", active: running }
+      ];
+      $("genSteps").innerHTML = ready ? steps.map(function (s) {
+        return '<li class="' + (s.done ? "done" : s.active ? "active" : "") + '">' + escapeHtml(s.label) + "</li>";
+      }).join("") : '<li>Ask a question in Semantic Search first.</li>';
+
+      var ans = $("answer");
+      if (state.genError) {
+        ans.innerHTML = '<div class="error-box">' + escapeHtml(state.genError) + "</div>";
+      } else if (state.answerRaw) {
+        var parts = splitThinking(state.answerRaw);
+        ans.innerHTML = (parts.thinking ? "<details><summary>Model reasoning</summary><pre>" + escapeHtml(parts.thinking.trim()) + "</pre></details>" : "") +
+          '<div class="' + (running ? "cursor" : "") + '">' + mdToHtml(parts.answer) + "</div>";
+      } else {
+        ans.innerHTML = '<div class="empty">' + (running ? "Working…" : ready ? "Click “" + $("generateBtn").textContent + "” to see the reply." : "Ask a question in Semantic Search first.") + "</div>";
+      }
+    }
+
+    var abortCtrl = null;
+
+    function splitSentences(text) {
+      var out = [];
+      text.split(/\n+/).forEach(function (line) {
+        line.split(/(?<=[.!?])\s+(?=["“(A-Z0-9])/).forEach(function (s) {
+          s = s.replace(/^[-*•]\s*/, "").trim();
+          if (s.length >= 25) out.push(s);
+        });
+      });
+      return out;
+    }
+
+    function runOffline() {
+      var ctx = contextItems();
+      var sentences = [];
+      ctx.forEach(function (c) {
+        splitSentences(c.text).forEach(function (s) { sentences.push({ text: s, label: c.label }); });
+      });
+      sentences = sentences.slice(0, 120);
+      if (!sentences.length) return Promise.reject(new Error("No full sentences found in the retrieved context."));
+      var q = state.questionVector;
+      return ensureModel().then(function () {
+        return embedder.request("embed", state.model, sentences.map(function (s) { return s.text; }));
+      }).then(function (vectors) {
+        var ranked = sentences.map(function (s, i) { return { s: s, score: dot(q, vectors[i]) }; })
+          .sort(function (a, b) { return b.score - a.score; }).slice(0, 3);
+        state.answerRaw = "**Extractive answer (no LLM).** The 3 context sentences closest to your question:\n\n" +
+          ranked.map(function (r, i) { return (i + 1) + ". " + r.s.text + " _[" + r.s.label + " · " + r.score.toFixed(3) + "]_"; }).join("\n") +
+          "\n\nA real LLM would read the whole prompt on the left and write one fluent answer. Switch to **Live LLM** to compare.";
+      });
+    }
+
+    function runApi() {
+      var baseUrl = $("baseUrl").value.trim().replace(/\/+$/, "");
+      var model = $("llmModel").value.trim();
+      var key = $("apiKey").value.trim();
+      var provider = $("provider").value;
+      if (!baseUrl || !model) return Promise.reject(new Error("Set a base URL and model for the provider."));
+      if (!key && provider !== "ollama") return Promise.reject(new Error("Paste an API key for " + PROVIDERS[provider].label + " first."));
+      abortCtrl = new AbortController();
+      var headers = { "Content-Type": "application/json" };
+      if (key) headers.Authorization = "Bearer " + key;
+      var body = {
+        model: model,
+        stream: true,
+        temperature: Number($("temperature").value),
+        max_tokens: Number($("maxTokens").value),
+        messages: [{ role: "system", content: $("systemMsg").value }, { role: "user", content: $("userMsg").value }]
+      };
+      return fetch(baseUrl + "/chat/completions", { method: "POST", headers: headers, body: JSON.stringify(body), signal: abortCtrl.signal })
+        .then(function (res) {
+          if (!res.ok) {
+            return res.text().then(function (t) { throw new Error("HTTP " + res.status + ": " + t.slice(0, 400)); });
+          }
+          var reader = res.body.getReader();
+          var decoder = new TextDecoder();
+          var buffer = "";
+          var thinkingOpen = false;
+          function pump() {
+            return reader.read().then(function (r) {
+              if (r.done) return;
+              buffer += decoder.decode(r.value, { stream: true });
+              var nl;
+              while ((nl = buffer.indexOf("\n")) >= 0) {
+                var line = buffer.slice(0, nl).trim();
+                buffer = buffer.slice(nl + 1);
+                if (line.indexOf("data:") !== 0) continue;
+                var data = line.slice(5).trim();
+                if (data === "[DONE]") continue;
+                try {
+                  var delta = (JSON.parse(data).choices || [{}])[0].delta || {};
+                  var reasoning = delta.reasoning || delta.reasoning_content || "";
+                  if (reasoning) {
+                    if (!thinkingOpen) { state.answerRaw += "<think>"; thinkingOpen = true; }
+                    state.answerRaw += reasoning;
+                  }
+                  if (delta.content) {
+                    if (thinkingOpen) { state.answerRaw += "</think>"; thinkingOpen = false; }
+                    state.answerRaw += delta.content;
+                  }
+                } catch (e) { /* ignore keep-alive or partial lines */ }
+              }
+              renderGeneration();
+              return pump();
+            });
+          }
+          return pump().then(function () { if (thinkingOpen) state.answerRaw += "</think>"; });
+        });
+    }
+
+    function generate() {
+      state.genStatus = "running";
+      state.genError = "";
+      state.answerRaw = "";
+      renderGeneration();
+      var job = state.genMode === "offline" ? runOffline() : runApi();
+      job.then(function () {
+        state.genStatus = "done";
+      }, function (err) {
+        state.genStatus = "idle";
+        if (err.name === "AbortError") return;
+        var msg = err.message || String(err);
+        if (/Failed to fetch|NetworkError|Load failed/i.test(msg)) {
+          msg += " — the request was blocked. Check the base URL, your connection, and that the provider allows browser (CORS) requests.";
+        }
+        state.genError = msg;
+      }).then(function () {
+        abortCtrl = null;
+        renderGeneration();
+      });
+    }
+
+    /* ───────────── Re-render after vectors / question change ───────────── */
+    function renderAfterVectors() {
+      renderEmbed();
+      renderSearch();
+      if (state.genStatus !== "running") {
+        var before = state.templateKey;
+        syncPromptTemplates(false);
+        if (before !== state.templateKey) { state.answerRaw = ""; state.genError = ""; state.genStatus = "idle"; }
+      }
+      renderGeneration();
+    }
+
+    /* ───────────── Tabs ───────────── */
+    function setStep(step, scroll) {
+      if (STEPS.indexOf(step) === -1) step = "text-splitting";
+      state.step = step;
+      STEPS.forEach(function (s) {
+        $("tab-" + s).setAttribute("aria-selected", String(s === step));
+        $("tab-" + s).tabIndex = s === step ? 0 : -1;
+        $("panel-" + s).hidden = s !== step;
+      });
+      var url = new URL(location.href);
+      url.searchParams.set("step", step);
+      history.replaceState(null, "", url.pathname + url.search + url.hash);
+      if (step !== "text-splitting") startPipeline();
+      if (scroll) $("lab").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    /* ───────────── Wiring ───────────── */
+    function bindNumber(rangeId, numberId, key, min, after) {
+      function apply(v) {
+        v = Math.round(Number(v));
+        if (!isFinite(v) || v < min) return;
+        state[key] = v;
+        $(rangeId).value = v;
+        $(numberId).value = v;
+        if (after) after();
+        runSplitDebounced();
+      }
+      $(rangeId).addEventListener("input", function (e) { apply(e.target.value); });
+      $(numberId).addEventListener("input", function (e) { apply(e.target.value); });
+    }
+
+    function setText(text) {
+      state.text = text;
+      $("sourceText").value = text;
+      renderBackdrop(null);
+      updateCharCount();
+      runSplitDebounced();
+    }
+
+    function setQuestion(q) {
+      state.question = q;
+      $("question").value = q;
+      renderSearch();
+      embedQuestionDebounced();
+    }
+    var embedQuestionDebounced = debounce(scheduleEmbedQuestion, 400);
+
+    function initLlmSettings() {
+      var saved = {};
+      try { saved = JSON.parse(localStorage.getItem("ragplay-llm") || "{}"); } catch (e) { saved = {}; }
+      $("provider").innerHTML = Object.keys(PROVIDERS).map(function (k) { return '<option value="' + k + '">' + PROVIDERS[k].label + "</option>"; }).join("");
+      $("provider").value = PROVIDERS[saved.provider] ? saved.provider : "openrouter";
+      $("baseUrl").value = saved.baseUrl || PROVIDERS[$("provider").value].baseUrl;
+      $("llmModel").value = saved.model || PROVIDERS[$("provider").value].model;
+      $("apiKey").value = sessionStorage.getItem("ragplay-llm-key") || "";
+      updateKeyHint();
+    }
+    function saveLlmSettings() {
+      localStorage.setItem("ragplay-llm", JSON.stringify({ provider: $("provider").value, baseUrl: $("baseUrl").value.trim(), model: $("llmModel").value.trim() }));
+      sessionStorage.setItem("ragplay-llm-key", $("apiKey").value.trim());
+    }
+    function updateKeyHint() {
+      var p = PROVIDERS[$("provider").value];
+      $("keyHint").innerHTML = p.keyUrl ? '<a href="' + p.keyUrl + '" target="_blank" rel="noopener">get a key</a>' : "optional";
+    }
+
+    function init() {
+      $("modelSelect").innerHTML = MODELS.map(function (m) { return '<option value="' + m.id + '">' + escapeHtml(m.label) + "</option>"; }).join("");
+      $("sourceText").value = state.text;
+      $("question").value = state.question;
+      syncSplitControls();
+      renderBackdrop(null);
+      updateCharCount();
+      renderSuggestions();
+      initLlmSettings();
+      runSplit();
+
+      // Navigation
+      document.querySelectorAll("[data-go]").forEach(function (el) {
+        el.addEventListener("click", function (e) { e.preventDefault(); setStep(el.dataset.go, true); });
+      });
+      document.querySelectorAll(".tab").forEach(function (tab) {
+        tab.addEventListener("click", function () { setStep(tab.dataset.step, false); });
+        tab.addEventListener("keydown", function (e) {
+          var i = STEPS.indexOf(tab.dataset.step);
+          if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+            var next = STEPS[(i + (e.key === "ArrowRight" ? 1 : STEPS.length - 1)) % STEPS.length];
+            setStep(next, false);
+            $("tab-" + next).focus();
+          }
+        });
+      });
+
+      // Step 1
+      $("strategy").addEventListener("change", function (e) {
+        state.strategy = e.target.value;
+        syncSplitControls();
+        runSplit();
+      });
+      bindNumber("chunkSizeRange", "chunkSize", "chunkSize", 10);
+      bindNumber("overlapRange", "overlap", "overlap", 0);
+      bindNumber("parentSizeRange", "parentSize", "parentChunkSize", 50);
+
+      $("separatorRow").addEventListener("click", function (e) {
+        var t = e.target.closest("button");
+        if (!t) return;
+        if (t.dataset.fixed !== undefined) {
+          state.fixedSeparator = JSON.parse($("separatorRow").dataset.options)[Number(t.dataset.fixed)];
+        } else if (t.dataset.remove !== undefined) {
+          if (state.recursiveSeparators.length <= 1) return;
+          state.recursiveSeparators.splice(Number(t.dataset.remove), 1);
+        } else if (t.id === "sepAdd") {
+          var raw = $("sepInput").value;
+          if (!raw) return;
+          var sep = createCustomSeparator(raw);
+          if (state.strategy === "character") state.fixedSeparator = sep;
+          else if (!state.recursiveSeparators.some(function (s) { return s.char === sep.char; })) state.recursiveSeparators.push(sep);
+        } else if (t.id === "sepReset") {
+          if (state.strategy === "character") state.fixedSeparator = SEP.every;
+          else state.recursiveSeparators = DEFAULT_RECURSIVE.slice();
+        } else {
+          return;
+        }
+        renderSeparators();
+        runSplit();
+      });
+      $("separatorRow").addEventListener("keydown", function (e) {
+        if (e.target.id === "sepInput" && e.key === "Enter" && !e.isComposing && e.keyCode !== 229) {
+          e.preventDefault();
+          $("sepAdd").click();
+        }
+      });
+
+      $("sourceText").addEventListener("input", function (e) {
+        state.text = e.target.value;
+        renderBackdrop(null);
+        updateCharCount();
+        runSplitDebounced();
+      });
+      $("sourceText").addEventListener("scroll", function () { $("backdrop").scrollTop = $("sourceText").scrollTop; });
+      $("sampleSelect").addEventListener("change", function (e) {
+        state.sample = e.target.value;
+        setText(SAMPLES[state.sample].text);
+        renderSuggestions();
+        setQuestion(SAMPLES[state.sample].questions[0]);
+      });
+      $("fileInput").addEventListener("change", function (e) {
+        var file = e.target.files && e.target.files[0];
+        if (!file) return;
+        file.text().then(function (txt) {
+          if (txt.length > 200000) { txt = txt.slice(0, 200000); toast("Large file: using the first 200,000 characters."); }
+          state.sample = "upload";
+          setText(txt);
+          renderSuggestions();
+          toast("Loaded " + file.name);
+        });
+        e.target.value = "";
+      });
+      $("clearText").addEventListener("click", function () { setText(""); $("sourceText").focus(); });
+
+      var splitHost = $("splitResult");
+      function chunkFromEvent(e) { var c = e.target.closest && e.target.closest(".chunk"); return c ? Number(c.dataset.index) : null; }
+      splitHost.addEventListener("mouseover", function (e) { var i = chunkFromEvent(e); if (i !== null) highlightSource(i); });
+      splitHost.addEventListener("mouseleave", function () { renderBackdrop(null); });
+      splitHost.addEventListener("focusin", function (e) { var i = chunkFromEvent(e); if (i !== null) highlightSource(i); });
+      splitHost.addEventListener("focusout", function () { renderBackdrop(null); });
+
+      // Step 2
+      $("modelSelect").addEventListener("change", function (e) {
+        state.model = e.target.value;
+        state.modelStatus = "idle";
+        state.modelError = "";
+        state.blockVectors = []; state.vectorTexts = []; state.vectorModel = "";
+        state.questionVector = null; state.questionVectorKey = "";
+        loadPromise = null;
+        embedHighlight = null; searchHighlight = null;
+        renderAfterVectors();
+        renderModelStatus();
+        if (state.pipelineStarted) { scheduleEmbedBlocks(); scheduleEmbedQuestion(); }
+      });
+      $("loadModelBtn").addEventListener("click", function () {
+        if (state.modelStatus === "error") { state.modelStatus = "idle"; loadPromise = null; }
+        if (!state.pipelineStarted) startPipeline();
+        else { scheduleEmbedBlocks(); scheduleEmbedQuestion(); }
+      });
+
+      // Step 3
+      $("question").addEventListener("input", function (e) { setQuestion(e.target.value); });
+      $("suggestions").addEventListener("click", function (e) {
+        var b = e.target.closest("button");
+        if (b) setQuestion(b.dataset.q);
+      });
+      $("topK").addEventListener("change", function (e) {
+        state.topK = Number(e.target.value);
+        renderAfterVectors();
+      });
+      $("queryPrefix").addEventListener("change", function (e) {
+        state.usePrefix = e.target.checked;
+        renderSearch();
+        scheduleEmbedQuestion();
+      });
+
+      // Step 4
+      document.querySelectorAll('input[name="genMode"]').forEach(function (r) {
+        r.addEventListener("change", function () {
+          state.genMode = r.value;
+          state.answerRaw = ""; state.genError = ""; state.genStatus = "idle";
+          renderGeneration();
+        });
+      });
+      $("provider").addEventListener("change", function () {
+        var p = PROVIDERS[$("provider").value];
+        $("baseUrl").value = p.baseUrl;
+        $("llmModel").value = p.model;
+        updateKeyHint();
+        saveLlmSettings();
+        renderGeneration();
+      });
+      ["baseUrl", "llmModel", "apiKey"].forEach(function (id) { $(id).addEventListener("change", saveLlmSettings); });
+      $("generateBtn").addEventListener("click", generate);
+      $("stopBtn").addEventListener("click", function () { if (abortCtrl) abortCtrl.abort(); });
+      $("resetPrompt").addEventListener("click", function () { syncPromptTemplates(true); });
+      $("copyPromptBtn").addEventListener("click", function () {
+        var text = "SYSTEM:\n" + $("systemMsg").value + "\n\nUSER:\n" + $("userMsg").value;
+        navigator.clipboard.writeText(text).then(function () { toast("Prompt copied. Paste it into any chat LLM."); }, function () { toast("Couldn’t access the clipboard."); });
+      });
+
+      var params = new URLSearchParams(location.search);
+      setStep(params.get("step") || "text-splitting", false);
+      renderModelStatus();
+    }
+
+    init();
+  })();
+  </script>
+</body>
+</html>
