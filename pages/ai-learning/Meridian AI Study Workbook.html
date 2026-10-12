@@ -1,0 +1,985 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Meridian AI Study Workbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: an audit workpaper. Ruled ledger ground, a tab bar like workpaper dividers,
+   one section per topic with file references up top, a live demo in the middle and the
+   improvement options at the bottom. Technical is the default tab and the largest. */
+:root{
+  --bg:#EBF0EC; --paper:#F7FAF8; --ink:#13201A; --ink2:#44564D; --rule:#C6D2CA; --grid:rgba(19,32,26,.045);
+  --accent:#0B6B58; --accent-ink:#FFFFFF; --accent-soft:#D5ECE4;
+  --mark:#B3261E; --mark-soft:#F6DEDB; --warn:#85560A; --warn-soft:#F6E8C8; --ok:#1B6E3A; --ok-soft:#D8EEDD;
+  --code:#E2EAE5; --shadow:0 1px 0 rgba(19,32,26,.06);
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1310; --paper:#131C17; --ink:#E3EEE8; --ink2:#9BB0A5; --rule:#2A3B32; --grid:rgba(227,238,232,.035);
+  --accent:#4FC3A5; --accent-ink:#04211A; --accent-soft:#17352C;
+  --mark:#FF8F85; --mark-soft:#3A1B19; --warn:#E8B04A; --warn-soft:#352A12; --ok:#74D494; --ok-soft:#173222;
+  --code:#1A2721; --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1310; --paper:#131C17; --ink:#E3EEE8; --ink2:#9BB0A5; --rule:#2A3B32; --grid:rgba(227,238,232,.035);
+  --accent:#4FC3A5; --accent-ink:#04211A; --accent-soft:#17352C;
+  --mark:#FF8F85; --mark-soft:#3A1B19; --warn:#E8B04A; --warn-soft:#352A12; --ok:#74D494; --ok-soft:#173222;
+  --code:#1A2721; --shadow:none; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px);background-size:100% 28px;
+  padding-inline:16px;padding-block:0}
+.wrap{max-width:1120px;margin-inline:auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(1.7rem,4.2vw,2.5rem);letter-spacing:-.01em}
+h2{font-size:1.45rem}
+h3{font-size:1.05rem}
+p{margin:.55em 0}
+code,pre,.mono{font-family:var(--mono);font-size:.85em}
+code{background:var(--code);padding:.08em .35em;border-radius:3px}
+pre{background:var(--code);padding:12px 14px;border-radius:4px;overflow-x:auto;margin:10px 0;line-height:1.5}
+pre code{background:none;padding:0}
+a{color:var(--accent)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);font-weight:500}
+.scroll{overflow-x:auto}
+.muted{color:var(--ink2)}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:2px solid var(--ink);margin-inline:-16px;padding:10px 16px 0}
+.top .wrap{display:flex;flex-direction:column;gap:8px}
+.brand{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand b{font-family:var(--display);font-size:1.05rem}
+.brand span{font-family:var(--mono);font-size:.74rem;color:var(--ink2)}
+.tools{display:flex;gap:8px;align-items:center}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tabs button{border:1px solid var(--rule);border-bottom:none;background:var(--paper);padding:8px 14px;border-radius:5px 5px 0 0;white-space:nowrap;font-weight:500;color:var(--ink2)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn{border:1px solid var(--ink);background:var(--paper);padding:5px 11px;border-radius:4px;font-size:.85rem}
+.btn:hover{background:var(--accent-soft)}
+.btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:3px 8px;font-size:.78rem}
+.seg{display:inline-flex;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+.seg button{border:none;background:var(--paper);padding:5px 12px;font-size:.85rem}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+.intro{padding-block:22px 8px;display:grid;gap:10px}
+.intro p{max-width:72ch;margin:0}
+.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.82rem}
+.tag{font-family:var(--mono);font-size:.7rem;padding:1px 7px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
+.tag.v{color:var(--ok);background:var(--ok-soft)} .tag.i{color:var(--warn);background:var(--warn-soft)} .tag.n{color:var(--mark);background:var(--mark-soft)}
+.tag.g{color:var(--ink2);background:var(--code)}
+.progress{height:6px;background:var(--code);border-radius:3px;overflow:hidden;max-width:320px}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+
+/* technical layout */
+.tech{display:grid;grid-template-columns:210px minmax(0,1fr);gap:28px;padding-block:14px 60px}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 96px);align-self:start;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 120px);overflow:auto}
+.side button{text-align:left;border:none;background:none;padding:6px 8px;border-left:3px solid var(--rule);color:var(--ink2);font-size:.88rem}
+.side button:hover{color:var(--ink)}
+.side button.cur{border-left-color:var(--accent);color:var(--ink);font-weight:600}
+.side button.done::after{content:" ✓";color:var(--ok)}
+.side h4{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin:0 0 6px;font-weight:500}
+@media (max-width:860px){
+  .tech{grid-template-columns:minmax(0,1fr);gap:10px}
+  .side{position:static;flex-direction:row;overflow-x:auto;max-height:none;padding-bottom:4px}
+  .side h4{display:none}
+  .side button{border-left:none;border-bottom:3px solid var(--rule);white-space:nowrap}
+  .side button.cur{border-bottom-color:var(--accent)}
+}
+.topic{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:20px clamp(14px,3vw,26px);margin-bottom:22px;box-shadow:var(--shadow);scroll-margin-top:150px;min-width:0}
+.th{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.files{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:.72rem;border:1px solid var(--rule);background:var(--bg);border-radius:3px;padding:1px 7px;color:var(--ink2);overflow-wrap:anywhere}
+.demo{border:1px dashed var(--ink2);border-radius:5px;padding:14px;margin:14px 0;background:var(--bg);min-width:0}
+.demo>h3{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:500;margin-bottom:8px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.box{border:1px solid var(--rule);border-radius:5px;padding:10px 12px;background:var(--paper);min-width:0}
+label{font-size:.82rem;color:var(--ink2)}
+input[type=text],input[type=number],textarea,select{font:inherit;background:var(--paper);color:var(--ink);border:1px solid var(--ink2);border-radius:4px;padding:5px 8px;max-width:100%}
+textarea{width:100%;resize:vertical;font-family:var(--mono);font-size:.82rem}
+input[type=range]{accent-color:var(--accent);max-width:100%}
+.callout{border-left:4px solid var(--accent);background:var(--accent-soft);padding:8px 12px;margin:10px 0;border-radius:0 4px 4px 0;font-size:.92em}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+.callout.bad{border-color:var(--mark);background:var(--mark-soft)}
+details.improve{border:1px solid var(--accent);border-radius:5px;margin-top:14px}
+details.improve>summary{cursor:pointer;padding:9px 12px;font-weight:600;color:var(--accent);list-style:none}
+details.improve>summary::before{content:"+ ";font-family:var(--mono)}
+details.improve[open]>summary::before{content:"− "}
+.opts{padding:2px 12px 12px;display:grid;gap:8px}
+.opt{border-top:1px solid var(--rule);padding-top:8px}
+.opt b{font-family:var(--display)}
+.tf{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.foot{display:flex;justify-content:flex-end;margin-top:14px}
+
+/* chunk viewer */
+.chunks{display:grid;gap:8px}
+.chunk{border:1px solid var(--rule);background:var(--paper);border-radius:4px;padding:8px 10px;font-family:var(--mono);font-size:.78rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.chunk .ov{background:var(--warn-soft);color:var(--warn);border-radius:2px}
+.chunk .meta{display:block;color:var(--ink2);font-size:.7rem;margin-bottom:3px}
+.bar{height:6px;background:var(--code);border-radius:3px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.hit{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;padding:5px 0;border-bottom:1px solid var(--rule);font-size:.85rem}
+.hit.out{opacity:.45}
+.stat{font-family:var(--mono);font-size:.8rem;display:flex;gap:14px;flex-wrap:wrap}
+.stat b{color:var(--accent)}
+
+/* svg */
+.svgbox{overflow-x:auto}
+svg.arch{width:100%;min-width:640px;height:auto;display:block}
+svg.arch text{font-family:var(--body);fill:var(--ink)}
+svg.arch .nd rect{fill:var(--paper);stroke:var(--ink);stroke-width:1.4}
+svg.arch .nd.sel rect{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.4}
+svg.arch .nd{cursor:pointer}
+svg.arch .nd:hover rect{stroke:var(--accent)}
+svg.arch .t1{font-weight:600;font-size:13px}
+svg.arch .t2{font-family:var(--mono);font-size:9.5px;fill:var(--ink2)}
+svg.arch line{stroke:var(--ink2);stroke-width:1.3}
+svg.arch line.dash{stroke-dasharray:4 4}
+
+/* pipeline */
+.pipe{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
+.pipe .st{flex:1 1 130px;border:1px solid var(--ink);border-radius:4px;padding:8px 10px;background:var(--paper);font-size:.83rem;min-width:0}
+.pipe .st b{display:block;font-family:var(--display)}
+.pipe .st code{font-size:.7rem}
+.pipe .ar{align-self:center;font-family:var(--mono);color:var(--ink2)}
+
+/* NFR + improvements */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h3{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.rate{font-family:var(--mono);font-size:.7rem;padding:2px 8px;border-radius:3px;white-space:nowrap}
+.rate.strong{background:var(--ok-soft);color:var(--ok)} .rate.partial{background:var(--warn-soft);color:var(--warn)} .rate.gap{background:var(--mark-soft);color:var(--mark)} .rate.unknown{background:var(--code);color:var(--ink2)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-block:10px}
+.chips button{border:1px solid var(--ink2);background:var(--paper);border-radius:99px;padding:3px 12px;font-size:.82rem}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.plan{background:var(--paper);border:2px solid var(--ink);border-radius:6px;padding:12px 16px;margin-block:12px}
+.plan ol{margin:6px 0 0;padding-left:20px}
+.panel{padding-block:18px 60px}
+.panel>h2{margin-bottom:6px}
+.panel>p.lead{max-width:75ch}
+.q{border:1px solid var(--rule);background:var(--paper);border-radius:6px;padding:14px;margin-bottom:12px}
+.q .a{display:grid;gap:6px;margin-top:8px}
+.q .a button{text-align:left;border:1px solid var(--ink2);background:var(--bg);border-radius:4px;padding:7px 10px}
+.q .a button.right{background:var(--ok-soft);border-color:var(--ok)}
+.q .a button.wrong{background:var(--mark-soft);border-color:var(--mark)}
+.q .why{margin-top:8px;font-size:.9em}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.steps button{border:1px solid var(--ink2);background:var(--paper);border-radius:4px;padding:5px 10px;font-size:.85rem}
+.steps button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+footer.page{border-top:2px solid var(--ink);padding-block:16px 40px;font-size:.82rem;color:var(--ink2)}
+@media (max-width:600px){.brand span{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand">
+    <div><b>Meridian AI Study Workbook</b> <span>merged code v1.1.0 · APP_MODE local | cloud</span></div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Mode shown in demos"><button type="button" data-mode="local" aria-pressed="true">local</button><button type="button" data-mode="cloud" aria-pressed="false">cloud</button></div>
+      <button class="btn" id="themeBtn" type="button" aria-label="Change theme">Theme: system</button>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Workbook sections">
+    <button role="tab" data-tab="technical" aria-selected="true">Technical</button>
+    <button role="tab" data-tab="functional" aria-selected="false">Functional</button>
+    <button role="tab" data-tab="nfr" aria-selected="false">Non-functional</button>
+    <button role="tab" data-tab="improve" aria-selected="false">Improvements</button>
+    <button role="tab" data-tab="check" aria-selected="false">Self-check</button>
+  </nav>
+</div></header>
+
+<main class="wrap">
+<section class="intro">
+  <h1>Meridian AI, read from the code</h1>
+  <p>A procurement assistant with two features: answer questions from uploaded PDFs (RAG) and run a three-agent purchase audit. This workbook walks through how it works, what it does for users, how well it meets non-functional needs, and what you could change. Start with the Technical tab and use the demos.</p>
+  <div class="legend"><span class="tag v">VERIFIED</span> read in the code <span class="tag i">INFERRED</span> follows from the code, not run <span class="tag n">NOT VERIFIED</span> needs a live run (Gemini, Docker) <span class="tag g">DEMO</span> teaching simulation, not the real thing</div>
+  <div class="row"><span class="mono muted" id="progLabel">0 of 10 technical topics studied</span><div class="progress" aria-hidden="true"><i id="progBar"></i></div></div>
+</section>
+
+<!-- ============================ TECHNICAL ============================ -->
+<div id="tab-technical" class="tech" role="tabpanel">
+  <nav class="side" id="side" aria-label="Technical topics"><h4>Topics</h4></nav>
+  <div id="topics">
+
+  <section class="topic" id="t-arch" data-title="Architecture map">
+    <div class="th"><h2>Architecture map</h2><div class="files"><code class="chip">backend/api/main.py</code><code class="chip">backend/api/endpoints.py</code><code class="chip">backend/config/settings.py</code></div></div>
+    <p>One FastAPI process serves the REST API and, inside Docker, the built React app. The API calls two subsystems: the RAG pipeline (ingest PDFs, answer questions) and the audit agents. Both use one chat model. Embeddings, the vector store and the document store change with <code>APP_MODE</code>. Click a box.</p>
+    <div class="demo"><h3>Demo · click a component</h3>
+      <div class="svgbox"><svg class="arch" id="archSvg" viewBox="0 0 800 440" role="img" aria-label="Architecture diagram of Meridian AI"></svg></div>
+      <div class="box" id="archDetail" style="margin-top:10px" aria-live="polite"></div>
+    </div>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Split the process.</b> Run ingestion as a separate worker so a long upload does not share a server with chat traffic. <div class="tf"><span class="tag g">effort L</span><span class="tag g">plan L2</span></div></div>
+      <div class="opt"><b>B · Keep one process, add a router layer.</b> Move the logic that endpoints.py still holds (upload loop, status assembly) into service modules so routes stay thin. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan L4</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-mode" data-title="Local / cloud switch">
+    <div class="th"><h2>The local / cloud switch</h2><div class="files"><code class="chip">config/settings.py:37</code><code class="chip">rag/embeddings.py:28-45</code><code class="chip">rag/vector_store.py:56-62</code><code class="chip">rag/document_store.py</code></div></div>
+    <p><code>settings.is_cloud</code> is the only branch point. Every module that touches storage asks it. The default is <code>local</code>, which needs only a Gemini API key. <code>cloud</code> adds Vertex AI Vector Search, a Cloud Storage bucket and Vertex embeddings. The mode is read once and the clients are cached with <code>lru_cache</code>, so changing <code>APP_MODE</code> needs a restart.</p>
+    <div class="demo"><h3>Demo · what changes with the mode (use the local / cloud switch at the top)</h3>
+      <div class="scroll"><table id="modeTable"></table></div>
+      <div class="callout warn"><b>Indexes are not interchangeable.</b> Local vectors come from <code>gemini-embedding-001</code>, cloud vectors from <code>text-embedding-005</code>. Both are 768 dimensions, but the models differ, so a Chroma folder cannot be copied into the cloud index. Clear <code>.meridian/chroma</code> before re-indexing after a model change. <span class="tag v">VERIFIED</span></div>
+    </div>
+    <h3>Configuration reference</h3>
+    <p class="muted">Names only. Never put values in chat or in commits.</p>
+    <div class="scroll"><table id="cfgTable"></table></div>
+    <div class="callout bad">Naming trap: <code>VERTEX_LLM_MODEL_NAME</code> sets the Gemini <em>API</em> chat model in both modes (llm.py passes it with the API key). The default <code>gemini-3.8-flash</code> is listed in IMPROVEMENT_PLAN item Q8 as not yet confirmed against the live API. <span class="tag n">NOT VERIFIED</span></div>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Validate at startup.</b> Fail fast with the list of missing variables instead of waiting for the first request. Today <code>/api/health</code> is green even when the key is empty. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan DR-1</span></div></div>
+      <div class="opt"><b>B · Rename the model variable.</b> Add <code>LLM_MODEL_NAME</code> and keep the old name as an alias for one release. <div class="tf"><span class="tag g">effort S</span><span class="tag g">new idea</span></div></div>
+      <div class="opt"><b>C · Wrap the key in <code>SecretStr</code>.</b> Pydantic then hides it from repr and accidental logging. <div class="tf"><span class="tag g">effort S</span><span class="tag g">new idea</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-ingest" data-title="Ingestion pipeline">
+    <div class="th"><h2>Ingestion: PDF to vectors</h2><div class="files"><code class="chip">rag/data_ingestion.py:21-55</code><code class="chip">rag/document_store.py:22-30</code><code class="chip">api/endpoints.py:137-184</code></div></div>
+    <div class="pipe">
+      <div class="st"><b>1 · Load</b><code>PyPDFLoader</code> reads one document per page. A bad file raises <code>IngestionError</code> (HTTP 422).</div><span class="ar">→</span>
+      <div class="st"><b>2 · Label</b>Every page gets <code>source = doc://&lt;file&gt;</code> from <code>source_key()</code>.</div><span class="ar">→</span>
+      <div class="st"><b>3 · Chunk</b>Recursive splitter, <code>1000</code> characters, <code>100</code> overlap.</div><span class="ar">→</span>
+      <div class="st"><b>4 · ID</b><code>sha1(source|page|position)</code> so the same file overwrites itself.</div><span class="ar">→</span>
+      <div class="st"><b>5 · Embed + store</b><code>add_documents(chunks, ids=ids)</code>. One embedding call per batch to Gemini or Vertex.</div>
+    </div>
+    <div class="demo"><h3>Demo 1 · chunker (re-implementation of the splitting idea; separators are dropped for clarity) <span class="tag g">DEMO</span></h3>
+      <textarea id="chunkText" rows="7"></textarea>
+      <div class="row" style="margin-top:8px">
+        <label for="csize">chunk size <b id="csizeV"></b></label><input type="range" id="csize" min="60" max="1000" step="10" value="300">
+        <label for="cover">overlap <b id="coverV"></b></label><input type="range" id="cover" min="0" max="200" step="5" value="40">
+        <button class="btn sm" id="chunkReal" type="button">Use real settings (1000 / 100)</button>
+      </div>
+      <p class="stat" id="chunkStat"></p>
+      <div class="chunks" id="chunkOut"></div>
+      <p class="muted">Highlighted text at the start of a chunk is the overlap it shares with the previous chunk. Overlap stops a sentence from being cut in half at a boundary. It also means about 10% of the text is embedded twice at the real settings.</p>
+    </div>
+    <div class="demo"><h3>Demo 2 · why stable chunk IDs and one source key matter <span class="tag g">DEMO</span></h3>
+      <p>The ID is a SHA-1 of <code>source|page|position</code>. Upload and "index stored files" are two paths to the same PDF. Compare what happens when the two paths name the file differently and when they share <code>source_key()</code>.</p>
+      <div class="row"><button class="btn sm" id="idSame" type="button">Both paths use source_key()</button><button class="btn sm" id="idDiff" type="button">Paths use different names (the bug that was reproduced and fixed)</button></div>
+      <div class="grid2" style="margin-top:8px"><div class="box" id="idA"></div><div class="box" id="idB"></div></div>
+      <div id="idResult" class="callout" style="margin-top:8px"></div>
+    </div>
+    <div class="callout warn"><b>Edge case to think about.</b> <code>position</code> is the chunk's index across the whole file, not within a page. If you edit a PDF so it has fewer chunks, the old high-numbered IDs are never overwritten and stay in the store as orphans (INFERRED from the ID formula and upsert-by-ID behaviour; not tested). Scanned PDFs yield zero chunks and are reported as "skipped". There is no OCR. <span class="tag i">INFERRED</span></div>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Delete-then-add per source.</b> Remove all chunks whose source matches before adding, so edits cannot leave orphans. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N7</span><span class="tag g">risk: touches stored data</span></div></div>
+      <div class="opt"><b>B · Hash the file.</b> Store a content hash per source and skip indexing when it has not changed. Saves embedding cost on repeated uploads. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N7</span></div></div>
+      <div class="opt"><b>C · OCR fallback.</b> When a page has no text, run OCR so scanned policies become searchable. <div class="tf"><span class="tag g">effort M</span><span class="tag g">new idea</span><span class="tag g">adds a dependency</span></div></div>
+      <div class="opt"><b>D · Structure-aware chunks.</b> Split on headings and keep the heading in the chunk metadata, which helps both retrieval and citations. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan L1</span><span class="tag g">re-index needed</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-retr" data-title="Retrieval strategies">
+    <div class="th"><h2>Retrieval: three ways to find context</h2><div class="files"><code class="chip">rag/retrieval.py:53-83</code><code class="chip">rag/retrieval.py:106-121</code></div></div>
+    <p>The chain is one LCEL pipeline: <code>retriever | format_docs</code> and the question go into a prompt, then the chat model, then a string parser. The only choice is the retriever, picked by the <code>retriever_type</code> field. An unknown name falls back to <code>similarity</code> and is logged.</p>
+    <div class="demo"><h3>Demo · compare the strategies on a toy corpus <span class="tag g">DEMO</span></h3>
+      <p class="muted">Ten invented policy chunks for the fictional Aldermoor Industries. Scoring is keyword overlap, not embeddings, and the rewrites are canned. What it shows accurately is the shape of each strategy and how many model calls it makes.</p>
+      <div class="row"><label for="rq">Question</label><select id="rq"></select><input type="text" id="rqc" placeholder="or type your own" style="flex:1;min-width:160px"></div>
+      <div class="steps" id="rstrat" style="margin-block:10px" role="group" aria-label="Retriever type"></div>
+      <div class="stat" id="rstat"></div>
+      <div id="rout"></div>
+    </div>
+    <div class="grid2">
+      <div class="box"><b>similarity</b> · k=3<br>Vector search returns the 3 nearest chunks even when none is relevant. Cheapest: 1 embedding, 1 chat call.</div>
+      <div class="box"><b>multiquery</b><br>The chat model writes 3 rephrasings (structured output), all 4 queries are searched, results are merged and de-duplicated by text. 4 embeddings, 2 chat calls.</div>
+      <div class="box"><b>contextual</b> · k=10<br>Fetch 10 chunks, then one chat call per chunk copies only the relevant sentences or says <code>NO_OUTPUT</code>. 1 embedding, 11 chat calls. Slowest and most expensive.</div>
+    </div>
+    <div class="callout bad">The API returns <code>{"answer": ...}</code> only (<code>schemas.py:38</code>). The retrieved passages and their <code>doc://</code> labels are sent to the model but never returned, so a user cannot check where an answer came from. <span class="tag v">VERIFIED</span></div>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Return sources.</b> Add <code>sources: [{source, page}]</code> to <code>QueryResponse</code>, then show citation chips in the UI. Smallest change with the biggest trust gain. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan L1</span></div></div>
+      <div class="opt"><b>B · MMR or hybrid search.</b> Maximal Marginal Relevance reduces near-duplicate chunks. Hybrid (keyword + vector) helps with exact terms like part numbers and clause IDs. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan L1</span></div></div>
+      <div class="opt"><b>C · Reranker.</b> Fetch 20, rerank with a cross-encoder or a cheap model, keep 4. Better precision than raising k. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan L1</span></div></div>
+      <div class="opt"><b>D · Cheaper model for rewrite and extraction.</b> The 11 calls in <code>contextual</code> do a simple copy task. A smaller model cuts cost and latency. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan L5</span></div></div>
+      <div class="opt"><b>E · Evaluation harness.</b> 15 to 30 questions with the expected source page. Measure hit rate for each strategy before changing anything else. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan L1</span><span class="tag g">live calls cost money</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-agents" data-title="Audit agents and tools">
+    <div class="th"><h2>The three-agent audit</h2><div class="files"><code class="chip">agent/agents.py:35-105</code><code class="chip">agent/tools.py</code><code class="chip">agent/prompts.py</code></div></div>
+    <p><code>ProcurementSupervisor</code> builds three LangChain v1 agents with <code>create_agent</code>. Each has its own prompt and tools. <code>run_audit</code> calls them one after another, then a plain model call writes the CFO memo from the three reports.</p>
+    <div class="pipe">
+      <div class="st"><b>Risk &amp; Compliance</b><code>check_sanctions_list</code><br><code>get_vendor_credit_score</code></div><span class="ar">→</span>
+      <div class="st"><b>Tax &amp; Treasury</b><code>calculate_cross_border_tax</code><br><code>validate_fx_hedge</code></div><span class="ar">→</span>
+      <div class="st"><b>Financial Control</b><code>categorize_expense</code></div><span class="ar">→</span>
+      <div class="st"><b>CFO synthesis</b>One model call, no tools. Returns the memo.</div>
+    </div>
+    <h3 style="margin-top:14px">Where does each tool get its answer?</h3>
+    <div class="scroll"><table>
+      <tr><th>Tool</th><th>Source of the result</th><th>Trust</th></tr>
+      <tr><td><code>check_sanctions_list</code></td><td>Gemini, from training knowledge. No list is queried.</td><td><span class="rate gap">not a real screen</span></td></tr>
+      <tr><td><code>get_vendor_credit_score</code></td><td>Gemini estimate, returned as JSON, parsed into a score line.</td><td><span class="rate gap">estimate</span></td></tr>
+      <tr><td><code>calculate_cross_border_tax</code></td><td>Gemini, from general knowledge of VAT and duties.</td><td><span class="rate gap">estimate</span></td></tr>
+      <tr><td><code>validate_fx_hedge</code></td><td>Live rate from api.frankfurter.dev. If that fails, Gemini guesses the rate and the result says "LLM-estimated". Variance is computed in code.</td><td><span class="rate partial">live, with fallback</span></td></tr>
+      <tr><td><code>categorize_expense</code></td><td>Gemini applying CapEx / OpEx rules written in the prompt.</td><td><span class="rate partial">rules in prompt</span></td></tr>
+    </table></div>
+    <p class="muted">Source: the module docstring at the top of tools.py. <span class="tag v">VERIFIED</span></p>
+    <div class="callout bad"><b>Read this before trusting an output.</b> A "CLEARED" from the sanctions tool means "the model does not recall this name". It is not a compliance control. The CFO memo is built on those texts.</div>
+    <div class="demo"><h3>Demo · sequential versus parallel latency <span class="tag g">DEMO</span></h3>
+      <p class="muted">No timings have been measured (live Gemini runs are blocked by billing). Enter your own numbers after your first successful run. Defaults are placeholders.</p>
+      <div class="row">
+        <label>Risk <input type="number" id="lat1" value="10" min="1" max="300" style="width:70px"> s</label>
+        <label>Tax <input type="number" id="lat2" value="10" min="1" max="300" style="width:70px"> s</label>
+        <label>Control <input type="number" id="lat3" value="6" min="1" max="300" style="width:70px"> s</label>
+        <label>Synthesis <input type="number" id="lat4" value="5" min="1" max="300" style="width:70px"> s</label>
+      </div>
+      <div id="latOut" style="margin-top:10px"></div>
+    </div>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Run the three specialists concurrently.</b> They share no inputs. A <code>ThreadPoolExecutor</code> in <code>run_audit</code> is the smallest change. Watch for 429s from the provider. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan L2</span><span class="tag g">risk: architectural</span></div></div>
+      <div class="opt"><b>B · Real data for the tools.</b> (1) Label the output "model estimate" everywhere. (2) Load the public sanctions lists into a local table and fuzzy-match names. (3) Pay for a screening or credit API. Option 1 is a day. Options 2 and 3 need a data refresh process or a contract. <div class="tf"><span class="tag g">effort S / M / L</span><span class="tag g">plan N9 covers the labelling</span></div></div>
+      <div class="opt"><b>C · Verdicts in code.</b> Have tools return structured data, then compute flags such as "CapEx above 500,000" in Python, so they are tested and repeatable. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N11</span></div></div>
+      <div class="opt"><b>D · Stream progress.</b> Send an event as each phase finishes so the UI shows the audit advancing. The phase logs already exist. <div class="tf"><span class="tag g">effort M</span><span class="tag g">new idea</span></div></div>
+      <div class="opt"><b>E · Persist every audit.</b> Store request, tool outputs, model name and prompt version for an audit trail. <div class="tf"><span class="tag g">effort M</span><span class="tag g">new idea</span><span class="tag g">contains business data</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-mw" data-title="Middleware stack">
+    <div class="th"><h2>Middleware around every agent</h2><div class="files"><code class="chip">agent/middleware.py:54-68</code><code class="chip">config/settings.py:66-68</code></div></div>
+    <p>LangChain v1 middleware wraps the agent loop. Order matters: the list is applied top to bottom. All three agents share the same stack.</p>
+    <div class="demo"><h3>Demo 1 · PII redaction on the request text <span class="tag g">DEMO</span></h3>
+      <textarea id="piiIn" rows="3">Please audit PO 7781 for Takumi Controls. Contact: akira.sato@takumi-controls.example. Pay with card 4111 1111 1111 1111.</textarea>
+      <p class="mono" id="piiOut" style="background:var(--paper);border:1px solid var(--rule);padding:8px;border-radius:4px;overflow-wrap:anywhere"></p>
+      <p class="muted">Config: email → <code>redact</code>, credit card → <code>mask</code>, both with <code>apply_to_input=True</code>. Only input is covered. Names, phone numbers and bank account numbers are not detected. Exact replacement text comes from the library; the output above is an approximation.</p>
+    </div>
+    <div class="demo"><h3>Demo 2 · what reacts to a problem <span class="tag g">DEMO</span></h3>
+      <div class="steps" id="mwSteps" role="group" aria-label="Scenario"></div>
+      <div id="mwOut" class="box" style="margin-top:10px" aria-live="polite"></div>
+    </div>
+    <div class="scroll"><table>
+      <tr><th>#</th><th>Layer</th><th>Setting</th><th>Purpose</th></tr>
+      <tr><td>1</td><td><code>PIIMiddleware</code> ×2</td><td>email redact · card mask</td><td>Privacy before the model sees text</td></tr>
+      <tr><td>2</td><td><code>ModelCallLimitMiddleware</code></td><td><code>run_limit=8</code>, exit "end"</td><td>Stop a looping agent, end gracefully</td></tr>
+      <tr><td>3</td><td><code>ToolCallLimitMiddleware</code></td><td><code>run_limit=6</code>, exit "continue"</td><td>Cap tool calls per phase</td></tr>
+      <tr><td>4</td><td><code>ModelRetryMiddleware</code></td><td><code>max_retries=2</code>, 1.0 s start</td><td>Retry transient model errors with backoff</td></tr>
+      <tr><td>5</td><td><code>ToolRetryMiddleware</code></td><td><code>max_retries=2</code>, 0.5 s start</td><td>Retry flaky tools</td></tr>
+      <tr><td>6</td><td><code>log_tool_calls</code> (custom)</td><td>name, arg names, ms, result size</td><td>One log line per tool call, no values</td></tr>
+    </table></div>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Custom PII detectors.</b> Add rules for phone numbers, IBANs and tax IDs, and run redaction on tool output too. <div class="tf"><span class="tag g">effort S</span><span class="tag g">new idea</span></div></div>
+      <div class="opt"><b>B · Budget by cost, not count.</b> Count tokens per audit and stop above a ceiling. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N8, L5</span></div></div>
+      <div class="opt"><b>C · Circuit breaker.</b> After repeated 429 or 402 errors, fail fast for a minute instead of retrying every request. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N6</span></div></div>
+      <div class="opt"><b>D · Make degraded tools explicit.</b> Tools return strings like "SYSTEM WARNING ... Manual review required". Return a typed status so the supervisor can refuse to write a clean memo. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N9</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-api" data-title="API and errors">
+    <div class="th"><h2>API surface and error handling</h2><div class="files"><code class="chip">api/endpoints.py</code><code class="chip">api/main.py:45-63</code><code class="chip">exceptions/__init__.py</code></div></div>
+    <div class="scroll"><table>
+      <tr><th>Method · path</th><th>Does</th><th>Body in → out</th></tr>
+      <tr><td><code>GET /api/health</code></td><td>Liveness. Always "ok" plus the mode.</td><td>— → <code>{status, mode}</code></td></tr>
+      <tr><td><code>GET /api/status</code></td><td>Config summary for the Status tab. Makes no Google calls.</td><td>— → mode, backend, storage, vector_search, models</td></tr>
+      <tr><td><code>POST /api/rag/upload</code></td><td>Save PDFs, chunk, embed, index.</td><td>multipart <code>files</code> → <code>results[]</code></td></tr>
+      <tr><td><code>POST /api/rag/ingest</code></td><td>Index every stored PDF. Alias <code>/ingest-gcs</code> is hidden.</td><td>— → <code>{status, files, pages, chunks}</code></td></tr>
+      <tr><td><code>POST /api/rag/ask</code></td><td>Answer from the index.</td><td><code>{query, retriever_type}</code> → <code>{answer}</code></td></tr>
+      <tr><td><code>GET /api/rag/uploads</code></td><td>Upload history. Kept in memory, lost on restart.</td><td>— → <code>{uploads[]}</code></td></tr>
+      <tr><td><code>POST /api/agent/audit</code></td><td>Run the three agents and the CFO memo.</td><td><code>{request_text}</code> → 4 text fields</td></tr>
+    </table></div>
+    <div class="demo"><h3>Demo · which HTTP answer do you get? <span class="tag g">DEMO</span></h3>
+      <div class="steps" id="apiSteps" role="group" aria-label="Failure scenario"></div>
+      <pre id="apiOut" style="margin-top:10px"></pre>
+      <div id="apiNote"></div>
+    </div>
+    <p>Our own exceptions become clean responses in <code>main.py</code>: <code>ConfigurationError</code> → 503 and <code>IngestionError</code> → 422. Anything else inside a route is caught by <code>except Exception</code> and returned as 500 with <code>detail=str(e)</code>, which is the raw library message.</p>
+    <p>The static-file catch-all in <code>main.py:82-89</code> resolves the real path and checks it starts with the <code>dist</code> folder before serving. That blocks <code>../</code> path traversal. It is a good pattern to copy.</p>
+    <div class="callout bad">CORS is <code>allow_origins=["*"]</code> with <code>allow_credentials=True</code>, and there is no authentication. Anyone who can reach the service can run audits and spend your Gemini quota. <span class="tag v">VERIFIED</span></div>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Stop leaking exception text.</b> Return a fixed message plus a request ID and log the traceback. Seen live: a billing failure put the provider's message and a billing link into a 500 body. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan Q3</span></div></div>
+      <div class="opt"><b>B · Map provider errors.</b> 429 → 429 with Retry-After, 402/403 → 502 with a clear "model provider refused the request". <div class="tf"><span class="tag g">effort S</span><span class="tag g">new idea</span></div></div>
+      <div class="opt"><b>C · Input limits.</b> <code>request_text</code> has no length limit. Add <code>Field(max_length=...)</code>, an upload size cap and a page cap. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan Q6</span></div></div>
+      <div class="opt"><b>D · Access control.</b> Shared API key via a FastAPI dependency (hours), Cloud IAP or Cloud Run IAM in cloud mode, or OIDC with per-user rate limits. The right one depends on who the users are. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N1</span><span class="tag g">needs your decision</span></div></div>
+      <div class="opt"><b>E · Real readiness check.</b> Keep <code>/health</code> for liveness. Add <code>/ready</code> that confirms config is present and the store opens. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan DR-2</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-fe" data-title="Frontend">
+    <div class="th"><h2>Frontend</h2><div class="files"><code class="chip">frontend/src/lib/api.ts</code><code class="chip">components/AuditTab.tsx</code><code class="chip">components/RagQATab.tsx</code><code class="chip">components/DocumentUploadTab.tsx</code><code class="chip">components/SystemStatusTab.tsx</code></div></div>
+    <p>A Vite + React + TypeScript app with shadcn-style UI components. <code>pages/Index.tsx</code> hosts four tab components, one per feature. All network calls go through <code>lib/api.ts</code>.</p>
+    <ul>
+      <li><b>Base URL.</b> <code>VITE_API_URL</code> if set, else <code>http://localhost:8080</code> in dev, else same origin. In Docker the backend serves the built app, so same origin works with no CORS.</li>
+      <li><b>One fetch wrapper.</b> <code>request()</code> throws <code>Error(body.detail || "HTTP status")</code>. That is why a raw backend message ends up on screen.</li>
+      <li><b>Mode awareness.</b> <code>SystemStatus.mode</code> is typed <code>"local" | "cloud"</code>. The Upload and Status tabs word their labels from it.</li>
+      <li><b>Tests.</b> Characterization tests for <code>AuditTab</code> and <code>RagQATab</code> pin current behaviour. They were deliberately left untouched in the merge.</li>
+    </ul>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Generate the API types.</b> Run <code>openapi-typescript</code> against <code>/openapi.json</code> so <code>api.ts</code> cannot drift from <code>schemas.py</code>. <div class="tf"><span class="tag g">effort S</span><span class="tag g">new idea</span></div></div>
+      <div class="opt"><b>B · Show sources and audit progress.</b> Pair with the backend changes in the retrieval and agents topics. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan L1</span></div></div>
+      <div class="opt"><b>C · Lint clean-up.</b> The baseline is 16 lint findings. Fix them as one commit. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan L6</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-ship" data-title="Build, test, deploy">
+    <div class="th"><h2>Build, test and deploy</h2><div class="files"><code class="chip">Dockerfile</code><code class="chip">.github/workflows/deploy.yml</code><code class="chip">backend/tests/</code><code class="chip">requirements.txt</code></div></div>
+    <div class="pipe">
+      <div class="st"><b>Stage 1 · frontend</b>node 20, <code>npm ci</code>, <code>npm run build</code></div><span class="ar">→</span>
+      <div class="st"><b>Stage 2 · python</b>venv at <code>/opt/venv</code>, <code>pip install -r requirements.txt</code></div><span class="ar">→</span>
+      <div class="st"><b>Stage 3 · runtime</b>copy venv, backend and <code>dist</code>. Non-root user (uid 10001), <code>HEALTHCHECK</code>, writable <code>/app/.meridian</code>, <code>exec uvicorn</code></div>
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="box"><b>Dependencies</b><br>LangChain v1 core. Local group: <code>langchain-chroma</code>, <code>chromadb</code>. Cloud group: <code>langchain-google-vertexai</code>, <code>google-cloud-aiplatform</code>, <code>google-cloud-storage</code>. Cloud imports are lazy so local mode never loads them.</div>
+      <div class="box"><b>Tests (offline)</b><br>Backend 20: 9 in <code>test_api.py</code>, 11 in <code>test_modes_and_middleware.py</code>. Frontend 16. They use fakes, so no Gemini key is needed. One test uploads a real PDF and checks that indexing the stored copy does not duplicate chunks.</div>
+      <div class="box"><b>Deploy</b><br><code>deploy.yml</code> runs by manual dispatch only and sets <code>APP_MODE=cloud</code>. It is not run from here.</div>
+    </div>
+    <div class="callout warn"><b>What is not proven yet.</b> Docker build and non-root run, live Gemini calls (upload, three retrievers, ingest, audit) and every cloud step are <span class="tag n">NOT VERIFIED</span>. The live run stopped on a Gemini billing error (HTTP 402), not on a code fault.</div>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · CI on every pull request.</b> pytest, vitest, <code>tsc</code>, lint. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N4</span></div></div>
+      <div class="opt"><b>B · Supply chain.</b> Dependabot plus <code>pip-audit</code>, pin Actions by commit SHA, add a backend lock file. <div class="tf"><span class="tag g">effort S–M</span><span class="tag g">plan Q12, N3, DR-5</span></div></div>
+      <div class="opt"><b>C · Staged release.</b> Replace manual deploy with a release workflow using Workload Identity Federation: staging automatic, production behind approval. <div class="tf"><span class="tag g">effort L</span><span class="tag g">runbook Phase 7</span></div></div>
+      <div class="opt"><b>D · Real SIGTERM handling.</b> Confirm the container stops cleanly and cancels in-flight audits. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan DR-3</span></div></div>
+    </div></details>
+  </section>
+
+  <section class="topic" id="t-obs" data-title="Logging">
+    <div class="th"><h2>Logging and observability</h2><div class="files"><code class="chip">logger/custom_logger.py</code><code class="chip">agent/middleware.py:36-51</code></div></div>
+    <p>structlog writes JSON lines to the console and to <code>./logs/&lt;timestamp&gt;.log</code>. A processor adds a <code>severity</code> field so Cloud Logging reads levels correctly. In cloud mode the file is also uploaded to Cloud Storage on shutdown, because Cloud Run's disk disappears.</p>
+    <p>The repo rule is to log sizes and IDs, never user content. Examples: <code>query_chars</code>, <code>answer_chars</code>, <code>arg_names</code>, <code>result_chars</code>, <code>error_type</code>. The retrieval, agent and middleware logs follow it. The error handlers in <code>main.py</code> log <code>str(exc)</code>, which can contain provider text.</p>
+    <details class="improve"><summary>Improvement options</summary><div class="opts">
+      <div class="opt"><b>A · Request ID.</b> Middleware that adds an ID to every log line and every error response. <div class="tf"><span class="tag g">effort S</span><span class="tag g">plan N8</span></div></div>
+      <div class="opt"><b>B · Metrics.</b> Count model calls, tool calls, latency and estimated tokens per audit and per question. This is how you would see the 11-call retriever in practice. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan N8</span></div></div>
+      <div class="opt"><b>C · Move logs out of the document bucket.</b> A separate bucket gets its own permissions and retention. <div class="tf"><span class="tag g">effort M</span><span class="tag g">plan L3</span></div></div>
+    </div></details>
+  </section>
+
+  </div>
+</div>
+
+<!-- ============================ FUNCTIONAL ============================ -->
+<div id="tab-functional" class="panel" role="tabpanel" hidden>
+  <h2>What the system does for its users</h2>
+  <p class="lead">Aldermoor Industries (fictional) buys equipment from vendors in many countries. A procurement analyst needs two things: quick answers from policy documents, and a second opinion on a purchase request before payment. Meridian provides both. There are no user accounts, so everyone who can open the app sees the same documents.</p>
+
+  <h3 style="margin-block:16px 8px">A first session, step by step</h3>
+  <div class="steps" id="journey" role="group" aria-label="User journey"></div>
+  <div class="box" id="journeyOut" style="margin-top:10px" aria-live="polite"></div>
+
+  <h3 style="margin-block:22px 8px">Capabilities</h3>
+  <div class="cards" id="funcCards"></div>
+
+  <h3 style="margin-block:22px 8px">Business rules, and who enforces them</h3>
+  <p class="muted">Only the FX check is enforced by code. The others are instructions in a prompt, so the model applies them and the outcome can vary.</p>
+  <div class="grid2">
+    <div class="box"><h3>FX hedge check <span class="tag v">IN CODE</span></h3>
+      <p class="muted">variance = |rate used − market| ÷ market; above 5% is an alert (<code>tools.py</code>, <code>validate_fx_hedge</code>).</p>
+      <div class="row"><label>Market <input type="number" id="fxM" value="163.5" step="0.1" style="width:90px"></label><label>Used <input type="number" id="fxU" value="170" step="0.1" style="width:90px"></label></div>
+      <p id="fxOut" class="mono"></p></div>
+    <div class="box"><h3>Credit score bands <span class="tag i">IN PROMPT</span></h3>
+      <p class="muted">The prompt asks for 75–100 LOW, 50–74 MODERATE, 0–49 HIGH, and 45 for an unknown vendor.</p>
+      <div class="row"><label>Score <input type="number" id="crS" value="45" min="0" max="100" style="width:80px"></label></div>
+      <p id="crOut" class="mono"></p></div>
+    <div class="box"><h3>CapEx / OpEx flags <span class="tag i">IN PROMPT</span></h3>
+      <p class="muted">CapEx above 500,000 needs CFO sign-off. OpEx above 100,000 is a possible misclassification.</p>
+      <div class="row"><label>Amount <input type="number" id="cxA" value="480000" step="1000" style="width:110px"></label>
+      <label><select id="cxT"><option>CapEx</option><option>OpEx</option></select></label></div>
+      <p id="cxOut" class="mono"></p></div>
+  </div>
+
+  <h3 style="margin-block:22px 8px">Sample audit request (from <code>agents.py</code>)</h3>
+<pre>Purchase Request — Aldermoor Industries Global Procurement:
+- Vendor: Takumi Controls Europe B.V. (Netherlands)
+- Item: Industrial PLC Controllers + HMI Panels (Qty: 200)
+- Total Cost: 480,000 EUR
+- Origin: JP (Japan)   Destination: DE (Hamburg, Germany)
+- FX Rate quoted: 1 EUR = 163.5 JPY</pre>
+  <p>The response has four texts: <code>risk_result</code>, <code>tax_result</code>, <code>control_result</code> and <code>cfo_memo</code>.</p>
+
+  <h3 style="margin-block:22px 8px">Out of scope today</h3>
+  <ul>
+    <li>Login, roles, per-user history.</li>
+    <li>File types other than PDF; scanned PDFs without text.</li>
+    <li>Deleting or listing stored documents from the UI. The upload list is in memory and resets on restart.</li>
+    <li>Saving or exporting audit results.</li>
+    <li>Showing which passage an answer came from.</li>
+  </ul>
+</div>
+
+<!-- ============================ NFR ============================ -->
+<div id="tab-nfr" class="panel" role="tabpanel" hidden>
+  <h2>Non-functional qualities</h2>
+  <p class="lead">Ratings are my judgement from reading the code and the improvement plan. They are not test results. Anything that needs a live run says so.</p>
+  <div class="chips" id="nfrFilter" role="group" aria-label="Filter by rating"></div>
+  <div class="stat" id="nfrStat" style="margin-bottom:10px"></div>
+  <div class="cards" id="nfrCards"></div>
+
+  <div class="demo" style="margin-top:22px"><h3>Calculator · how many model calls can one audit make? <span class="tag g">DEMO</span></h3>
+    <p class="muted">Each agent is capped by the two limits below. A tool that asks Gemini costs one more call. The ceiling is what the caps allow, not what usually happens.</p>
+    <div class="row">
+      <label>AGENT_MAX_MODEL_CALLS <input type="range" id="lmM" min="1" max="20" value="8"> <b id="lmMv"></b></label>
+      <label>AGENT_MAX_TOOL_CALLS <input type="range" id="lmT" min="1" max="20" value="6"> <b id="lmTv"></b></label>
+    </div>
+    <div id="lmOut" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- ============================ IMPROVE ============================ -->
+<div id="tab-improve" class="panel" role="tabpanel" hidden>
+  <h2>Improvement options</h2>
+  <p class="lead">Each card has options with their trade-offs. Tick the ones you want to study or try. Your list is kept in this browser. Items marked "plan" match <code>docs/IMPROVEMENT_PLAN.md</code>; "new idea" means the plan does not cover it yet. Nothing here changes the repo.</p>
+  <div class="plan"><b>My plan</b> <span class="muted" id="planCount"></span><ol id="planList"></ol></div>
+  <div class="chips" id="impArea" role="group" aria-label="Filter by area"></div>
+  <div class="chips" id="impEffort" role="group" aria-label="Filter by effort"></div>
+  <div class="cards" id="impCards"></div>
+</div>
+
+<!-- ============================ CHECK ============================ -->
+<div id="tab-check" class="panel" role="tabpanel" hidden>
+  <h2>Self-check</h2>
+  <p class="lead">Twelve questions drawn from the code. Pick an answer to see the explanation.</p>
+  <p class="stat"><span>Score <b id="qScore">0</b> / <span id="qTotal">0</span></span><button class="btn sm" id="qReset" type="button">Reset</button></p>
+  <div id="quiz"></div>
+</div>
+
+<footer class="page">Built 12 Oct 2026 from the code on branch <code>merge/mentor-v1.1</code> (mentor v1.1 merged into the course project). Sections cite file and line numbers as read on that date. No secrets were read. Live Gemini runs and Docker are still <span class="tag n">NOT VERIFIED</span>.</footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem('mer.'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('mer.'+k,JSON.stringify(v))}catch(e){}}};
+let mode=store.get('mode','local'); if(mode!=='local'&&mode!=='cloud')mode='local';
+
+/* ---------- theme ---------- */
+const themes=['system','light','dark']; let ti=themes.indexOf(store.get('theme','system')); if(ti<0)ti=0;
+function applyTheme(){const t=themes[ti];if(t==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);$('#themeBtn').textContent='Theme: '+t}
+$('#themeBtn').addEventListener('click',()=>{ti=(ti+1)%3;store.set('theme',themes[ti]);applyTheme()});
+applyTheme();
+
+/* ---------- tabs ---------- */
+const TABS=['technical','functional','nfr','improve','check'];
+function showTab(name){
+  if(!TABS.includes(name))name='technical';
+  TABS.forEach(t=>{const el=$('#tab-'+t);el.hidden=(t!==name);const b=$('[data-tab="'+t+'"]');b.setAttribute('aria-selected',String(t===name))});
+  $('.intro').hidden=(name!=='technical');
+}
+$$('.tabs button').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.tab;showTab(t);try{history.replaceState(null,'','#'+t)}catch(e){}window.scrollTo({top:0})}));
+window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
+
+/* ---------- mode switch ---------- */
+function setMode(m){
+  mode=m;store.set('mode',m);
+  $$('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+  renderArch();renderModeTable();
+}
+$$('.seg button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+
+/* ---------- topics: sidebar + studied ---------- */
+const topics=$$('.topic');
+let studied=new Set(store.get('studied',[]));
+const side=$('#side');
+topics.forEach(t=>{
+  const b=document.createElement('button');b.type='button';b.textContent=t.dataset.title;b.dataset.for=t.id;
+  b.addEventListener('click',()=>t.scrollIntoView({behavior:'smooth',block:'start'}));
+  side.appendChild(b);
+  const f=document.createElement('div');f.className='foot';
+  const mb=document.createElement('button');mb.type='button';mb.className='btn';mb.dataset.t=t.id;
+  mb.addEventListener('click',()=>{studied.has(t.id)?studied.delete(t.id):studied.add(t.id);store.set('studied',[...studied]);refreshStudied()});
+  f.appendChild(mb);t.appendChild(f);
+});
+function refreshStudied(){
+  topics.forEach(t=>{const done=studied.has(t.id);const mb=$('.foot .btn',t);mb.textContent=done?'Studied ✓ (undo)':'Mark as studied';mb.classList.toggle('on',done);
+    $('.side button[data-for="'+t.id+'"]').classList.toggle('done',done)});
+  const n=topics.filter(t=>studied.has(t.id)).length;
+  $('#progLabel').textContent=n+' of '+topics.length+' technical topics studied';
+  $('#progBar').style.width=(100*n/topics.length)+'%';
+}
+if('IntersectionObserver' in window){
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){$$('.side button').forEach(b=>b.classList.toggle('cur',b.dataset.for===e.target.id))}})},{rootMargin:'-160px 0px -65% 0px'});
+  topics.forEach(t=>io.observe(t));
+}
+
+/* ---------- architecture ---------- */
+const NODES=[
+ {id:'ui',x:10,y:176,w:140,h:56,t:'React UI',s:()=>'frontend/src',d:'Four tab components (Audit, RAG Q&A, Upload, Status) call one fetch wrapper, lib/api.ts. In Docker the same FastAPI process serves the built files, so there is no CORS step.',f:'Backend errors surface as the message in body.detail, so raw server text reaches the screen.'},
+ {id:'api',x:190,y:176,w:150,h:56,t:'FastAPI',s:()=>'main.py · endpoints.py',d:'Seven routes in four routers, thin by design: validate, call the logic, return JSON. main.py maps ConfigurationError to 503 and IngestionError to 422, sets CORS, and serves the SPA catch-all.',f:'No authentication. CORS allows every origin. Unexpected exceptions become 500 with the raw message.'},
+ {id:'rag',x:390,y:56,w:170,h:56,t:'RAG pipeline',s:()=>'data_ingestion · retrieval',d:'Ingest: PDF → pages → chunks → IDs → embeddings → store. Ask: retriever → prompt → chat model → string. Strategies: similarity, multiquery, contextual.',f:'No sources returned. No timeout or retry options on the RAG model calls.'},
+ {id:'agent',x:390,y:296,w:170,h:56,t:'Audit agents',s:()=>'agents · tools · middleware',d:'ProcurementSupervisor runs Risk, Tax and Control agents in sequence, then a CFO synthesis call. Every agent runs inside the same middleware stack.',f:'Four of five tools are model guesses, not data lookups. Sequential execution makes latency the sum of all phases.'},
+ {id:'emb',x:596,y:6,w:200,h:56,t:'Embeddings',s:()=>mode==='cloud'?'Vertex · text-embedding-005':'Gemini · gemini-embedding-001',d:'GoogleGenerativeAIEmbeddings serves both modes (vertexai=True in cloud). Output is 768 dimensions. The same model must index and query.',f:'Local mode still needs the Gemini key and credit. It is not an offline mode.'},
+ {id:'vec',x:596,y:84,w:200,h:56,t:'Vector store',s:()=>mode==='cloud'?'Vertex AI Vector Search':'Chroma · .meridian/chroma',d:'Both are LangChain VectorStore objects, so ingestion and retrieval code never knows which one it has. Cloud uses stream updates to match the index.',f:'Cloud: missing index or endpoint IDs give a 503 that names each empty variable. Local: one folder, one process.'},
+ {id:'docs',x:596,y:162,w:200,h:56,t:'Document store',s:()=>mode==='cloud'?'GCS bucket · uploads/':'.meridian/uploads',d:'Keeps the original PDF. Three operations: save, pdfs, source_key. Cloud downloads PDFs to a temp folder and cleans it up.',f:'If saving the original fails, indexing still proceeds and only a warning is logged.'},
+ {id:'llm',x:596,y:296,w:200,h:56,t:'Chat model',s:()=>'Gemini API · key, both modes',d:'ChatGoogleGenerativeAI built on first use and cached. Used by RAG answers, query rewriting, extraction, every tool and the CFO memo.',f:'Empty key gives ConfigurationError (503). A billing failure (402) arrives as a raw 500 today.'},
+ {id:'cfg',x:190,y:372,w:370,h:46,t:'Cross-cutting',s:()=>'settings · exceptions · logger',d:'settings.py reads .env once. exceptions/ defines MeridianError, ConfigurationError, IngestionError. logger/ writes JSON lines with a severity field.',f:'Logger configures global logging at import time (plan L7).'}
+];
+const EDGES=[['ui','api'],['api','rag'],['api','agent'],['rag','emb'],['rag','vec'],['rag','docs'],['rag','llm'],['agent','llm'],['api','cfg','dash']];
+let selNode='api';
+function renderArch(){
+  const by=Object.fromEntries(NODES.map(n=>[n.id,n]));
+  const cx=n=>n.x+n.w/2, cy=n=>n.y+n.h/2;
+  let s='';
+  EDGES.forEach(e=>{const a=by[e[0]],b=by[e[1]];s+=`<line class="${e[2]||''}" x1="${cx(a)}" y1="${cy(a)}" x2="${cx(b)}" y2="${cy(b)}"/>`});
+  NODES.forEach(n=>{
+    s+=`<g class="nd${n.id===selNode?' sel':''}" tabindex="0" role="button" data-id="${n.id}" aria-label="${esc(n.t)}"><rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="4"/><text class="t1" x="${n.x+10}" y="${n.y+23}">${esc(n.t)}</text><text class="t2" x="${n.x+10}" y="${n.y+40}">${esc(n.s())}</text></g>`;
+  });
+  $('#archSvg').innerHTML=s;
+  const n=by[selNode];
+  $('#archDetail').innerHTML=`<b>${esc(n.t)}</b> <code class="chip">${esc(n.s())}</code><p>${esc(n.d)}</p><p><span class="tag n">WATCH</span> ${esc(n.f)}</p>`;
+  $$('#archSvg .nd').forEach(g=>{const pick=()=>{selNode=g.dataset.id;renderArch()};g.addEventListener('click',pick);g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}})});
+}
+
+/* ---------- mode table + config ---------- */
+function renderModeTable(){
+  const rows=[
+   ['Vector store','Chroma, saved to .meridian/chroma','Vertex AI Vector Search (index + endpoint IDs)'],
+   ['Original PDFs','.meridian/uploads/','gs://<bucket>/<prefix>'],
+   ['Embedding model','gemini-embedding-001 via Gemini API','text-embedding-005 via Vertex AI'],
+   ['Chat model','Gemini API with GOOGLE_API_KEY','Gemini API with GOOGLE_API_KEY (Cloud Run injects it)'],
+   ['Credentials needed','GOOGLE_API_KEY only','API key + GCP project, bucket, index, endpoint, service identity'],
+   ['If a setting is missing','503 "needs GOOGLE_API_KEY"','503 listing every empty variable by name'],
+   ['Log files','./logs only','./logs, then uploaded to GCS on shutdown'],
+   ['Scale','One process, one disk','Managed vector service; stateless container']
+  ];
+  $('#modeTable').innerHTML='<tr><th>Aspect</th><th'+(mode==='local'?' style="color:var(--accent)"':'')+'>local</th><th'+(mode==='cloud'?' style="color:var(--accent)"':'')+'>cloud</th></tr>'+
+    rows.map(r=>`<tr><td>${esc(r[0])}</td><td${mode==='local'?' style="background:var(--accent-soft)"':''}>${esc(r[1])}</td><td${mode==='cloud'?' style="background:var(--accent-soft)"':''}>${esc(r[2])}</td></tr>`).join('');
+}
+const CFG=[
+ ['APP_MODE','local','Chooses local or cloud. Read once; restart to change.'],
+ ['GOOGLE_API_KEY','(empty) · secret','Chat model in both modes; embeddings in local mode.'],
+ ['VERTEX_LLM_MODEL_NAME','gemini-3.8-flash','Chat model name. Misleading variable name; default unconfirmed (Q8).'],
+ ['LLM_TEMPERATURE','0.0','0 gives the most repeatable answers.'],
+ ['LOCAL_EMBEDDING_MODEL_NAME','gemini-embedding-001','Local embeddings.'],
+ ['VERTEX_EMBEDDING_MODEL_NAME','text-embedding-005','Cloud embeddings. Must output 768 dimensions to match the index.'],
+ ['LOCAL_DATA_DIR','<project>/.meridian','Parent of chroma/ and uploads/.'],
+ ['CHROMA_COLLECTION','meridian_docs','Chroma collection name.'],
+ ['GCP_PROJECT_ID · GCP_REGION','(empty) · us-central1','Cloud only.'],
+ ['GCS_BUCKET_NAME · GCS_PREFIX','(empty) · uploads/','Cloud documents. A prefix without a trailing slash gets one added.'],
+ ['VECTOR_SEARCH_INDEX_ID · …ENDPOINT_ID','(empty)','Cloud only. Both required.'],
+ ['GCP_SERVICE_ACCOUNT_PATH','(empty)','Cloud on a laptop only. On Cloud Run the service identity is used.'],
+ ['AGENT_MAX_MODEL_CALLS','8','Per agent run. Ends the phase gracefully.'],
+ ['AGENT_MAX_TOOL_CALLS','6','Per agent run.'],
+ ['AGENT_MAX_RETRIES','2','Model and tool retries.'],
+ ['ENVIRONMENT','local','Label only.']
+];
+$('#cfgTable').innerHTML='<tr><th>Variable</th><th>Default</th><th>Effect</th></tr>'+CFG.map(r=>`<tr><td><code>${esc(r[0])}</code></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('');
+
+/* ---------- chunker (teaching re-implementation) ---------- */
+const SAMPLE=`Aldermoor Industries Procurement Policy (sample text)\n\n1. Approvals. Purchases above 250,000 EUR require approval from the CFO and a second signature from the Head of Procurement. Approvals must be recorded before the purchase order is released.\n\n2. Vendors. All new vendors must be screened against sanctions lists before onboarding. Vendors located in high-risk jurisdictions require enhanced due diligence, including beneficial ownership checks.\n\n3. Foreign currency. Purchases above 100,000 EUR must use the treasury desk's hedged rate. A rate that differs from the market rate by more than 5 percent must be escalated to Treasury before payment.`;
+function splitText(text,size,overlap){
+  function merge(splits,sep){
+    const out=[];let cur=[];let total=0;const sl=sep.length;
+    for(const d of splits){
+      const l=d.length;
+      if(total+l+(cur.length?sl:0)>size){
+        if(cur.length){
+          out.push(cur.join(sep).trim());
+          while(total>overlap||(total+l+(cur.length?sl:0)>size&&total>0)){
+            total-=cur[0].length+(cur.length>1?sl:0);cur.shift();
+          }
+        }
+      }
+      cur.push(d);total+=l+(cur.length>1?sl:0);
+    }
+    if(cur.length)out.push(cur.join(sep).trim());
+    return out.filter(x=>x);
+  }
+  function rec(t,seps){
+    let sep=seps[seps.length-1],rest=[];
+    for(let i=0;i<seps.length;i++){const s=seps[i];if(s===''){sep=s;rest=[];break}if(t.includes(s)){sep=s;rest=seps.slice(i+1);break}}
+    const parts=(sep===''?t.split(''):t.split(sep)).filter(x=>x!=='');
+    const final=[];let good=[];
+    for(const p of parts){
+      if(p.length<size)good.push(p);
+      else{ if(good.length){final.push(...merge(good,sep));good=[]}
+        if(!rest.length)final.push(p);else final.push(...rec(p,rest)); }
+    }
+    if(good.length)final.push(...merge(good,sep));
+    return final;
+  }
+  return rec(text,['\n\n','\n',' ','']);
+}
+window.__splitText=splitText;
+function renderChunks(){
+  const size=+$('#csize').value,ov=Math.min(+$('#cover').value,size-1);
+  $('#csizeV').textContent=size;$('#coverV').textContent=ov;
+  const ch=splitText($('#chunkText').value,size,ov);
+  const total=ch.reduce((a,c)=>a+c.length,0),src=$('#chunkText').value.length;
+  $('#chunkStat').innerHTML=`<span>text <b>${src}</b> chars</span><span>chunks <b>${ch.length}</b></span><span>embedded <b>${total}</b> chars</span><span>extra from overlap <b>${src?Math.max(0,Math.round(100*(total-src)/src)):0}%</b></span>`;
+  $('#chunkOut').innerHTML=ch.map((c,i)=>{
+    let k=0;
+    if(i>0){const p=ch[i-1];for(let n=Math.min(p.length,c.length,ov+20);n>0;n--){if(p.endsWith(c.slice(0,n))){k=n;break}}}
+    return `<div class="chunk"><span class="meta">chunk ${i} · ${c.length} chars</span>${k?`<span class="ov">${esc(c.slice(0,k))}</span>${esc(c.slice(k))}`:esc(c)}</div>`;
+  }).join('');
+}
+$('#chunkText').value=SAMPLE;
+['csize','cover','chunkText'].forEach(id=>$('#'+id).addEventListener('input',renderChunks));
+$('#chunkReal').addEventListener('click',()=>{$('#csize').value=1000;$('#cover').value=100;renderChunks()});
+
+/* ---------- sha1 + id demo ---------- */
+function sha1(str){
+  const bytes=new TextEncoder().encode(str),l=bytes.length,padLen=((l+9+63)>>6)<<6;
+  const buf=new Uint8Array(padLen);buf.set(bytes);buf[l]=0x80;
+  const dv=new DataView(buf.buffer);dv.setUint32(padLen-4,(l*8)>>>0);dv.setUint32(padLen-8,Math.floor(l*8/4294967296));
+  let h0=0x67452301,h1=0xEFCDAB89,h2=0x98BADCFE,h3=0x10325476,h4=0xC3D2E1F0;const w=new Uint32Array(80);
+  for(let o=0;o<padLen;o+=64){
+    for(let i=0;i<16;i++)w[i]=dv.getUint32(o+i*4);
+    for(let i=16;i<80;i++){const x=w[i-3]^w[i-8]^w[i-14]^w[i-16];w[i]=(x<<1)|(x>>>31)}
+    let a=h0,b=h1,c=h2,d=h3,e=h4;
+    for(let i=0;i<80;i++){let f,k;
+      if(i<20){f=(b&c)|(~b&d);k=0x5A827999}else if(i<40){f=b^c^d;k=0x6ED9EBA1}else if(i<60){f=(b&c)|(b&d)|(c&d);k=0x8F1BBCDC}else{f=b^c^d;k=0xCA62C1D6}
+      const t=((((a<<5)|(a>>>27))+f+e+k+w[i])>>>0);e=d;d=c;c=((b<<30)|(b>>>2))>>>0;b=a;a=t;}
+    h0=(h0+a)>>>0;h1=(h1+b)>>>0;h2=(h2+c)>>>0;h3=(h3+d)>>>0;h4=(h4+e)>>>0;
+  }
+  return [h0,h1,h2,h3,h4].map(x=>x.toString(16).padStart(8,'0')).join('');
+}
+window.__sha1=sha1;
+function idDemo(same){
+  const a='doc://quarterly_policy.pdf', b=same?a:'/app/.meridian/uploads/quarterly_policy.pdf';
+  const rowFor=(label,src)=>`<b>${esc(label)}</b><br><span class="muted">source</span> <code>${esc(src)}</code><br><span class="muted">key</span> <code>${esc(src)}|0|0</code><br><span class="muted">id</span> <code>${sha1(src+'|0|0').slice(0,16)}…</code>`;
+  $('#idA').innerHTML=rowFor('Path 1 · upload route',a);
+  $('#idB').innerHTML=rowFor('Path 2 · "index stored files"',b);
+  const r=$('#idResult');
+  if(same){r.className='callout';r.innerHTML='<b>Same ID, so the second write replaces the first.</b> The store holds 1 copy of this chunk. This is how <code>source_key()</code> behaves now.'}
+  else{r.className='callout bad';r.innerHTML='<b>Different IDs, so both are kept.</b> The same text is stored twice and retrieval returns duplicates. Illustrative names; the real bug was reproduced as 1 chunk after upload and 2 after ingest, then fixed by sharing <code>source_key()</code>.'}
+}
+$('#idSame').addEventListener('click',()=>idDemo(true));$('#idDiff').addEventListener('click',()=>idDemo(false));
+
+/* ---------- retrieval demo ---------- */
+const CORPUS=[
+ ['procurement_policy.pdf',1,'Purchases above 250,000 EUR require approval from the CFO and a second signature from the Head of Procurement. Approvals must be recorded before the purchase order is released.'],
+ ['procurement_policy.pdf',2,'All new vendors must be screened against sanctions lists before onboarding. Vendors located in high-risk jurisdictions require enhanced due diligence, including beneficial ownership checks.'],
+ ['tax_guide.pdf',1,'Cross-border purchases within the EU are subject to reverse-charge VAT. Imports from outside the EU attract import duty based on the customs tariff code of the goods.'],
+ ['tax_guide.pdf',2,'Import VAT is paid at the border and may be reclaimed in the next VAT return. Keep the customs declaration as evidence for the reclaim.'],
+ ['treasury_manual.pdf',1,"Foreign-currency purchases above 100,000 EUR must use the treasury desk's hedged rate. A rate that differs from the market rate by more than 5 percent must be escalated to Treasury before payment."],
+ ['treasury_manual.pdf',2,'Forward contracts are booked by Treasury only. Business units may not enter into currency contracts directly.'],
+ ['capex_rules.pdf',1,'Assets with a useful life above one year are capitalised as CapEx and depreciated. Machinery is typically depreciated over five to ten years. IT equipment is depreciated over three to five years.'],
+ ['capex_rules.pdf',2,'Capital purchases above 500,000 EUR need additional CFO sign-off. Operating expenses above 100,000 EUR must be reviewed for possible misclassification.'],
+ ['vendor_onboarding.pdf',1,'Vendors are scored for creditworthiness before the first order. A score below 50 is treated as high risk and needs a written justification from the requesting department.'],
+ ['vendor_onboarding.pdf',2,'Office supplies and subscriptions are operating expenses and are exempt from the vendor scoring requirement when annual spend is below 10,000 EUR.']
+];
+const QS=[
+ ['Who must approve a large purchase?',['Which approvals are needed for expensive orders?','What sign-off is required above the approval threshold?','Who signs off on big procurement spend?']],
+ ['What happens if the FX rate differs from the market?',['What is the rule for exchange rate variance?','When must Treasury be told about a rate difference?','How large a currency rate gap needs escalation?']],
+ ['How long is machinery depreciated?',['Depreciation period for equipment','Useful life in years for machines capitalised as assets','How are capital assets written off over time?']]
+];
+const STOP=new Set('the and for are but not you all any can had her was one our out has have must with from that this what when how who which into than then them they will would there their about after before over under more most only some such very also may its'.split(' '));
+const stem=w=>w.replace(/(ing|ed|es|s)$/,'');
+const toks=t=>Array.from(new Set((t.toLowerCase().match(/[a-z0-9]{3,}/g)||[]).filter(w=>!STOP.has(w)).map(stem)));
+function score(q,d){const qt=toks(q),dt=new Set(toks(d));if(!qt.length)return 0;return qt.filter(w=>dt.has(w)).length/qt.length}
+function search(q,k){return CORPUS.map((c,i)=>({i,s:score(q,c[2])})).sort((a,b)=>b.s-a.s||a.i-b.i).slice(0,k)}
+let rStrat='similarity';
+const STR=['similarity','multiquery','contextual'];
+function renderRetr(){
+  const sel=$('#rq');const custom=$('#rqc').value.trim();
+  const qi=+sel.value;const q=custom||QS[qi][0];
+  const rewrites=custom?[q+' (rephrased 1)',q+' (rephrased 2)',q+' (rephrased 3)']:QS[qi][1];
+  let docs=[],steps='',emb=1,llm=1;
+  const hitHtml=(h,extra='')=>{const c=CORPUS[h.i];return `<div class="hit"><div class="bar" style="width:70px"><i style="width:${Math.round(h.s*100)}%"></i></div><div><code class="chip">doc://${esc(c[0])} p${c[1]}</code> ${extra}<br>${esc(c[2])}</div></div>`};
+  if(rStrat==='similarity'){
+    const h=search(q,3);docs=h.map(x=>({i:x.i,text:CORPUS[x.i][2]}));
+    steps=`<h3>1 · nearest 3 chunks</h3>${h.map(x=>hitHtml(x)).join('')}`;
+  }else if(rStrat==='multiquery'){
+    emb=4;llm=2;const seen=new Set();let body='';
+    [q,...rewrites].forEach((qq,n)=>{const h=search(qq,3);body+=`<p><b>${n?'rewrite '+n:'original'}:</b> ${esc(qq)}</p>`+h.map(x=>{const dup=seen.has(x.i);if(!dup){seen.add(x.i);docs.push({i:x.i,text:CORPUS[x.i][2]})}return `<div class="hit${dup?' out':''}"><div class="bar" style="width:70px"><i style="width:${Math.round(x.s*100)}%"></i></div><div><code class="chip">doc://${esc(CORPUS[x.i][0])} p${CORPUS[x.i][1]}</code> ${dup?'<span class="tag g">duplicate, dropped</span>':'<span class="tag v">kept</span>'}</div></div>`}).join('')});
+    steps=`<h3>1 · model writes 3 rewrites (structured output), then 4 searches of k=3</h3>${body}`;
+  }else{
+    emb=1;const h=search(q,10);llm=1;let body='';
+    h.forEach(x=>{
+      const sents=CORPUS[x.i][2].split(/(?<=\.)\s+/);const qt=new Set(toks(q));
+      const keep=sents.filter(s=>toks(s).some(w=>qt.has(w)));
+      llm++;
+      if(keep.length){docs.push({i:x.i,text:keep.join(' ')});body+=hitHtml(x,'<span class="tag v">extracted</span>').replace(esc(CORPUS[x.i][2]),esc(keep.join(' ')))}
+      else body+=`<div class="hit out"><div class="bar" style="width:70px"><i style="width:${Math.round(x.s*100)}%"></i></div><div><code class="chip">doc://${esc(CORPUS[x.i][0])} p${CORPUS[x.i][1]}</code> <span class="tag g">NO_OUTPUT, dropped</span></div></div>`;
+    });
+    steps=`<h3>1 · fetch 10 chunks, then one model call each to copy relevant sentences</h3>${body}`;
+  }
+  const ctx=docs.map(d=>`[doc://${CORPUS[d.i][0]}]\n${d.text}`).join('\n\n');
+  $('#rstat').innerHTML=`<span>embedding calls <b>${emb}</b></span><span>chat calls <b>${llm}</b></span><span>chunks in prompt <b>${docs.length}</b></span><span>context <b>${ctx.length}</b> chars</span>`;
+  $('#rout').innerHTML=steps+`<h3 style="margin-top:12px">2 · context handed to the answer prompt (format_docs)</h3><pre>${esc(ctx||'(empty context: the model is told to say it does not know)')}</pre>`;
+}
+QS.forEach((q,i)=>{const o=document.createElement('option');o.value=i;o.textContent=q[0];$('#rq').appendChild(o)});
+STR.forEach(s=>{const b=document.createElement('button');b.type='button';b.textContent=s;b.setAttribute('aria-pressed',String(s===rStrat));b.addEventListener('click',()=>{rStrat=s;$$('#rstrat button').forEach(x=>x.setAttribute('aria-pressed',String(x.textContent===s)));renderRetr()});$('#rstrat').appendChild(b)});
+$('#rq').addEventListener('change',()=>{$('#rqc').value='';renderRetr()});$('#rqc').addEventListener('input',renderRetr);
+
+/* ---------- latency ---------- */
+function renderLat(){
+  const v=[1,2,3,4].map(i=>Math.max(0,+$('#lat'+i).value||0));
+  const seq=v[0]+v[1]+v[2]+v[3],par=Math.max(v[0],v[1],v[2])+v[3];
+  const mx=Math.max(seq,1);
+  const bar=(label,parts,tot)=>`<div style="margin-block:6px"><div class="mono">${label} · ${tot} s</div><div style="display:flex;height:22px;border:1px solid var(--ink);width:${Math.max(8,100*tot/mx)}%;max-width:100%">${parts.map((p,i)=>`<div title="${p.n}" style="flex:${Math.max(p.v,.001)};background:${['var(--accent)','var(--warn)','var(--ok)','var(--mark)'][i]};opacity:.75"></div>`).join('')}</div></div>`;
+  $('#latOut').innerHTML=bar('Sequential (today)',[{n:'Risk',v:v[0]},{n:'Tax',v:v[1]},{n:'Control',v:v[2]},{n:'Synthesis',v:v[3]}],seq)+
+    bar('Concurrent specialists',[{n:'Slowest specialist',v:Math.max(v[0],v[1],v[2])},{n:'Synthesis',v:v[3]}],par)+
+    `<p>Saving <b>${seq-par} s</b> (${seq?Math.round(100*(seq-par)/seq):0}%). Colours: Risk, Tax, Control, Synthesis. The saving is the two shorter specialist phases. Concurrency does not reduce cost, and three simultaneous agents raise the chance of a 429 from the provider.</p>`;
+}
+['lat1','lat2','lat3','lat4'].forEach(id=>$('#'+id).addEventListener('input',renderLat));
+
+/* ---------- middleware demos ---------- */
+function renderPii(){
+  let t=$('#piiIn').value;
+  t=t.replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g,'[REDACTED_EMAIL]');
+  t=t.replace(/\b(?:\d[ -]?){12}(\d{4})\b/g,'****-****-****-$1');
+  $('#piiOut').textContent=t;
+}
+$('#piiIn').addEventListener('input',renderPii);
+const MW=[
+ ['Email or card number in the request','Layer 1 · PIIMiddleware','The email is replaced and the card number is masked down to its last four digits before the model sees the request. Nothing else reacts.'],
+ ['The agent keeps looping','Layer 2 · ModelCallLimitMiddleware','After AGENT_MAX_MODEL_CALLS (8) model calls the run ends gracefully (exit "end"). The phase returns what it has instead of spinning and billing.'],
+ ['A tool is called too often','Layer 3 · ToolCallLimitMiddleware','After AGENT_MAX_TOOL_CALLS (6) tool calls further calls are refused (exit "continue"), so the agent can still finish with a final message. Behaviour as described in the LangChain docs; not run here.'],
+ ['Gemini answers 429 or 503','Layer 4 · ModelRetryMiddleware','Retries up to AGENT_MAX_RETRIES (2) times with exponential backoff starting at 1 s. A 402 billing error is not transient, so after the retries it still fails and becomes a 500.'],
+ ['The FX API times out','Layer 5 · ToolRetryMiddleware','Retries the tool up to 2 times, 0.5 s start. Inside the tool, validate_fx_hedge also catches its own request error and falls back to a model estimate labelled "LLM-estimated".'],
+ ['You need to see what a tool did','Layer 6 · log_tool_calls','Logs "Tool call started" with argument names only, then "finished" with duration and result size, or "failed" with the error type. No values or result text, by repo rule.']
+];
+(function(){
+  const box=$('#mwSteps');
+  MW.forEach((m,i)=>{const b=document.createElement('button');b.type='button';b.textContent=m[0];b.setAttribute('aria-pressed',String(i===0));b.addEventListener('click',()=>{$$('#mwSteps button').forEach((x,j)=>x.setAttribute('aria-pressed',String(i===j)));show(i)});box.appendChild(b)});
+  function show(i){$('#mwOut').innerHTML=`<b>${esc(MW[i][1])}</b><p>${esc(MW[i][2])}</p>`}
+  show(0);
+})();
+
+/* ---------- API errors ---------- */
+const API=[
+ ['GOOGLE_API_KEY is empty','POST /api/rag/ask','503','{"detail": "GOOGLE_API_KEY is empty. Add it to .env (https://aistudio.google.com/apikey)."}','Safe. Names the variable, never a value. ConfigurationError handler in main.py.','ok'],
+ ['Cloud mode, settings missing','POST /api/rag/ask','503','{"detail": "APP_MODE=cloud but these settings are empty: GCP_PROJECT_ID, GCS_BUCKET_NAME, ..."}','Safe and useful. Lists each empty setting by name.','ok'],
+ ['Corrupt PDF','POST /api/rag/upload','422',"{\"detail\": \"Could not read PDF 'x.pdf': <pypdf message>\"}",'IngestionError handler. The parser message is included.','ok'],
+ ['Not a PDF','POST /api/rag/upload','200','{"results": [{"filename": "notes.txt", "status": "skipped", "reason": "Only PDF files are supported."}]}','A per-file result inside a 200. Callers must read each status.','ok'],
+ ['Provider refuses (billing, quota)','POST /api/rag/ask','500','{"detail": "<raw text of the Google client exception, including the provider status and a billing link>"}','Leaks provider text to the browser. Seen in the live run. Plan item Q3.','bad'],
+ ['Unexpected bug in a route','POST /api/agent/audit','500','{"detail": "<str(e) of whatever was raised>"}','Same pattern: any exception text is returned. The traceback is only in the log.','bad']
+];
+(function(){
+  const box=$('#apiSteps');
+  API.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.textContent=a[0];b.setAttribute('aria-pressed',String(i===0));b.addEventListener('click',()=>{$$('#apiSteps button').forEach((x,j)=>x.setAttribute('aria-pressed',String(i===j)));show(i)});box.appendChild(b)});
+  function show(i){const a=API[i];$('#apiOut').textContent=a[1]+'\nHTTP '+a[2]+'\n'+a[3];$('#apiNote').innerHTML=`<div class="callout ${a[5]==='bad'?'bad':''}">${esc(a[4])}</div>`}
+  show(0);
+})();
+
+/* ---------- functional ---------- */
+const JOURNEY=[
+ ['1 Check status','Open the Status tab. It calls GET /api/status, which makes no Google calls. You see the mode, the vector store, the storage location and the model names. If something shows "NA" in cloud mode, an ID is missing.'],
+ ['2 Add documents','Upload PDFs in the Upload tab (POST /api/rag/upload), or copy PDFs into .meridian/uploads and press the index button (POST /api/rag/ingest). Each PDF is saved, split into chunks and embedded. The result lists pages and chunks per file, or "skipped" with a reason.'],
+ ['3 Ask questions','In the RAG tab type a question and choose similarity, multiquery or contextual. The answer comes only from your documents. If the context lacks the answer the model is told to say it does not know. No sources are shown.'],
+ ['4 Run an audit','In the Audit tab paste a purchase request (vendor, item, cost, origin, destination, FX rate). Three specialists run in turn, then the CFO memo is written. Expect it to take a while because everything is sequential.'],
+ ['5 Read the result','You get four texts: risk, tax, control and the CFO memo. Treat the sanctions and credit lines as model estimates, not screening results.']
+];
+(function(){
+  const box=$('#journey');
+  JOURNEY.forEach((j,i)=>{const b=document.createElement('button');b.type='button';b.textContent=j[0];b.setAttribute('aria-pressed',String(i===0));b.addEventListener('click',()=>{$$('#journey button').forEach((x,k)=>x.setAttribute('aria-pressed',String(i===k)));show(i)});box.appendChild(b)});
+  function show(i){$('#journeyOut').innerHTML=`<b>${esc(JOURNEY[i][0].slice(2))}</b><p>${esc(JOURNEY[i][1])}</p>`}
+  show(0);
+})();
+const FUNC=[
+ ['Upload and index PDFs','Input: one or more PDF files. Process: save original, load pages, chunk, embed, store. Output: per-file pages and chunks, or skipped with a reason. Rules: PDF only; no text means skipped; re-uploading the same file overwrites its chunks.'],
+ ['Index stored documents','Input: none (uses the document store). Process: every PDF in .meridian/uploads or the GCS prefix is indexed. Output: totals for files, pages, chunks. Use after copying files in by hand or after clearing the index.'],
+ ['Ask a question','Input: question and retriever type. Process: retrieve, build prompt, call the model. Output: one answer string. Rules: answer only from context; say "don\'t know" otherwise; concise.'],
+ ['Run a purchase audit','Input: free-text purchase request. Process: Risk, Tax and Control agents, then CFO synthesis. Output: four texts. Rules: tool results are model estimates except the live FX rate.'],
+ ['Show system status','Input: none. Output: mode, uptime, Python version, storage and index locations, model names, uploads this session. Used to confirm which mode a running instance is in.'],
+ ['Health check','Input: none. Output: status ok and mode. Used by the container health check and load balancers.']
+];
+$('#funcCards').innerHTML=FUNC.map(f=>`<div class="card"><h3>${esc(f[0])}</h3><p>${esc(f[1])}</p></div>`).join('');
+function renderFx(){const m=+$('#fxM').value,u=+$('#fxU').value;if(!m){$('#fxOut').textContent='Market rate must be above 0 (the code divides by it).';return}const v=Math.abs(u-m)/m;$('#fxOut').innerHTML=(v>0.05?'<span class="tag n">FX ALERT</span> ':'<span class="tag v">FX SUCCESS</span> ')+'variance '+(v*100).toFixed(2)+'%'}
+function renderCr(){const s=+$('#crS').value;$('#crOut').textContent=s>=75?'LOW risk':s>=50?'MODERATE risk':'HIGH risk'+(s===45?' (default for an unknown vendor)':'')}
+function renderCx(){const a=+$('#cxA').value,t=$('#cxT').value;const f=[];if(t==='CapEx'&&a>500000)f.push('CFO sign-off required');if(t==='OpEx'&&a>100000)f.push('possible misclassification');$('#cxOut').textContent=(f.length?'FLAGS: '+f.join(', '):'FLAGS: None')}
+['fxM','fxU'].forEach(i=>$('#'+i).addEventListener('input',renderFx));$('#crS').addEventListener('input',renderCr);['cxA','cxT'].forEach(i=>$('#'+i).addEventListener('input',renderCx));
+
+/* ---------- NFR ---------- */
+const NFR=[
+ ['Authentication and access','gap','No login, no API key, CORS allows every origin with credentials. Anyone who can reach the service can spend your model quota.','Shared key, IAP or OIDC with rate limits.','plan N1','VERIFIED'],
+ ['Secrets handling','strong','Key read from env or .env; .env is git-ignored; cloud injects the key from Secret Manager; no key values in logs. Plan Q2 adds more ignore patterns.','SecretStr, startup validation.','plan Q2, DR-1','VERIFIED'],
+ ['Error disclosure','gap','Unexpected exceptions return str(e) in the 500 body. A billing failure put provider text and a billing link in the response.','Fixed message plus request ID.','plan Q3','VERIFIED'],
+ ['Privacy','partial','Email and card numbers are redacted on input; logs avoid content. Other identifiers pass through, and PDF text and requests are sent to Google for embeddings and answers.','More detectors; document the data flow for compliance.','new idea','VERIFIED'],
+ ['Reliability of model calls','partial','Agents have retries and call limits. The RAG path has no limits and passes no timeout or retry options (llm.py says defaults apply, not checked).','Timeouts, bounded retries, circuit breaker.','plan N6','VERIFIED'],
+ ['Data integrity','partial','Stable chunk IDs and a shared source key prevent duplicates. Edits can leave orphan chunks, and save-then-index is not atomic.','Delete-then-add, file hash.','plan N7','INFERRED'],
+ ['Performance','partial','Audit phases run in sequence; the contextual retriever makes 11 model calls; nothing is cached. No timings have been measured.','Concurrent specialists, caching, cheaper model for extraction.','plan L2, L5','NOT VERIFIED'],
+ ['Scalability','partial','Local mode is one process with one disk. Upload history and the agent supervisor live in process memory. Cloud mode uses a managed index, but the in-memory history still resets per container.','Stateless services; persist upload history.','plan L2','VERIFIED'],
+ ['Cost control','partial','Call limits per agent and temperature 0. No per-request budget. Contextual and multiquery multiply calls. The managed vector endpoint is a standing cost while deployed (general knowledge, not checked here).','Token budget, caching, tiering.','plan L5','INFERRED'],
+ ['Observability','partial','JSON logs with severity, one log line per tool call, durations. No request ID, metrics or tracing.','Request ID, counters, OpenTelemetry.','plan N8, L7','VERIFIED'],
+ ['Testability','partial','20 backend and 16 frontend tests run offline using fakes. The five tools and the supervisor error paths are thinly tested; no live or retrieval-quality tests.','Tool tests with fakes; evaluation set.','plan N5, L1','VERIFIED'],
+ ['Portability','strong','One switch moves between laptop and cloud. Multi-stage Docker image, non-root user, health check. Docker run itself is not yet proven.','Run and record the Docker check.','M1 follow-up','NOT VERIFIED'],
+ ['Maintainability','strong','Small modules with clear names, docstrings that explain why, custom exceptions, typed config. Some duplication and 16 lint findings remain.','Lint pass, service layer.','plan L4, L6','VERIFIED'],
+ ['Auditability and compliance','gap','Audit results are not saved, tool results are model estimates, and prompts are not versioned. An auditor could not reconstruct why a memo said what it said.','Persist inputs, outputs, model and prompt version.','new idea','VERIFIED'],
+ ['Accessibility and usability','unknown','The frontend was not assessed for keyboard use, contrast or screen readers.','Run an automated check, then a manual pass.','new idea','NOT VERIFIED']
+];
+let nfrF='all';
+function renderNfr(){
+  const f=['all','strong','partial','gap','unknown'];
+  $('#nfrFilter').innerHTML=f.map(x=>`<button type="button" data-f="${x}" aria-pressed="${x===nfrF}">${x}</button>`).join('');
+  $$('#nfrFilter button').forEach(b=>b.addEventListener('click',()=>{nfrF=b.dataset.f;renderNfr()}));
+  const cnt=k=>NFR.filter(n=>n[1]===k).length;
+  $('#nfrStat').innerHTML=`<span>strong <b>${cnt('strong')}</b></span><span>partial <b>${cnt('partial')}</b></span><span>gap <b>${cnt('gap')}</b></span><span>not assessed <b>${cnt('unknown')}</b></span>`;
+  $('#nfrCards').innerHTML=NFR.filter(n=>nfrF==='all'||n[1]===nfrF).map(n=>`<div class="card"><h3>${esc(n[0])}<span class="rate ${n[1]}">${n[1]}</span></h3><p>${esc(n[2])}</p><p><b>Improve:</b> ${esc(n[3])}</p><div class="tf"><span class="tag g">${esc(n[4])}</span><span class="tag ${n[5]==='VERIFIED'?'v':n[5]==='INFERRED'?'i':'n'}">${n[5]}</span></div></div>`).join('');
+}
+function renderLimits(){
+  const m=+$('#lmM').value,t=+$('#lmT').value;$('#lmMv').textContent=m;$('#lmTv').textContent=t;
+  const ceil=3*(m+t)+1;
+  $('#lmOut').innerHTML=`<div class="stat"><span>ceiling per audit <b>${ceil}</b> model calls</span><span>formula <b>3 × (${m} + ${t}) + 1</b></span><span>typical (INFERRED) <b>≈ 11–12</b></span></div><p class="muted">Typical assumes each agent makes two model calls and each of the five tools runs once (four of them ask Gemini), plus the memo. The ceiling counts every allowed model call and every allowed tool call as a Gemini call, which is the worst case for tools that use the model. Keep the limits low enough that a runaway agent is cheap.</p>`;
+}
+['lmM','lmT'].forEach(i=>$('#'+i).addEventListener('input',renderLimits));
+
+/* ---------- improvements ---------- */
+const IMP=[
+ ['sec','Stop leaking exception text','Q3','S','Low','endpoints.py:117, :133, :203 return detail=str(e). The live run showed a billing message and link in a 500 body.',['Fixed message and log the traceback (the plan item).','Map known provider failures: 429 → 429 with Retry-After, 402/403 → 502 with a clear message.','Return a request ID so support can find the log line.'],'How FastAPI exception handlers and HTTPException differ.'],
+ ['sec','Access control and rate limits','N1','M','High','No authentication anywhere; CORS is open (main.py:45-51).',['Shared API key in a header via a FastAPI dependency.','Cloud Run IAM or IAP in cloud mode.','OIDC login with per-user quotas and slowapi rate limits.'],'Dependencies in FastAPI; how IAP injects identity headers.'],
+ ['sec','Input limits and upload hardening','Q6','S','Low','request_text has no length limit (schemas.py:15). Upload size and page count are unbounded.',['Field(max_length=...) on request models.','Maximum upload size and page cap.','Check the PDF magic bytes, not just the file name.'],'Pydantic Field constraints.'],
+ ['ret','Return sources with answers','L1','S','Low','QueryResponse has only answer (schemas.py:38). The doc:// labels never reach the user.',['Add sources: [{source, page}].','Add snippet and score via similarity_search_with_score.','Citation chips in the UI that open the passage.'],'LangChain Document metadata; why page and source are in metadata.'],
+ ['ret','Better retrieval','L1','M','Medium','Fixed k=3 can miss a relevant chunk; near-duplicates waste slots; exact codes and clause numbers match poorly with vectors alone.',['MMR search (search_type="mmr").','Hybrid keyword + vector.','Fetch 20, rerank, keep 4.','Heading-aware chunks (re-index needed).'],'Precision vs recall; why rerankers help.'],
+ ['ret','Evaluation harness','L1','M','Low','Nothing measures whether a change improves answers.',['15 questions with expected source page, hit-rate script.','Add an LLM judge for answer quality.','Run the set in CI behind a manual trigger.'],'Hit rate @k; golden sets; LLM-as-judge limits.'],
+ ['rel','Timeouts and bounded retries on the RAG path','N6','S','Medium','llm.py passes no timeout or retry options; the RAG chain is not behind the middleware stack.',['Set timeout and max_retries on the chat client (check parameter names in the installed version).','Wrap ask_question with a retry decorator.','Add a circuit breaker for repeated 402/429.'],'Exponential backoff and why unbounded retries amplify outages.'],
+ ['rel','Atomic, repeatable ingestion','N7','M','Medium','Chunk ID uses the chunk index across the file, so edits leave orphans; saving the original and indexing are separate steps.',['Delete existing chunks for the source before adding.','Skip unchanged files using a content hash.','Record an ingestion job with a status.'],'Idempotency and upsert semantics.'],
+ ['agt','Run specialists concurrently','L2','M','High','The three agents share no inputs but run in sequence (agents.py:79-88).',['ThreadPoolExecutor inside run_audit.','Async agents with ainvoke and an async route.','Background job with a polling endpoint.'],'Threads vs async; provider rate limits.'],
+ ['agt','Real data behind the tools','N9','L','High','Four tools ask Gemini from memory. A sanctions "CLEARED" is not evidence.',['Label every such result "model estimate" in tool output, memo and UI.','Load public sanctions lists into a local table with fuzzy matching.','Integrate a paid screening or credit API.'],'Why LLMs should not be a system of record.'],
+ ['agt','Verdict logic in code, structured outputs','N11','M','High','Thresholds live in prompts, so results can vary run to run.',['Tools return pydantic models via with_structured_output.','Compute flags (CapEx > 500,000, FX > 5%) in Python.','Typed overall verdict in AuditResponse.'],'Structured output; testing deterministic code vs prompts.'],
+ ['agt','Persist an audit trail','','M','Medium','Nothing is saved. You cannot reproduce or review an audit later.',['SQLite file in local mode.','Firestore or BigQuery in cloud mode.','Write-once objects in a locked bucket.'],'What an audit trail needs: inputs, outputs, versions, time, actor.'],
+ ['perf','Cache and tier models','L5','M','Medium','Every question re-embeds and re-calls the model; every step uses the same model.',['Cache embeddings of repeated queries.','Cheaper model for rewrite and extraction.','Answer cache keyed by question, retriever and index version.'],'Cache invalidation; model routing.'],
+ ['ops','Observability','N8','S','Low','No request ID, metrics or traces; the logger configures global logging at import.',['Request ID middleware.','Counters for model calls, tool calls and latency.','OpenTelemetry traces to Cloud Trace.'],'Structured logging vs metrics vs traces.'],
+ ['ops','CI and supply chain','N4','M','Low','No test workflow; deploy.yml is manual; dependencies are not locked.',['CI on pull requests: pytest, vitest, tsc, lint.','Dependabot and pip-audit; pin Actions by SHA.','Release workflow with Workload Identity Federation and approval for production.'],'GitHub Actions basics; OIDC to GCP.'],
+ ['ops','Configuration hygiene','DR-1','S','Low','The Gemini model variable is named VERTEX_*; the default model name is unconfirmed; health is green with an empty key.',['Startup validation listing missing variables.','Rename with a backward-compatible alias.','SecretStr for the key.'],'pydantic-settings validators.'],
+ ['fe','Stream audit progress','','M','Medium','The UI waits for the whole audit. Phase logs already exist on the server.',['Server-sent events after each phase.','Job ID and polling.','WebSocket.'],'SSE vs polling vs WebSocket.']
+];
+const AREAS={all:'All',sec:'Security',ret:'Retrieval',rel:'Reliability',agt:'Agents',perf:'Cost and speed',ops:'DevOps',fe:'Frontend'};
+let impA='all',impE='all';let myPlan=new Set(store.get('plan',[]));
+function renderImp(){
+  $('#impArea').innerHTML=Object.entries(AREAS).map(([k,v])=>`<button type="button" data-a="${k}" aria-pressed="${k===impA}">${v}</button>`).join('');
+  $('#impEffort').innerHTML=['all','S','M','L'].map(k=>`<button type="button" data-e="${k}" aria-pressed="${k===impE}">${k==='all'?'any effort':'effort '+k}</button>`).join('');
+  $$('#impArea button').forEach(b=>b.addEventListener('click',()=>{impA=b.dataset.a;renderImp()}));
+  $$('#impEffort button').forEach(b=>b.addEventListener('click',()=>{impE=b.dataset.e;renderImp()}));
+  const list=IMP.map((x,i)=>({x,i})).filter(o=>(impA==='all'||o.x[0]===impA)&&(impE==='all'||o.x[3]===impE));
+  $('#impCards').innerHTML=list.map(({x,i})=>`<div class="card"><h3>${esc(x[1])}<span class="tag g">${x[2]?'plan '+esc(x[2]):'new idea'}</span></h3>
+    <div class="tf"><span class="tag g">${AREAS[x[0]]}</span><span class="tag g">effort ${x[3]}</span><span class="tag ${x[4]==='High'?'n':x[4]==='Medium'?'i':'v'}">risk ${x[4].toLowerCase()}</span></div>
+    <p><b>Why:</b> ${esc(x[5])}</p><b>Options</b><ol style="margin:4px 0;padding-left:20px">${x[6].map(o=>`<li>${esc(o)}</li>`).join('')}</ol>
+    <p class="muted"><b>Study:</b> ${esc(x[7])}</p>
+    <label><input type="checkbox" data-i="${i}" ${myPlan.has(i)?'checked':''}> Add to my plan</label></div>`).join('')||'<p class="muted">No items match these filters.</p>';
+  $$('#impCards input').forEach(c=>c.addEventListener('change',()=>{const i=+c.dataset.i;c.checked?myPlan.add(i):myPlan.delete(i);store.set('plan',[...myPlan]);renderPlan()}));
+  renderPlan();
+}
+function renderPlan(){
+  const ord={S:0,M:1,L:2};const items=[...myPlan].map(i=>IMP[i]).filter(Boolean).sort((a,b)=>ord[a[3]]-ord[b[3]]);
+  $('#planCount').textContent=items.length?'· '+items.length+' selected, smallest effort first':'· nothing selected yet';
+  $('#planList').innerHTML=items.map(x=>`<li>${esc(x[1])} <span class="muted">(effort ${x[3]}, ${x[2]?'plan '+esc(x[2]):'new idea'})</span></li>`).join('');
+}
+
+/* ---------- quiz ---------- */
+const QUIZ=[
+ ['What is the default APP_MODE and where does it keep vectors?',['cloud, in Vertex AI Vector Search','local, in Chroma under .meridian/chroma','local, in memory only','cloud, in a Cloud Storage bucket'],1,'settings.py defaults to "local". vector_store.py then builds a Chroma store persisted at settings.chroma_dir.'],
+ ['Why do the upload route and "index stored files" both call document_store.source_key()?',['To compress the file name','To check the file is a PDF','So both paths hash the same source into the chunk ID and overwrite instead of duplicating','To choose between local and cloud'],2,'The chunk ID is sha1(source|page|position). Two different source names for one PDF give two IDs and duplicate chunks. A test covers this.'],
+ ['How many chat-model calls does one "contextual" retrieval make when k=10?',['1','2','4','11'],3,'Ten extraction calls (one per fetched chunk, run as a batch) plus one call for the final answer.'],
+ ['How many vector searches does "multiquery" run?',['1','3','4','10'],2,'The original question plus three model-written rephrasings, each searched with k=3 and merged.'],
+ ['A missing GOOGLE_API_KEY produces which HTTP status?',['500','503','422','401'],1,'ConfigurationError is mapped to 503 in main.py with a message that names the variable.'],
+ ['A billing failure from Gemini during /api/rag/ask returns…',['503 with a safe message','502 with a fixed message','500 with the raw exception text in detail','200 with an empty answer'],2,'The route catches Exception and raises HTTPException(500, detail=str(e)). That is plan item Q3.'],
+ ['What does ModelCallLimitMiddleware with exit_behavior="end" do at the limit?',['Raises an error to the user','Ends the agent run gracefully','Retries with a bigger limit','Switches to another model'],1,'The run stops without an exception so the phase can return what it has.'],
+ ['What does check_sanctions_list actually consult?',['The OFAC list through an API','A local copy of the EU list','Gemini\'s training knowledge','A vendor database'],2,'The tools.py docstring says four tools ask Gemini from general knowledge and none looks up a real data source.'],
+ ['How do the three specialist agents run?',['In parallel threads','One after another in a fixed order','Chosen at random by the supervisor','As a LangGraph graph you wrote'],1,'run_audit calls risk, tax, then control in sequence. create_agent uses LangGraph underneath, but there is no graph code in the repo.'],
+ ['Why must you restart the server to change APP_MODE?',['The mode is stored in the database','Settings are read once and the clients are cached with lru_cache','Docker blocks environment changes','Chroma locks the folder'],1,'get_vector_store, get_embeddings and get_llm are lru_cached, and settings is built at import.'],
+ ['What does a chunk overlap of 100 do?',['Skips 100 characters between chunks','Makes neighbouring chunks share about 100 characters','Limits a PDF to 100 chunks','Sets k to 100'],1,'The splitter repeats up to 100 characters at the start of the next chunk so sentences are not cut at the boundary.'],
+ ['Which response field returns the retrieved passages from /api/rag/ask?',['sources','context','passages','None. The response has only answer'],3,'QueryResponse contains answer only (schemas.py:38). Returning sources is improvement L1.']
+];
+let qScore=0,qDone=new Set();
+function renderQuiz(){
+  qScore=0;qDone=new Set();$('#qTotal').textContent=QUIZ.length;$('#qScore').textContent=0;
+  $('#quiz').innerHTML=QUIZ.map((q,i)=>`<div class="q" data-i="${i}"><b>${i+1}. ${esc(q[0])}</b><div class="a">${q[1].map((o,j)=>`<button type="button" data-j="${j}">${esc(o)}</button>`).join('')}</div><div class="why" hidden></div></div>`).join('');
+  $$('#quiz .q').forEach(box=>{const i=+box.dataset.i;$$('.a button',box).forEach(b=>b.addEventListener('click',()=>{
+    if(qDone.has(i))return;qDone.add(i);const j=+b.dataset.j,ok=j===QUIZ[i][2];if(ok){qScore++;$('#qScore').textContent=qScore}
+    $$('.a button',box).forEach((x,k)=>{if(k===QUIZ[i][2])x.classList.add('right');else if(x===b)x.classList.add('wrong')});
+    const w=$('.why',box);w.hidden=false;w.innerHTML=(ok?'<span class="tag v">CORRECT</span> ':'<span class="tag n">NOT QUITE</span> ')+esc(QUIZ[i][3]);
+  }))});
+}
+$('#qReset').addEventListener('click',renderQuiz);
+
+/* ---------- boot ---------- */
+setMode(mode);
+renderChunks();idDemo(true);renderRetr();renderLat();renderPii();renderFx();renderCr();renderCx();renderNfr();renderLimits();renderImp();renderQuiz();refreshStudied();
+showTab(location.hash.slice(1));
+})();
+</script>
+
+</body></html>

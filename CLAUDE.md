@@ -14,6 +14,7 @@ Project skills live in `.claude/skills/`. Invoke with `/skill-name` or by matchi
 | `/ssbi-integrate-infographic` | “Also integrate this page” + a PNG into a DETAIL_HELP entry |
 | `/add-ssbi-drill-question` | Add a new Q&A (or category) to `CATEGORIES` in the drill |
 | `/add-learning-page` | New learning HTML page + Learning Hub card |
+| `/integrate-standalone-page` | Finished/exported HTML (e.g. `Meridian AI Study Workbook.html`) → rename, theme switcher, hub card |
 
 Personal skills in `~/.claude/skills/` **override** project skills of the same name. Keep personal copies of the SSBI skills in sync with this folder, or remove the personal copies so the project versions load.
 
