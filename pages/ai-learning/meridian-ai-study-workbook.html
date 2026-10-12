@@ -1,5 +1,11 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Meridian AI Study Workbook</title>
+<!DOCTYPE html>
+<html lang="en" data-page="meridian-ai-study-workbook">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script src="/assets/theme-switcher.js"></script>
+<title>Meridian AI Study Workbook — Mayank Chugh</title>
+<meta name="description" content="Read a RAG + multi-agent procurement app from its code: architecture, retrieval, agents, middleware, NFRs, improvements, with demos and a quiz.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -176,14 +182,21 @@ svg.arch line.dash{stroke-dasharray:4 4}
 footer.page{border-top:2px solid var(--ink);padding-block:16px 40px;font-size:.82rem;color:var(--ink2)}
 @media (max-width:600px){.brand span{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* integrated: reset from export + hub link */
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+a.btn{display:inline-block;color:inherit;text-decoration:none}
 </style>
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
 
 <header class="top"><div class="wrap">
   <div class="brand">
     <div><b>Meridian AI Study Workbook</b> <span>merged code v1.1.0 · APP_MODE local | cloud</span></div>
     <div class="tools">
       <div class="seg" role="group" aria-label="Mode shown in demos"><button type="button" data-mode="local" aria-pressed="true">local</button><button type="button" data-mode="cloud" aria-pressed="false">cloud</button></div>
-      <button class="btn" id="themeBtn" type="button" aria-label="Change theme">Theme: system</button>
+      <a class="btn" href="/pages/learning/index.html#rag-retrieval">Learning Hub</a>
     </div>
   </div>
   <nav class="tabs" role="tablist" aria-label="Workbook sections">
@@ -543,11 +556,6 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const store={get(k,d){try{const v=localStorage.getItem('mer.'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('mer.'+k,JSON.stringify(v))}catch(e){}}};
 let mode=store.get('mode','local'); if(mode!=='local'&&mode!=='cloud')mode='local';
 
-/* ---------- theme ---------- */
-const themes=['system','light','dark']; let ti=themes.indexOf(store.get('theme','system')); if(ti<0)ti=0;
-function applyTheme(){const t=themes[ti];if(t==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);$('#themeBtn').textContent='Theme: '+t}
-$('#themeBtn').addEventListener('click',()=>{ti=(ti+1)%3;store.set('theme',themes[ti]);applyTheme()});
-applyTheme();
 
 /* ---------- tabs ---------- */
 const TABS=['technical','functional','nfr','improve','check'];
@@ -981,5 +989,5 @@ renderChunks();idDemo(true);renderRetr();renderLat();renderPii();renderFx();rend
 showTab(location.hash.slice(1));
 })();
 </script>
-
-</body></html>
+</body>
+</html>
