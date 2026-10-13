@@ -573,18 +573,104 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
 </section>
 
 
-<!-- ENTERPRISE DELIVERIES (encrypted; see tools/build-protected.mjs) -->
+<!-- ENTERPRISE DELIVERIES (report pages are encrypted; see tools/build-protected.mjs) -->
 <section id="enterprise-deliveries">
   <div class="section-inner">
     <div class="section-tag">Enterprise</div>
     <h2 class="section-title">Enterprise Deliveries</h2>
-    <p class="section-subtitle">Protected &mdash; enter the access password to view client engagement reports.</p>
-    <div id="deliveries-gate"></div>
+    <p class="section-subtitle">Client engagement reports &mdash; each report is password protected.</p>
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-card-header"><span class="project-num">01 / HSBC</span><span class="project-live">&#9679; Delivered</span></div>
+        <div class="project-card-body">
+          <h3>HSBC Singapore Digital Advisory (&ldquo;Prism Digital&rdquo;)</h3>
+          <p>Business case, MVP scope, customer journey, target architecture, API landscape, delivery plan and open risks for a robo-advisory on mobile.</p>
+        </div>
+        <div class="project-card-footer">
+          <div class="project-stack"><span class="proj-tag">Digital Advisory</span><span class="proj-tag">Architecture</span><span class="proj-tag">Delivery</span></div>
+          <a href="pages/portfolio/DA_Project_Understanding_Report.html" class="project-link">Read Report &rarr;</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-card-header"><span class="project-num">02 / HSBC</span><span class="project-live">&#9679; Delivered</span></div>
+        <div class="project-card-body">
+          <h3>HSBC Quantum &harr; LEAP API Integration</h3>
+          <p>Thin pass-through API layer on HSBC&rsquo;s AWS platform: seven APIs, application, data and infrastructure architecture, security and design decisions.</p>
+        </div>
+        <div class="project-card-footer">
+          <div class="project-stack"><span class="proj-tag">AWS</span><span class="proj-tag">APIs</span><span class="proj-tag">Payments / FX</span></div>
+          <a href="pages/portfolio/Quantum_LEAP_Project_Understanding_Report.html" class="project-link">Read Report &rarr;</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-card-header"><span class="project-num">03 / HSBC</span><span class="project-live">&#9679; Delivered</span></div>
+        <div class="project-card-body">
+          <h3>HSBC TLM (SmartStream) &mdash; AWS POC &amp; Migration</h3>
+          <p>Zero-cost proof of concept and follow-on lift-and-shift proposal moving TLM and Oracle databases from the data centre to AWS.</p>
+        </div>
+        <div class="project-card-footer">
+          <div class="project-stack"><span class="proj-tag">AWS</span><span class="proj-tag">Migration</span><span class="proj-tag">Oracle</span></div>
+          <a href="pages/portfolio/TLM_POC_Project_Understanding_Report.html" class="project-link">Read Report &rarr;</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-card-header"><span class="project-num">04 / DUE DILIGENCE</span><span class="project-live">&#9679; Delivered</span></div>
+        <div class="project-card-body">
+          <h3>HSBC &times; AXA Singapore &mdash; Technical Due Diligence</h3>
+          <p>Code and architecture review of EASE and a draft due-diligence report on MyAXA / BetterMe, assessed in September 2022.</p>
+        </div>
+        <div class="project-card-footer">
+          <div class="project-stack"><span class="proj-tag">Due Diligence</span><span class="proj-tag">Insurance</span><span class="proj-tag">Architecture</span></div>
+          <a href="pages/portfolio/AXA_EASE_Project_Understanding_Report.html" class="project-link">Read Report &rarr;</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-card-header"><span class="project-num">05 / PRE-SALES</span><span class="project-live">&#9679; Delivered</span></div>
+        <div class="project-card-body">
+          <h3>Capgemini &times; HSBC Pre-Sales Portfolio</h3>
+          <p>Four HSBC bids and briefs: what was asked, what was proposed (scope, architecture, plan, price) and the evidenced role.</p>
+        </div>
+        <div class="project-card-footer">
+          <div class="project-stack"><span class="proj-tag">Pre-Sales</span><span class="proj-tag">Proposals</span><span class="proj-tag">Solutioning</span></div>
+          <a href="pages/portfolio/Proposal_PreSales_Understanding_Report.html" class="project-link">Read Report &rarr;</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-card-header"><span class="project-num">06 / CATHAY</span><span class="project-live">&#9679; Delivered</span></div>
+        <div class="project-card-body">
+          <h3>Cathay Group Subsidiaries &mdash; Digital Portfolio</h3>
+          <p>Digital project management across CCT, CDI, HAS and VLS: AI video analytics, autonomous tractor, ULD planning, ePayment and more.</p>
+        </div>
+        <div class="project-card-footer">
+          <div class="project-stack"><span class="proj-tag">Project Management</span><span class="proj-tag">AI</span><span class="proj-tag">Aviation</span></div>
+          <a href="pages/portfolio/CDI_Cathay_Digital_Understanding_Report.html" class="project-link">Read Report &rarr;</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-card-header"><span class="project-num">07 / CCT</span><span class="project-live">&#9679; Delivered</span></div>
+        <div class="project-card-body">
+          <h3>CCT Migration Guide</h3>
+          <p>WebLogic 12.x &rarr; JBoss EAP 8, Oracle &rarr; Aurora PostgreSQL, on-prem &rarr; AWS &mdash; cargo terminal apps, SITA/ACCS integrations, and Entra ID SSO.</p>
+        </div>
+        <div class="project-card-footer">
+          <div class="project-stack"><span class="proj-tag">AWS</span><span class="proj-tag">JBoss</span><span class="proj-tag">PostgreSQL</span><span class="proj-tag">Cloud Architecture</span></div>
+          <a href="pages/migration/cct_weblogic_jboss_aws_migration_guide.html" class="project-link">Open Guide &rarr;</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-card-header"><span class="project-num">08 / CCT</span><span class="project-live">&#9679; Delivered</span></div>
+        <div class="project-card-body">
+          <h3>CCT Migration Guide v2</h3>
+          <p>Expanded programme reference &mdash; CI/CD, observability, RACI, security, EKS, and detailed cutover runbooks for the Cathay Cargo Terminal AWS modernisation.</p>
+        </div>
+        <div class="project-card-footer">
+          <div class="project-stack"><span class="proj-tag">EKS</span><span class="proj-tag">CI/CD</span><span class="proj-tag">Runbooks</span><span class="proj-tag">Cloud Architecture</span></div>
+          <a href="pages/migration/cct_migration_guide_v2.html" class="project-link">Open Guide &rarr;</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
-<script src="/assets/gate.js"></script>
-<script src="/assets/deliveries-cards.enc.js"></script>
-<script>EDGate.section(document.getElementById('deliveries-gate'), window.DELIVERIES_ENC);</script>
 
 <!-- CERTIFICATIONS -->
 <section id="certifications" class="certs-bg">

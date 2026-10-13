@@ -1,5 +1,5 @@
 // Usage (PowerShell): $env:ED_PASSWORD='your long passphrase'; node tools/build-protected.mjs
-// Encrypts private/reports/*.html -> pages/portfolio/, private/migration/*.html -> pages/migration/, and private/deliveries-cards.html -> assets/deliveries-cards.enc.js
+// Encrypts private/reports/*.html -> pages/portfolio/ and private/migration/*.html -> pages/migration/
 import { webcrypto as c } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 
@@ -32,5 +32,3 @@ for (const [src, dst] of DIRS) {
     console.log('encrypted', `${dst}/${f}`);
   }
 }
-writeFileSync('assets/deliveries-cards.enc.js', 'window.DELIVERIES_ENC=' + JSON.stringify(await enc(readFileSync('private/deliveries-cards.html', 'utf8'))) + ';\n');
-console.log('encrypted cards');

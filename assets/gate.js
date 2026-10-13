@@ -33,12 +33,6 @@
   }
 
   g.EDGate = {
-    section: function (host, payload) {
-      var show = function (html, pw) { save(pw); host.innerHTML = html; };
-      var pw = saved();
-      if (pw) { decrypt(payload, pw).then(function (h) { show(h, pw); }, function () { form(host, payload, show); }); }
-      else form(host, payload, show);
-    },
     page: function (payload) {
       var host = document.getElementById('gate');
       var open = function (html, pw) { save(pw); document.open(); document.write(html); document.close(); };
