@@ -193,6 +193,7 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
       <li><a href="#skills">Skills</a></li>
       <li><a href="#experience">Experience</a></li>
       <li><a href="#projects">Projects</a></li>
+      <li><a href="#enterprise-deliveries">Deliveries</a></li>
       <li><a href="#certifications">Certs</a></li>
       <li><a href="pages/learning/index.html">Learning</a></li>
       <li><a href="#connect">Connect</a></li>
@@ -571,6 +572,19 @@ footer p{color:rgba(255,255,255,0.4);font-size:0.82rem;}
   </div>
 </section>
 
+
+<!-- ENTERPRISE DELIVERIES (encrypted; see tools/build-protected.mjs) -->
+<section id="enterprise-deliveries">
+  <div class="section-inner">
+    <div class="section-tag">Enterprise</div>
+    <h2 class="section-title">Enterprise Deliveries</h2>
+    <p class="section-subtitle">Protected &mdash; enter the access password to view client engagement reports.</p>
+    <div id="deliveries-gate"></div>
+  </div>
+</section>
+<script src="/assets/gate.js"></script>
+<script src="/assets/deliveries-cards.enc.js"></script>
+<script>EDGate.section(document.getElementById('deliveries-gate'), window.DELIVERIES_ENC);</script>
 
 <!-- CERTIFICATIONS -->
 <section id="certifications" class="certs-bg">
