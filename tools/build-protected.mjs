@@ -1,7 +1,7 @@
 // Usage (PowerShell): $env:ED_PASSWORD='your long passphrase'; node tools/build-protected.mjs
-// Encrypts private/reports/*.html -> pages/portfolio/ and private/migration/*.html -> pages/migration/
+// Encrypts private/<dir>/*.html into the matching public folder (see DIRS)
 import { webcrypto as c } from 'node:crypto';
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 
 const pw = process.env.ED_PASSWORD;
 if (!pw || pw.length < 12) { console.error('Set ED_PASSWORD (min 12 chars).'); process.exit(1); }
@@ -25,8 +25,15 @@ const wrapper = (p) => `<!doctype html>
 <script>EDGate.page(${JSON.stringify(p)});</script></body></html>
 `;
 
-const DIRS = [['private/reports', 'pages/portfolio'], ['private/migration', 'pages/migration']];
+const DIRS = [
+  ['private/reports', 'pages/portfolio'],
+  ['private/migration', 'pages/migration'],
+  ['private/ai-learning', 'pages/ai-learning'],
+  ['private/ai-learning/learn', 'pages/ai-learning/learn'],
+  ['private/pages', 'pages'],
+];
 for (const [src, dst] of DIRS) {
+  mkdirSync(dst, { recursive: true });
   for (const f of readdirSync(src).filter((x) => x.endsWith('.html'))) {
     writeFileSync(`${dst}/${f}`, wrapper(await enc(readFileSync(`${src}/${f}`, 'utf8'))));
     console.log('encrypted', `${dst}/${f}`);
