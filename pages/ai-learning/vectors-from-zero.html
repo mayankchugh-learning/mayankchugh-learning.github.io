@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en" data-page="vectors-from-zero">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/assets/theme-switcher.js"></script>
+  <title>Vectors, from a map pin to an embedding — Mayank Chugh</title>
+  <meta name="description" content="Interactive lesson: a vector is a list of numbers, nearest pins find the closest lists, and an embedding is that same idea on a map of meaning.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --paper: #ffffff;
+      --ink: #1a1a2e;
+      --muted: #5a6a7e;
+      --navy: #0f1e36;
+      --navy2: #1a2f4e;
+      --line: #dde3ec;
+      --accent: #e8a020;
+      --accent-ink: #6a4808;
+      --blue: #1d6fa4;
+      --vpn: #1a7a6d;
+      --budget: #8a5a2a;
+      --good: #1a7a4a;
+      --warn: #8c3a3a;
+      --soft: #eef3f8;
+      --shadow: 0 1px 0 rgba(15, 30, 54, 0.04);
+    }
+    html[data-theme="dark"] {
+      --bg: #0c1728;
+      --paper: #15263d;
+      --ink: #f4f6f9;
+      --muted: #b7c3d4;
+      --navy: #f4f6f9;
+      --navy2: #d5deea;
+      --line: #2c4464;
+      --accent-ink: #f0c060;
+      --soft: #1c314c;
+      --shadow: none;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "DM Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .top {
+      background: #0f1e36;
+      color: #fff;
+      padding: 28px 20px 22px;
+    }
+    .top-inner, .wrap { max-width: 1080px; margin: 0 auto; }
+    .kicker {
+      margin: 0 0 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: #f0c060;
+    }
+    h1 {
+      font-family: Syne, Georgia, sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.15;
+      margin: 0 0 10px;
+      font-weight: 750;
+    }
+    .lede { margin: 0; max-width: 68ch; color: #d5deea; }
+    .top-row { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .theme-btn {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      padding: 6px 12px;
+      white-space: nowrap;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .wrap { padding: 18px 20px 64px; }
+    .steps {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 16px;
+    }
+    .step-btn {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--muted);
+    }
+    .step-btn[aria-current="step"] {
+      background: #0f1e36;
+      color: #fff;
+      border-color: #0f1e36;
+    }
+    html[data-theme="dark"] .step-btn[aria-current="step"] {
+      background: var(--accent);
+      color: #1a1a2e;
+      border-color: var(--accent);
+    }
+    .step-btn strong { font-weight: 600; }
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    html.js .panel { display: none; }
+    html.js .panel.is-on { display: block; }
+    h2 {
+      font-family: Syne, Georgia, sans-serif;
+      font-size: 26px;
+      margin: 0 0 6px;
+      color: var(--navy);
+    }
+    .say {
+      margin: 0 0 16px;
+      color: var(--muted);
+      max-width: 78ch;
+    }
+    .grid { display: grid; gap: 18px; }
+    @media (min-width: 900px) {
+      .grid.two { grid-template-columns: 1.25fr 0.85fr; align-items: start; }
+    }
+    .plot-card, .side-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--soft);
+      padding: 12px;
+    }
+    svg { width: 100%; height: auto; display: block; touch-action: none; }
+    .axis-label { font-size: 12px; fill: var(--muted); }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+    .chip, .action {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      padding: 7px 12px;
+    }
+    .chip[aria-pressed="true"], .action.primary {
+      background: #0f1e36;
+      color: #fff;
+      border-color: #0f1e36;
+    }
+    html[data-theme="dark"] .chip[aria-pressed="true"],
+    html[data-theme="dark"] .action.primary {
+      background: var(--accent);
+      color: #1a1a2e;
+      border-color: var(--accent);
+    }
+    .action.ghost { background: transparent; }
+    label.slider {
+      display: grid;
+      grid-template-columns: 92px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    input[type="range"] { width: 100%; accent-color: #e8a020; }
+    .num {
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, Consolas, monospace;
+      min-width: 7ch;
+      text-align: right;
+    }
+    .vector-readout {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 20px;
+      background: #0f1e36;
+      color: #f0c060;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 8px 0 12px;
+    }
+    .result { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .result li {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .result li.top { border-color: var(--accent); }
+    .bar {
+      height: 8px;
+      background: var(--line);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .bar > span { display: block; height: 100%; background: var(--blue); width: 0; }
+    .bar.hot > span { background: var(--accent); }
+    .meta { color: var(--muted); font-size: 13px; }
+    .formula {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 13px;
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 8px 10px;
+      white-space: pre-wrap;
+    }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding: 8px 12px;
+      margin: 12px 0 0;
+      color: var(--ink);
+      background: rgba(232, 160, 32, 0.1);
+      border-radius: 0 8px 8px 0;
+    }
+    .models { display: grid; gap: 8px; }
+    @media (min-width: 700px) { .models { grid-template-columns: repeat(3, 1fr); } }
+    .model {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .model[aria-pressed="true"] { border-color: var(--accent); outline: 2px solid var(--accent); }
+    .model b { display: block; font-family: Syne, sans-serif; font-size: 18px; }
+    .cells { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 10px; }
+    .cells i {
+      width: 8px; height: 14px; display: block; background: var(--blue); border-radius: 1px;
+    }
+    .record {
+      display: grid;
+      gap: 6px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 14px;
+    }
+    .record div { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+    .record span { color: var(--muted); display: inline-block; min-width: 88px; }
+    .search-box { display: flex; gap: 8px; }
+    .search-box input {
+      flex: 1;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .split { display: grid; gap: 12px; }
+    @media (min-width: 800px) { .split { grid-template-columns: 1fr 1fr; } }
+    .quiz { display: grid; gap: 12px; margin-top: 16px; }
+    .quiz-q { border-top: 1px solid var(--line); padding-top: 12px; }
+    .quiz-q p { margin: 0 0 8px; font-weight: 600; }
+    .feedback { min-height: 1.2em; font-size: 14px; }
+    .feedback.ok { color: var(--good); }
+    .feedback.no { color: var(--warn); }
+    .nav-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent-ink);
+      font-weight: 600;
+    }
+    .mismatch {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    @media (min-width: 700px) { .mismatch { grid-template-columns: 1fr auto 1fr; align-items: center; } }
+    .pile { display: flex; gap: 3px; align-items: flex-end; min-height: 46px; }
+    .pile i { width: 10px; background: var(--blue); display: block; border-radius: 2px 2px 0 0; }
+    .pile.alt i { background: var(--budget); }
+    label.slider.wide { grid-template-columns: 118px 1fr auto; }
+    .bridge { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+    .bridge th, .bridge td { border-bottom: 1px solid var(--line); text-align: left; padding: 8px 8px; vertical-align: top; }
+    .bridge td:first-child, .bridge th:first-child { width: 148px; white-space: nowrap; }
+    .bridge th { color: var(--muted); font-weight: 600; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .flow { display: grid; gap: 8px; }
+    .stage {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 12px;
+      padding: 10px 12px;
+      width: 100%;
+    }
+    .stage[aria-pressed="true"] { border-color: var(--accent); outline: 2px solid var(--accent); }
+    .stage b { display: block; font-family: Syne, sans-serif; }
+    .prompt {
+      white-space: pre-wrap;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 13px;
+      background: #0f1e36;
+      color: #f4f6f9;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 0;
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner top-row">
+      <div>
+        <p class="kicker">Week 4 · teach this before the notebook</p>
+        <h1>A vector is a pin. An embedding is a pin on a map of meaning.</h1>
+        <p class="lede">Eight stations. Start with The Peak as two numbers, name that list the way school maths does, then follow the same arrow through a RAG pipeline. Handmade coordinates keep the picture visible. The notebook asks the real model for 384 numbers.</p>
+      </div>
+      <a class="theme-btn" href="/pages/learning/index.html#rag-retrieval">Learning Hub</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="steps" aria-label="Lesson stations">
+      <button class="step-btn" type="button" data-step="0"><strong>1</strong> The list</button>
+      <button class="step-btn" type="button" data-step="1"><strong>2</strong> Nearest pin</button>
+      <button class="step-btn" type="button" data-step="2"><strong>3</strong> Meaning arrows</button>
+      <button class="step-btn" type="button" data-step="3"><strong>4</strong> 384 numbers</button>
+      <button class="step-btn" type="button" data-step="4"><strong>5</strong> The record</button>
+      <button class="step-btn" type="button" data-step="5"><strong>6</strong> Ask it</button>
+      <button class="step-btn" type="button" data-step="6"><strong>7</strong> School vector</button>
+      <button class="step-btn" type="button" data-step="7"><strong>8</strong> RAG pipeline</button>
+    </nav>
+
+    <section class="panel" data-panel="0">
+      <p class="tag">Station 1</p>
+      <h2>A vector is a list that marks one position</h2>
+      <p class="say">Say this: “The Peak is not a word in a table. It is two numbers. That list is the vector.”</p>
+      <div class="grid two">
+        <div>
+          <div class="vector-readout" id="place-vector" aria-live="polite">[22.276, 114.146]</div>
+          <label class="slider">Latitude <input id="lat" type="range" min="22.262" max="22.286" step="0.0001" value="22.2759"> <span class="num" id="lat-num">22.2759</span></label>
+          <label class="slider">Longitude <input id="lng" type="range" min="114.135" max="114.198" step="0.0001" value="114.1455"> <span class="num" id="lng-num">114.1455</span></label>
+          <div class="controls" id="place-chips"></div>
+          <p class="meta">Move the sliders. The list changes, and the pin moves. One list, one place.</p>
+        </div>
+        <div class="plot-card">
+          <svg id="place-map" viewBox="0 0 640 420" role="img" aria-label="Teaching map of The Peak and Happy Valley"></svg>
+          <p class="meta">Teaching map, neighbourhoods in real positions, not a street map. North is up, east is right.</p>
+        </div>
+      </div>
+      <p class="note">On a city map you care about the point. In the embedding stations the same list is drawn as an arrow from a shared zero, because the direction of the arrow becomes the meaning.</p>
+    </section>
+
+    <section class="panel" data-panel="1">
+      <p class="tag">Station 2</p>
+      <h2>Nearest means the closest lists</h2>
+      <p class="say">Say this: “Find an Italian place near the Peak. The search does not read the word inside the coordinate. It measures which pins sit closest. Top 3 is top-k.”</p>
+      <div class="controls">
+        <button class="chip" type="button" data-origin="peak" aria-pressed="true">Stand at The Peak</button>
+        <button class="chip" type="button" data-origin="hv">Stand at Happy Valley</button>
+      </div>
+      <div class="controls">
+        <button class="action primary" type="button" id="find-nearest">Find the 3 nearest Italian places</button>
+        <button class="action" type="button" id="find-keyword">Match the word “Italian”</button>
+      </div>
+      <div class="grid two">
+        <div class="plot-card">
+          <svg id="near-map" viewBox="0 0 640 430" role="img" aria-label="Pins and nearest lines"></svg>
+        </div>
+        <div class="side-card">
+          <h3 id="near-title" style="margin:0 0 8px; font-family:Syne,sans-serif;">Results</h3>
+          <ol class="result" id="near-results"></ol>
+          <p class="note" id="near-note">Pick a search. Nearest ranks by distance. The word match returns every Italian pin with the same score, including the far ones.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="2">
+      <p class="tag">Station 3</p>
+      <h2>Swap the axes from streets to meaning</h2>
+      <p class="say">Say this: “Email is one axis. VPN is the other. Sentences with the same meaning point the same way. Nobody stored a relationship row. Closeness is the relationship.”</p>
+      <div class="controls" id="doc-chips"></div>
+      <div class="grid two">
+        <div class="plot-card">
+          <svg id="meaning-plot" viewBox="0 0 640 480" role="img" aria-label="Meaning map. Drag the gold pin."></svg>
+          <div class="legend">
+            <span><i class="swatch" style="background:#1d6fa4"></i>Email</span>
+            <span><i class="swatch" style="background:#1a7a6d"></i>VPN</span>
+            <span><i class="swatch" style="background:#8a5a2a"></i>Budget</span>
+            <span><i class="swatch" style="background:#e8a020"></i>Your pin, drag it</span>
+          </div>
+          <label class="slider">Arrow length <input id="arrow-len" type="range" min="0.35" max="1" step="0.01" value="0.85"> <span class="num" id="arrow-len-num">0.85</span></label>
+        </div>
+        <div class="side-card">
+          <p class="meta" id="query-label">Gold pin standing near the email sentences.</p>
+          <p class="vector-readout" id="query-vector" style="font-size:16px">[0.00, 0.00]</p>
+          <div class="formula" id="cosine-formula"></div>
+          <ol class="result" id="meaning-rank" style="margin-top:10px"></ol>
+        </div>
+      </div>
+      <p class="note" id="length-note">Stretch the arrow with the slider. The ranking stays put. Cosine compares direction, so a short sentence and a long sentence about the same outage can still match.</p>
+    </section>
+
+    <section class="panel" data-panel="3">
+      <p class="tag">Station 4</p>
+      <h2>The embedding model fills in the list</h2>
+      <p class="say">Say this: “You stop naming the axes. The model has 384 of them. A single number is not a fact you can read. The meaning is which other lists sit nearby.”</p>
+      <p>Sentence: <strong>The VPN client disconnects every 10 minutes</strong></p>
+      <div class="models" id="model-cards"></div>
+      <div class="cells" id="cells" aria-hidden="true"></div>
+      <p class="formula" id="sketch-nums"></p>
+      <p class="meta">The bars are a sketch of the shape of an embedding. Run the Week 4 notebook for the real MiniLM numbers.</p>
+      <div class="mismatch">
+        <div>
+          <p class="meta">Stored with</p>
+          <div class="pile" id="pile-store"></div>
+          <p id="store-label">MiniLM · 384</p>
+        </div>
+        <p id="match-flag" style="text-align:center; font-weight:600;">Same map</p>
+        <div>
+          <p class="meta">Searched with</p>
+          <div class="pile alt" id="pile-query"></div>
+          <p id="query-model-label">MiniLM · 384</p>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="action" type="button" id="mix-models">Search with a different model</button>
+        <button class="action primary" type="button" id="same-models">Use the same model again</button>
+      </div>
+      <p class="note" id="model-note">Insert and search stay on one model, so both lists use the same axes. MiniLM’s 384-number map and OpenAI’s 1536-number map are different cities.</p>
+    </section>
+
+    <section class="panel" data-panel="4">
+      <p class="tag">Station 5</p>
+      <h2>The database stores the pin and the sentence</h2>
+      <p class="say">Say this: “Each item is one record. The vector is the shelf location. The sentence is the book. Metadata is the sticky note: which file, which page.”</p>
+      <div class="controls" id="record-chips"></div>
+      <div class="grid two">
+        <div class="record" id="record-card"></div>
+        <div class="side-card">
+          <p class="meta">How you ask</p>
+          <div class="formula" id="ask-style"></div>
+          <p class="note">Chroma keeps records like this. A short line can be compared in memory. A long PDF is cut into chunks first, and each chunk gets its own pin. Chunks are the next class.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="5">
+      <p class="tag">Station 6</p>
+      <h2>Ask in your own words</h2>
+      <p class="say">Say this: “Keyword search needs the same words. Semantic search follows the arrow. Watch Outlook appear for a mail-server question.”</p>
+      <form class="search-box" id="search-form">
+        <input id="search-input" type="text" value="the mail server is down" aria-label="Question">
+        <button class="action primary" type="submit">Search</button>
+      </form>
+      <div class="controls" id="query-chips"></div>
+      <p class="meta" id="toy-caption"></p>
+      <div class="split">
+        <div>
+          <h3 style="margin:0 0 8px; font-family:Syne,sans-serif;">Keyword · shared words</h3>
+          <ol class="result" id="kw-results"></ol>
+        </div>
+        <div>
+          <h3 style="margin:0 0 8px; font-family:Syne,sans-serif;">Semantic · closest arrows</h3>
+          <ol class="result" id="sem-results"></ol>
+        </div>
+      </div>
+      <div class="quiz" id="quiz">
+        <div class="quiz-q">
+          <p>1. A vector is…</p>
+          <div class="controls">
+            <button class="action" type="button" data-quiz="q1" data-ok="0">a table of columns</button>
+            <button class="action" type="button" data-quiz="q1" data-ok="1">a list of numbers for one position</button>
+            <button class="action" type="button" data-quiz="q1" data-ok="0">a keyword in a PDF</button>
+          </div>
+          <p class="feedback" data-feedback="q1"></p>
+        </div>
+        <div class="quiz-q">
+          <p>2. Cosine similarity compares…</p>
+          <div class="controls">
+            <button class="action" type="button" data-quiz="q2" data-ok="0">how long the sentence is</button>
+            <button class="action" type="button" data-quiz="q2" data-ok="1">whether the arrows point the same way</button>
+            <button class="action" type="button" data-quiz="q2" data-ok="0">how many words match</button>
+          </div>
+          <p class="feedback" data-feedback="q2"></p>
+        </div>
+        <div class="quiz-q">
+          <p>3. Insert and search use the same embedding model so that…</p>
+          <div class="controls">
+            <button class="action" type="button" data-quiz="q3" data-ok="1">both lists use the same axes</button>
+            <button class="action" type="button" data-quiz="q3" data-ok="0">the PDF file gets smaller</button>
+            <button class="action" type="button" data-quiz="q3" data-ok="0">SQL can join the tables</button>
+          </div>
+          <p class="feedback" data-feedback="q3"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="6">
+      <p class="tag">Station 7</p>
+      <h2>In maths, a vector is an ordered list of numbers</h2>
+      <p class="say">Say this: “School draws that list as an arrow. It has components, a length, and a direction. The embedding is the same kind of arrow. It just has 384 components, so we compare direction with the dot product instead of drawing it.”</p>
+      <div class="grid two">
+        <div class="plot-card">
+          <svg id="math-plot" viewBox="0 0 440 440" role="img" aria-label="Two school vectors on a grid"></svg>
+          <div class="legend">
+            <span><i class="swatch" style="background:#1d6fa4"></i>Vector A</span>
+            <span><i class="swatch" style="background:#e8a020"></i>Vector B</span>
+          </div>
+        </div>
+        <div>
+          <label class="slider wide">A component x <input id="ax" type="range" min="-5" max="5" step="0.5" value="3"> <span class="num" id="ax-num">3</span></label>
+          <label class="slider wide">A component y <input id="ay" type="range" min="-5" max="5" step="0.5" value="4"> <span class="num" id="ay-num">4</span></label>
+          <label class="slider wide">B component x <input id="bx" type="range" min="-5" max="5" step="0.5" value="-4"> <span class="num" id="bx-num">-4</span></label>
+          <label class="slider wide">B component y <input id="by" type="range" min="-5" max="5" step="0.5" value="3"> <span class="num" id="by-num">3</span></label>
+          <div class="controls">
+            <button class="chip" type="button" data-math="right">Right angle</button>
+            <button class="chip" type="button" data-math="same">Same direction</button>
+            <button class="chip" type="button" data-math="opposite">Opposite</button>
+            <button class="chip" type="button" data-math="lesson">Mail and VPN arrows</button>
+          </div>
+          <div class="formula" id="math-formula"></div>
+        </div>
+      </div>
+      <table class="bridge">
+        <thead>
+          <tr><th>School name</th><th>In this lesson</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Component</td><td>One number in the list. The Peak has 2. MiniLM has 384.</td></tr>
+          <tr><td>Dimension</td><td>How many components. Two you can draw. 384 you only compare.</td></tr>
+          <tr><td>Magnitude</td><td>Length of the arrow. Cosine divides it out, so a short sentence can match a long one.</td></tr>
+          <tr><td>Direction</td><td>Which way the arrow points. On the meaning map, direction is the topic.</td></tr>
+          <tr><td>Dot product</td><td>Multiply matching positions and add. That sum is the top of the cosine fraction. Search uses this. The cross product from class is a different operation.</td></tr>
+        </tbody>
+      </table>
+      <p class="note" id="math-note">A right angle gives dot product 0. On the meaning map, that is two different topics.</p>
+    </section>
+
+    <section class="panel" data-panel="7">
+      <p class="tag">Station 8</p>
+      <h2>Where the vector sits in a RAG pipeline</h2>
+      <p class="say">Say this: “RAG does not teach the PDF to the model. It stores each chunk as a vector, retrieves the closest chunks for this question, pastes them into the prompt, and lets the LLM write the answer.”</p>
+      <form class="search-box" id="rag-form">
+        <input id="rag-input" type="text" value="laptop keeps losing the office connection" aria-label="Employee question">
+        <button class="action primary" type="submit">Run this question</button>
+      </form>
+      <div class="controls" id="rag-chips"></div>
+      <div class="grid two">
+        <div class="flow" id="rag-flow"></div>
+        <div class="side-card" id="rag-detail"></div>
+      </div>
+      <div class="quiz">
+        <div class="quiz-q">
+          <p>The operation inside cosine is…</p>
+          <div class="controls">
+            <button class="action" type="button" data-quiz="q4" data-ok="1">the dot product, divided by the two lengths</button>
+            <button class="action" type="button" data-quiz="q4" data-ok="0">the cross product from class 12</button>
+            <button class="action" type="button" data-quiz="q4" data-ok="0">a SQL join</button>
+          </div>
+          <p class="feedback" data-feedback="q4"></p>
+        </div>
+        <div class="quiz-q">
+          <p>In RAG, the private PDF is…</p>
+          <div class="controls">
+            <button class="action" type="button" data-quiz="q5" data-ok="1">stored as vectors and retrieved when someone asks</button>
+            <button class="action" type="button" data-quiz="q5" data-ok="0">copied into the LLM’s weights</button>
+            <button class="action" type="button" data-quiz="q5" data-ok="0">found only when the exact words match</button>
+          </div>
+          <p class="feedback" data-feedback="q5"></p>
+        </div>
+      </div>
+    </section>
+
+    <div class="nav-row">
+      <button class="action ghost" type="button" id="back">Back</button>
+      <button class="action primary" type="button" id="next">Next station</button>
+    </div>
+  </main>
+
+  <script>
+    document.documentElement.classList.add("js");
+
+    const PLACES = [
+      { id: "peak", name: "The Peak", kind: "place", lat: 22.2759, lng: 114.1455, lx: -10, ly: -12, anchor: "end" },
+      { id: "hv", name: "Happy Valley", kind: "place", lat: 22.2694, lng: 114.1864, lx: -10, ly: -12, anchor: "end" },
+      { id: "food-peak", name: "Peak Trattoria", kind: "food", lat: 22.2742, lng: 114.1492, words: ["italian"], lx: 10, ly: 16, anchor: "start" },
+      { id: "food-wc", name: "Wan Chai Osteria", kind: "food", lat: 22.2774, lng: 114.1728, words: ["italian"], lx: 10, ly: -12, anchor: "start" },
+      { id: "food-hv", name: "Happy Valley Pizza", kind: "food", lat: 22.2686, lng: 114.1848, words: ["italian"], lx: -10, ly: 16, anchor: "end" }
+    ];
+
+    const DOCS = [
+      { id: "email-01", text: "The mail server is down", short: "mail server", topic: "email", x: 0.94, y: 0.12, lx: 0, ly: 20, anchor: "middle", source: "runbook_email.md", page: 1 },
+      { id: "email-02", text: "Outlook will not send", short: "Outlook", topic: "email", x: 0.62, y: 0.08, lx: 0, ly: -14, anchor: "middle", source: "runbook_email.md", page: 1 },
+      { id: "email-03", text: "Email client cannot reach Exchange", short: "Exchange", topic: "email", x: 0.78, y: 0.30, lx: 0, ly: -14, anchor: "middle", source: "runbook_email.md", page: 2 },
+      { id: "vpn-01", text: "The VPN tunnel keeps dropping", short: "VPN tunnel", topic: "vpn", x: 0.10, y: 0.94, lx: 12, ly: -6, anchor: "start", source: "runbook_vpn.md", page: 1 },
+      { id: "vpn-02", text: "GlobalProtect drops the tunnel frequently", short: "GlobalProtect", topic: "vpn", x: 0.18, y: 0.80, lx: 12, ly: 16, anchor: "start", source: "runbook_vpn.md", page: 1 },
+      { id: "vpn-03", text: "The VPN client disconnects every 10 minutes", short: "VPN client", topic: "vpn", x: 0.06, y: 0.55, lx: -12, ly: 4, anchor: "end", source: "runbook_vpn.md", page: 2 },
+      { id: "fin-01", text: "The quarterly budget report is due on Friday", short: "budget", topic: "budget", x: -0.70, y: -0.50, lx: 12, ly: 4, anchor: "start", source: "glossary.md", page: 1 }
+    ];
+
+    const TOPIC_COLOR = { email: "#1d6fa4", vpn: "#1a7a6d", budget: "#8a5a2a" };
+    const LEX = {
+      email: ["mail", "email", "outlook", "exchange", "send", "inbox", "server"],
+      vpn: ["vpn", "tunnel", "network", "connection", "disconnects", "disconnect", "globalprotect", "office", "laptop", "dropping", "drops", "connect", "client"],
+      budget: ["budget", "report", "friday", "quarterly"]
+    };
+    const STOP = new Set(["the", "a", "an", "is", "to", "on", "and", "will", "not", "every", "of", "in", "for", "it", "keeps", "due"]);
+    const MODELS = [
+      { id: "minilm", name: "MiniLM", size: 384, note: "This course. Local, no API key." },
+      { id: "small", name: "OpenAI small", size: 1536, note: "Finer map. Needs an API key." },
+      { id: "large", name: "OpenAI large", size: 3072, note: "Finest of these three. Slower and costlier." }
+    ];
+
+    const MAP = { minLng: 114.135, maxLng: 114.198, minLat: 22.262, maxLat: 22.286 };
+    const state = {
+      step: 0,
+      lat: 22.2759,
+      lng: 114.1455,
+      origin: "peak",
+      nearMode: "nearest",
+      dirX: 0.94,
+      dirY: 0.12,
+      length: 0.85,
+      model: "minilm",
+      mixed: false,
+      recordId: "email-02",
+      query: "the mail server is down",
+      ax: 3,
+      ay: 4,
+      bx: -4,
+      by: 3,
+      ragStage: 0,
+      ragQuery: "laptop keeps losing the office connection"
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function project(lat, lng) {
+      const x = 36 + ((lng - MAP.minLng) / (MAP.maxLng - MAP.minLng)) * 580;
+      const y = 24 + ((MAP.maxLat - lat) / (MAP.maxLat - MAP.minLat)) * 360;
+      return { x, y };
+    }
+
+    function km(a, b) {
+      const lat1 = a.lat * Math.PI / 180;
+      const lat2 = b.lat * Math.PI / 180;
+      const dLat = (b.lat - a.lat) * Math.PI / 180;
+      const dLng = (b.lng - a.lng) * Math.PI / 180;
+      const x = dLng * Math.cos((lat1 + lat2) / 2);
+      const y = dLat;
+      return Math.sqrt(x * x + y * y) * 6371;
+    }
+
+    function cosine(a, b) {
+      const dot = a[0] * b[0] + a[1] * b[1];
+      const mag = Math.hypot(a[0], a[1]) * Math.hypot(b[0], b[1]);
+      if (mag === 0) return 0;
+      return dot / mag;
+    }
+
+    function unit(x, y) {
+      const m = Math.hypot(x, y) || 1;
+      return [x / m, y / m];
+    }
+
+    function queryVec() {
+      const [ux, uy] = unit(state.dirX, state.dirY);
+      return [ux * state.length, uy * state.length];
+    }
+
+    function fmt(n, d) {
+      return Number(n).toFixed(d);
+    }
+
+    function words(text) {
+      return (text.toLowerCase().match(/[a-z0-9]+/g) || []).filter((w) => w.length > 2 && !STOP.has(w));
+    }
+
+    function teachingVector(text) {
+      const tokens = text.toLowerCase().match(/[a-z0-9]+/g) || [];
+      let e = 0, v = 0, b = 0;
+      tokens.forEach((w) => {
+        if (LEX.email.includes(w)) e += 1;
+        if (LEX.vpn.includes(w)) v += 1;
+        if (LEX.budget.includes(w)) b += 1;
+      });
+      if (e + v + b === 0) return null;
+      const x = e * 1 + v * 0.14 + b * -0.8;
+      const y = e * 0.12 + v * 1 + b * -0.55;
+      return unit(x, y);
+    }
+
+    function showStep(n) {
+      state.step = Math.max(0, Math.min(7, n));
+      document.querySelectorAll(".panel").forEach((p) => {
+        p.classList.toggle("is-on", Number(p.dataset.panel) === state.step);
+      });
+      document.querySelectorAll(".step-btn").forEach((b) => {
+        const on = Number(b.dataset.step) === state.step;
+        if (on) b.setAttribute("aria-current", "step");
+        else b.removeAttribute("aria-current");
+      });
+      $("back").disabled = state.step === 0;
+      $("next").textContent = state.step === 7 ? "Stay and practise" : "Next station";
+      if (state.step === 1) drawNear();
+      if (state.step === 2) drawMeaning();
+      if (state.step === 3) drawModel();
+      if (state.step === 4) drawRecord();
+      if (state.step === 5) runSearch();
+      if (state.step === 6) drawMath();
+      if (state.step === 7) drawRag();
+    }
+
+    function drawBaseMap(svg, highlightId) {
+      const parts = [];
+      parts.push('<rect x="20" y="16" width="600" height="380" rx="12" fill="var(--paper)" stroke="var(--line)"/>');
+      parts.push('<text x="40" y="400" class="axis-label">west · smaller longitude</text>');
+      parts.push('<text x="430" y="400" class="axis-label">east →</text>');
+      parts.push('<text x="28" y="36" class="axis-label">north →</text>');
+      PLACES.forEach((p) => {
+        const pt = project(p.lat, p.lng);
+        const food = p.kind === "food";
+        const on = p.id === highlightId;
+        const fill = food ? "#e8a020" : "#1d6fa4";
+        const r = on ? 9 : 6;
+        parts.push('<circle cx="' + pt.x + '" cy="' + pt.y + '" r="' + r + '" fill="' + fill + '" stroke="#0f1e36" stroke-width="1"/>');
+        parts.push('<text x="' + (pt.x + p.lx) + '" y="' + (pt.y + p.ly) + '" text-anchor="' + p.anchor + '" font-size="13" fill="var(--ink)">' + p.name + "</text>");
+      });
+      svg.innerHTML = parts.join("");
+    }
+
+    function renderPlace() {
+      $("lat").value = String(state.lat);
+      $("lng").value = String(state.lng);
+      $("lat-num").textContent = fmt(state.lat, 4);
+      $("lng-num").textContent = fmt(state.lng, 4);
+      $("place-vector").textContent = "[" + fmt(state.lat, 4) + ", " + fmt(state.lng, 4) + "]";
+      drawBaseMap($("place-map"), null);
+      const pt = project(state.lat, state.lng);
+      const live = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      live.setAttribute("cx", String(pt.x));
+      live.setAttribute("cy", String(pt.y));
+      live.setAttribute("r", "11");
+      live.setAttribute("fill", "none");
+      live.setAttribute("stroke", "#e8a020");
+      live.setAttribute("stroke-width", "3");
+      $("place-map").appendChild(live);
+    }
+
+    function drawNear() {
+      const origin = PLACES.find((p) => p.id === state.origin);
+      const foods = PLACES.filter((p) => p.kind === "food").map((p) => ({ ...p, dist: km(origin, p) }));
+      foods.sort((a, b) => a.dist - b.dist);
+      const svg = $("near-map");
+      drawBaseMap(svg, state.origin);
+      const o = project(origin.lat, origin.lng);
+      if (state.nearMode === "nearest") {
+        foods.slice(0, 3).forEach((p, i) => {
+          const pt = project(p.lat, p.lng);
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", String(o.x));
+          line.setAttribute("y1", String(o.y));
+          line.setAttribute("x2", String(pt.x));
+          line.setAttribute("y2", String(pt.y));
+          line.setAttribute("stroke", i === 0 ? "#e8a020" : "#1d6fa4");
+          line.setAttribute("stroke-width", i === 0 ? "3" : "1.5");
+          svg.appendChild(line);
+        });
+      }
+      const list = $("near-results");
+      list.innerHTML = "";
+      if (state.nearMode === "nearest") {
+        $("near-title").textContent = "Nearest Italian places to " + origin.name;
+        foods.forEach((p, i) => {
+          const li = document.createElement("li");
+          if (i < 3) li.className = "top";
+          li.innerHTML = "<strong>" + (i + 1) + ". " + p.name + "</strong><div class='meta'>" + p.dist.toFixed(2) + " km in a straight line · top-k keeps the first 3</div>";
+          list.appendChild(li);
+        });
+        $("near-note").textContent = "The closest pin wins. Peak Trattoria is the one you want when you are standing at The Peak. Happy Valley Pizza is Italian too, and it is the wrong side of the map.";
+      } else {
+        $("near-title").textContent = "Keyword match for “Italian”";
+        foods.forEach((p) => {
+          const li = document.createElement("li");
+          li.innerHTML = "<strong>" + p.name + "</strong><div class='meta'>Matched the word Italian · distance ignored · " + p.dist.toFixed(2) + " km from " + origin.name + "</div>";
+          list.appendChild(li);
+        });
+        $("near-note").textContent = "Every Italian pin comes back together. The word match has no idea which one is near you. Semantic search is the nearest-pin idea, used on meaning instead of streets.";
+      }
+    }
+
+    function meaningPoint(x, y) {
+      const px = 70 + ((x + 1) / 2) * 520;
+      const py = 430 - ((y + 1) / 2) * 390;
+      return { px, py };
+    }
+
+    function drawMeaning() {
+      const svg = $("meaning-plot");
+      const q = queryVec();
+      svg.innerHTML = "";
+      const ns = "http://www.w3.org/2000/svg";
+      function el(name, attrs) {
+        const node = document.createElementNS(ns, name);
+        Object.keys(attrs).forEach((k) => node.setAttribute(k, attrs[k]));
+        return node;
+      }
+      svg.appendChild(el("rect", { x: "48", y: "20", width: "560", height: "420", rx: "12", fill: "var(--paper)", stroke: "var(--line)" }));
+      const origin = meaningPoint(0, 0);
+      svg.appendChild(el("line", { x1: "70", y1: String(origin.py), x2: "590", y2: String(origin.py), stroke: "var(--line)" }));
+      svg.appendChild(el("line", { x1: String(origin.px), y1: "36", x2: String(origin.px), y2: "430", stroke: "var(--line)" }));
+      svg.appendChild(el("text", { x: String(origin.px + 10), y: String(origin.py + 18), "font-size": "12", fill: "var(--muted)" })).textContent = "email →";
+      svg.appendChild(el("text", { x: String(origin.px - 10), y: String(origin.py - 28), "text-anchor": "end", "font-size": "12", fill: "var(--muted)" })).textContent = "VPN ↑";
+
+      const ranked = DOCS.map((d) => ({ ...d, score: cosine(q, [d.x, d.y]) })).sort((a, b) => b.score - a.score);
+      const best = ranked[0];
+      const bp = meaningPoint(best.x, best.y);
+      const qp = meaningPoint(q[0], q[1]);
+      svg.appendChild(el("line", {
+        x1: String(origin.px), y1: String(origin.py), x2: String(bp.px), y2: String(bp.py),
+        stroke: TOPIC_COLOR[best.topic], "stroke-width": "2"
+      }));
+      svg.appendChild(el("line", {
+        x1: String(origin.px), y1: String(origin.py), x2: String(qp.px), y2: String(qp.py),
+        stroke: "#e8a020", "stroke-width": "3"
+      }));
+
+      DOCS.forEach((d) => {
+        const p = meaningPoint(d.x, d.y);
+        const dot = el("circle", {
+          cx: String(p.px), cy: String(p.py), r: "7", fill: TOPIC_COLOR[d.topic], stroke: "#0f1e36", "stroke-width": "1"
+        });
+        const tip = document.createElementNS(ns, "title");
+        tip.textContent = d.text;
+        dot.appendChild(tip);
+        svg.appendChild(dot);
+        const label = el("text", {
+          x: String(p.px + d.lx),
+          y: String(p.py + d.ly),
+          "text-anchor": d.anchor,
+          "font-size": "12",
+          fill: "var(--ink)"
+        });
+        label.textContent = d.short;
+        svg.appendChild(label);
+      });
+
+      const handle = el("circle", {
+        id: "query-handle", cx: String(qp.px), cy: String(qp.py), r: "10", fill: "#e8a020", stroke: "#0f1e36", "stroke-width": "2"
+      });
+      svg.appendChild(handle);
+
+      $("query-vector").textContent = "[" + fmt(q[0], 2) + ", " + fmt(q[1], 2) + "]";
+      $("arrow-len").value = String(state.length);
+      $("arrow-len-num").textContent = fmt(state.length, 2);
+      const score = best.score;
+      const dot = q[0] * best.x + q[1] * best.y;
+      const magQ = Math.hypot(q[0], q[1]);
+      const magB = Math.hypot(best.x, best.y);
+      const topicName = { email: "email", vpn: "VPN", budget: "budget" };
+      $("cosine-formula").textContent =
+        "Closest: " + best.text + "\n" +
+        "dot = " + fmt(q[0], 3) + " × " + fmt(best.x, 3) + " + " + fmt(q[1], 3) + " × " + fmt(best.y, 3) + " = " + fmt(dot, 3) + "\n" +
+        "lengths = " + fmt(magQ, 3) + " × " + fmt(magB, 3) + " = " + fmt(magQ * magB, 3) + "\n" +
+        "cosine = " + fmt(dot, 3) + " / " + fmt(magQ * magB, 3) + " = " + fmt(score, 3) + "\n" +
+        labelScore(score);
+      $("query-label").textContent = score > 0.75
+        ? "Gold pin points the same way as the " + topicName[best.topic] + " sentences."
+        : score > 0.35
+          ? "Gold pin sits between topics. Closest is still “" + best.short + "”."
+          : "Gold pin points another way. Closest score is " + fmt(score, 2) + ".";
+      $("length-note").textContent = "Arrow length is " + fmt(state.length, 2) + " and the closest score is " + fmt(score, 2) + ". Change only the length and that score stays the same, because cosine uses direction.";
+
+      const list = $("meaning-rank");
+      list.innerHTML = "";
+      ranked.slice(0, 3).forEach((d, i) => {
+        const li = document.createElement("li");
+        li.className = i === 0 ? "top" : "";
+        const width = Math.max(0, d.score) * 100;
+        li.innerHTML = "<strong>" + (i + 1) + ". " + d.text + "</strong><div class='meta'>cosine " + fmt(d.score, 2) + " · top-k = 3</div><div class='bar" + (i === 0 ? " hot" : "") + "'><span style='width:" + width + "%'></span></div>";
+        list.appendChild(li);
+      });
+    }
+
+    function labelScore(score) {
+      if (score > 0.85) return "Near 1 → same meaning.";
+      if (score > 0.4) return "Mid score → related, weaker.";
+      if (score > -0.15) return "Near 0 → different topic.";
+      return "Negative → the arrows point apart.";
+    }
+
+    function pointerToMeaning(evt) {
+      const svg = $("meaning-plot");
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return null;
+      const p = pt.matrixTransform(ctm.inverse());
+      const x = ((p.x - 70) / 520) * 2 - 1;
+      const y = ((430 - p.y) / 390) * 2 - 1;
+      return [Math.max(-1, Math.min(1, x)), Math.max(-1, Math.min(1, y))];
+    }
+
+    function standOn(doc) {
+      state.dirX = doc.x;
+      state.dirY = doc.y;
+      state.length = Math.min(1, Math.hypot(doc.x, doc.y));
+      state.recordId = doc.id;
+      drawMeaning();
+    }
+
+    function sketchValues(n) {
+      let s = 42;
+      const out = [];
+      for (let i = 0; i < n; i += 1) {
+        s = (s * 1664525 + 1013904223) % 4294967296;
+        out.push(((s % 1000) / 1000) * 0.8 - 0.4);
+      }
+      return out;
+    }
+
+    function drawModel() {
+      const model = MODELS.find((m) => m.id === state.model);
+      const cards = $("model-cards");
+      cards.innerHTML = "";
+      MODELS.forEach((m) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "model";
+        b.setAttribute("aria-pressed", m.id === state.model ? "true" : "false");
+        b.innerHTML = "<b>" + m.size + "</b>" + m.name + "<div class='meta'>" + m.note + "</div>";
+        b.addEventListener("click", () => {
+          state.model = m.id;
+          state.mixed = m.id !== "minilm";
+          drawModel();
+        });
+        cards.appendChild(b);
+      });
+      const values = sketchValues(48);
+      const cells = $("cells");
+      cells.innerHTML = "";
+      values.forEach((v) => {
+        const i = document.createElement("i");
+        const h = 6 + Math.abs(v) * 28;
+        i.style.height = h + "px";
+        i.style.opacity = String(0.45 + Math.abs(v));
+        i.title = v.toFixed(2);
+        cells.appendChild(i);
+      });
+      const head = sketchValues(8).map((v) => v.toFixed(2)).join(", ");
+      $("sketch-nums").textContent = model.name + " turns that sentence into " + model.size + " numbers.\nFirst 8 of a teaching sketch: [" + head + ", …]";
+
+      const storeN = 8;
+      const queryN = state.mixed ? 13 : 8;
+      fillPile($("pile-store"), storeN, false);
+      fillPile($("pile-query"), queryN, true);
+      $("store-label").textContent = "MiniLM · 384";
+      $("query-model-label").textContent = state.mixed ? model.name + " · " + model.size : "MiniLM · 384";
+      $("match-flag").textContent = state.mixed ? "Different maps" : "Same map";
+      $("match-flag").style.color = state.mixed ? "var(--warn)" : "var(--good)";
+      $("model-note").textContent = state.mixed
+        ? "These lists are different lengths, from different axes. Closeness is not defined between them. Put the search back on MiniLM."
+        : "Insert and search stay on one model, so both lists use the same axes. A longer list is a finer map. It is still one pin per sentence.";
+    }
+
+    function fillPile(node, n, alt) {
+      node.innerHTML = "";
+      for (let i = 0; i < n; i += 1) {
+        const bar = document.createElement("i");
+        bar.style.height = (12 + ((i * 17) % 28)) + "px";
+        node.appendChild(bar);
+      }
+      node.classList.toggle("alt", alt && state.mixed);
+    }
+
+    function drawRecord() {
+      const doc = DOCS.find((d) => d.id === state.recordId) || DOCS[1];
+      $("record-card").innerHTML =
+        "<div><span>id</span> " + doc.id + "</div>" +
+        "<div><span>text</span> " + doc.text + "</div>" +
+        "<div><span>vector</span> [" + fmt(doc.x, 2) + ", " + fmt(doc.y, 2) + "] · teaching length 2. MiniLM stores 384.</div>" +
+        "<div><span>metadata</span> source: " + doc.source + ", page: " + doc.page + "</div>";
+      $("ask-style").textContent =
+        "Keyword style\n  text contains the same words\n\nVector style\n  nearest(vector, top_k = 3)\n  then read those 3 sentences";
+      document.querySelectorAll("#record-chips .chip").forEach((b) => {
+        b.setAttribute("aria-pressed", b.dataset.id === doc.id ? "true" : "false");
+      });
+    }
+
+    function keywordScore(query, doc) {
+      const q = words(query);
+      const d = new Set(words(doc.text));
+      if (!q.length) return { score: 0, hits: [] };
+      const hits = q.filter((w) => d.has(w));
+      return { score: hits.length / q.length, hits };
+    }
+
+    function runSearch() {
+      const query = state.query.trim();
+      $("search-input").value = query;
+      const dir = teachingVector(query);
+      $("toy-caption").textContent = dir
+        ? "This page moves the pin by counting a few topic words (mail, vpn, budget…). MiniLM reads the whole sentence and returns 384 numbers. Same idea, richer map. Teaching direction: [" + fmt(dir[0], 2) + ", " + fmt(dir[1], 2) + "]."
+        : "None of the teaching words showed up, so the semantic pin stays at zero and every semantic score is 0. Try “laptop office connection” or “mail server”.";
+
+      const kw = DOCS.map((d) => ({ ...d, ...keywordScore(query, d) })).sort((a, b) => b.score - a.score);
+      const kwList = $("kw-results");
+      kwList.innerHTML = "";
+      const kwHits = kw.filter((d) => d.score > 0);
+      if (!kwHits.length) {
+        kwList.innerHTML = "<li><strong>No shared words.</strong><div class='meta'>A LIKE-style search returns nothing for this wording.</div></li>";
+      } else {
+        kwHits.slice(0, 3).forEach((d, i) => {
+          const li = document.createElement("li");
+          if (i === 0) li.className = "top";
+          li.innerHTML = "<strong>" + d.text + "</strong><div class='meta'>overlap " + fmt(d.score, 2) + " · words: " + d.hits.join(", ") + "</div>";
+          kwList.appendChild(li);
+        });
+      }
+
+      const semList = $("sem-results");
+      semList.innerHTML = "";
+      if (!dir) {
+        semList.innerHTML = "<li><strong>No teaching direction.</strong><div class='meta'>Add a topic word, or pick a prepared question.</div></li>";
+        return;
+      }
+      const sem = DOCS.map((d) => ({ ...d, score: cosine(dir, unit(d.x, d.y)) })).sort((a, b) => b.score - a.score);
+      sem.slice(0, 3).forEach((d, i) => {
+        const li = document.createElement("li");
+        if (i === 0) li.className = "top";
+        const width = Math.max(0, d.score) * 100;
+        li.innerHTML = "<strong>" + d.text + "</strong><div class='meta'>cosine " + fmt(d.score, 2) + " · " + d.source + "</div><div class='bar" + (i === 0 ? " hot" : "") + "'><span style='width:" + width + "%'></span></div>";
+        semList.appendChild(li);
+      });
+    }
+
+    function mathPt(x, y) {
+      return { px: 220 + x * 34, py: 220 - y * 34 };
+    }
+
+    function componentText(n) {
+      const s = Number(n).toFixed(1);
+      return s.endsWith(".0") ? s.slice(0, -2) : s;
+    }
+
+    function drawMath() {
+      const ax = state.ax;
+      const ay = state.ay;
+      const bx = state.bx;
+      const by = state.by;
+      $("ax").value = String(ax);
+      $("ay").value = String(ay);
+      $("bx").value = String(bx);
+      $("by").value = String(by);
+      $("ax-num").textContent = componentText(ax);
+      $("ay-num").textContent = componentText(ay);
+      $("bx-num").textContent = componentText(bx);
+      $("by-num").textContent = componentText(by);
+
+      const svg = $("math-plot");
+      svg.innerHTML = "";
+      const ns = "http://www.w3.org/2000/svg";
+      function el(name, attrs) {
+        const node = document.createElementNS(ns, name);
+        Object.keys(attrs).forEach((k) => node.setAttribute(k, attrs[k]));
+        return node;
+      }
+      svg.appendChild(el("rect", { x: "8", y: "8", width: "424", height: "424", rx: "12", fill: "var(--paper)", stroke: "var(--line)" }));
+      for (let i = -5; i <= 5; i += 1) {
+        const vertical = mathPt(i, 0);
+        const horizontal = mathPt(0, i);
+        const axis = i === 0 ? "1.6" : "1";
+        svg.appendChild(el("line", { x1: String(vertical.px), y1: "24", x2: String(vertical.px), y2: "416", stroke: "var(--line)", "stroke-width": axis }));
+        svg.appendChild(el("line", { x1: "24", y1: String(horizontal.py), x2: "416", y2: String(horizontal.py), stroke: "var(--line)", "stroke-width": axis }));
+      }
+      const xlab = el("text", { x: "330", y: "206", "font-size": "12", fill: "var(--muted)" });
+      xlab.textContent = "x component";
+      svg.appendChild(xlab);
+      const ylab = el("text", { x: "228", y: "36", "font-size": "12", fill: "var(--muted)" });
+      ylab.textContent = "y component";
+      svg.appendChild(ylab);
+
+      function arrow(x, y, color, name) {
+        if (Math.hypot(x, y) < 0.2) return;
+        const o = mathPt(0, 0);
+        const t = mathPt(x, y);
+        svg.appendChild(el("line", {
+          x1: String(t.px), y1: String(t.py), x2: String(t.px), y2: String(o.py),
+          stroke: color, "stroke-dasharray": "4 3"
+        }));
+        svg.appendChild(el("line", {
+          x1: String(o.px), y1: String(o.py), x2: String(t.px), y2: String(t.py),
+          stroke: color, "stroke-width": "3"
+        }));
+        const ang = Math.atan2(t.py - o.py, t.px - o.px);
+        const len = 12;
+        const spread = 0.42;
+        const x1 = t.px - len * Math.cos(ang - spread);
+        const y1 = t.py - len * Math.sin(ang - spread);
+        const x2 = t.px - len * Math.cos(ang + spread);
+        const y2 = t.py - len * Math.sin(ang + spread);
+        svg.appendChild(el("polygon", {
+          points: t.px + "," + t.py + " " + x1 + "," + y1 + " " + x2 + "," + y2,
+          fill: color
+        }));
+        const label = el("text", {
+          x: String(t.px + 8), y: String(t.py - 8),
+          "font-size": "14", fill: "var(--ink)", "font-weight": "700"
+        });
+        label.textContent = name;
+        svg.appendChild(label);
+      }
+      arrow(ax, ay, "#1d6fa4", "A");
+      arrow(bx, by, "#e8a020", "B");
+
+      const magA = Math.hypot(ax, ay);
+      const magB = Math.hypot(bx, by);
+      const dot = ax * bx + ay * by;
+      const denom = magA * magB;
+      const score = denom === 0 ? 0 : dot / denom;
+      $("math-formula").textContent =
+        "A = [" + componentText(ax) + ", " + componentText(ay) + "]\n" +
+        "|A| = √(" + componentText(ax) + "² + " + componentText(ay) + "²) = " + fmt(magA, 2) + "   ← magnitude, the length\n" +
+        "B = [" + componentText(bx) + ", " + componentText(by) + "]\n" +
+        "|B| = " + fmt(magB, 2) + "\n" +
+        "A · B = " + componentText(ax) + "×" + componentText(bx) + " + " + componentText(ay) + "×" + componentText(by) + " = " + fmt(dot, 2) + "   ← dot product\n" +
+        (denom === 0
+          ? "Cosine needs a direction. The zero vector stays at the origin."
+          : "cosine = " + fmt(dot, 2) + " / (" + fmt(magA, 2) + " × " + fmt(magB, 2) + ") = " + fmt(score, 2) + "\n" +
+            "MiniLM does the same sum across 384 components.");
+      let note = "Cosine " + fmt(score, 2) + ". Partly the same direction.";
+      if (denom === 0) note = "A vector at the origin has components of zero and no direction. Give A and B a length.";
+      else if (score > 0.95) note = "Cosine near 1. Same direction, even when the lengths differ. Outlook and “the mail server is down” behave like this.";
+      else if (Math.abs(score) < 0.08) note = "Dot product about 0. The arrows meet at a right angle. Email and VPN sit apart like this on the meaning map.";
+      else if (score < -0.95) note = "Cosine near −1. Opposite direction. The budget sentence pointed away from both runbooks.";
+      $("math-note").textContent = note;
+    }
+
+    function ragHits(query) {
+      const dir = teachingVector(query);
+      if (!dir) return { dir: null, hits: [] };
+      const hits = DOCS.map((d) => ({ ...d, score: cosine(dir, unit(d.x, d.y)) }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+      return { dir, hits };
+    }
+
+    function teachingReply(topic) {
+      if (topic === "vpn") return "The office connection is dropping because the VPN tunnel keeps failing. Check the always-on VPN profile and the DNS suffix.\nSource: runbook_vpn.md";
+      if (topic === "email") return "Mail is down. Check autodiscover, cached mode, and the MFA session in Outlook.\nSource: runbook_email.md";
+      if (topic === "budget") return "The quarterly budget report is due on Friday.\nSource: glossary.md";
+      return "The retrieved notes do not cover this question.";
+    }
+
+    function esc(s) {
+      return String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    }
+
+    function drawRag() {
+      const query = state.ragQuery.trim();
+      $("rag-input").value = query;
+      const pack = ragHits(query);
+      const stages = [
+        "Private documents",
+        "Cut into chunks",
+        "Embed and store",
+        "Question arrives",
+        "Retrieve · the R",
+        "Augment · the A",
+        "Generate · the G"
+      ];
+      const flow = $("rag-flow");
+      flow.innerHTML = "";
+      stages.forEach((title, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "stage";
+        b.dataset.stage = String(i);
+        b.setAttribute("aria-pressed", i === state.ragStage ? "true" : "false");
+        b.innerHTML = "<b>" + (i + 1) + ". " + title + "</b>";
+        flow.appendChild(b);
+      });
+
+      const top = pack.hits[0];
+      const example = top || DOCS[5];
+      const context = pack.hits.map((d, i) => (i + 1) + ". [" + d.source + " p." + d.page + "] " + d.text).join("\n");
+      const scores = pack.hits.map((d) => d.text + " · cosine " + fmt(d.score, 2)).join("\n");
+      const advance = state.ragStage < 6
+        ? "<p><button class='action primary' type='button' id='rag-advance'>Next step</button></p>"
+        : "";
+      let body = "";
+      if (state.ragStage === 0) {
+        body = "<p><strong>The knowledge base.</strong> These files are private. The public LLM was trained on the internet, so it has never read them.</p><div class='formula'>runbook_vpn.md\nrunbook_email.md\nglossary.md</div>";
+      } else if (state.ragStage === 1) {
+        body = "<p><strong>Chunking.</strong> A long PDF is cut before it becomes vectors. A typical setting from class: 500 tokens per chunk, overlap 100, so the next chunk starts at token 401. Each chunk will be one vector. These sample runbooks are already one chunk each.</p><div class='formula'>Chunk 1 · tokens 1–500\nChunk 2 · tokens 401–900\nChunk 3 · tokens 801–1300</div>";
+      } else if (state.ragStage === 2) {
+        body = "<p><strong>Embed, then store.</strong> MiniLM turns every chunk into a 384-number vector. Chroma keeps the vector, the original text, and the sticky note. The LLM’s weights stay as they are.</p><div class='formula'>id: " + example.id + "\ntext: " + example.text + "\nvector: [" + fmt(example.x, 2) + ", " + fmt(example.y, 2) + "] · stand-in for 384 numbers\nmetadata: " + example.source + ", page " + example.page + "</div>";
+      } else if (state.ragStage === 3) {
+        body = "<p><strong>The question is embedded with the same model.</strong> “" + esc(query) + "” becomes a vector. It is not sent to a LIKE query.</p>" +
+          (pack.dir
+            ? "<div class='formula'>question vector · teaching 2D stand-in\n[" + fmt(pack.dir[0], 2) + ", " + fmt(pack.dir[1], 2) + "]\nMiniLM would return 384 numbers on this same sentence.</div>"
+            : "<div class='formula'>This toy page only moves the pin for mail, vpn, or budget words. Try the laptop question.</div>");
+      } else if (state.ragStage === 4) {
+        body = pack.dir
+          ? "<p><strong>Retrieval.</strong> Cosine compares the question’s direction with every stored vector. Top-k keeps the closest 3 chunks. This is the R in RAG.</p><div class='formula'>" + esc(scores) + "</div>"
+          : "<p><strong>Retrieval.</strong> Add a topic word such as vpn, mail, or budget so this page can place the question.</p>";
+      } else if (state.ragStage === 5) {
+        body = pack.dir
+          ? "<p><strong>Augmentation.</strong> The retrieved chunks are pasted into the prompt with the question. The model sees the private text only for this one question. This is the A in RAG.</p><pre class='prompt'>Answer only from the context.\n\nContext:\n" + esc(context) + "\n\nQuestion: " + esc(query) + "</pre>"
+          : "<p><strong>Augmentation.</strong> There are no chunks to paste in until retrieval finds a direction.</p>";
+      } else {
+        body = pack.dir
+          ? "<p><strong>Generation.</strong> The LLM writes the reply in normal language and can name the file, because the metadata travelled with the vector. This is the G in RAG. The PDF was not copied into the model’s weights. Fine-tuning would change the weights. RAG looks the text up at question time.</p><pre class='prompt'>" + esc(teachingReply(top.topic)) + "</pre>"
+          : "<p><strong>Generation.</strong> Without retrieved chunks, the model would be guessing from public training. RAG’s point is to hand it the private chunks first.</p>";
+      }
+      $("rag-detail").innerHTML = body + advance;
+    }
+
+    function bind() {
+      document.querySelectorAll(".step-btn").forEach((b) => {
+        b.addEventListener("click", () => showStep(Number(b.dataset.step)));
+      });
+      $("next").addEventListener("click", () => showStep(state.step + 1));
+      $("back").addEventListener("click", () => showStep(state.step - 1));
+
+      new MutationObserver(() => {
+        if (state.step === 0) renderPlace();
+        if (state.step === 1) drawNear();
+        if (state.step === 2) drawMeaning();
+        if (state.step === 6) drawMath();
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+      const chips = $("place-chips");
+      PLACES.forEach((p) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip";
+        b.textContent = p.name;
+        b.addEventListener("click", () => {
+          state.lat = p.lat;
+          state.lng = p.lng;
+          renderPlace();
+        });
+        chips.appendChild(b);
+      });
+      ["lat", "lng"].forEach((key) => {
+        $(key).addEventListener("input", () => {
+          state[key] = Number($(key).value);
+          renderPlace();
+        });
+      });
+
+      document.querySelectorAll("[data-origin]").forEach((b) => {
+        b.addEventListener("click", () => {
+          state.origin = b.dataset.origin;
+          document.querySelectorAll("[data-origin]").forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+          drawNear();
+        });
+      });
+      $("find-nearest").addEventListener("click", () => { state.nearMode = "nearest"; drawNear(); });
+      $("find-keyword").addEventListener("click", () => { state.nearMode = "keyword"; drawNear(); });
+
+      const docChips = $("doc-chips");
+      const recordChips = $("record-chips");
+      DOCS.forEach((d) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip";
+        b.textContent = d.text;
+        b.addEventListener("click", () => standOn(d));
+        docChips.appendChild(b);
+
+        const r = document.createElement("button");
+        r.type = "button";
+        r.className = "chip";
+        r.dataset.id = d.id;
+        r.textContent = d.id;
+        r.addEventListener("click", () => {
+          state.recordId = d.id;
+          drawRecord();
+        });
+        recordChips.appendChild(r);
+      });
+
+      $("arrow-len").addEventListener("input", () => {
+        state.length = Number($("arrow-len").value);
+        drawMeaning();
+      });
+
+      const plot = $("meaning-plot");
+      plot.addEventListener("pointerdown", (evt) => {
+        const hit = pointerToMeaning(evt);
+        if (!hit) return;
+        state.dirX = hit[0];
+        state.dirY = hit[1];
+        state.length = Math.max(0.35, Math.min(1, Math.hypot(hit[0], hit[1])));
+        plot.setPointerCapture(evt.pointerId);
+        drawMeaning();
+      });
+      plot.addEventListener("pointermove", (evt) => {
+        if (!plot.hasPointerCapture(evt.pointerId)) return;
+        const hit = pointerToMeaning(evt);
+        if (!hit) return;
+        state.dirX = hit[0];
+        state.dirY = hit[1];
+        state.length = Math.max(0.35, Math.min(1, Math.hypot(hit[0], hit[1])));
+        drawMeaning();
+      });
+
+      $("mix-models").addEventListener("click", () => {
+        state.mixed = true;
+        if (state.model === "minilm") state.model = "small";
+        drawModel();
+      });
+      $("same-models").addEventListener("click", () => {
+        state.mixed = false;
+        state.model = "minilm";
+        drawModel();
+      });
+
+      const prepared = [
+        "the mail server is down",
+        "Outlook will not send",
+        "laptop keeps losing the office connection",
+        "quarterly budget report due Friday"
+      ];
+      const qChips = $("query-chips");
+      prepared.forEach((text) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip";
+        b.textContent = text;
+        b.addEventListener("click", () => {
+          state.query = text;
+          runSearch();
+        });
+        qChips.appendChild(b);
+      });
+      $("search-form").addEventListener("submit", (evt) => {
+        evt.preventDefault();
+        state.query = $("search-input").value;
+        runSearch();
+      });
+
+      document.querySelectorAll("[data-quiz]").forEach((b) => {
+        b.addEventListener("click", () => {
+          const id = b.dataset.quiz;
+          const fb = document.querySelector('[data-feedback="' + id + '"]');
+          const ok = b.dataset.ok === "1";
+          fb.textContent = ok ? "Yes. That is the idea to keep." : "Try the other choice. The stations above settle this one.";
+          fb.className = "feedback " + (ok ? "ok" : "no");
+        });
+      });
+
+      ["ax", "ay", "bx", "by"].forEach((key) => {
+        $(key).addEventListener("input", () => {
+          state[key] = Number($(key).value);
+          drawMath();
+        });
+      });
+      const mathPresets = {
+        right: [3, 4, -4, 3],
+        same: [1.5, 2, 3, 4],
+        opposite: [3, 4, -3, -4],
+        lesson: [4.5, 0.5, 0.5, 4.5]
+      };
+      document.querySelectorAll("[data-math]").forEach((b) => {
+        b.addEventListener("click", () => {
+          const values = mathPresets[b.dataset.math];
+          state.ax = values[0];
+          state.ay = values[1];
+          state.bx = values[2];
+          state.by = values[3];
+          drawMath();
+        });
+      });
+
+      $("rag-flow").addEventListener("click", (evt) => {
+        const btn = evt.target.closest("[data-stage]");
+        if (!btn) return;
+        state.ragStage = Number(btn.dataset.stage);
+        drawRag();
+      });
+      $("rag-detail").addEventListener("click", (evt) => {
+        if (evt.target.id !== "rag-advance") return;
+        state.ragStage = Math.min(6, state.ragStage + 1);
+        drawRag();
+      });
+      const ragQuestions = [
+        "laptop keeps losing the office connection",
+        "the mail server is down",
+        "quarterly budget report due Friday"
+      ];
+      ragQuestions.forEach((text) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip";
+        b.textContent = text;
+        b.addEventListener("click", () => {
+          state.ragQuery = text;
+          drawRag();
+        });
+        $("rag-chips").appendChild(b);
+      });
+      $("rag-form").addEventListener("submit", (evt) => {
+        evt.preventDefault();
+        state.ragQuery = $("rag-input").value;
+        drawRag();
+      });
+    }
+
+    bind();
+    renderPlace();
+    showStep(0);
+  </script>
+</body>
+</html>

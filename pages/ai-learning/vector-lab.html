@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en" data-page="vector-lab">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script src="/assets/theme-switcher.js"></script>
+<title>Vector Lab — Mayank Chugh</title>
+<meta name="description" content="Six interactive lessons: vectors as walking directions, add and scale, the dot product, many dimensions, matrix multiply, and a quiz.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a lab notebook — tabbed lessons, each a graph-paper stage on the left and live arithmetic on the right */
+:root{
+  --bg:#F2F4F8; --surface:#FFFFFF; --ink:#141C2B; --muted:#5A6577; --line:#D8DEE8;
+  --grid:#E4E8EF; --axis:#97A2B3;
+  --a:#2350C4; --b:#B8600F; --c:#18855A; --k:#7438B0; --bad:#BE3328; --good:#18855A;
+  --hla:rgba(35,80,196,.13); --hlb:rgba(184,96,15,.15); --chip:#E9EDF4;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E131B; --surface:#151C27; --ink:#E5EAF2; --muted:#97A2B4; --line:#283242;
+    --grid:#1C2531; --axis:#4B5769;
+    --a:#7099FF; --b:#EFA04E; --c:#4CC68D; --k:#B78CF2; --bad:#FF7B6F; --good:#4CC68D;
+    --hla:rgba(112,153,255,.2); --hlb:rgba(239,160,78,.2); --chip:#1F2835;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E131B; --surface:#151C27; --ink:#E5EAF2; --muted:#97A2B4; --line:#283242;
+  --grid:#1C2531; --axis:#4B5769;
+  --a:#7099FF; --b:#EFA04E; --c:#4CC68D; --k:#B78CF2; --bad:#FF7B6F; --good:#4CC68D;
+  --hla:rgba(112,153,255,.2); --hlb:rgba(239,160,78,.2); --chip:#1F2835;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1120px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:20px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,5vw,3rem);line-height:1;margin:0;letter-spacing:-.02em}
+h1 .vec{font-family:var(--f-mono);font-weight:600;color:var(--a);font-size:.55em;vertical-align:.35em;margin-left:.3em}
+.sub{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:18px;height:3px;border-radius:2px;display:inline-block}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:28px;scrollbar-width:thin}
+nav.tabs button{appearance:none;border:0;background:none;color:var(--muted);font:500 14px var(--f-body);padding:10px 14px 12px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;gap:8px;align-items:baseline}
+nav.tabs button .n{font-family:var(--f-mono);font-size:11px;opacity:.75}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--a)}
+nav.tabs button:hover{color:var(--ink)}
+button:focus-visible,input:focus-visible,canvas:focus-visible,select:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.intro{max-width:70ch;margin-bottom:22px}
+.kicker{font:600 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h2{font-family:var(--f-display);font-weight:800;font-size:clamp(1.5rem,3.4vw,2.1rem);line-height:1.1;margin:4px 0 10px;letter-spacing:-.01em;text-wrap:balance}
+.analogy{margin:0;color:var(--ink)}
+.analogy b{font-weight:600}
+.work{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:840px){.work{grid-template-columns:minmax(0,1fr)}}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
+.stage canvas{display:block;width:100%;max-width:100%;aspect-ratio:1;touch-action:none;cursor:crosshair;border-radius:6px}
+.hint{font-size:12.5px;color:var(--muted);margin:8px 2px 0}
+.side{display:flex;flex-direction:column;gap:18px;min-width:0}
+.block h3{font:600 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.rows{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;align-items:baseline}
+.rows dt{font-size:13px;color:var(--muted)}
+.rows dd{margin:0;font-family:var(--f-mono);font-size:14px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.calc{font-family:var(--f-mono);font-size:14px;line-height:1.75;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-variant-numeric:tabular-nums}
+.calc .ln{white-space:nowrap}
+.ta{color:var(--a);font-weight:600}.tb{color:var(--b);font-weight:600}.tc{color:var(--c);font-weight:600}.tk{color:var(--k);font-weight:600}
+.say{font-size:14.5px;margin:0}
+.challenges{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.challenges li{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.challenges li .box{flex:none;width:18px;height:18px;border:1.5px solid var(--line);border-radius:4px;margin-top:2px;display:grid;place-items:center;font-size:12px;color:transparent}
+.challenges li.done .box{background:var(--good);border-color:var(--good);color:var(--surface)}
+.challenges li.done span:last-child{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--good)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 13px var(--f-body);padding:7px 12px;border-radius:7px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn[disabled]{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{appearance:none;border:0;background:none;color:var(--muted);font:500 13px var(--f-body);padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.slider{display:flex;align-items:center;gap:12px}
+.slider input{flex:1;min-width:0;accent-color:var(--k)}
+.slider output{font-family:var(--f-mono);font-size:14px;min-width:3.5ch;text-align:right}
+.meter{position:relative;height:34px;margin-top:4px}
+.meter .track{position:absolute;left:0;right:0;top:10px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--bad),var(--grid) 50%,var(--good))}
+.meter .mark{position:absolute;top:4px;width:3px;height:20px;background:var(--ink);border-radius:2px;transform:translateX(-50%);transition:left .15s}
+.meter .scale{position:absolute;left:0;right:0;top:22px;display:flex;justify-content:space-between;font:11px var(--f-mono);color:var(--muted)}
+.verdict{display:inline-block;font:600 13px var(--f-body);padding:4px 10px;border-radius:999px;background:var(--chip)}
+.verdict.good{color:var(--good)}.verdict.bad{color:var(--bad)}.verdict.mid{color:var(--muted)}
+/* dims */
+.tastes{display:grid;grid-template-columns:auto minmax(0,1fr) 3ch;gap:8px 12px;align-items:center}
+.tastes label{font-size:14px}
+.tastes input{width:100%;accent-color:var(--a)}
+.tastes output{font-family:var(--f-mono);text-align:right}
+.rank{display:flex;flex-direction:column;gap:4px}
+.rank button{appearance:none;border:1px solid transparent;background:none;color:var(--ink);display:grid;grid-template-columns:7.5rem minmax(0,1fr) 4.5rem;gap:10px;align-items:center;padding:6px 8px;border-radius:7px;cursor:pointer;font:14px var(--f-body);text-align:left}
+.rank button:hover{background:var(--chip)}
+.rank button.on{border-color:var(--line);background:var(--surface)}
+.rank .bar{height:10px;border-radius:5px;background:var(--grid);overflow:hidden}
+.rank .bar i{display:block;height:100%;background:var(--a);border-radius:5px;transition:width .2s}
+.rank button:first-child .bar i{background:var(--c)}
+.rank .sc{font-family:var(--f-mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.rank .vec{display:block;font:11px var(--f-mono);color:var(--muted)}
+.ftable{overflow-x:auto}
+.ftable table{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.ftable th,.ftable td{padding:4px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+.ftable th:first-child,.ftable td:first-child{text-align:left}
+.ftable td{font-family:var(--f-mono)}
+.ftable tr.you td{color:var(--a);font-weight:600}
+/* matrix */
+.mx-top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-bottom:16px}
+.mx-row{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+.mx{min-width:0;max-width:100%}
+.mx .head{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.mx .head b{font-family:var(--f-display);font-size:20px}
+.mx select{font:13px var(--f-mono);padding:3px 4px;border-radius:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.mscroll{overflow-x:auto;max-width:100%;padding-bottom:4px}
+.mgrid{display:grid;gap:5px;align-items:center}
+.mlab{font-size:12px;color:var(--muted);white-space:nowrap}
+.mlab.col{text-align:center}
+.mlab.row{text-align:right;padding-right:4px}
+.mcell{width:100%;min-width:0;font:15px var(--f-mono);padding:8px 4px;text-align:center;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);-moz-appearance:textfield}
+.mcell::-webkit-inner-spin-button,.mcell::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.mcell.hla{background:var(--hla);border-color:var(--a)}
+.mcell.hlb{background:var(--hlb);border-color:var(--b)}
+.rcell{font:600 15px var(--f-mono);padding:8px 4px;text-align:center;border:1px dashed var(--line);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;width:100%}
+.rcell.shown{border-style:solid;color:var(--c);background:var(--surface)}
+.rcell.sel{outline:2px solid var(--c);outline-offset:1px;color:var(--c)}
+.op{font-family:var(--f-display);font-size:28px;color:var(--muted);align-self:center;padding-top:28px}
+.shape{font-family:var(--f-mono);font-size:14px}
+.shape .inner{font-weight:600;padding:0 2px;border-radius:3px}
+.shape.ok .inner{color:var(--good);background:var(--chip)}
+.shape.no .inner{color:var(--bad);background:var(--chip)}
+.err{border:1px solid var(--bad);color:var(--bad);border-radius:8px;padding:10px 14px;font-size:14px}
+.cap{color:var(--muted);font-size:14px;margin:0;max-width:70ch}
+.mx-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:22px}
+@media (max-width:840px){.mx-bottom{grid-template-columns:minmax(0,1fr)}}
+/* quiz */
+.quiz{max-width:680px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px}
+.quiz .qn{font:600 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.quiz .q{font-family:var(--f-display);font-weight:600;font-size:21px;line-height:1.25;margin:6px 0 16px}
+.quiz .opts{display:flex;flex-direction:column;gap:8px}
+.quiz .opts button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:15px var(--f-body);padding:11px 14px;border-radius:8px;cursor:pointer}
+.quiz .opts button:hover:not([disabled]){border-color:var(--muted)}
+.quiz .opts button.right{border-color:var(--good);color:var(--good);font-weight:600}
+.quiz .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.quiz .opts button[disabled]{cursor:default}
+.quiz .fb{margin:14px 0 0;font-size:14.5px}
+.quiz .fb b{font-weight:600}
+.quiz .foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+.quiz .score{font:13px var(--f-mono);color:var(--muted)}
+.big{font-family:var(--f-display);font-weight:800;font-size:46px;line-height:1;margin:8px 0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+/* integrated: reset from export + hub link */
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+img{max-width:100%}
+[hidden]:not([hidden=until-found i]){display:none!important}
+a.btn{display:inline-block;color:inherit;text-decoration:none}
+header.top .btns{margin-top:12px}
+</style>
+<link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Vector Lab <span class="vec">[x, y, …]</span></h1>
+      <p class="sub">Six short lessons. Drag the arrows, move the sliders and edit the numbers. Every result is worked out step by step as you go.</p>
+      <div class="btns">
+        <a class="btn" href="/pages/learning/index.html#rag-retrieval">Learning Hub</a>
+      </div>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--a)"></i>a</span>
+      <span><i style="background:var(--b)"></i>b</span>
+      <span><i style="background:var(--c)"></i>result</span>
+      <span><i style="background:var(--k)"></i>scaled / unit</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Lessons">
+    <button role="tab" data-tab="arrows" id="t-arrows"><span class="n">01</span>What is a vector</button>
+    <button role="tab" data-tab="add" id="t-add"><span class="n">02</span>Add &amp; scale</button>
+    <button role="tab" data-tab="dot" id="t-dot"><span class="n">03</span>Dot product</button>
+    <button role="tab" data-tab="dims" id="t-dims"><span class="n">04</span>Many dimensions</button>
+    <button role="tab" data-tab="matrix" id="t-matrix"><span class="n">05</span>Matrix multiply</button>
+    <button role="tab" data-tab="quiz" id="t-quiz"><span class="n">06</span>Quiz</button>
+  </nav>
+
+  <!-- 1 -->
+  <section class="panel" id="p-arrows" role="tabpanel" aria-labelledby="t-arrows">
+    <div class="intro">
+      <div class="kicker">Lesson 1 · Direction and length</div>
+      <h2>A vector is a set of walking directions</h2>
+      <p class="analogy">"Walk <b>3 steps east</b>, then <b>4 steps north</b>." That instruction is the vector <b>[3, 4]</b>. It tells you <b>which way</b> to go and <b>how far</b>. A plain number like 5 only tells you how much.</p>
+    </div>
+    <div class="work">
+      <div class="stage">
+        <canvas id="cv-arrows" tabindex="0" aria-label="Graph with draggable vector a. Use arrow keys to move it."></canvas>
+        <p class="hint">Drag the blue arrow tip. On a keyboard, focus the grid and use the arrow keys.</p>
+      </div>
+      <div class="side">
+        <div class="block">
+          <h3>In words</h3>
+          <p class="say" id="a1-say"></p>
+        </div>
+        <div class="block">
+          <h3>The numbers</h3>
+          <dl class="rows">
+            <dt>Vector</dt><dd id="a1-vec"></dd>
+            <dt>Length ‖a‖</dt><dd id="a1-mag"></dd>
+            <dt>Unit vector â</dt><dd id="a1-unit"></dd>
+            <dt>Angle from east</dt><dd id="a1-ang"></dd>
+          </dl>
+        </div>
+        <div class="block">
+          <h3>How the length is found</h3>
+          <div class="calc" id="a1-calc"></div>
+          <p class="hint">It's Pythagoras: the dashed legs and the arrow form a right-angled triangle. The purple arrow is the <b>unit vector</b>, same direction with length 1, so it always ends on the dashed circle.</p>
+        </div>
+        <div class="block">
+          <h3>Try this</h3>
+          <ul class="challenges" id="a1-ch"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="panel" id="p-add" role="tabpanel" aria-labelledby="t-add" hidden>
+    <div class="intro">
+      <div class="kicker">Lesson 2 · Combining and resizing</div>
+      <h2>Adding is doing one trip after another</h2>
+      <p class="analogy"><b>Adding</b> = walk trip a, then from where you stopped, walk trip b. The green arrow goes straight from start to finish. <b>Scaling</b> is a volume knob: ×2 walks twice as far in the same direction, ×−1 turns you around.</p>
+    </div>
+    <div class="work">
+      <div class="stage">
+        <canvas id="cv-add" tabindex="0" aria-label="Graph with draggable vectors a and b."></canvas>
+        <p class="hint" id="a2-hint">Drag the tips of a (blue) and b (orange). Keyboard: arrow keys move, Space switches arrow.</p>
+      </div>
+      <div class="side">
+        <div class="seg" role="group" aria-label="Mode">
+          <button type="button" id="m-add" aria-pressed="true">Add a + b</button>
+          <button type="button" id="m-scale" aria-pressed="false">Scale k × a</button>
+        </div>
+        <div class="block" id="k-wrap" hidden>
+          <h3>Scale factor k</h3>
+          <div class="slider"><input type="range" id="k" min="-3" max="3" step="0.5" value="2" aria-label="Scale factor k"><output id="k-out">2</output></div>
+        </div>
+        <div class="block">
+          <h3>Worked out</h3>
+          <div class="calc" id="a2-calc"></div>
+        </div>
+        <div class="block">
+          <h3>In words</h3>
+          <p class="say" id="a2-say"></p>
+        </div>
+        <div class="block">
+          <h3>Try this</h3>
+          <ul class="challenges" id="a2-ch"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="panel" id="p-dot" role="tabpanel" aria-labelledby="t-dot" hidden>
+    <div class="intro">
+      <div class="kicker">Lesson 3 · The one AI uses most</div>
+      <h2>The dot product asks: how much do two arrows agree?</h2>
+      <p class="analogy">Like a shopping bill: multiply matching parts, then add them up. You get <b>one number</b>. Big and positive means the arrows point the same way. Zero means they're at right angles (unrelated). Negative means they point against each other. Divide by both lengths and you get <b>cosine similarity</b>, the score vector databases use to rank documents.</p>
+    </div>
+    <div class="work">
+      <div class="stage">
+        <canvas id="cv-dot" tabindex="0" aria-label="Graph with draggable vectors a and b showing the angle between them."></canvas>
+        <p class="hint">Drag a and b. The orange band along a is b's "shadow" on a. The dot product = shadow length × length of a.</p>
+      </div>
+      <div class="side">
+        <div class="btns" aria-label="Presets">
+          <button class="btn" type="button" data-dp="same">Same direction</button>
+          <button class="btn" type="button" data-dp="perp">At 90°</button>
+          <button class="btn" type="button" data-dp="opp">Opposite</button>
+          <button class="btn" type="button" data-dp="ex">[3,4]·[1,2]</button>
+        </div>
+        <div class="block">
+          <h3>Worked out</h3>
+          <div class="calc" id="a3-calc"></div>
+        </div>
+        <div class="block">
+          <h3>Similarity</h3>
+          <div class="meter" aria-hidden="true"><div class="track"></div><div class="mark" id="a3-mark"></div><div class="scale"><span>−1 opposite</span><span>0 unrelated</span><span>+1 same</span></div></div>
+          <p style="margin:10px 0 0"><span class="verdict" id="a3-verdict"></span></p>
+        </div>
+        <div class="block">
+          <h3>Try this</h3>
+          <ul class="challenges" id="a3-ch"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="panel" id="p-dims" role="tabpanel" aria-labelledby="t-dims" hidden>
+    <div class="intro">
+      <div class="kicker">Lesson 4 · Beyond the graph paper</div>
+      <h2>Each dimension is one more piece of information</h2>
+      <p class="analogy">Describe each fruit with 5 scores from 0 to 10: <b>[sweet, crunchy, sour, juicy, size]</b>. That's a 5-dimensional vector. You can't draw it, but the arithmetic is exactly the same as on graph paper. Set your taste below and watch the fruits rank themselves. An AI embedding works the same way with about 1,536 numbers instead of 5.</p>
+    </div>
+    <div class="work">
+      <div class="side">
+        <div class="block">
+          <h3>Your taste vector</h3>
+          <div class="tastes" id="tastes"></div>
+          <div class="btns" style="margin-top:12px">
+            <button class="btn" type="button" data-tp="sweet">Sweet tooth</button>
+            <button class="btn" type="button" data-tp="sour">Sour lover</button>
+            <button class="btn" type="button" data-tp="crunch">Crunchy snack</button>
+          </div>
+        </div>
+        <div class="block">
+          <h3>All vectors (5 dimensions each)</h3>
+          <div class="ftable" id="ftable"></div>
+        </div>
+      </div>
+      <div class="side">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="font:600 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0">Best match first</h3>
+          <div class="seg" role="group" aria-label="Score">
+            <button type="button" id="s-cos" aria-pressed="true">Cosine</button>
+            <button type="button" id="s-dot" aria-pressed="false">Dot product</button>
+          </div>
+        </div>
+        <div class="rank" id="rank"></div>
+        <p class="hint" id="metric-note"></p>
+        <div class="block">
+          <h3 id="fcalc-h">Worked out</h3>
+          <div class="calc" id="fcalc"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="panel" id="p-matrix" role="tabpanel" aria-labelledby="t-matrix" hidden>
+    <div class="intro">
+      <div class="kicker">Lesson 5 · Grids of numbers</div>
+      <h2>Matrix multiplication is lots of dot products</h2>
+      <p class="analogy">To fill each answer cell, take <b>one row of A</b> and <b>one column of B</b>, multiply matching pairs and add them up. The rule: A's <b>columns</b> must equal B's <b>rows</b>. Step through one cell at a time, edit any number, or change the sizes.</p>
+    </div>
+    <div class="mx-top">
+      <span class="kicker">Examples</span>
+      <div class="btns">
+        <button class="btn" type="button" data-mp="cafe">Café sales</button>
+        <button class="btn" type="button" data-mp="rect">2×3 times 3×2</button>
+        <button class="btn" type="button" data-mp="rag">RAG search</button>
+        <button class="btn" type="button" data-mp="bad">Shapes that don't fit</button>
+      </div>
+    </div>
+    <p class="cap" id="mx-cap"></p>
+    <div class="mx-row" style="margin-top:16px">
+      <div class="mx">
+        <div class="head"><b class="ta">A</b>
+          <select id="A-r" aria-label="Rows of A"></select><span>×</span><select id="A-c" aria-label="Columns of A"></select></div>
+        <div class="mscroll" id="A-host"></div>
+      </div>
+      <div class="op" aria-hidden="true">×</div>
+      <div class="mx">
+        <div class="head"><b class="tb">B</b>
+          <select id="B-r" aria-label="Rows of B"></select><span>×</span><select id="B-c" aria-label="Columns of B"></select></div>
+        <div class="mscroll" id="B-host"></div>
+      </div>
+      <div class="op" aria-hidden="true">=</div>
+      <div class="mx">
+        <div class="head"><b class="tc">A × B</b></div>
+        <div class="mscroll" id="C-host"></div>
+      </div>
+    </div>
+    <div class="mx-bottom">
+      <div class="side">
+        <div class="block">
+          <h3>Shape check</h3>
+          <div class="shape" id="shape"></div>
+        </div>
+        <div class="btns">
+          <button class="btn" type="button" id="st-prev">◀ Previous cell</button>
+          <button class="btn primary" type="button" id="st-next">Next cell ▶</button>
+          <button class="btn" type="button" id="st-all">Show all</button>
+          <button class="btn" type="button" id="st-reset">Start over</button>
+        </div>
+        <p class="hint">Tip: click any answer cell to see how it was calculated.</p>
+      </div>
+      <div class="side">
+        <div class="block">
+          <h3 id="st-h">This cell</h3>
+          <div class="calc" id="st-calc"></div>
+          <p class="say" id="st-note" style="margin-top:10px"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="panel" id="p-quiz" role="tabpanel" aria-labelledby="t-quiz" hidden>
+    <div class="intro">
+      <div class="kicker">Lesson 6 · Check yourself</div>
+      <h2>Eight quick questions</h2>
+      <p class="analogy">Each answer explains the reason, so a wrong guess still teaches you something. Use the other tabs to work things out if you need to.</p>
+    </div>
+    <div class="quiz" id="quiz"></div>
+  </section>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(n,d=2)=>{if(!isFinite(n))return'—';const r=Math.round(n*10**d)/10**d;return String(Object.is(r,-0)?0:r);};
+const fv=v=>'['+v.map(x=>fmt(x)).join(', ')+']';
+const pn=n=>n<0?'('+fmt(n)+')':fmt(n);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dotp=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
+const mag=a=>Math.sqrt(dotp(a,a));
+const MONO='"JetBrains Mono", ui-monospace, Consolas, monospace';
+
+/* ---------- graph-paper plane ---------- */
+const planes=[];
+const ro=new ResizeObserver(es=>es.forEach(e=>e.target._plane&&e.target._plane.resize()));
+function Plane(canvas,cfg){
+  const R=cfg.range||6, lim=cfg.limit||R-1, ctx=canvas.getContext('2d');
+  let W=0,s=1,dpr=1,active=null,kIdx=0;
+  const P=(x,y)=>[(x+R)*s,(R-y)*s], U=(px,py)=>[px/s-R,R-py/s];
+  const g={
+    P,R,ctx,
+    line(a,b,color,o={}){const[x0,y0]=P(...a),[x1,y1]=P(...b);ctx.save();ctx.strokeStyle=color;ctx.globalAlpha=o.alpha??1;ctx.lineWidth=o.width||1.5;ctx.lineCap='round';if(o.dashed)ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();ctx.restore();},
+    circle(c,r,color,o={}){const[x,y]=P(...c);ctx.save();ctx.strokeStyle=color;ctx.lineWidth=1.2;if(o.dashed)ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(x,y,r*s,0,Math.PI*2);ctx.stroke();ctx.restore();},
+    text(str,p,color,o={}){const[x,y]=P(...p);ctx.save();ctx.font=`${o.weight||600} ${o.size||13}px ${MONO}`;ctx.textAlign=o.align||'left';ctx.textBaseline='middle';ctx.lineWidth=4;ctx.strokeStyle=cssv('--surface');ctx.lineJoin='round';ctx.strokeText(str,x+(o.dx||0),y+(o.dy||0));ctx.fillStyle=color;ctx.fillText(str,x+(o.dx||0),y+(o.dy||0));ctx.restore();},
+    arrow(a,b,color,o={}){const[x0,y0]=P(...a),[x1,y1]=P(...b);const len=Math.hypot(x1-x0,y1-y0);ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=o.width||3;ctx.lineCap='round';ctx.globalAlpha=o.alpha??1;
+      if(o.handle){ctx.save();ctx.globalAlpha=.16;ctx.beginPath();ctx.arc(x1,y1,15,0,Math.PI*2);ctx.fill();ctx.restore();}
+      if(len<1){ctx.beginPath();ctx.arc(x1,y1,4,0,Math.PI*2);ctx.fill();ctx.restore();return;}
+      const ang=Math.atan2(y1-y0,x1-x0),hl=Math.min(13,len*.45),bx=x1-hl*.8*Math.cos(ang),by=y1-hl*.8*Math.sin(ang);
+      if(o.dashed)ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(bx,by);ctx.stroke();ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-hl*Math.cos(ang-.42),y1-hl*Math.sin(ang-.42));ctx.lineTo(x1-hl*Math.cos(ang+.42),y1-hl*Math.sin(ang+.42));ctx.closePath();ctx.fill();ctx.restore();
+      if(o.label){const ux=Math.cos(ang),uy=Math.sin(ang);ctx.save();ctx.font=`600 14px ${MONO}`;ctx.textAlign='center';ctx.textBaseline='middle';const lx=x1+ux*18,ly=y1+uy*18;ctx.lineWidth=4;ctx.lineJoin='round';ctx.strokeStyle=cssv('--surface');ctx.strokeText(o.label,lx,ly);ctx.fillStyle=color;ctx.fillText(o.label,lx,ly);ctx.restore();}
+    }
+  };
+  function grid(){
+    const gc=cssv('--grid'),ac=cssv('--axis'),mc=cssv('--muted');
+    for(let i=-R;i<=R;i++){
+      ctx.strokeStyle=i===0?ac:gc;ctx.lineWidth=i===0?1.5:1;
+      let[a,b]=P(i,-R),[c,d]=P(i,R);ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(c,d);ctx.stroke();
+      [a,b]=P(-R,i);[c,d]=P(R,i);ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(c,d);ctx.stroke();
+    }
+    ctx.fillStyle=mc;ctx.font=`10px ${MONO}`;ctx.textAlign='center';ctx.textBaseline='top';
+    for(let i=-R+2;i<R;i+=2){if(!i)continue;const[x,y]=P(i,0);ctx.fillText(i,x,y+4);}
+    ctx.textAlign='right';ctx.textBaseline='middle';
+    for(let i=-R+2;i<R;i+=2){if(!i)continue;const[x,y]=P(0,i);ctx.fillText(i,x-5,y);}
+    ctx.font=`600 11px ${MONO}`;ctx.textAlign='right';ctx.textBaseline='bottom';let[x,y]=P(R,0);ctx.fillText('x',x-4,y-3);
+    ctx.textAlign='left';ctx.textBaseline='top';[x,y]=P(0,R);ctx.fillText('y',x+5,y+4);
+  }
+  function draw(){if(!W)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,W);ctx.fillStyle=cssv('--surface');ctx.fillRect(0,0,W,W);grid();cfg.draw(g);}
+  function resize(){const w=canvas.getBoundingClientRect().width;if(!w)return;dpr=window.devicePixelRatio||1;W=w;s=W/(2*R);canvas.width=Math.round(w*dpr);canvas.height=Math.round(w*dpr);draw();}
+  const pick=e=>{const r=canvas.getBoundingClientRect();return U(e.clientX-r.left,e.clientY-r.top);};
+  function move(x,y){x=Math.max(-lim,Math.min(lim,Math.round(x)));y=Math.max(-lim,Math.min(lim,Math.round(y)));const[ox,oy]=active.get();if(ox===x&&oy===y)return;active.set(x,y);cfg.onChange();}
+  canvas.addEventListener('pointerdown',e=>{const[x,y]=pick(e);let best=null,bd=Infinity;cfg.handles().forEach((h,i)=>{const[hx,hy]=h.get();const d=Math.hypot(hx-x,hy-y);if(d<bd){bd=d;best=h;kIdx=i;}});if(!best)return;active=best;canvas.setPointerCapture(e.pointerId);move(x,y);e.preventDefault();});
+  canvas.addEventListener('pointermove',e=>{if(active){const[x,y]=pick(e);move(x,y);}});
+  ['pointerup','pointercancel'].forEach(t=>canvas.addEventListener(t,()=>{active=null;}));
+  canvas.addEventListener('keydown',e=>{const hs=cfg.handles();if(!hs.length)return;if(e.key===' '){kIdx=(kIdx+1)%hs.length;e.preventDefault();return;}
+    const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[e.key];if(!d)return;e.preventDefault();const h=hs[kIdx%hs.length];const[x,y]=h.get();active=h;move(x+d[0],y+d[1]);active=null;});
+  const self={draw,resize};canvas._plane=self;ro.observe(canvas);planes.push(self);return self;
+}
+const redrawAll=()=>planes.forEach(p=>p.draw());
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}catch(e){}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+function challenges(el,list){el.innerHTML=list.map((c,i)=>`<li data-i="${i}"><span class="box" aria-hidden="true">✓</span><span>${c.t}</span></li>`).join('');
+  return ()=>list.forEach((c,i)=>{const li=el.children[i];const ok=!!c.ok();li.classList.toggle('done',ok);});}
+
+/* ---------- Lesson 1 ---------- */
+const L1={a:[3,4]};
+function walk([x,y]){if(!x&&!y)return'Stay exactly where you are. This is the zero vector, which has no direction.';
+  const p=[];if(x)p.push(`<b>${Math.abs(x)} step${Math.abs(x)>1?'s':''} ${x>0?'east':'west'}</b>`);if(y)p.push(`<b>${Math.abs(y)} step${Math.abs(y)>1?'s':''} ${y>0?'north':'south'}</b>`);
+  return 'Walk '+p.join(', then ')+`. As the crow flies, you end up <b>${fmt(mag([x,y]))} steps</b> from where you started.`;}
+const ch1=challenges($('#a1-ch'),[
+  {t:'Make the length exactly 5 without using [3, 4].',ok:()=>{const[x,y]=L1.a;return mag(L1.a)===5&&!(x===3&&y===4);}},
+  {t:'Point the arrow due south.',ok:()=>L1.a[0]===0&&L1.a[1]<0},
+  {t:'Make the unit vector [0.71, 0.71].',ok:()=>L1.a[0]===L1.a[1]&&L1.a[0]>0},
+  {t:'Find a vector with length 10 or more.',ok:()=>mag(L1.a)>=10}
+]);
+const p1=Plane($('#cv-arrows'),{range:8,limit:7,handles:()=>[{get:()=>L1.a,set:(x,y)=>L1.a=[x,y]}],onChange:upd1,
+  draw(g){const[x,y]=L1.a,m=mag(L1.a),mu=cssv('--muted');
+    g.circle([0,0],1,cssv('--axis'),{dashed:true});
+    if(x)g.line([0,0],[x,0],mu,{dashed:true,width:2});if(y)g.line([x,0],[x,y],mu,{dashed:true,width:2});
+    if(x)g.text('x = '+x,[x/2,0],mu,{dy:y>=0?14:-14,align:'center',size:12});
+    if(y)g.text('y = '+y,[x,y/2],mu,{dx:x>=0?8:-8,align:x>=0?'left':'right',size:12});
+    g.arrow([0,0],[x,y],cssv('--a'),{label:'a',handle:true});
+    if(m)g.arrow([0,0],[x/m,y/m],cssv('--k'),{width:2.5});
+  }});
+function upd1(){const[x,y]=L1.a,m=mag(L1.a);
+  $('#a1-say').innerHTML=walk(L1.a);
+  $('#a1-vec').innerHTML=`<span class="ta">a</span> = [${x}, ${y}]`;
+  $('#a1-mag').textContent=fmt(m);
+  $('#a1-unit').innerHTML=m?`<span class="tk">[${fmt(x/m)}, ${fmt(y/m)}]</span>`:'— (zero vector has no direction)';
+  $('#a1-ang').textContent=m?fmt((Math.atan2(y,x)*180/Math.PI+360)%360,1)+'°':'—';
+  $('#a1-calc').innerHTML=`<div class="ln">‖a‖ = √(x² + y²)</div><div class="ln">    = √(${pn(x)}² + ${pn(y)}²)</div><div class="ln">    = √(${x*x} + ${y*y})</div><div class="ln">    = √${x*x+y*y} = <span class="ta">${fmt(m)}</span></div>`;
+  ch1();p1.draw();}
+
+/* ---------- Lesson 2 ---------- */
+const L2={a:[3,1],b:[1,3],k:2,mode:'add'};
+const ch2=challenges($('#a2-ch'),[
+  {t:'Add mode: make a + b = [0, 0]. Where must b point?',ok:()=>L2.a[0]+L2.b[0]===0&&L2.a[1]+L2.b[1]===0&&mag(L2.a)>0},
+  {t:'Add mode: make a + b land exactly on [5, 5].',ok:()=>L2.a[0]+L2.b[0]===5&&L2.a[1]+L2.b[1]===5},
+  {t:'Scale mode: make k × a point the opposite way to a.',ok:()=>L2.k<0&&mag(L2.a)>0},
+  {t:'Scale mode: make k × a shrink to nothing.',ok:()=>L2.k===0}
+]);
+const p2=Plane($('#cv-add'),{range:9,limit:5,
+  handles:()=>L2.mode==='add'?[{get:()=>L2.a,set:(x,y)=>L2.a=[x,y]},{get:()=>L2.b,set:(x,y)=>L2.b=[x,y]}]:[{get:()=>L2.a,set:(x,y)=>L2.a=[x,y]}],
+  onChange:upd2,
+  draw(g){const a=L2.a,b=L2.b;
+    if(L2.mode==='add'){const sm=[a[0]+b[0],a[1]+b[1]];
+      g.arrow(a,sm,cssv('--b'),{dashed:true,width:2.5,alpha:.75});
+      g.arrow([0,0],sm,cssv('--c'),{label:'a+b',width:3.5});
+      g.arrow([0,0],b,cssv('--b'),{label:'b',handle:true});
+      g.arrow([0,0],a,cssv('--a'),{label:'a',handle:true});
+    }else{const ka=[a[0]*L2.k,a[1]*L2.k];
+      g.arrow([0,0],ka,cssv('--k'),{label:'k·a',width:5,alpha:.85});
+      g.arrow([0,0],a,cssv('--a'),{label:'a',handle:true,width:2.5});
+    }}});
+function upd2(){const a=L2.a,b=L2.b;
+  $('#m-add').setAttribute('aria-pressed',L2.mode==='add');$('#m-scale').setAttribute('aria-pressed',L2.mode==='scale');
+  $('#k-wrap').hidden=L2.mode!=='scale';$('#k-out').textContent=fmt(L2.k);
+  $('#a2-hint').textContent=L2.mode==='add'?'Drag the tips of a (blue) and b (orange). The dashed orange arrow is b starting from the end of a. Keyboard: arrow keys move, Space switches arrow.':'Drag the tip of a, then move the k slider. Keyboard: arrow keys move a.';
+  if(L2.mode==='add'){const sm=[a[0]+b[0],a[1]+b[1]];
+    $('#a2-calc').innerHTML=`<div class="ln"><span class="ta">a</span> + <span class="tb">b</span> = ${fv(a)} + ${fv(b)}</div><div class="ln">      = [${a[0]} + ${pn(b[0])}, ${a[1]} + ${pn(b[1])}]</div><div class="ln">      = <span class="tc">${fv(sm)}</span></div>`;
+    $('#a2-say').innerHTML=`Do trip a, then trip b. You finish at <b>${fv(sm)}</b>, the same place as walking the green arrow directly.${Math.max(...sm.map(Math.abs))>9?' (The answer runs off the grid.)':''}`;
+  }else{const k=L2.k,ka=[a[0]*k,a[1]*k];
+    $('#a2-calc').innerHTML=`<div class="ln"><span class="tk">k</span> × <span class="ta">a</span> = ${fmt(k)} × ${fv(a)}</div><div class="ln">      = [${fmt(k)}×${pn(a[0])}, ${fmt(k)}×${pn(a[1])}]</div><div class="ln">      = <span class="tk">${fv(ka)}</span></div><div class="ln">‖k·a‖ = |k| × ‖a‖ = ${fmt(Math.abs(k))} × ${fmt(mag(a))} = ${fmt(mag(ka))}</div>`;
+    $('#a2-say').innerHTML=k===0?'Multiplying by 0 shrinks the arrow to nothing.':k<0?`A negative k <b>flips the direction</b> and multiplies the length by ${fmt(Math.abs(k))}.`:k===1?'k = 1 leaves the arrow unchanged.':`Same direction, <b>${fmt(k)}×</b> the length.${Math.max(...ka.map(Math.abs))>9?' (The answer runs off the grid.)':''}`;
+  }
+  ch2();p2.draw();}
+$('#m-add').onclick=()=>{L2.mode='add';upd2();};$('#m-scale').onclick=()=>{L2.mode='scale';upd2();};
+$('#k').addEventListener('input',e=>{L2.k=parseFloat(e.target.value);upd2();});
+
+/* ---------- Lesson 3 ---------- */
+const L3={a:[4,1],b:[2,4]};
+const ch3=challenges($('#a3-ch'),[
+  {t:'Make a · b = 0 without either arrow being zero.',ok:()=>dotp(L3.a,L3.b)===0&&mag(L3.a)>0&&mag(L3.b)>0},
+  {t:'Make the dot product negative.',ok:()=>dotp(L3.a,L3.b)<0},
+  {t:'Make cos θ = 1 with arrows of different lengths.',ok:()=>{const m=mag(L3.a)*mag(L3.b);return m>0&&Math.abs(dotp(L3.a,L3.b)/m-1)<1e-9&&mag(L3.a)!==mag(L3.b);}},
+  {t:'Get a dot product of 20 or more.',ok:()=>dotp(L3.a,L3.b)>=20}
+]);
+const p3=Plane($('#cv-dot'),{range:6,limit:5,
+  handles:()=>[{get:()=>L3.a,set:(x,y)=>L3.a=[x,y]},{get:()=>L3.b,set:(x,y)=>L3.b=[x,y]}],onChange:upd3,
+  draw(g){const a=L3.a,b=L3.b,ma=mag(a),mb=mag(b),ctx=g.ctx;
+    if(ma&&mb){const angA=Math.atan2(a[1],a[0]);let diff=Math.atan2(b[1],b[0])-angA;while(diff>Math.PI)diff-=2*Math.PI;while(diff<=-Math.PI)diff+=2*Math.PI;
+      const[cx,cy]=g.P(0,0),unit=g.P(1,0)[0]-cx;const rr=Math.max(18,Math.min(38,Math.min(ma,mb)*unit*.5));
+      ctx.save();ctx.strokeStyle=cssv('--muted');ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,rr,-angA,-angA-diff,diff>0);ctx.stroke();
+      const mid=angA+diff/2;ctx.font=`600 13px ${MONO}`;ctx.fillStyle=cssv('--muted');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('θ',cx+(rr+12)*Math.cos(mid),cy-(rr+12)*Math.sin(mid));ctx.restore();
+      const t=dotp(a,b)/(ma*ma),pr=[a[0]*t,a[1]*t];
+      g.line([0,0],pr,cssv('--b'),{width:9,alpha:.28});
+      g.line(b,pr,cssv('--muted'),{dashed:true,width:1.5});
+    }
+    g.arrow([0,0],b,cssv('--b'),{label:'b',handle:true});
+    g.arrow([0,0],a,cssv('--a'),{label:'a',handle:true});
+  }});
+function upd3(){const a=L3.a,b=L3.b,d=dotp(a,b),ma=mag(a),mb=mag(b),ok=ma>0&&mb>0,c=ok?d/(ma*mb):NaN;
+  $('#a3-calc').innerHTML=`<div class="ln"><span class="ta">a</span> · <span class="tb">b</span> = ${fv(a)} · ${fv(b)}</div>
+  <div class="ln">      = (${pn(a[0])}×${pn(b[0])}) + (${pn(a[1])}×${pn(b[1])})</div>
+  <div class="ln">      = ${pn(a[0]*b[0])} + ${pn(a[1]*b[1])} = <b>${fmt(d)}</b></div>
+  <div class="ln" style="margin-top:6px">‖a‖ = ${fmt(ma)}   ‖b‖ = ${fmt(mb)}</div>
+  <div class="ln">cos θ = a·b ÷ (‖a‖ × ‖b‖)</div>
+  <div class="ln">      = ${fmt(d)} ÷ (${fmt(ma)} × ${fmt(mb)}) = <span class="tc">${ok?fmt(c,3):'—'}</span></div>
+  <div class="ln">θ = ${ok?fmt(Math.acos(Math.max(-1,Math.min(1,c)))*180/Math.PI,1)+'°':'— (a zero arrow has no direction)'}</div>`;
+  $('#a3-mark').style.left=ok?((c+1)/2*100)+'%':'50%';
+  const v=$('#a3-verdict');let txt,cls;
+  if(!ok){txt='One arrow is zero, so there is no angle';cls='mid';}
+  else if(c>0.95){txt='Almost identical direction (very similar)';cls='good';}
+  else if(c>0.5){txt='Pointing roughly the same way (similar)';cls='good';}
+  else if(c>0.1){txt='Slightly related';cls='mid';}
+  else if(c>=-0.1){txt='About 90° apart (unrelated)';cls='mid';}
+  else if(c>=-0.95){txt='Pointing against each other';cls='bad';}
+  else{txt='Opposite directions';cls='bad';}
+  v.textContent=txt;v.className='verdict '+cls;
+  ch3();p3.draw();}
+$$('[data-dp]').forEach(bt=>bt.onclick=()=>{({same:()=>{L3.a=[2,1];L3.b=[4,2];},perp:()=>{L3.a=[3,1];L3.b=[-1,3];},opp:()=>{L3.a=[3,2];L3.b=[-3,-2];},ex:()=>{L3.a=[3,4];L3.b=[1,2];}})[bt.dataset.dp]();upd3();});
+
+/* ---------- Lesson 4 ---------- */
+const FEAT=['Sweet','Crunchy','Sour','Juicy','Size'];
+const FRUITS=[['Apple',[7,8,2,6,5]],['Pear',[7,5,1,7,5]],['Watermelon',[8,2,0,10,10]],['Lemon',[1,2,10,6,3]],['Banana',[8,1,0,2,5]],['Grapes',[8,3,3,8,1]],['Strawberry',[7,2,3,7,2]],['Mango',[9,1,2,8,6]]];
+const L4={you:[9,8,1,5,4],metric:'cos',sel:null};
+$('#tastes').innerHTML=FEAT.map((f,i)=>`<label for="tz${i}">${f}</label><input type="range" id="tz${i}" min="0" max="10" step="1" value="${L4.you[i]}"><output id="tzo${i}">${L4.you[i]}</output>`).join('');
+FEAT.forEach((_,i)=>$('#tz'+i).addEventListener('input',e=>{L4.you[i]=+e.target.value;upd4();}));
+$$('[data-tp]').forEach(bt=>bt.onclick=()=>{L4.you={sweet:[10,2,0,6,4],sour:[2,3,10,6,3],crunch:[5,10,2,4,5]}[bt.dataset.tp].slice();L4.you.forEach((v,i)=>$('#tz'+i).value=v);L4.sel=null;upd4();});
+$('#s-cos').onclick=()=>{L4.metric='cos';L4.sel=null;upd4();};$('#s-dot').onclick=()=>{L4.metric='dot';L4.sel=null;upd4();};
+function score(f){const d=dotp(L4.you,f),m=mag(L4.you)*mag(f);return L4.metric==='cos'?(m?d/m:0):d;}
+function upd4(){
+  FEAT.forEach((_,i)=>$('#tzo'+i).textContent=L4.you[i]);
+  $('#s-cos').setAttribute('aria-pressed',L4.metric==='cos');$('#s-dot').setAttribute('aria-pressed',L4.metric==='dot');
+  $('#ftable').innerHTML=`<table><thead><tr><th></th>${FEAT.map(f=>`<th>${f}</th>`).join('')}</tr></thead><tbody><tr class="you"><td>You</td>${L4.you.map(v=>`<td>${v}</td>`).join('')}</tr>${FRUITS.map(([n,v])=>`<tr><td>${n}</td>${v.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const ranked=FRUITS.map(([n,v])=>({n,v,s:score(v)})).sort((p,q)=>q.s-p.s);
+  const max=L4.metric==='cos'?1:Math.max(1,...ranked.map(r=>r.s));
+  if(!L4.sel||!ranked.find(r=>r.n===L4.sel))L4.sel=ranked[0].n;
+  $('#rank').innerHTML=ranked.map(r=>`<button type="button" data-f="${r.n}" class="${r.n===L4.sel?'on':''}"><span>${r.n}<span class="vec">${fv(r.v)}</span></span><span class="bar"><i style="width:${Math.max(0,r.s/max*100)}%"></i></span><span class="sc">${L4.metric==='cos'?fmt(r.s,3):fmt(r.s)}</span></button>`).join('');
+  $$('#rank button').forEach(b=>b.onclick=()=>{L4.sel=b.dataset.f;upd4();});
+  $('#metric-note').textContent=L4.metric==='cos'?'Cosine compares only the direction (the taste profile), so a small fruit can still be a perfect match. Search engines usually rank this way.':'The dot product also grows with size: fruits with big numbers everywhere (like watermelon) get a boost even if the profile is off. Switch back to cosine to compare.';
+  const f=FRUITS.find(x=>x[0]===L4.sel)[1],y=L4.you,d=dotp(y,f),my=mag(y),mf=mag(f);
+  $('#fcalc-h').textContent='Worked out: You · '+L4.sel;
+  let h=`<div class="ln"><span class="ta">You</span> · <span class="tb">${L4.sel}</span> = ${y.map((v,i)=>`(${v}×${f[i]})`).join(' + ')}</div><div class="ln">   = ${y.map((v,i)=>v*f[i]).join(' + ')} = <b>${d}</b></div>`;
+  if(L4.metric==='cos'){h+=`<div class="ln" style="margin-top:6px">‖You‖ = √(${y.map(v=>v*v).join('+')}) = ${fmt(my)}</div><div class="ln">‖${L4.sel}‖ = √(${f.map(v=>v*v).join('+')}) = ${fmt(mf)}</div><div class="ln">cos = ${d} ÷ (${fmt(my)} × ${fmt(mf)}) = <span class="tc">${my&&mf?fmt(d/(my*mf),3):'—'}</span></div>`;}
+  $('#fcalc').innerHTML=h;
+}
+
+/* ---------- Lesson 5 ---------- */
+const mat=(r,c,v,rl,cl)=>({r,c,v:v||Array.from({length:r},()=>Array(c).fill(1)),rl:rl||null,cl:cl||null});
+const PRE={
+  cafe:()=>({A:mat(2,2,[[10,5],[4,8]],['Shop 1','Shop 2'],['Coffee','Tea']),B:mat(2,2,[[30,10],[20,8]],['Coffee','Tea'],['Price','Profit']),cap:'A holds cups sold by each shop. B holds the price and profit (HK$) per cup. A × B gives each shop\'s total revenue and total profit.'}),
+  rect:()=>({A:mat(2,3,[[1,2,3],[4,5,6]]),B:mat(3,2,[[7,8],[9,10],[11,12]]),cap:'A is 2×3 and B is 3×2. The inner sizes (3 and 3) match, so the answer is 2×2, taking the outer sizes.'}),
+  rag:()=>({A:mat(4,3,[[0.9,0.1,0],[0.8,0.3,0.1],[0,0.1,0.95],[0.3,0.9,0.1]],['Pasta recipe','Italian cooking','Tax filing guide','Rome travel tips'],['food','travel','money']),B:mat(3,1,[[0.85],[0.15],[0.05]],['food','travel','money'],['Q: cook spaghetti?']),cap:'Each row of A is a document as a tiny 3-D embedding. B is the question "How do I cook spaghetti?" as a vector. One matrix multiplication scores every document at once, and the highest score is the best match. Real systems do the same thing with 1,536 dimensions.'}),
+  bad:()=>({A:mat(2,3,[[1,2,3],[4,5,6]]),B:mat(2,2,[[1,0],[0,1]]),cap:'A has 3 columns but B has only 2 rows, so the rows and columns cannot be paired up. Change A\'s columns or B\'s rows to fix it.'})
+};
+const MX={A:null,B:null,cap:'',sel:[0,0],rev:1};
+['A-r','A-c','B-r','B-c'].forEach(id=>{$('#'+id).innerHTML=[1,2,3,4].map(n=>`<option value="${n}">${n}</option>`).join('');
+  $('#'+id).addEventListener('change',e=>{const[m,d]=id.split('-');const o=MX[m];const r=d==='r'?+e.target.value:o.r,c=d==='c'?+e.target.value:o.c;
+    MX[m]=mat(r,c,Array.from({length:r},(_,i)=>Array.from({length:c},(_,j)=>o.v[i]&&o.v[i][j]!==undefined?o.v[i][j]:1)),o.rl&&o.rl.length===r?o.rl:null,o.cl&&o.cl.length===c?o.cl:null);
+    MX.cap='';MX.sel=[0,0];MX.rev=1;renderMats();});});
+function loadPre(k){const p=PRE[k]();MX.A=p.A;MX.B=p.B;MX.cap=p.cap;MX.sel=[0,0];MX.rev=1;renderMats();}
+$$('[data-mp]').forEach(b=>b.onclick=()=>loadPre(b.dataset.mp));
+function gridHTML(m,name){let h=`<div class="mgrid" style="grid-template-columns:${m.rl?'auto ':''}repeat(${m.c}, minmax(3.6rem,4.8rem))">`;
+  if(m.cl){if(m.rl)h+='<span></span>';m.cl.forEach(l=>h+=`<span class="mlab col">${esc(l)}</span>`);}
+  for(let i=0;i<m.r;i++){if(m.rl)h+=`<span class="mlab row">${esc(m.rl[i])}</span>`;
+    for(let j=0;j<m.c;j++)h+=`<input class="mcell" type="number" step="any" inputmode="decimal" id="${name}-${i}-${j}" data-m="${name}" data-i="${i}" data-j="${j}" value="${m.v[i][j]}" aria-label="${name} row ${i+1} column ${j+1}">`;}
+  return h+'</div>';}
+function renderMats(){
+  ['A','B'].forEach(n=>{$('#'+n+'-r').value=MX[n].r;$('#'+n+'-c').value=MX[n].c;$('#'+n+'-host').innerHTML=gridHTML(MX[n],n);});
+  $('#mx-cap').textContent=MX.cap;$('#mx-cap').hidden=!MX.cap;
+  renderResult();}
+['A-host','B-host'].forEach(id=>$('#'+id).addEventListener('input',e=>{const t=e.target;if(!t.dataset.m)return;const v=parseFloat(t.value);MX[t.dataset.m].v[+t.dataset.i][+t.dataset.j]=isNaN(v)?0:v;renderResult();}));
+function product(){const{A,B}=MX;return Array.from({length:A.r},(_,i)=>Array.from({length:B.c},(_,j)=>{let s=0;for(let k=0;k<A.c;k++)s+=A.v[i][k]*B.v[k][j];return s;}));}
+function renderResult(){
+  const{A,B}=MX,okShape=A.c===B.r;
+  $('#shape').className='shape '+(okShape?'ok':'no');
+  $('#shape').innerHTML=`<div class="ln">A (${A.r} × <span class="inner">${A.c}</span>) × B (<span class="inner">${B.r}</span> × ${B.c})</div><div class="ln" style="margin-top:4px">${okShape?`Inner sizes match (${A.c} = ${B.r}). Answer is <b>${A.r} × ${B.c}</b>.`:`Inner sizes differ (${A.c} ≠ ${B.r}). These can't be multiplied.`}</div>`;
+  $$('.mcell').forEach(el=>el.classList.remove('hla','hlb'));
+  ['st-prev','st-next','st-all','st-reset'].forEach(id=>$('#'+id).disabled=!okShape);
+  if(!okShape){$('#C-host').innerHTML=`<div class="err">Can't multiply: each row of A has ${A.c} number${A.c>1?'s':''}, but each column of B has ${B.r}. A dot product needs both lists to be the same length.</div>`;
+    $('#st-h').textContent='This cell';$('#st-calc').innerHTML='<div class="ln">—</div>';$('#st-note').textContent=`Try setting A's columns to ${B.r}, or B's rows to ${A.c}.`;return;}
+  const C=product(),total=A.r*B.c;
+  MX.sel=[Math.min(MX.sel[0],A.r-1),Math.min(MX.sel[1],B.c-1)];
+  const[si,sj]=MX.sel,sidx=si*B.c+sj;MX.rev=Math.max(MX.rev,sidx+1);
+  for(let k=0;k<A.c;k++){$(`#A-${si}-${k}`).classList.add('hla');$(`#B-${k}-${sj}`).classList.add('hlb');}
+  let h=`<div class="mgrid" style="grid-template-columns:${A.rl?'auto ':''}repeat(${B.c}, minmax(3.6rem,4.8rem))">`;
+  if(B.cl){if(A.rl)h+='<span></span>';B.cl.forEach(l=>h+=`<span class="mlab col">${esc(l)}</span>`);}
+  else if(A.rl){h+='<span></span>';for(let j=0;j<B.c;j++)h+='<span></span>';}
+  for(let i=0;i<A.r;i++){if(A.rl)h+=`<span class="mlab row">${esc(A.rl[i])}</span>`;
+    for(let j=0;j<B.c;j++){const idx=i*B.c+j,shown=idx<MX.rev,sel=i===si&&j===sj;
+      h+=`<button type="button" class="rcell${shown?' shown':''}${sel?' sel':''}" data-i="${i}" data-j="${j}" aria-label="Result row ${i+1} column ${j+1}">${shown?fmt(C[i][j],4):'?'}</button>`;}}
+  $('#C-host').innerHTML=h+'</div>';
+  $$('#C-host .rcell').forEach(b=>b.onclick=()=>{MX.sel=[+b.dataset.i,+b.dataset.j];renderResult();});
+  const rowName=A.rl?A.rl[si]:`Row ${si+1} of A`,colName=B.cl?B.cl[sj]:`Column ${sj+1} of B`;
+  $('#st-h').textContent=`Cell ${sidx+1} of ${total}: ${rowName} · ${colName}`;
+  const ar=A.v[si],bc=B.v.map(r=>r[sj]);
+  $('#st-calc').innerHTML=`<div class="ln"><span class="ta">${fv(ar)}</span> · <span class="tb">${fv(bc)}</span></div><div class="ln">= ${ar.map((x,k)=>`(${pn(x)}×${pn(bc[k])})`).join(' + ')}</div><div class="ln">= ${ar.map((x,k)=>pn(x*bc[k])).join(' + ')}</div><div class="ln">= <span class="tc">${fmt(C[si][sj],4)}</span></div>`;
+  let note=`Blue row from A, orange column from B. Multiply the pairs, then add them up.`;
+  if(MX.rev>=total&&B.c===1&&A.rl&&A.r>1){let bi=0;C.forEach((r,i)=>{if(r[0]>C[bi][0])bi=i;});note=`All scores computed. Best match: <b>${esc(A.rl[bi])}</b> (${fmt(C[bi][0],4)}). That's the document a RAG system would hand to the LLM.`;}
+  else if(MX.rev>=total)note=`All ${total} cells done. Each one was a single dot product.`;
+  $('#st-note').innerHTML=note;
+  $('#st-prev').disabled=sidx===0;$('#st-next').disabled=sidx>=total-1;$('#st-all').disabled=MX.rev>=total;
+}
+$('#st-next').onclick=()=>{const{B}=MX;let idx=MX.sel[0]*B.c+MX.sel[1]+1;MX.sel=[Math.floor(idx/B.c),idx%B.c];MX.rev=Math.max(MX.rev,idx+1);renderResult();};
+$('#st-prev').onclick=()=>{const{B}=MX;let idx=Math.max(0,MX.sel[0]*B.c+MX.sel[1]-1);MX.sel=[Math.floor(idx/B.c),idx%B.c];renderResult();};
+$('#st-all').onclick=()=>{MX.rev=MX.A.r*MX.B.c;renderResult();};
+$('#st-reset').onclick=()=>{MX.rev=1;MX.sel=[0,0];renderResult();};
+
+/* ---------- Lesson 6: quiz ---------- */
+const QZ=[
+  {q:'Which of these is a vector?',o:['25°C','60 km/h towards Kowloon','5 kg of rice','HK$100'],a:1,e:'Only the car\'s velocity has both a size (60 km/h) and a direction (towards Kowloon). The others are plain numbers, called scalars.'},
+  {q:'What is the length of the vector [6, 8]?',o:['14','48','10','100'],a:2,e:'√(6² + 8²) = √(36 + 64) = √100 = 10. It\'s the [3, 4] triangle scaled up by 2.'},
+  {q:'What is 3 × [2, −1]?',o:['[6, −3]','[5, 2]','[6, 3]','15'],a:0,e:'Scaling multiplies every component: [3×2, 3×(−1)] = [6, −3]. Same direction, three times as long.'},
+  {q:'What is [2, 3] · [4, 1]?',o:['[8, 3]','11','14','7'],a:1,e:'(2×4) + (3×1) = 8 + 3 = 11. A dot product always gives one number, not a vector.'},
+  {q:'Two embeddings have cosine similarity close to 0. What does that mean?',o:['They are identical','They mean opposite things','They are unrelated (about 90° apart)','One of them is broken'],a:2,e:'cos θ ≈ 0 means θ ≈ 90°. The arrows share no direction, so the texts are unrelated.'},
+  {q:'A is 2×3 and B is 3×4. What shape is A × B?',o:['3×3','2×4','3×4','It can\'t be multiplied'],a:1,e:'The inner sizes match (3 = 3), so the answer takes the outer sizes: 2 rows × 4 columns.'},
+  {q:'Can you multiply A (2×3) by B (2×3)?',o:['Yes, the answer is 2×3','Yes, the answer is 3×3','No, because 3 ≠ 2','Yes, multiply cell by cell'],a:2,e:'A has 3 columns but B has 2 rows. Matrix multiplication needs them equal. (Cell-by-cell multiplication is a different operation.)'},
+  {q:'In RAG, how are the best documents found for a question?',o:['By matching exact keywords only','By comparing the question vector with each document vector (dot product / cosine) and keeping the highest scores','By picking the longest documents','By asking the LLM to read every document'],a:1,e:'The question is embedded with the same model as the documents, then scored against each one (often in a single matrix multiplication). The top-k highest scores are retrieved.'}
+];
+const QS={i:0,score:0,answered:false};
+function renderQuiz(){const el=$('#quiz');
+  if(QS.i>=QZ.length){el.innerHTML=`<div class="qn">Done</div><div class="big">${QS.score} / ${QZ.length}</div><p>${QS.score===QZ.length?'Perfect. You have the core maths behind vector search.':QS.score>=6?'Strong result. Revisit the lesson behind any you missed.':'Go back through lessons 1–5 and try again. Each one takes a couple of minutes.'}</p><div class="foot"><span></span><button class="btn primary" type="button" id="qz-again">Try again</button></div>`;
+    $('#qz-again').onclick=()=>{QS.i=0;QS.score=0;QS.answered=false;renderQuiz();};return;}
+  const q=QZ[QS.i];
+  el.innerHTML=`<div class="qn">Question ${QS.i+1} of ${QZ.length}</div><div class="q">${esc(q.q)}</div><div class="opts">${q.o.map((o,k)=>`<button type="button" data-k="${k}">${esc(o)}</button>`).join('')}</div><p class="fb" id="qz-fb" hidden></p><div class="foot"><span class="score">Score: ${QS.score}</span><button class="btn primary" type="button" id="qz-next" disabled>${QS.i===QZ.length-1?'See result':'Next question'}</button></div>`;
+  $$('.opts button',el).forEach(b=>b.onclick=()=>{if(QS.answered)return;QS.answered=true;const k=+b.dataset.k,right=k===q.a;if(right)QS.score++;
+    $$('.opts button',el).forEach(x=>{x.disabled=true;if(+x.dataset.k===q.a)x.classList.add('right');});if(!right)b.classList.add('wrong');
+    const fb=$('#qz-fb');fb.hidden=false;fb.innerHTML=`<b>${right?'Correct.':'Not quite.'}</b> ${esc(q.e)}`;$('.score',el).textContent='Score: '+QS.score;$('#qz-next').disabled=false;$('#qz-next').focus();});
+  $('#qz-next').onclick=()=>{QS.i++;QS.answered=false;renderQuiz();};
+}
+
+/* ---------- tabs ---------- */
+const TABS=['arrows','add','dot','dims','matrix','quiz'];
+function show(t){if(!TABS.includes(t))t='arrows';
+  $$('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
+  TABS.forEach(x=>$('#p-'+x).hidden=x!==t);
+  try{localStorage.setItem('vector-lab-tab',t);}catch(e){}
+  requestAnimationFrame(()=>planes.forEach(p=>p.resize()));}
+$$('nav.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.tab));
+$('nav.tabs').addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const cur=TABS.findIndex(t=>$('#t-'+t).getAttribute('aria-selected')==='true');const n=(cur+(e.key==='ArrowRight'?1:-1)+TABS.length)%TABS.length;show(TABS[n]);$('#t-'+TABS[n]).focus();});
+
+upd1();upd2();upd3();upd4();loadPre('cafe');renderQuiz();
+let start=(location.hash||'').slice(1);
+if(!TABS.includes(start)){try{start=localStorage.getItem('vector-lab-tab')||'arrows';}catch(e){start='arrows';}}
+show(start);
+</script>
+
+</body></html>
