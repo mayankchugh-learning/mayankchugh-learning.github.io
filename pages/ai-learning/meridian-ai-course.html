@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" data-page="meridian-ai-course">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/assets/theme-switcher.js"></script>
+  <title>Meridian AI course — Mayank Chugh</title>
+  <meta name="description" content="Mayank Chugh's study guide to the Meridian AI course: six modules from the Aldermoor procurement case through RAG, agents, and a local FastAPI plus React app.">
+  <meta name="author" content="Mayank Chugh">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --paper: #ffffff;
+      --ink: #1a1a2e;
+      --muted: #5a6a7e;
+      --navy: #0f1e36;
+      --line: #dde3ec;
+      --accent: #e8a020;
+      --accent-ink: #6a4808;
+      --blue: #1d6fa4;
+      --soft: #eef3f8;
+      --good: #1a7a4a;
+    }
+    html[data-theme="dark"] {
+      --bg: #0c1728;
+      --paper: #15263d;
+      --ink: #f4f6f9;
+      --muted: #b7c3d4;
+      --navy: #f4f6f9;
+      --line: #2c4464;
+      --accent-ink: #f0c060;
+      --blue: #8ec4ea;
+      --soft: #1c314c;
+      --good: #8ddeaf;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "DM Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    a { color: var(--blue); }
+    .top {
+      background: #0f1e36;
+      color: #fff;
+      padding: 28px 20px 26px;
+    }
+    .top-inner, .wrap { max-width: 980px; margin: 0 auto; }
+    .kicker {
+      margin: 0 0 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: #f0c060;
+    }
+    h1 {
+      font-family: Syne, Georgia, sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.12;
+      margin: 0 0 10px;
+      font-weight: 750;
+    }
+    .lede { margin: 0; max-width: 68ch; color: #d5deea; }
+    .top-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .chip {
+      display: inline-block;
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+    .chip:hover { border-color: #f0c060; color: #f0c060; }
+    .wrap { padding: 22px 20px 72px; }
+    .who {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+    }
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: #0f1e36;
+      color: #f0c060;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Syne, sans-serif;
+      font-weight: 800;
+    }
+    .who h2 { margin: 0 0 2px; font-size: 1.15rem; font-family: Syne, sans-serif; color: var(--navy); }
+    .who p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .note, .module, .map {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin: 14px 0;
+    }
+    h2 { font-family: Syne, sans-serif; font-size: 1.35rem; margin: 28px 0 8px; color: var(--navy); }
+    h3 { margin: 0 0 4px; font-size: 1.08rem; font-family: Syne, sans-serif; }
+    .sub { color: var(--muted); margin: 0 0 10px; }
+    ul { margin: 8px 0 0; padding-left: 1.2rem; }
+    li { margin: 3px 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .btn {
+      display: inline-block;
+      background: #1d6fa4;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .btn.ghost {
+      background: transparent;
+      color: var(--blue);
+      border: 1px solid var(--line);
+    }
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent-ink);
+      background: color-mix(in srgb, var(--accent) 22%, transparent);
+      border-radius: 999px;
+      padding: 2px 8px;
+      margin-bottom: 8px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    code { overflow-wrap: anywhere; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; }
+    .keys kbd {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.85em;
+    }
+    .foot { color: var(--muted); font-size: 0.9rem; margin-top: 22px; }
+    @media (max-width: 640px) {
+      .who { grid-template-columns: 1fr; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tr { padding: 10px 0; border-bottom: 1px solid var(--line); }
+      td { border-bottom: none; padding: 4px 0; }
+      td:first-child::before,
+      td:last-child::before {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      td:first-child::before { content: "In the course"; }
+      td:last-child::before { content: "On my desk"; }
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/theme-switcher.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <p class="kicker">Learning Hub · RAG, agents, and a local service</p>
+      <h1>Meridian AI course</h1>
+      <p class="lede">Study notes for Modules 1 to 6: a fictional manufacturer, document Q&amp;A, a three-specialist audit, and a FastAPI plus React screen. Written for my own revision, with the parts that do not match my stack called out.</p>
+      <div class="top-links">
+        <a class="chip" href="/pages/learning/index.html#rag-retrieval">Learning Hub</a>
+        <a class="chip" href="/pages/ai-learning/meridian-ai-study-workbook.html">Study workbook</a>
+        <a class="chip" href="https://meridian-ai-course.netlify.app/" target="_blank" rel="noopener">Original slides</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="who" aria-label="Who this page is for">
+      <div class="avatar" aria-hidden="true">MC</div>
+      <div>
+        <h2>Mayank Chugh</h2>
+        <p>Hong Kong permanent resident. Enterprise architect and AI engineer. Portfolio at <a href="/index.html">mayankchugh-learning.github.io</a>. LinkedIn <a href="https://www.linkedin.com/in/mchugh77" target="_blank" rel="noopener">mchugh77</a>. GitHub <a href="https://github.com/mayankchugh-learning" target="_blank" rel="noopener">mayankchugh-learning</a>.</p>
+      </div>
+    </section>
+
+    <section class="note">
+      <p>The interactive slides and PDFs are Mayank Aggarwal’s course, published at <a href="https://meridian-ai-course.netlify.app/" target="_blank" rel="noopener">meridian-ai-course.netlify.app</a>. His name appears in the lessons as the reference repository <a href="https://github.com/mayank953/meridian-ai-learner" target="_blank" rel="noopener">mayank953/meridian-ai-learner</a>. This page is my study copy: my name, my projects, and the edits I need so the course stays accurate for me. I do not republish his slides or PDFs here.</p>
+    </section>
+
+    <h2>How I use the slides</h2>
+    <section class="note keys">
+      <ul>
+        <li>Right arrow or Space moves forward. Left arrow moves back. The first press on a slide reveals it step by step.</li>
+        <li>M opens the chapter menu. Escape closes it. N opens the explanation under the slide.</li>
+        <li>F is full screen. On a slide with buttons or sliders, click outside that box before the arrow keys change slides.</li>
+      </ul>
+    </section>
+
+    <h2>What I keep, and what I change</h2>
+    <section class="map">
+      <table>
+        <thead>
+          <tr><th>In the course</th><th>On my desk</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Aldermoor Industries, a fictional buyer with policy PDFs and three audit checks.</td>
+            <td>I keep the case as the case. I do not retell it as Cathay Pacific, HSBC, or CHANEL.</td>
+          </tr>
+          <tr>
+            <td>Gemini, with Chroma on disk for local runs, plus Vertex and Cloud Run in the reference repo.</td>
+            <td>Same pipeline shape in my <a href="https://huggingface.co/spaces/mayankchugh-learning/Document-Audit-RAG" target="_blank" rel="noopener">Document Audit RAG</a> space: LangChain, Chroma, OpenAI. That work is a project, not an enterprise production deployment.</td>
+          </tr>
+          <tr>
+            <td><code>git clone https://github.com/mayank953/meridian-ai-learner.git</code></td>
+            <td>That URL stays. It is Mayank Aggarwal’s answer-key repo. I clone it to study. I do not point the command at my GitHub.</td>
+          </tr>
+          <tr>
+            <td>AI engineer path: problem, jobs, tools, smallest build, known answers, watch time and cost.</td>
+            <td>This matches how I build. Evidence is the study workbook and Document Audit RAG, plus 12 industry certifications, including Vector Databases and CrewAI.</td>
+          </tr>
+          <tr>
+            <td>Forward-deployed path: sit with users, measure a baseline, connect real sources, pilot, hand over.</td>
+            <td>This matches twenty years of enterprise delivery. It is not a claim that I shipped this AI app inside a client.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <h2>Modules</h2>
+
+    <article class="module" id="module-1">
+      <span class="tag">Module 1</span>
+      <h3>The case</h3>
+      <p class="sub">Who the company is, what goes wrong without a system, and the two roles that build it.</p>
+      <ul>
+        <li>The company</li>
+        <li>The problem</li>
+        <li>The solution</li>
+        <li>AI engineer</li>
+        <li>Forward-deployed engineer</li>
+      </ul>
+      <div class="row">
+        <a class="btn" href="https://meridian-ai-course.netlify.app/module-1" target="_blank" rel="noopener">Open module 1</a>
+      </div>
+    </article>
+
+    <article class="module" id="module-2">
+      <span class="tag">Module 2</span>
+      <h3>Set up from scratch</h3>
+      <p class="sub">The project folder, the tools, the packages, and where the reference repo fits. The clone URL in this module is the one I leave unchanged.</p>
+      <ul>
+        <li>Project basics</li>
+        <li>Your tools</li>
+        <li>Packages</li>
+        <li>Structure</li>
+      </ul>
+      <div class="row">
+        <a class="btn" href="https://meridian-ai-course.netlify.app/module-2" target="_blank" rel="noopener">Open module 2</a>
+      </div>
+    </article>
+
+    <article class="module" id="module-3">
+      <span class="tag">Module 3</span>
+      <h3>The backbone</h3>
+      <p class="sub">Settings, the API key, and how errors and logs are supposed to read. Keys stay in an env file. I do not paste a key into notes.</p>
+      <ul>
+        <li>Settings</li>
+        <li>settings.py</li>
+        <li>Errors and logs</li>
+      </ul>
+      <div class="row">
+        <a class="btn" href="https://meridian-ai-course.netlify.app/module-3" target="_blank" rel="noopener">Open module 3</a>
+      </div>
+    </article>
+
+    <article class="module" id="module-4">
+      <span class="tag">Module 4</span>
+      <h3>Document Q&amp;A (RAG)</h3>
+      <p class="sub">Retrieval-augmented answers over four policy documents. When the slides say Gemini embeddings, I translate the step to the embedding model in the project I am actually running.</p>
+      <ul>
+        <li>RAG, explained with clicks</li>
+        <li>The types of RAG</li>
+        <li>The tools behind RAG</li>
+        <li>Gemini and embeddings</li>
+        <li>Vector store and document store</li>
+        <li>Ingestion</li>
+        <li>Retrieval and the answer</li>
+        <li>Lab: the four documents</li>
+        <li>More RAG in code (extension)</li>
+      </ul>
+      <div class="row">
+        <a class="btn" href="https://meridian-ai-course.netlify.app/module-4" target="_blank" rel="noopener">Open module 4</a>
+        <a class="btn ghost" href="/pages/ai-learning/rag-playground.html">My RAG playground</a>
+      </div>
+    </article>
+
+    <article class="module" id="module-5">
+      <span class="tag">Module 5</span>
+      <h3>The audit team</h3>
+      <p class="sub">LangChain agents: one tool per job, prompts as job descriptions, middleware as guard-rails, then three audits. The code-reading version of this is the study workbook.</p>
+      <ul>
+        <li>Agents with LangChain</li>
+        <li>Tools</li>
+        <li>Prompts are job descriptions</li>
+        <li>Middleware</li>
+        <li>The audit team</li>
+        <li>Lab: three audits</li>
+      </ul>
+      <div class="row">
+        <a class="btn" href="https://meridian-ai-course.netlify.app/module-5" target="_blank" rel="noopener">Open module 5</a>
+        <a class="btn ghost" href="/pages/ai-learning/meridian-ai-study-workbook.html">Study workbook</a>
+      </div>
+    </article>
+
+    <article class="module" id="module-6">
+      <span class="tag">Module 6</span>
+      <h3>The service and the screen</h3>
+      <p class="sub">FastAPI routes, logging, tests, a React screen, and running the stack locally. The course’s screen is a teaching UI. My public React apps are separate products and are not this screen.</p>
+      <ul>
+        <li>An API with FastAPI</li>
+        <li>Request shapes and routes</li>
+        <li>The server</li>
+        <li>Logging</li>
+        <li>Tests</li>
+        <li>The screen</li>
+        <li>Run it all, locally</li>
+      </ul>
+      <div class="row">
+        <a class="btn" href="https://meridian-ai-course.netlify.app/module-6" target="_blank" rel="noopener">Open module 6</a>
+      </div>
+    </article>
+
+    <p class="foot">Study page by Mayank Chugh, Hong Kong. Course slides and PDFs remain Mayank Aggarwal’s, at <a href="https://meridian-ai-course.netlify.app/" target="_blank" rel="noopener">meridian-ai-course.netlify.app</a>. Reference code: <a href="https://github.com/mayank953/meridian-ai-learner" target="_blank" rel="noopener">mayank953/meridian-ai-learner</a>.</p>
+  </main>
+</body>
+</html>
