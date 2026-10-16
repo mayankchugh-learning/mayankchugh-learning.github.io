@@ -155,6 +155,11 @@
       font-family: ui-monospace, Consolas, monospace;
       font-size: 0.85em;
     }
+    .chapters { margin-top: 10px; }
+    details { border-top: 1px solid var(--line); padding: 6px 0; }
+    summary { cursor: pointer; font-weight: 600; }
+    summary .cnt { color: var(--muted); font-weight: 400; font-size: 0.85rem; margin-left: 6px; }
+    details .go { margin: 6px 0 2px; font-size: 0.9rem; }
     .foot { color: var(--muted); font-size: 0.9rem; margin-top: 22px; }
     @media (max-width: 640px) {
       .who { grid-template-columns: 1fr; }
@@ -250,13 +255,13 @@
       <span class="tag">Module 1</span>
       <h3>The case</h3>
       <p class="sub">Who the company is, what goes wrong without a system, and the two roles that build it.</p>
-      <ul>
-        <li>The company</li>
-        <li>The problem</li>
-        <li>The solution</li>
-        <li>AI engineer</li>
-        <li>Forward-deployed engineer</li>
-      </ul>
+      <div class="chapters">
+        <details><summary>The company <span class="cnt">slides 1-8</span></summary><ul><li>Aldermoor Industries, a fictional Hamburg machine builder, buys parts worldwide.</li><li>A 480,000 euro PLC order shows how one purchase raises questions for four departments.</li><li>Order of events: request, risk, tax, control, CFO, and only then payment.</li><li>The rules and people here are what the software must later apply.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-1#1" target="_blank" rel="noopener">Open at slide 1</a></p></details>
+        <details><summary>The problem <span class="cnt">slides 9-17</span></summary><ul><li>One order sits in four inboxes; the answers live in PDFs that someone must know to open.</li><li>Four pains: slowness, hidden policy, inconsistency and the cost of a missed check.</li><li>Obvious fixes (a shared folder, a phone call) each solve one pain and leave another.</li><li>Mental model: files hold the answers, people on the phone hold the judgement.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-1#9" target="_blank" rel="noopener">Open at slide 9</a></p></details>
+        <details><summary>The solution <span class="cnt">slides 18-27</span></summary><ul><li>Two helpers in one app: a document Q&amp;A helper and a multi-specialist audit.</li><li>Decision rules are written down and ordered: red alert beats hold, hold beats approve.</li><li>Three audit scenarios cover approve, hold and escalate; anything above EUR 250,000 is flagged for sign-off.</li><li>The limits are stated openly; people still decide.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-1#18" target="_blank" rel="noopener">Open at slide 18</a></p></details>
+        <details><summary>AI engineer <span class="cnt">slides 28-39</span></summary><ul><li>Starts from the problem, not the model, and splits it into six small jobs.</li><li>Search first and answer second once documents grow beyond a few pages.</li><li>Exact rules (the 5 percent FX check) go in code; judgement goes to the model.</li><li>Build the smallest thing first, check against known answers, and watch cost, time and errors.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-1#28" target="_blank" rel="noopener">Open at slide 28</a></p></details>
+        <details><summary>Forward-deployed engineer <span class="cnt">slides 40-52</span></summary><ul><li>Starts from the people: observe, then measure a baseline before building.</li><li>Find where real information lives; when two sources disagree, ask the owner.</li><li>Start narrow, widen slowly, work inside the customer's rules.</li><li>Earn trust by making answers explainable, then hand over so the system is not understood only by its builder.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-1#40" target="_blank" rel="noopener">Open at slide 40</a></p></details>
+        </div>
       <div class="row">
         <a class="btn" href="https://meridian-ai-course.netlify.app/module-1" target="_blank" rel="noopener">Open module 1</a>
       </div>
@@ -266,12 +271,12 @@
       <span class="tag">Module 2</span>
       <h3>Set up from scratch</h3>
       <p class="sub">The project folder, the tools, the packages, and where the reference repo fits. The clone URL in this module is the one I leave unchanged.</p>
-      <ul>
-        <li>Project basics</li>
-        <li>Your tools</li>
-        <li>Packages</li>
-        <li>Structure</li>
-      </ul>
+      <div class="chapters">
+        <details><summary>Project basics <span class="cnt">slides 1-10</span></summary><ul><li>A project is a folder of many file kinds; secrets and generated files never go into Git (.gitignore).</li><li>Frontend and backend talk through an API using JSON.</li><li>Requirements files pin exact versions so the project behaves the same everywhere.</li><li>Settings live outside code; one file, one job.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-2#1" target="_blank" rel="noopener">Open at slide 1</a></p></details>
+        <details><summary>Your tools <span class="cnt">slides 11-20</span></summary><ul><li>Four tools are needed now: uv, Python 3.12, Git and an editor; Node and the Gemini key come later.</li><li>uv replaces pip plus venv in one tool and avoids the forgot-to-activate mistake.</li><li>Create the project, delete the generated main.py, and bring in starter files from the reference repo (the answer key).</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-2#11" target="_blank" rel="noopener">Open at slide 11</a></p></details>
+        <details><summary>Packages <span class="cnt">slides 21-32</span></summary><ul><li>Two requirement files: one for running, one for development.</li><li>Packages group into the web service, the LangChain toolkit, and storage and documents.</li><li>uv add installs and writes the lock file; the environment folder is disposable.</li><li>Use uv run so code always runs inside the environment.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-2#21" target="_blank" rel="noopener">Open at slide 21</a></p></details>
+        <details><summary>Structure <span class="cnt">slides 33-41</span></summary><ul><li>The backend/ folder has a map of about two dozen small files, each named for its job.</li><li>Layers may only use layers below them, which keeps code testable.</li><li>Build order follows that dependency rule; you create empty folders and files first.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-2#33" target="_blank" rel="noopener">Open at slide 33</a></p></details>
+        </div>
       <div class="row">
         <a class="btn" href="https://meridian-ai-course.netlify.app/module-2" target="_blank" rel="noopener">Open module 2</a>
       </div>
@@ -281,11 +286,11 @@
       <span class="tag">Module 3</span>
       <h3>The backbone</h3>
       <p class="sub">Settings, the API key, and how errors and logs are supposed to read. Keys stay in an env file. I do not paste a key into notes.</p>
-      <ul>
-        <li>Settings</li>
-        <li>settings.py</li>
-        <li>Errors and logs</li>
-      </ul>
+      <div class="chapters">
+        <details><summary>Settings <span class="cnt">slides 1-8</span></summary><ul><li>Hard-coded values hurt: they force code edits and leak secrets.</li><li>Environment variables and a .env file hold values; .env.example is the shared template.</li><li>One APP_MODE setting switches local versus cloud.</li><li>Create a free Gemini key and keep it only in .env, verified with git status.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-3#1" target="_blank" rel="noopener">Open at slide 1</a></p></details>
+        <details><summary>settings.py <span class="cnt">slides 9-22</span></summary><ul><li>A 117-line file read in eight chunks: imports, typed fields with defaults, embedding and storage settings, cloud block, agent limits, validator, helper properties and one shared settings object.</li><li>It reports what is missing instead of failing vaguely.</li><li>Four quick checks and one real Gemini call prove the chain works.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-3#9" target="_blank" rel="noopener">Open at slide 9</a></p></details>
+        <details><summary>Errors and logs <span class="cnt">slides 23-37</span></summary><ul><li>A small family of custom errors that the web layer later maps to clear HTTP replies (503, 422).</li><li>Structured JSON logging: a processor pipeline, one shared logger, output on screen and in a file.</li><li>Commit the backbone; the key and logs stay out of Git.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-3#23" target="_blank" rel="noopener">Open at slide 23</a></p></details>
+        </div>
       <div class="row">
         <a class="btn" href="https://meridian-ai-course.netlify.app/module-3" target="_blank" rel="noopener">Open module 3</a>
       </div>
@@ -295,17 +300,17 @@
       <span class="tag">Module 4</span>
       <h3>Document Q&amp;A (RAG)</h3>
       <p class="sub">Retrieval-augmented answers over four policy documents. When the slides say Gemini embeddings, I translate the step to the embedding model in the project I am actually running.</p>
-      <ul>
-        <li>RAG, explained with clicks</li>
-        <li>The types of RAG</li>
-        <li>The tools behind RAG</li>
-        <li>Gemini and embeddings</li>
-        <li>Vector store and document store</li>
-        <li>Ingestion</li>
-        <li>Retrieval and the answer</li>
-        <li>Lab: the four documents</li>
-        <li>More RAG in code (extension)</li>
-      </ul>
+      <div class="chapters">
+        <details><summary>RAG explained <span class="cnt">slides 1-11</span></summary><ul><li>A model cannot know your private documents; RAG looks up the right page first, then answers.</li><li>Two stages: indexing once, then retrieval at question time.</li><li>Chunks, embeddings (meaning as numbers) and why keyword search can miss what meaning search finds.</li><li>Know the failure symptoms; each points to a file built later.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#1" target="_blank" rel="noopener">Open at slide 1</a></p></details>
+        <details><summary>Types of RAG <span class="cnt">slides 12-24</span></summary><ul><li>Basic RAG has three weak spots; variants fix a stage before, during or after the search.</li><li>Multi-query, contextual compression, HyDE, decomposition, follow-up rewrite, hybrid, reranking and bigger structural ideas.</li><li>A symptom checklist suggests what to try first; Meridian uses three of the thirteen.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#12" target="_blank" rel="noopener">Open at slide 12</a></p></details>
+        <details><summary>The RAG toolbox <span class="cnt">slides 25-33</span></summary><ul><li>A RAG system has eight parts; the course builds the last column of the table.</li><li>What to check in embedding models and vector databases; five questions for choosing a store.</li><li>Pick the simplest store that runs on a laptop; LangChain is the framework used.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#25" target="_blank" rel="noopener">Open at slide 25</a></p></details>
+        <details><summary>llm and embeddings <span class="cnt">slides 34-48</span></summary><ul><li>One shared, lazily created model connection with a clear error when the key is missing.</li><li>extract_text normalises model replies.</li><li>embeddings.py follows APP_MODE; real similarity scores show unrelated text is not zero, only ranked lower.</li><li>Golden rule: the same embedding model must index and search.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#34" target="_blank" rel="noopener">Open at slide 34</a></p></details>
+        <details><summary>Stores <span class="cnt">slides 49-62</span></summary><ul><li>Vector store (Chroma locally) holds numbers and text; document store keeps the original PDFs.</li><li>A common interface makes local-to-cloud a settings change.</li><li>Keep originals because the vector database is a rebuildable copy; only the basename of uploads is trusted.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#49" target="_blank" rel="noopener">Open at slide 49</a></p></details>
+        <details><summary>Ingestion <span class="cnt">slides 63-74</span></summary><ul><li>Cut documents with a splitter that uses overlap.</li><li>Stable ids mean indexing twice still counts once.</li><li>ingest_pdf does read, fail clearly, tag source, chunk, store; a second entry point indexes everything stored.</li><li>Result: four sample PDFs indexed.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#63" target="_blank" rel="noopener">Open at slide 63</a></p></details>
+        <details><summary>Retrieval <span class="cnt">slides 75-88</span></summary><ul><li>Three search modes (similarity, multi-query, compression), one prompt and one chain.</li><li>The system prompt makes an honest I-do-not-know possible.</li><li>The chain is read as and-then (LCEL pipes).</li><li>Start with similarity and change mode only when you can name the problem.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#75" target="_blank" rel="noopener">Open at slide 75</a></p></details>
+        <details><summary>Lab: the four documents <span class="cnt">slides 89-96</span></summary><ul><li>Predict the five expected answers before running anything.</li><li>Run all five questions and read the log.</li><li>Commit the document Q&amp;A.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#89" target="_blank" rel="noopener">Open at slide 89</a></p></details>
+        <details><summary>More RAG in code (extension) <span class="cnt">slides 97-112</span></summary><ul><li>Seven ideas tested on 22 sentences: MMR, HyDE, hybrid with reciprocal rank fusion, decomposition, follow-up rewrite, model-as-judge rerank and parent pages.</li><li>Honest result: every variant changes results, none is free; rerank did best here and hybrid worst.</li><li>Add a variant only when you can name the problem it solves.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-4#97" target="_blank" rel="noopener">Open at slide 97</a></p></details>
+        </div>
       <div class="row">
         <a class="btn" href="https://meridian-ai-course.netlify.app/module-4" target="_blank" rel="noopener">Open module 4</a>
         <a class="btn ghost" href="/pages/ai-learning/rag-playground.html">My RAG playground</a>
@@ -316,14 +321,14 @@
       <span class="tag">Module 5</span>
       <h3>The audit team</h3>
       <p class="sub">LangChain agents: one tool per job, prompts as job descriptions, middleware as guard-rails, then three audits. The code-reading version of this is the study workbook.</p>
-      <ul>
-        <li>Agents with LangChain</li>
-        <li>Tools</li>
-        <li>Prompts are job descriptions</li>
-        <li>Middleware</li>
-        <li>The audit team</li>
-        <li>Lab: three audits</li>
-      </ul>
+      <div class="chapters">
+        <details><summary>Agents and LangChain <span class="cnt">slides 1-10</span></summary><ul><li>The LangChain family: core, LangGraph underneath and more.</li><li>An agent loop follows a message trail: human, ai, tool, ai.</li><li>A team of specialists is easier to steer than one agent with every tool.</li><li>The supervisor is plain Python, not an AI.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-5#1" target="_blank" rel="noopener">Open at slide 1</a></p></details>
+        <details><summary>Tools <span class="cnt">slides 11-23</span></summary><ul><li>A tool is a decorated function with name, docstring and typed arguments that the model sees.</li><li>Sanctions and tax tools ask the model; the FX tool uses live rates and an exact 5 percent rule in code.</li><li>Strict JSON with parsing and fallbacks; categorize_expense uses a fixed format.</li><li>Honest section: this demonstrates the pattern, it is not a compliance system.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-5#11" target="_blank" rel="noopener">Open at slide 11</a></p></details>
+        <details><summary>Prompts <span class="cnt">slides 24-34</span></summary><ul><li>Prompts are job descriptions: role, responsibilities, decision framework, output format.</li><li>Output keywords are a contract the CFO prompt relies on.</li><li>The CFO decision rule lives in a prompt: red alert, then hold, then approve.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-5#24" target="_blank" rel="noopener">Open at slide 24</a></p></details>
+        <details><summary>Middleware <span class="cnt">slides 35-44</span></summary><ul><li>Guard-rails wrap the agent loop without touching prompts or tools: limits, redaction, our own logging.</li><li>Order of the stack matters.</li><li>Demo: the same question gives different outcomes and the model never sees the email address.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-5#35" target="_blank" rel="noopener">Open at slide 35</a></p></details>
+        <details><summary>The audit team <span class="cnt">slides 45-54</span></summary><ul><li>An agent equals model plus tools plus system prompt plus middleware.</li><li>Each specialist gets only a few tools; three phases run in order, then a CFO memo applies the rule.</li><li>Design choices stated plainly, including where a real sanctions database would plug in.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-5#45" target="_blank" rel="noopener">Open at slide 45</a></p></details>
+        <details><summary>Lab: three audits <span class="cnt">slides 55-64</span></summary><ul><li>Predict each decision, then run three cases covering the three outcomes.</li><li>Read the tool log to see what the team did and how long it took.</li><li>Wording differs per run, the decision layout does not; commit afterwards.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-5#55" target="_blank" rel="noopener">Open at slide 55</a></p></details>
+        </div>
       <div class="row">
         <a class="btn" href="https://meridian-ai-course.netlify.app/module-5" target="_blank" rel="noopener">Open module 5</a>
         <a class="btn ghost" href="/pages/ai-learning/meridian-ai-study-workbook.html">Study workbook</a>
@@ -334,15 +339,15 @@
       <span class="tag">Module 6</span>
       <h3>The service and the screen</h3>
       <p class="sub">FastAPI routes, logging, tests, a React screen, and running the stack locally. The course’s screen is a teaching UI. My public React apps are separate products and are not this screen.</p>
-      <ul>
-        <li>An API with FastAPI</li>
-        <li>Request shapes and routes</li>
-        <li>The server</li>
-        <li>Logging</li>
-        <li>Tests</li>
-        <li>The screen</li>
-        <li>Run it all, locally</li>
-      </ul>
+      <div class="chapters">
+        <details><summary>FastAPI <span class="cnt">slides 1-11</span></summary><ul><li>Why an API: users are in a browser, code is in Python.</li><li>Request equals method, path and body; reply equals status code and body.</li><li>FastAPI and Uvicorn are the two names you type; /docs gives free documentation.</li><li>A tiny hello server shows validation errors (422) before the real app.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-6#1" target="_blank" rel="noopener">Open at slide 1</a></p></details>
+        <details><summary>Request shapes <span class="cnt">slides 12-24</span></summary><ul><li>Schemas are four small classes that form the contract between screen and server.</li><li>Seven routes grouped by four routers: health, status, agent and documents.</li><li>Routes are thin: validate, call real code, return; upload keeps only the file name and cleans up.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-6#12" target="_blank" rel="noopener">Open at slide 12</a></p></details>
+        <details><summary>The server <span class="cnt">slides 25-39</span></summary><ul><li>main.py assembles start-up, CORS and error handlers (configuration error becomes 503).</li><li>Run, call, then break it on purpose: missing field, wrong route, no key.</li><li>The RAG answer and the audit are each one HTTP call; /docs works instead of curl.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-6#25" target="_blank" rel="noopener">Open at slide 25</a></p></details>
+        <details><summary>Logging <span class="cnt">slides 40-48</span></summary><ul><li>Three kinds of lines share the console; only some reach the file.</li><li>Levels tell the story: info, warning, error.</li><li>Structured logs let you list which audit tools ran and for how long.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-6#40" target="_blank" rel="noopener">Open at slide 40</a></p></details>
+        <details><summary>Tests <span class="cnt">slides 49-58</span></summary><ul><li>Tests must not call Google: slow, costly and different each run.</li><li>conftest.py sets fake settings; test_api.py uses stand-ins.</li><li>Seventeen tests pass in about five seconds; they prove the plumbing, not the model quality.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-6#49" target="_blank" rel="noopener">Open at slide 49</a></p></details>
+        <details><summary>The screen <span class="cnt">slides 59-70</span></summary><ul><li>A React plus TypeScript frontend with four tabs: Index Documents, RAG Q&amp;A, Procurement Audit, System Status.</li><li>api.ts is the only file that talks to the server.</li><li>The audit progress steps are timers, which is why it can say Complete too early.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-6#59" target="_blank" rel="noopener">Open at slide 59</a></p></details>
+        <details><summary>Run it all <span class="cnt">slides 71-81</span></summary><ul><li>Two ways to run: two terminals in development or one server after building the screen.</li><li>A six-step lab uses the whole app; run both test suites and commit.</li><li>Seven honest limits; Part 1 is a working local system and Part 2 moves to the cloud.</li></ul><p class="go"><a href="https://meridian-ai-course.netlify.app/module-6#71" target="_blank" rel="noopener">Open at slide 71</a></p></details>
+        </div>
       <div class="row">
         <a class="btn" href="https://meridian-ai-course.netlify.app/module-6" target="_blank" rel="noopener">Open module 6</a>
       </div>
