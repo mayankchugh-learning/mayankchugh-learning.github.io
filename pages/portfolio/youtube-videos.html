@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Selected AI, RAG, Python, LangChain and Microsoft Fabric video tutorials by Mayank Chugh, with related GitHub repositories where available.">
+  <title>YouTube Tutorials | Mayank Chugh</title>
+  <style>
+    :root{--navy:#0f1e36;--navy2:#1a2f4e;--gold:#d6a84f;--ink:#17243a;--muted:#667085;--paper:#f5f6f8;--line:#e1e5eb;--white:#fff}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+    header{background:var(--navy);color:var(--white);padding:24px 5% 56px;border-bottom:4px solid var(--gold)}
+    .topbar,.hero,.content,footer{max-width:1160px;margin:auto}.topbar{display:flex;justify-content:space-between;align-items:center}
+    .brand{color:white;text-decoration:none;font-weight:800;font-size:1.15rem;letter-spacing:.03em}.brand span{color:var(--gold)}
+    .back{color:#e8edf5;text-decoration:none;font-size:.9rem}.back:hover{color:var(--gold)}
+    .hero{padding-top:48px}.eyebrow{color:var(--gold);font-size:.75rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.1;max-width:780px;margin:12px 0}
+    .intro{color:#c6d0df;max-width:720px;font-size:1.05rem;margin:0}
+    main{padding:38px 5% 70px}.content{width:100%}
+    .toolbar{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap}
+    .count{font-weight:700;color:var(--navy)}.search{width:min(100%,360px);padding:12px 14px;border:1px solid #cbd3df;border-radius:8px;background:white;font:inherit}
+    .table-wrap{background:white;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 8px 28px rgba(15,30,54,.05)}
+    table{border-collapse:collapse;width:100%;text-align:left}thead{background:var(--navy);color:white}
+    th{padding:14px 16px;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+    td{padding:15px 16px;border-top:1px solid var(--line);vertical-align:middle;font-size:.91rem}
+    tbody tr:hover{background:#fafbfc}.number{color:#8993a3;font-variant-numeric:tabular-nums;width:58px}
+    .video-title{font-weight:650;min-width:300px}.action-link{color:#1d5e9b;text-decoration:none;font-weight:650;white-space:nowrap}
+    .action-link:hover{text-decoration:underline}.github-link{color:#27664e}.not-listed{color:#9aa3af}
+    .empty{display:none;padding:28px;text-align:center;color:var(--muted)}
+    .note{color:var(--muted);font-size:.84rem;margin:14px 2px 0}
+    footer{padding:24px 5%;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);text-align:center}
+    @media(max-width:760px){header{padding-bottom:40px}.hero{padding-top:38px}.table-wrap{overflow-x:auto}table{min-width:760px}.toolbar{align-items:stretch}.search{width:100%}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <a class="brand" href="../../index.html">MC<span>.</span></a>
+      <a class="back" href="../../index.html">← Back to portfolio</a>
+    </div>
+    <div class="hero">
+      <div class="eyebrow">IT AI Enthusiast · Video Library</div>
+      <h1>Learn AI by building real systems.</h1>
+      <p class="intro">A curated selection of tutorials covering RAG, retrieval, embeddings, LangChain, Python, Microsoft Fabric, AI engineering and enterprise applications. GitHub links are included where a related repository was supplied.</p>
+    </div>
+  </header>
+  <main>
+    <div class="content">
+      <div class="toolbar">
+        <div class="count"><span id="visible-count">32</span> selected videos</div>
+        <input id="video-search" class="search" type="search" placeholder="Search titles or topics…" aria-label="Search videos">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Title</th><th>YouTube video</th><th>GitHub repository</th></tr></thead>
+          <tbody id="video-rows">
+      <tr>
+        <td class="number">01</td>
+        <td class="video-title">Embeddings &amp; Vector Databases: ChromaDB, Semantic Search &amp; Hugging Face | AI Pioneers Week 4</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=xXcWe2V0sKw" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">02</td>
+        <td class="video-title">Self-Query Retrieval in LangChain | LLM Metadata Filters (Ep 6)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=Diw3eKOLEzg" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">03</td>
+        <td class="video-title">RAG Explained: 5 Chunking Strategies + Build a RAG Pipeline 🚀 | AI Pioneers Week 5</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=i_ePwtObIOk" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">04</td>
+        <td class="video-title">Python, uv, Git &amp; Ollama on Windows | Complete AI Setup Tutorial (Hinglish)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=k3xxTtS8KVM" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">05</td>
+        <td class="video-title">My RAG Compressor Deleted the Answer | LangChain Contextual Compression (Ep 6)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=Emvui2Haykc" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">06</td>
+        <td class="video-title">LangChain &amp; Ollama Tutorial: Build a Memory Chatbot + Multi-LLM Apps | AI Pioneers</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=Efr4hKoMeq0" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">07</td>
+        <td class="video-title">Microsoft Fabric Explained: OneLake, Lakehouse, Pipelines &amp; Live Demo</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=RZoOsxu1tfQ" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">08</td>
+        <td class="video-title">FlashRank Reranking for RAG: 11ms on CPU, No GPU | Advanced RAG Ep 6</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=31Qwp8xvY_s" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">09</td>
+        <td class="video-title">From Software Developer to AI Engineer | Welcome to IT AI Enthusiast</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=2GSDnwWtEiY" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">10</td>
+        <td class="video-title">RAG Fusion Explained: Reciprocal Rank Fusion (RRF) With Real Code</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=BwgBU0CekFk" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">11</td>
+        <td class="video-title">Microsoft Foundry in Python: azure-ai-projects 2.x — The 1.x Trap</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=igkRXAjZ20g" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">12</td>
+        <td class="video-title">Advanced RAG: Fix “Lost in the Middle” with MergerRetriever &amp; LongContextReorder | LangChain 2026</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=w5cHGeLV-ro" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">13</td>
+        <td class="video-title">🚀 Build a Complete Self-Service Sales BI Solution with Microsoft Fabric — End to End!</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=xbiDNh5jing" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">14</td>
+        <td class="video-title">Fine-Tune an LLM with Unsloth | LoRA + SFT + DPO on Google Colab (Complete Tutorial)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=YHtjQjd981g" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">15</td>
+        <td class="video-title">Reranking in RAG From Scratch (2026) | BM25 + CrossEncoder + Cohere + Qwen3 + Jina AI | Advanced RAG</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=XVZOQ6Fwz2c" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">16</td>
+        <td class="video-title">Hybrid Search + Cohere Reranking in RAG | Weaviate + Qwen3-8B | Advanced RAG Tutorial</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=iFT_MniMblk" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">17</td>
+        <td class="video-title">🚀 How IT Professionals Can Transition to AI in 2026 | Webinar Recording | AI Pioneers Cohort 2</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=Cbs6aqQ6kbM" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">18</td>
+        <td class="video-title">🚀 How IT Professionals Can Transition to AI in 2026 | Free AI Career Webinar</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=rw3lotp9HW8" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">19</td>
+        <td class="video-title">Hybrid Search RAG Pipeline From Scratch | Advanced RAG | LangChain + BM25 + ChromaDB</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=eNzsuWaOCEI" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><a class="action-link github-link" href="https://github.com/mayankchugh-learning/Advance_RAG" target="_blank" rel="noopener noreferrer">View code ↗</a></td>
+      </tr>
+      <tr>
+        <td class="number">20</td>
+        <td class="video-title">FREE AI LinkedIn Post Generator 🚀 1 Topic → LinkedIn, X, Facebook &amp; Pinterest Posts</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=PiPClWY6VgA" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">21</td>
+        <td class="video-title">HIRE-IQ LAUNCH - AI POWERED HIRING</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=SFg2p7xbz1U" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">22</td>
+        <td class="video-title">RAG + Agentic AI Patterns Explained 🔥 | Build Smarter AI Systems (Step-by-Step)</td>
+        <td><a class="action-link" href="https://www.youtube.com/channel/UCzxN5GGcGW0M2Wap4oyvCeg/videos" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">23</td>
+        <td class="video-title">Python Prework for Beginners | What You Must Know Before Coding (Step-by-Step)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=enVmH1lu7Q8" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">24</td>
+        <td class="video-title">Build Multi-Document RAG System 🔥 | Chat with PDFs (LangChain + LLM) AI Chatbot (Step-by-Step)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=1XndoFz9Y6A" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><a class="action-link github-link" href="https://github.com/mayankchugh-learning/multidocs-olllama-rag-app" target="_blank" rel="noopener noreferrer">View code ↗</a></td>
+      </tr>
+      <tr>
+        <td class="number">25</td>
+        <td class="video-title">Python Data Types Made EASY 🔥 | First Hands-on Lab (Lists, Tuples, Dicts Explained)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=-XaSw0pxe2g" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">26</td>
+        <td class="video-title">Python Development Setup 2026 🚀 | Cursor IDE, UV Package Manager &amp; GitHub</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=jXx-EaHiqI0" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">27</td>
+        <td class="video-title">Python Made EASY 🤯 | Learn Coding with Vibe Style (Beginner Friendly)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=-O47w6u04LI" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">28</td>
+        <td class="video-title">Full AI App System Design 🚀 | RAG, GPT, 12 Languages (Production Ready)</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=4Ci0SH_iGyg" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">29</td>
+        <td class="video-title">AI Engineer Interview Questions Part 2 | LangGraph vs LangChain, CrewAI, RAG Systems</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=mFoEkOme_zk" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">30</td>
+        <td class="video-title">RAG Interview Question Explained 🔥 | AI Engineer Interview Prep</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=ChiNMM4RZZ4" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">31</td>
+        <td class="video-title">End-to-End RAG Architecture using Azure OpenAI &amp; AI Search in Microsoft Fabric</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=vkxPBlzrgGU" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+      <tr>
+        <td class="number">32</td>
+        <td class="video-title">Project Generation with VIBE Coding for Enterprises</td>
+        <td><a class="action-link" href="https://www.youtube.com/watch?v=wTQTAN0mjmw" target="_blank" rel="noopener noreferrer">Watch video ↗</a></td>
+        <td><span class="not-listed">—</span></td>
+      </tr>
+          </tbody>
+        </table>
+        <div id="empty-state" class="empty">No videos match your search.</div>
+      </div>
+      <p class="note">YouTube links open in a new tab. A dash indicates that no related GitHub repository link was provided for that video.</p>
+    </div>
+  </main>
+  <footer>© 2026 Mayank Chugh · <a href="https://youtube.com/@itaienthusiast" style="color:inherit">IT AI Enthusiast on YouTube</a></footer>
+  <script>
+    (function(){
+      var input=document.getElementById('video-search');
+      var rows=Array.prototype.slice.call(document.querySelectorAll('#video-rows tr'));
+      var count=document.getElementById('visible-count');
+      var empty=document.getElementById('empty-state');
+      input.addEventListener('input',function(){
+        var q=input.value.toLowerCase().trim(),shown=0;
+        rows.forEach(function(row){
+          var match=row.textContent.toLowerCase().indexOf(q)!==-1;
+          row.hidden=!match;if(match)shown++;
+        });
+        count.textContent=shown;empty.style.display=shown?'none':'block';
+      });
+    })();
+  </script>
+</body>
+</html>
